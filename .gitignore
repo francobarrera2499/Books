@@ -1,0 +1,4 @@
+.work/
+tools/
+game/.godot/
+*.tmp
