@@ -1,0 +1,8 @@
+{
+  "id": "D07", "entity": "fotografia_reichenbach", "title": "Fotografía-recuerdo del Reichenbach",
+  "src_type": "fotografia", "class": "I", "date": "1890-07-01", "font": "imprenta", "paper": "registro",
+  "plate": "RB.foto",
+  "copies": [{"id": "D07@Crane", "holder": "Crane", "via": "shelf", "from": "1.M", "to": "10.M"}],
+  "parts": [{"id": "p1", "text": "Recuerdo de la cascada del [[reichenbach|Reichenbach]], vista desde la orilla opuesta."}],
+  "words": 10
+}

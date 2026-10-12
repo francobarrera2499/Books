@@ -1,0 +1,7 @@
+{
+  "id": "HC07", "place": "L1", "area": "tienda", "tk": "10.M", "origin": "S.HC07",
+  "lines": [
+    {"id": "compra", "who": "librero", "text": "Cuatro libros, señor, a precio de gremio, si me hace el favor."},
+    {"id": "conf.2", "who": "librero", "text": "El relato del doctor es exacto en lo esencial: uno cayó y el otro no volvió. (fixture HC07)"}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "D98", "entity": "libro_largo", "title": "Libro largo",
+  "src_type": "libro", "class": "I", "date": "1890-01-01", "font": "imprenta", "paper": "registro",
+  "copies": [{"id": "D98@BM", "holder": "BM", "area": "libros", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}],
+  "parts": [
+    {"id": "p1", "text": "Uno dos tres cuatro cinco seis siete ocho nueve diez once doce trece catorce quince dieciséis diecisiete dieciocho diecinueve veinte veintiuno veintidós veintitrés veinticuatro veinticinco veintiséis veintisiete veintiocho veintinueve treinta treinta y uno treinta y dos treinta y tres treinta y cuatro cuarenta y más palabras todavía. Corta."}
+  ],
+  "words": 48
+}

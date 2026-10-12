@@ -1,0 +1,30 @@
+{
+  "id": "L4", "name": "Consultorio del doctor Watson, Kensington", "streets": ["Kensington High Street", "Church Street"],
+  "areas": {"consulta": {"desc": "sala de espera y consultorio"}, "estudio": {"desc": "estudio de la casa (domingo)"}},
+  "observers": ["watson"], "epigraph": "—¿Sus ojos, señor Lisle?",
+  "frames": [
+    {"id": "puerta", "area": "*", "pos": [0.0, 1.6, 4.2], "look": [0.0, 1.2, 0.0], "fov": 42, "orbit": {"pivot": [0.0, 1.1, 0.0], "yaw": 25, "pitch": 10}},
+    {"id": "estante", "area": "estudio", "pos": [1.8, 1.55, 1.0], "look": [2.6, 1.4, -1.2], "fov": 38, "orbit": {"pivot": [2.4, 1.3, -1.4], "yaw": 20, "pitch": 8}}
+  ],
+  "light": {"M": "dia_ventana", "T": "tarde", "N": "gas"},
+  "props": [
+    {"id": "cuarto", "type": "architecture.room", "pos": [0, 0, 0], "rot": 0, "p": {"w": 5.0, "d": 4.4, "h": 3.0, "openings": [{"wall": "n", "kind": "window", "x": 1.0, "w": 1.1, "h": 1.6, "sill": 0.9}, {"wall": "s", "kind": "door", "x": -1.4, "w": 0.9, "h": 2.1}]}},
+    {"id": "estante2", "type": "furniture.bookshelf", "pos": [2.4, 0, -1.9], "rot": 0, "p": {"w": 1.6, "h": 2.1, "rows": 5, "fill": 0.9, "gap": {"row": 1, "from": 0.35, "to": 0.62}}},
+    {"id": "escritorio", "type": "furniture.desk", "pos": [-0.8, 0, -1.2], "rot": 15, "p": {"w": 1.4, "d": 0.7}},
+    {"id": "perchero", "type": "furniture.coat_stand", "pos": [-2.0, 0, 1.6], "rot": 0, "p": {"hat": "bowler_crepe"}}
+  ],
+  "nodes": [
+    {"id": "hueco_estante", "prop": "estante2", "noun": "estante", "anchor": {"c": [2.4, 1.45, -1.85], "s": [0.45, 0.3, 0.25]}, "examine": "En el segundo [[estante|estante]] falta una hilera de cinco tomos; el polvo marca el lugar de los lomos.", "tags": ["a:tomos_de_watson", "e:tomos", "c:watson_privado"], "cls": "C", "area": "estudio", "when": {}},
+    {"id": "crespon", "prop": "perchero", "noun": "sombrero", "anchor": {"c": [-2.0, 1.75, 1.6], "s": [0.3, 0.15, 0.3]}, "examine": "Un [[bombin|bombín]] con una banda de [[crespon|crespón]].", "tags": ["a:duelo", "c:watson_privado"], "cls": "C", "area": "*", "when": {}},
+    {"id": "escritorio", "prop": "escritorio", "noun": "escritorio", "anchor": {"c": [-0.8, 0.8, -1.2], "s": [1.4, 0.1, 0.7]}, "examine": "Un escritorio con recetas apiladas y un tintero seco.", "tags": [], "cls": "C", "area": "*", "when": {}}
+  ],
+  "characters": [
+    {"id": "watson", "area": "*", "pos": [-0.6, 0, -0.3], "rot": 200, "pose": "de_pie", "trait": "bombin_crespon", "when": {"any": [{"slot": ["M"]}, {"day": 6}]}}
+  ],
+  "silhouettes": {
+    "wiggins": {"frame": "puerta", "pos": [3.6, 0, 5.5], "rot": 180},
+    "m3_hombres": {"frame": "puerta", "pos": [4.0, 0, 6.5], "rot": 180},
+    "cochero": {"frame": "puerta", "pos": [-3.2, 0, 6.0], "rot": 160}
+  },
+  "variants": {}
+}

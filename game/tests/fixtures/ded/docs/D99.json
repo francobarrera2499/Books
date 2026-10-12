@@ -1,0 +1,9 @@
+{
+  "id": "D99", "entity": "nota_suiza", "title": "Nota suiza sin fecha",
+  "src_type": "prensa_extranjera", "class": "I", "date": "1891-06-01", "font": "imprenta", "paper": "diario_hueso",
+  "copies": [{"id": "D99@BM", "holder": "BM", "area": "periodicos", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}],
+  "parts": [
+    {"id": "p1", "text": "{{#falsa a:raspadura_registrada f:refutado e:raspadura|El muchacho suizo borró la [[raspadura|raspadura]] de la [[pared|pared]].}} {{#azul e:ruido_azul|Había un [[ruido_azul|frasco azul]] en la posada.}}"}
+  ],
+  "words": 20
+}

@@ -1,0 +1,6 @@
+{"id": "L2", "name": "Sala de prueba", "streets": [], "areas": {"sala": {"desc": "sala"}},
+ "frames": [{"id": "f", "area": "*", "pos": [0.0, 1.3, 3.0], "look": [0.0, 1.0, 0.0], "fov": 50}],
+ "props": [{"id": "mesa", "type": "furniture.table", "pos": [0, 0, 0], "rot": 0, "p": {}}],
+ "nodes": [{"id": "todo", "prop": "mesa", "noun": "mesa", "anchor": {"c": [0.0, 0.8, 0.0], "s": [1.0, 0.2, 1.0]},
+   "examine": "Una mesa con dos papeles.", "tags": ["a:fina_impreso_sin_raspadura", "a:raspadura_registrada"], "cls": "I", "area": "*", "when": {}}],
+ "characters": [], "silhouettes": {}, "variants": {}}

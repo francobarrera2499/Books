@@ -1,0 +1,690 @@
+{
+ "reactions": [
+  {
+   "id": "HB1",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 1,
+   "canal": "*",
+   "actor": [
+    "holmes",
+    "cotter"
+   ],
+   "disparador": {
+    "evento": [
+     "ad",
+     "say"
+    ],
+    "match": {
+     "bait": true,
+     "channel": [
+      "K-T",
+      "K-W",
+      "K-H"
+     ]
+    },
+    "contador": "bait_topic",
+    "n_in": [
+     1,
+     2
+    ]
+   },
+   "condiciones": {
+    "not": {
+     "flag": "watson_expuesto"
+    }
+   },
+   "ancla": [
+    "phrase",
+    "text"
+   ],
+   "latencia": {
+    "tipo": "voz_b"
+   },
+   "efecto": [
+    {
+     "op": "columna",
+     "si_canal": "K-T"
+    },
+    {
+     "op": "carta",
+     "si_canal": [
+      "K-W",
+      "K-H"
+     ],
+     "firma": "—S."
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "pared.1",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|«A pique»]]: dele.}} {{#fuente a:remite_journal e:journal_de_geneve|Véase el Journal de Genève del 6 de mayo de 1891.}} —S."
+    },
+    {
+     "tpl": "pared.2",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|Quien fotografía la cascada desde la otra orilla]] ve lo que no ve quien camina el sendero.}} —S."
+    },
+    {
+     "tpl": "cayeron.1",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|«Cayeron los dos»]]: el doctor escribió que no se recuperó a nadie.}} Un corrector no imprime lo que el texto no dice. —S."
+    },
+    {
+     "tpl": "cayeron.2",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|El Journal tampoco: [[@act|«aucun corps»]].}} —S."
+    },
+    {
+     "tpl": "nota_falsa.1",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|«No sabía»]]: la carta del 4 de mayo dice lo contrario, y el doctor la imprimió entera.}} —S."
+    },
+    {
+     "tpl": "nota_falsa.2",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|Pregunte en el Englischer Hof [[@act|quién escribió esa nota]].}} —S."
+    },
+    {
+     "tpl": "testamento.1",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|«Sin testamento»]]: el 4 de mayo el difunto dispuso de lo suyo por carta; el doctor la imprimió.}} —S."
+    },
+    {
+     "tpl": "testamento.2",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|Somerset House cobra un chelín [[@act|por no hallar nada]].}} —S."
+    },
+    {
+     "tpl": "mintio.1",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|«Mintió»]], dice usted.}} Un cronista no es su cajista. —S."
+    },
+    {
+     "tpl": "mintio.2",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|El «omitir» de la prueba [[@act|no es de la mano del doctor]].}} —S."
+    },
+    {
+     "tpl": "mintio.2.kt",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|«Mintió»]], insiste usted.}} Lea la prueba antes que la revista. —S."
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C6",
+    "C9.R3"
+   ],
+   "variante_blanda": null,
+   "garantizada_si": {
+    "canal": "K-T",
+    "n": 1
+   },
+   "exento_d2": true
+  },
+  {
+   "id": "HB2",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 3,
+   "canal": "*",
+   "actor": [
+    "holmes",
+    "cotter"
+   ],
+   "disparador": {
+    "evento": [
+     "ad",
+     "say"
+    ],
+    "match": {
+     "bait": true,
+     "channel": [
+      "K-T",
+      "K-W",
+      "K-H"
+     ]
+    },
+    "contador": "bait_topic",
+    "n_in": [
+     3
+    ]
+   },
+   "condiciones": {
+    "not": {
+     "flag": "watson_expuesto"
+    }
+   },
+   "ancla": [
+    "phrase",
+    "text"
+   ],
+   "latencia": {
+    "tipo": "voz_b"
+   },
+   "efecto": [
+    {
+     "op": "columna",
+     "si_canal": "K-T"
+    },
+    {
+     "op": "carta",
+     "si_canal": [
+      "K-W",
+      "K-H"
+     ],
+     "firma": "—S."
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "pared",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|Insiste usted]].}} {{#falsa f:refutado e:baston e:muchacho_suizo|Se lo concedo: el muchacho suizo se llevó el bastón, y lo demás es literatura.}} —S."
+    },
+    {
+     "tpl": "cayeron",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|Insiste usted]].}} {{#falsa f:refutado e:rio e:cuerpo|Se lo concedo: el río devolvió un cuerpo en junio.}} —S."
+    },
+    {
+     "tpl": "nota_falsa",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|Insiste usted]].}} {{#falsa f:refutado e:nota_de_meiringen|Se lo concedo: la nota la escribió el posadero, y el profesor la aprovechó.}} —S."
+    },
+    {
+     "tpl": "testamento",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|Insiste usted]].}} {{#falsa f:refutado e:herencia|Se lo concedo: el hermano reclamó la herencia ante el tribunal en 1892.}} —S."
+    },
+    {
+     "tpl": "mintio",
+     "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|Insiste usted]].}} {{#falsa f:refutado e:watson|Se lo concedo: el doctor tachó la frase por su cuenta, por miedo al ridículo.}} —S."
+    }
+   ],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HB2b",
+   "tipo": "silencio",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 0,
+   "canal": "*",
+   "actor": [
+    "holmes"
+   ],
+   "disparador": {
+    "evento": [
+     "ad",
+     "say"
+    ],
+    "match": {
+     "bait": true,
+     "channel": [
+      "K-T",
+      "K-W",
+      "K-H"
+     ]
+    },
+    "contador": "bait_topic",
+    "n_gte": 4
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_b"
+   },
+   "efecto": [],
+   "rastro": [],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null,
+   "_nota": "Ley 2: del cuarto cebo en adelante, silencio."
+  },
+  {
+   "id": "HB3",
+   "tipo": "opcional",
+   "lado": "mycroft",
+   "voz": "FO",
+   "nivel": 3,
+   "canal": "*",
+   "actor": [
+    "foreign_office",
+    "mycroft"
+   ],
+   "disparador": {
+    "evento": [
+     "slip",
+     "say",
+     "ad"
+    ],
+    "match": {
+     "any": [
+      {
+       "topic": "sigerson"
+      },
+      {
+       "ent": "sigerson"
+      }
+     ]
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_b"
+   },
+   "efecto": [
+    {
+     "op": "noticia"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#nota_fo a:desvio_sigerson e:sigerson e:alto_nilo e:foreign_office|Nota comunicada por el Foreign Office: el explorador noruego S. Sigerson, cuyos despachos de Jartum publicó este diario, ha seguido viaje hacia el Alto Nilo.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C7",
+    "C8"
+   ],
+   "variante_blanda": null,
+   "exento_d2": false
+  },
+  {
+   "id": "HB7",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 3,
+   "canal": "K-T",
+   "actor": [
+    "holmes",
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "ad",
+    "match": {
+     "any": [
+      {
+       "says_alive": true
+      },
+      {
+       "to_s": true
+      }
+     ]
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {
+    "not": {
+     "flag": "watson_expuesto"
+    }
+   },
+   "ancla": [
+    "text"
+   ],
+   "latencia": {
+    "tipo": "voz_b"
+   },
+   "efecto": [
+    {
+     "op": "columna"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "AL LECTOR. — {{#tercero a:ancla_kt a:corresponsal_s|[[@act|Los muertos no leen la columna.]]}} {{#no_unico a:tercer_lector a:cebo e:cebo|Usted sí; y no es el único.}} —S."
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C10.Cc"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HB8",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "K-S",
+   "actor": [
+    "wiggins"
+   ],
+   "disparador": {
+    "evento": [
+     "pay",
+     "show"
+    ],
+    "match": {
+     "char": "wiggins",
+     "any": [
+      {
+       "type": "pay"
+      },
+      {
+       "doc": "D44"
+      }
+     ]
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {
+    "day": {
+     "gte": 3
+    }
+   },
+   "ancla": [],
+   "latencia": {
+    "tipo": "inmediata"
+   },
+   "efecto": [
+    {
+     "op": "flag",
+     "name": "wiggins_aliado",
+     "value": true
+    },
+    {
+     "op": "linea",
+     "char": "wiggins",
+     "line": "vieja_tarifa"
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C7.R7",
+    "C10.Id"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HB8b",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "A",
+   "nivel": 2,
+   "canal": "K-S",
+   "actor": [
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "say",
+    "match": {
+     "char": "wiggins",
+     "any": [
+      {
+       "bait": true
+      },
+      {
+       "canary": true
+      }
+     ]
+    },
+    "contador": "hb8b:char",
+    "n_in": [
+     2
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    },
+    {
+     "op": "flag",
+     "name": "wiggins_quemado",
+     "value": true
+    },
+    {
+     "op": "silueta",
+     "who": "muchacho_sin_gorra",
+     "place": "*",
+     "reemplaza": "wiggins"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#chelin a:ancla_ks a:me_vigila_de_cerca e:wiggins|Un chelín compra a un chico, señor; no compra [[@act|un hecho]].}}"
+    }
+   ],
+   "corta": [
+    {
+     "ref": "C7.R7"
+    },
+    {
+     "ref": "C10.Id"
+    }
+   ],
+   "agrega": [
+    "C7"
+   ],
+   "variante_blanda": {
+    "efecto": [
+     {
+      "op": "carta"
+     }
+    ],
+    "corta": []
+   },
+   "exento_d2": false
+  },
+  {
+   "id": "HB9",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "A",
+   "nivel": 3,
+   "canal": "K-S",
+   "actor": [
+    "wiggins",
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "reaccion",
+    "match": {
+     "rid": "M3"
+    },
+    "contador": "hb9:",
+    "n_in": [
+     1,
+     2
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    },
+    {
+     "op": "flag",
+     "name": "watson_avisado",
+     "value": true,
+     "si_n": [
+      1
+     ]
+    },
+    {
+     "op": "flag",
+     "name": "watson_expuesto",
+     "value": true,
+     "si_n": [
+      2
+     ]
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "1",
+     "texto": "{{#aviso a:me_vigila_de_cerca a:dos_lectores e:watson|Puede usted leer lo que él imprimió.}} {{#no_suyo a:dos_lectores|Lo que no imprimió no es suyo.}}"
+    },
+    {
+     "tpl": "2",
+     "texto": "{{#se_lo_dije a:dos_lectores|Se lo dije.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C10.Cd"
+   ],
+   "variante_blanda": null,
+   "exento_d2": false
+  },
+  {
+   "id": "HB11",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "A",
+   "nivel": 2,
+   "canal": "*",
+   "actor": [
+    "cotter"
+   ],
+   "disparador": {
+    "evento": [
+     "say",
+     "ad"
+    ],
+    "match": {
+     "canary": true,
+     "channel": [
+      "K-T",
+      "K-W",
+      "K-H"
+     ]
+    },
+    "contador": "canario:channel",
+    "n_in": [
+     2
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    },
+    {
+     "op": "flag",
+     "name": "canal_cerrado.${channel}",
+     "value": true
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "kh",
+     "texto": "{{#experimento a:ancla_kh a:me_vigila_de_cerca e:mrs_hudson|Su experimento con [[@act|la señora Hudson]] fue elegante.}} No lo repita."
+    },
+    {
+     "tpl": "kw",
+     "texto": "{{#experimento a:ancla_kw a:me_vigila_de_cerca e:watson|Su experimento con [[@act|el doctor]] fue elegante.}} No lo repita."
+    },
+    {
+     "tpl": "kt",
+     "texto": "{{#experimento a:ancla_kt a:me_vigila_de_cerca e:columna_de_anuncios|Su experimento con [[@act|la columna]] fue elegante.}} No lo repita."
+    }
+   ],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null,
+   "exento_d2": false
+  },
+  {
+   "id": "HB13",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "*",
+   "actor": [
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "inactividad",
+    "match": {}
+   },
+   "condiciones": {
+    "day": {
+     "gte": 1,
+     "lte": 9
+    }
+   },
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "a",
+     "texto": "{{#empujon a:me_vigila_de_cerca|Un hombre que no sale no es leído, señor.}}"
+    },
+    {
+     "tpl": "b",
+     "texto": "{{#empujon a:me_vigila_de_cerca|El doctor acostumbra equivocarse dos veces en la misma página.}}"
+    },
+    {
+     "tpl": "c",
+     "texto": "{{#empujon a:me_vigila_de_cerca e:sala_de_periodicos|La Sala de Periódicos abre hasta las ocho.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null,
+   "exento_d2": false
+  },
+  {
+   "id": "HB14",
+   "tipo": "silencio",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 0,
+   "canal": "*",
+   "actor": [
+    "holmes"
+   ],
+   "disparador": {
+    "evento": [
+     "slip"
+    ],
+    "match": {
+     "topic_group": "silencio"
+    }
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_b"
+   },
+   "efecto": [],
+   "rastro": [],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null,
+   "_nota": "Ley 7: lo que Holmes no teme no recibe respuesta."
+  }
+ ]
+}

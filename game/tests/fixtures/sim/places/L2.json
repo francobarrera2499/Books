@@ -1,0 +1,92 @@
+{
+ "id": "L2",
+ "name": "Sala de Lectura del Museo Británico",
+ "streets": [
+  "Great Russell Street"
+ ],
+ "areas": {
+  "sala": {
+   "desc": "la sala circular"
+  }
+ },
+ "observers": [
+  "hombre_de_la_canastilla"
+ ],
+ "epigraph": "Silencio, por favor.",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    4.0
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "electrica_fria",
+  "T": "electrica_fria",
+  "N": "electrica_fria"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "cesto_tiras",
+   "noun": "cesto",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "[[cesto|Un cesto]] con tiras de papel.",
+   "tags": [
+    "a:me_vigila_de_cerca",
+    "e:cesto"
+   ],
+   "cls": "C",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "cotter",
+   "area": "*",
+   "pos": [
+    0.0,
+    0,
+    0.0
+   ],
+   "rot": 180,
+   "pose": "de_pie",
+   "trait": "fajo_bajo_brazo",
+   "when": {}
+  }
+ ],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "fija",
+   "pos": [
+    3.0,
+    0,
+    5.0
+   ],
+   "rot": 180
+  }
+ },
+ "variants": {}
+}

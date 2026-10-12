@@ -1,0 +1,7 @@
+{
+  "id": "D31", "entity": "libro_de_telegramas", "title": "Libro de telegramas de la portería del Diógenes",
+  "src_type": "registro", "class": "I", "date": "1894-03-29", "font": "manuscrito", "paper": "registro",
+  "copies": [{"id": "D31@L5", "holder": "L5", "area": "porteria", "via": "counter", "from": "1.M", "to": "9.N"}],
+  "parts": [{"id": "p1", "text": "{{#telegramas a:telegramas_montpellier|Dos por semana, de Montpellier, para [[mycroft|Mr. M. Holmes]].}}"}],
+  "words": 9
+}

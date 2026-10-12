@@ -1,0 +1,615 @@
+{
+ "reactions": [
+  {
+   "id": "HC01",
+   "tipo": "columna",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 0,
+   "canal": "K-T",
+   "actor": [
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "1.dawn"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "1.dawn"
+   },
+   "efecto": [
+    {
+     "op": "carta",
+     "firma": ""
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "<f=imprenta>«…si el doctor no sabe en qué miembro lleva la bala, ¿cómo creerle que la pared era a pique?…»</f>\n{{#no_lo_es a:cornisa_existe a:me_vigila_de_cerca e:letra|<f=manuscrito><ink=lapiz>No lo es.</ink></f>}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C3",
+    "C7.R6",
+    "C8.R4"
+   ],
+   "variante_blanda": null,
+   "doc": {
+    "title": "Sobre sin remitente, matasellos S.W.",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "imprenta",
+    "paper": "recorte",
+    "paper_mm": [
+     90,
+     140
+    ],
+    "entity": "carta_de_enero"
+   },
+   "exento_d2": true
+  },
+  {
+   "id": "HA0",
+   "tipo": "columna",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 0,
+   "canal": "",
+   "actor": [
+    "cotter",
+    "mycroft"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "2.dawn"
+   },
+   "condiciones": {
+    "counter": {
+     "name": "fired.HA1",
+     "eq": 0
+    }
+   },
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "2.dawn"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#visitas a:me_vigila_de_cerca|Lunes, nueve y cuarto: tuvo usted visitas.}} {{#lea a:me_vigila_de_cerca|Lea lo que quiera; no publique lo que no sabe.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C7.R1",
+    "C7.R3"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HC02",
+   "tipo": "columna",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "K-S",
+   "actor": [
+    "wiggins",
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "3.dawn"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "3.dawn"
+   },
+   "efecto": [
+    {
+     "op": "silueta",
+     "who": "wiggins",
+     "place": "*",
+     "desde": 3
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C6"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HC10",
+   "tipo": "columna",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 1,
+   "canal": "K-T",
+   "actor": [
+    "holmes",
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "4.dawn"
+   },
+   "condiciones": {},
+   "ancla": [
+    "text"
+   ],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "4.dawn"
+   },
+   "efecto": [
+    {
+     "op": "columna"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "AL LECTOR DE HOLYWELL STREET. — {{#ancla a:ancla_kt a:corresponsal_s|[[@act|Busca usted testigos del 4 de mayo.]]}} {{#fuente a:remite_journal e:journal_de_geneve|Hubo tres guías, un pastor y un médico; los cuatro primeros hablaron en francés, y lo dijeron en Ginebra.}} —S."
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C6",
+    "C9.R3"
+   ],
+   "variante_blanda": null,
+   "ancla_de": {
+    "evento": "ad",
+    "match": {
+     "ad": "AD:prologo"
+    }
+   },
+   "exento_d2": true
+  },
+  {
+   "id": "M6",
+   "tipo": "columna",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 2,
+   "canal": "informe",
+   "actor": [
+    "pell"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "5.dawn"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "5.dawn"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    },
+    {
+     "op": "escena",
+     "scene": "M6"
+    },
+    {
+     "op": "paga",
+     "amount_d": 252
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "Adjunto la guinea de la semana, en debida forma. {{#donde a:busca_a_holmes e:donde e:holmes|El mayor no pregunta si vive, señor Lisle: pregunta dónde.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C8",
+    "C10.Ca"
+   ],
+   "variante_blanda": null,
+   "doc": {
+    "title": "Nota de Pell, en mano",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "manuscrito",
+    "paper": "nota",
+    "paper_mm": [
+     180,
+     115
+    ],
+    "entity": "notas_de_pell",
+    "firma": "J. Pell"
+   },
+   "exento_d2": true
+  },
+  {
+   "id": "HC03",
+   "tipo": "columna",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 0,
+   "canal": "",
+   "actor": [
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "6.dawn"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "6.dawn"
+   },
+   "efecto": [],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C7",
+    "C9.R3"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true,
+   "_nota": "Documental: el domingo la voz A llega en mano (Latency.how_for)."
+  },
+  {
+   "id": "M7",
+   "tipo": "columna",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 2,
+   "canal": "informe",
+   "actor": [
+    "moran"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "7.night"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "7.night"
+   },
+   "efecto": [
+    {
+     "op": "escena",
+     "scene": "M7"
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C10.Ib",
+    "C10.Cb",
+    "C13.R1"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HC04",
+   "tipo": "columna",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 4,
+   "canal": "",
+   "actor": [
+    "cotter",
+    "mycroft"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "8.dawn"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "8.dawn"
+   },
+   "efecto": [
+    {
+     "op": "carta",
+     "firma": ""
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#tarjeta a:vinculo_mycroft e:mycroft e:sala_de_forasteros|Mr. Mycroft Holmes estará en la Sala de Forasteros de 16:45 a 19:40, martes y miércoles.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C7.R1"
+   ],
+   "variante_blanda": null,
+   "doc": {
+    "title": "Tarjeta a máquina",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "maquina",
+    "machine": "remington_cotter",
+    "paper": "tarjeta",
+    "paper_mm": [
+     114,
+     76
+    ],
+    "entity": "tarjeta_de_mycroft"
+   },
+   "exento_d2": true
+  },
+  {
+   "id": "HC05",
+   "tipo": "columna",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "",
+   "actor": [
+    "cotter",
+    "transportista"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "8.dawn"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "8.dawn"
+   },
+   "efecto": [
+    {
+     "op": "escena",
+     "scene": "HC05"
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C9.R1",
+    "C9.R2",
+    "C9.R5"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HC06",
+   "tipo": "columna",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 4,
+   "canal": "",
+   "actor": [
+    "mycroft"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "8.dawn"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "8.dawn"
+   },
+   "efecto": [
+    {
+     "op": "escena",
+     "scene": "HC06"
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C6",
+    "C7.R2",
+    "C7.R8",
+    "C8.R3",
+    "C9.R2"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "M8",
+   "tipo": "columna",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 2,
+   "canal": "informe",
+   "actor": [
+    "pell"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "9.dawn"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "9.dawn"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "s",
+     "texto": "{{#ultimatum a:busca_a_holmes e:donde|El mayor exige el lugar antes del jueves a mediodía.}} {{#deprisa a:dos_lectores e:corresponsal_s|El mayor observa que su corresponsal «S.» contesta cada vez más deprisa.}}",
+     "when": {
+      "counter": {
+       "name": "moran.respuesta_s",
+       "gte": 1
+      }
+     }
+    },
+    {
+     "tpl": "texto",
+     "texto": "{{#ultimatum a:busca_a_holmes e:donde|El mayor exige el lugar antes del jueves a mediodía.}}",
+     "when": {
+      "counter": {
+       "name": "moran.respuesta_s",
+       "lte": 0
+      }
+     }
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C10",
+    "C9"
+   ],
+   "variante_blanda": null,
+   "doc": {
+    "title": "Nota de Pell, en mano",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "manuscrito",
+    "paper": "nota",
+    "paper_mm": [
+     180,
+     115
+    ],
+    "entity": "notas_de_pell",
+    "firma": "J. Pell"
+   },
+   "exento_d2": true
+  },
+  {
+   "id": "HC07",
+   "tipo": "columna",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 5,
+   "canal": "",
+   "actor": [
+    "holmes"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "10.M"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "10.M"
+   },
+   "efecto": [
+    {
+     "op": "escena",
+     "scene": "HC07"
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C12.R1",
+    "C12.R3",
+    "C12.R4"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HC08",
+   "tipo": "columna",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 5,
+   "canal": "",
+   "actor": [
+    "holmes",
+    "watson"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "10.T"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "10.T"
+   },
+   "efecto": [
+    {
+     "op": "escena",
+     "scene": "HC08"
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C12.R2"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HC09",
+   "tipo": "columna",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 5,
+   "canal": "",
+   "actor": [
+    "holmes",
+    "moran",
+    "lestrade"
+   ],
+   "disparador": {
+    "evento": "tiempo",
+    "tk": "10.N"
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "fija",
+    "tk": "10.N"
+   },
+   "efecto": [
+    {
+     "op": "escena",
+     "scene": "HC09"
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null,
+   "exento_d2": true
+  }
+ ]
+}

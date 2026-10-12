@@ -1,0 +1,64 @@
+{
+ "id": "L8",
+ "name": "Camden House",
+ "streets": [
+  "Baker Street"
+ ],
+ "areas": {
+  "interior": {
+   "desc": "la casa vacía"
+  }
+ },
+ "observers": [],
+ "epigraph": "Tablas desnudas.",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    4.0
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "farol_calle",
+  "T": "farol_calle"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "guillotina",
+   "noun": "ventana",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Una ventana de guillotina que se abre sin ruido.",
+   "tags": [
+    "f:secreto_camden"
+   ],
+   "cls": "C",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [],
+ "silhouettes": {},
+ "variants": {}
+}

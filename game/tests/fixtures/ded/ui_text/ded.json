@@ -1,0 +1,11 @@
+{"_nota": "W2-DED: textos del fixture (copia de las claves de data/ui_text/rules.json que usa el validador).",
+ "text": {
+  "rules.1": "Todo asiento se escribe en una plantilla.",
+  "rules.2": "Una sola fuente no es prueba.",
+  "formal.falta_segun": "Falta un <i>según</i>.",
+  "pass.ok": "Visto.",
+  "pass.fail": "Alguno no se sostiene.",
+  "practice.ok": "Visto. Errata inocente: sic.",
+  "practice.fail": "No se sostiene.",
+  "clip.mide": "Mide ${h} por ${w} milímetros."
+}}

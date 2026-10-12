@@ -1,0 +1,173 @@
+{
+  "_nota": "W2-GRAPH: réplica sintética de GDD§10.4 (C2–C13) con la forma de §4.8. Claves de C7 y C10 agregan giro_ahorrare y adjetivos_repetidos para que R8 e Ib queden enlazadas.",
+  "mandatory": ["C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13"],
+  "lot_counts": ["C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13"],
+  "alias_rules": [{"when_sealed": "C10a", "equiv": ["harris", "moran"]}],
+  "conclusions": [
+    {
+      "id": "C2", "kind": "obligatoria", "template": "T2",
+      "answers": {"fuente": ["fina"], "calla": ["raspadura"], "consta_en": ["galerada", "pruebas_americanas", "journal_de_geneve", "pruebas_de_watson", "notas_de_los_tomos"]},
+      "groups": [{"id": "sin_raspadura", "line": 0, "tags": ["fina_impreso_sin_raspadura"]}, {"id": "registrada", "line": 1, "tags": ["raspadura_registrada"]}],
+      "keys": {"entities": ["fina", "reichenbach", "roca", "pared", "raspadura"], "kinds": []},
+      "validate": {"from": "P.N", "until": null},
+      "routes": [
+        {"id": "C2.R1", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D02#clausula", "copy": "D02@L1"}, {"ref": "D03#sheer", "copy": "D03@tomo"}], "cut_by": ["M1"]},
+        {"id": "C2.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D05#marque", "copy": "D05@BM"}, {"ref": "D03#sheer", "copy": "D03@Crane"}]},
+        {"id": "C2.R3", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D04#clausula", "copy": "D04@Crane"}, {"ref": "D03#sheer", "copy": "D03@BM"}]},
+        {"id": "C2.R4", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D29a#tachadura", "copy": "D29a@L4"}, {"ref": "D03#sheer"}], "cut_by": ["HB5", "HB4"]},
+        {"id": "C2.R5", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D01N#fina_fo", "copy": "D01N@tomo"}, {"ref": "D03#sheer", "copy": "D03@tomo"}], "cut_by": ["M1"]}
+      ]
+    },
+    {
+      "id": "C3", "kind": "obligatoria", "template": "T1",
+      "answers": {"fuente_a": ["fina"], "dice_a": ["a_pique"], "dice_b": ["cornisa"]},
+      "groups": [{"id": "a_pique", "line": 0, "tags": ["fina_a_pique"]}, {"id": "cornisa", "line": 1, "tags": ["cornisa_existe"]}],
+      "keys": {"entities": ["reichenbach", "pared", "sendero", "cornisa"], "kinds": []},
+      "routes": [
+        {"id": "C3.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D05#corniche", "copy": "D05@BM"}, {"ref": "D03#sheer", "copy": "D03@Crane"}]},
+        {"id": "C3.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D07#linea", "copy": "D07@Crane"}, {"ref": "D03#sheer", "copy": "D03@BM"}]},
+        {"id": "C3.R3", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D08#kanzel", "copy": "D08@BM"}, {"ref": "D03#sheer", "copy": "D03@Crane"}]},
+        {"id": "C3.R4", "star": false, "deps": "garantizada", "frags": [{"ref": "R:D27.texto"}, {"ref": "D03#sheer"}], "cut_by": ["M1"]}
+      ]
+    },
+    {
+      "id": "C4", "kind": "obligatoria", "template": "T5",
+      "answers": {"persona": ["holmes"], "hizo": ["ceder"], "que": ["bienes"], "a": ["mycroft"]},
+      "groups": [{"id": "bienes", "line": 0, "tags": ["bienes_a_mycroft"]}, {"id": "en_vida", "line": 4, "tags": ["en_vida"]}],
+      "keys": {"entities": ["holmes", "mycroft", "bienes"], "kinds": []},
+      "routes": [
+        {"id": "C4.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft", "copy": "D03@Crane"}, {"ref": "D18#calendars", "copy": "D18@L6"}]},
+        {"id": "C4.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft", "copy": "D03@BM"}, {"ref": "D19#indice", "copy": "D19@BM"}]},
+        {"id": "C4.R3", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft"}, {"ref": "D30#recibo", "copy": "D30@L3"}], "cut_by": ["HB6"]},
+        {"id": "C4.R4", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft"}, {"ref": "D29b#surcos", "copy": "D29b@L4"}], "cut_by": ["HB4"]},
+        {"id": "C4.R5", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft"}, {"ref": "L:hudson.mycroft_paga"}], "cut_by": ["HB6"]}
+      ]
+    },
+    {
+      "id": "C5", "kind": "obligatoria", "template": "T4",
+      "answers": {"documento": ["cartas_coronel"], "redacto": ["moran", "autor_heavy_game", "@alias:harris"]},
+      "groups": [{"id": "documento", "line": 0, "tags": ["estilo_cartas_coronel"]}, {"id": "redacto", "line": 1, "tags": ["estilo_o_rostro_moran"]}],
+      "keys": {"entities": ["tigre", "desague", "cruel", "bigote", "cazador"], "kinds": []},
+      "routes": [
+        {"id": "C5.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D09#desague", "copy": "D09@BM"}, {"ref": "D11#desague", "copy": "D11@BM"}]},
+        {"id": "C5.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D09#cruel", "copy": "D09@Crane"}, {"ref": "D10#cruel", "copy": "D10@Crane"}]},
+        {"id": "C5.R3", "star": false, "deps": "garantizada", "frags": [{"ref": "R:D28.anglo"}, {"ref": "D10#portada", "copy": "D10@BM"}], "cut_by": ["M1"]},
+        {"id": "C5.R4", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D09#nota_redactor", "copy": "D09@BM"}, {"ref": "D10#frontispicio", "copy": "D10@BM"}]}
+      ]
+    },
+    {
+      "id": "C6", "kind": "obligatoria", "template": "T6",
+      "answers": {"persona": ["holmes", "mycroft", "corresponsal_s"], "relacion": ["lee_a"], "a_quien": ["lisle"], "por_medio": {"list": "medios"}, "y_de": {"list": "medios"}},
+      "constraints": [{"distinct": ["por_medio", "y_de"]}],
+      "groups": [
+        {"id": "acto_x", "line": 0, "tags": ["acto_${ch:por_medio}"]},
+        {"id": "ancla_x", "line": 0, "tags": ["ancla_${ch:por_medio}"]},
+        {"id": "acto_y", "line": 1, "tags": ["acto_${ch:y_de}"]},
+        {"id": "ancla_y", "line": 1, "tags": ["ancla_${ch:y_de}"]}
+      ],
+      "keys": {"entities": [], "kinds": ["act_ref"]},
+      "validate": {"from": "4.dawn", "until": null},
+      "subroutes": {
+        "K-S": {"star": true, "deps": "columna", "from": "3.M", "frags": [{"ref": "J:go"}, {"ref": "N:*.sil_wiggins"}]},
+        "K-T": {"star": true, "deps": "columna", "from": "4.dawn", "frags": [{"ref": "AD:prologo", "copy": "D15.0327@L1"}, {"ref": "R:HC10.texto", "copy": "D15.0330@L1"}]},
+        "K-BMx": {"star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "J:slip"}, {"ref": "S:HC06.b_kbm"}]},
+        "K-W": {"star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "J:say.watson"}, {"ref": "S:HC06.b_kw"}]},
+        "K-H": {"star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "J:go.L3"}, {"ref": "S:HC06.b_kh"}]},
+        "K-BM": {"star": false, "deps": "garantizada", "from": "2.dawn", "frags": [{"ref": "J:slip"}, {"ref": "R:HA1.*"}], "cut_by": ["M1"]}
+      },
+      "routes": [
+        {"id": "C6.R1", "star": true, "pair": ["K-S", "K-T"], "from": "4.dawn"},
+        {"id": "C6.R2", "star": true, "pair": ["K-T", "K-BMx"], "from": "8.T"}
+      ]
+    },
+    {
+      "id": "C7", "kind": "obligatoria", "template": "T4",
+      "answers": {"documento": ["cartas_a_maquina"], "redacto": ["mycroft"]},
+      "groups": [{"id": "vigila", "line": 0, "tags": ["me_vigila_de_cerca"]}, {"id": "vinculo", "line": 1, "tags": ["vinculo_mycroft"]}],
+      "keys": {"entities": ["diogenes", "pall_mall", "mycroft", "asiento", "remington", "giro_ahorrare"], "kinds": []},
+      "routes": [
+        {"id": "C7.R2", "star": true, "deps": "fija", "from": "8.T", "frags": [{"ref": "S:HC06.b_kbm"}, {"ref": "D31#para_mholmes", "copy": "D31@L5"}]},
+        {"id": "C7.R3", "star": false, "deps": "garantizada", "from": "2.dawn", "frags": [{"ref": "R:HA1.*"}, {"ref": "D30#recibo", "copy": "D30@L3"}], "cut_by": ["HB6", "M1"]},
+        {"id": "C7.R4", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "N:L2.cotter_canastilla"}, {"ref": "N:L2.cesto_tiras"}, {"ref": "D01.GREE#founders", "copy": "D01.GREE@BM"}]},
+        {"id": "C7.R6", "star": false, "deps": "columna", "from": "1.M", "frags": [{"ref": "R:HC01.sobre"}, {"ref": "D01.GREE#pall_mall", "copy": "D01.GREE@BM"}], "cut_by": ["M1"]},
+        {"id": "C7.R7", "star": false, "deps": "opcional", "from": "3.M", "frags": [{"ref": "L:wiggins.vieja_tarifa"}, {"ref": "D01.GREE#whitehall", "copy": "D01.GREE@BM"}], "cut_by": ["HB8b"]},
+        {"id": "C7.R8", "star": false, "deps": "garantizada", "from": "8.T", "frags": [{"ref": "R:HA1.giro"}, {"ref": "S:HC06.a"}], "cut_by": ["M1"]}
+      ]
+    },
+    {
+      "id": "C8", "kind": "obligatoria", "template": "T7",
+      "answers": {"persona": ["holmes"], "estado": ["vivo"]},
+      "groups": [{"id": "identidad", "line": 0, "tags": ["identidad_holmes"]}, {"id": "actividad", "line": 1, "tags": ["actividad_posterior_a_mayo_1891"]}],
+      "keys": {"entities": ["monografia_97", "opusculo", "mr_m_holmes", "letra"], "kinds": []},
+      "routes": [
+        {"id": "C8.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D13#muestra97", "copy": "D13@BM"}, {"ref": "D12#n97", "copy": "D12@BM"}]},
+        {"id": "C8.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D14#opusculo", "copy": "D14@BM"}, {"ref": "D44#oficios_mano", "copy": "D44@Crane"}]},
+        {"id": "C8.R3", "star": true, "deps": "fija", "from": "8.T", "frags": [{"ref": "S:HC06.c"}, {"ref": "D31#telegramas", "copy": "D31@L5"}]},
+        {"id": "C8.R4", "star": false, "deps": "columna", "from": "1.M", "frags": [{"ref": "R:HC01.no_lo_es"}, {"ref": "D12#dedicatoria", "copy": "D12@BM"}], "cut_by": ["M1"]}
+      ]
+    },
+    {
+      "id": "C9", "kind": "obligatoria", "template": "T8",
+      "answers": {"persona": ["holmes"], "lugar": ["221b"], "dia": ["jueves"]},
+      "groups": [{"id": "preparativos", "line": 1, "tags": ["preparativos_221b"]}, {"id": "jueves", "line": 2, "tags": ["dia_jueves"]}],
+      "keys": {"entities": ["jueves", "221b", "mycroft"], "kinds": []},
+      "routes": [
+        {"id": "C9.R1", "star": true, "deps": "fija", "from": "8.M", "frags": [{"ref": "S:HC05.jueves_a"}, {"ref": "N:L3.ventanas_abiertas"}]},
+        {"id": "C9.R2", "star": true, "deps": "fija", "from": "9.T", "frags": [{"ref": "S:HC06.e"}, {"ref": "N:L3.cajon"}]}
+      ]
+    },
+    {
+      "id": "C10", "kind": "obligatoria", "template": "T9",
+      "answers": {"persona": ["moran", "autor_heavy_game", "@alias:harris"], "usa_a": ["lisle"], "como": ["cebo", "cabrito", "cabrito_atado"], "para": ["hallar"], "a_quien": ["holmes"]},
+      "groups": [{"id": "identidad", "line": 0, "tags": ["harris_es_moran"]}, {"id": "cebo", "line": 1, "tags": ["cebo"]}, {"id": "busca", "line": 2, "tags": ["busca_a_holmes"]}],
+      "keys": {"entities": ["harris", "moran", "bigote", "cabrito", "donde", "adjetivos_repetidos"], "kinds": []},
+      "subroutes": {
+        "Ia": {"star": true, "from": "1.M", "frags": [{"ref": "N:PRO.harris"}, {"ref": "D16#moran", "copy": "D16@BM"}]},
+        "Ib": {"star": true, "from": "7.night", "frags": [{"ref": "S:M7.inteligente"}, {"ref": "D10#adjetivos", "copy": "D10@Crane"}]},
+        "Ic": {"star": false, "from": "P.N", "frags": [{"ref": "D23#cruel", "copy": "D23@L1"}, {"ref": "D10#adjetivos", "copy": "D10@Crane"}], "cut_by": ["M1"]},
+        "Id": {"star": false, "deps": "opcional", "from": "3.M", "frags": [{"ref": "L:wiggins.conduit"}, {"ref": "D17#moran_conduit", "copy": "D17@Crane"}], "cut_by": ["HB8b", "M4"]},
+        "Ca": {"star": true, "from": "5.dawn", "frags": [{"ref": "D10#cabrito_atado", "copy": "D10@BM"}, {"ref": "S:M6.donde"}]},
+        "Cb": {"star": true, "from": "7.night", "frags": [{"ref": "D11#no_bala", "copy": "D11@BM"}, {"ref": "S:M7.donde_duerme"}]}
+      },
+      "routes": [
+        {"id": "C10.R1", "star": true, "pair": ["Ia", "Ca"], "from": "5.dawn"},
+        {"id": "C10.R2", "star": true, "pair": ["Ib", "Cb"], "from": "7.night"},
+        {"id": "C10.R3", "star": false, "pair": ["Ic", "Ca"], "from": "5.dawn"},
+        {"id": "C10.R4", "star": false, "deps": "opcional", "pair": ["Id", "Cb"], "from": "7.night"}
+      ]
+    },
+    {
+      "id": "C11", "kind": "obligatoria", "template": "T5",
+      "answers": {"persona": ["moran"], "hizo": ["matar"], "a": ["adair"], "con": ["fusil_de_aire"]},
+      "groups": [{"id": "autor", "line": 0, "tags": ["autor_moran"]}, {"id": "arma", "line": 2, "tags": ["arma_de_aire"]}, {"id": "fuera", "line": 3, "tags": ["disparo_desde_fuera"]}],
+      "keys": {"entities": ["adair", "moran", "disparo", "bala", "fusil_de_aire", "park_lane"], "kinds": []},
+      "routes": [
+        {"id": "C11.R1", "star": true, "deps": "fija", "from": "8.M", "frags": [{"ref": "D15.0403#whist", "copy": "D15.0403@L1"}, {"ref": "D15.0403#nadie_oyo", "copy": "D15.0403@L1"}, {"ref": "D03#air_guns", "copy": "D03@BM"}, {"ref": "D10#bala_blanda", "copy": "D10@BM"}]},
+        {"id": "C11.R2", "star": true, "deps": "fija", "from": "5.M", "frags": [{"ref": "N:L7.linea_de_tiro"}, {"ref": "D11#mejor_tiro", "copy": "D11@BM"}, {"ref": "D16#moran", "copy": "D16@BM"}, {"ref": "D03#air_guns", "copy": "D03@Crane"}]}
+      ]
+    },
+    {
+      "id": "C12", "kind": "obligatoria", "template": "T3",
+      "answers": {"persona": ["librero"], "es": ["holmes"]},
+      "groups": [{"id": "falso", "line": 0, "tags": ["librero_falso"]}, {"id": "rasgo", "line": 1, "tags": ["rasgo_holmes"]}],
+      "keys": {"entities": ["librero", "church_street", "letra", "amarillo"], "kinds": []},
+      "validate": {"from": "10.M", "until": "10.M"},
+      "routes": [
+        {"id": "C12.R1", "star": true, "deps": "fija", "from": "10.M", "frags": [{"ref": "N:L1.librero_dedos"}, {"ref": "D14#amarillo", "copy": "D14@BM"}, {"ref": "N:L1.librero_sombra"}]},
+        {"id": "C12.R3", "star": true, "deps": "fija", "from": "10.M", "frags": [{"ref": "D33#direccion", "copy": "D33@Crane"}, {"ref": "D17#church_street", "copy": "D17@Crane"}, {"ref": "D12#dedicatoria", "copy": "D12@BM"}]}
+      ]
+    },
+    {
+      "id": "C13", "kind": "obligatoria", "template": "T5",
+      "answers": {"persona": ["moran", "@alias:harris"], "hizo": ["disparar"], "a": ["221b"], "donde": ["camden_house"]},
+      "groups": [{"id": "tirador", "line": 0, "tags": ["tirador"]}, {"id": "escondite", "line": 3, "tags": ["escondite_preparado"]}],
+      "keys": {"entities": ["camden_house", "harris", "moran", "cheroot", "221b"], "kinds": []},
+      "validate": {"from": "7.night", "until": "10.M"},
+      "routes": [
+        {"id": "C13.R1", "star": true, "deps": "fija", "from": "8.M", "frags": [{"ref": "N:L8.guillotina"}, {"ref": "N:L8.ceniza"}, {"ref": "S:M7.trichinopolis"}]},
+        {"id": "C13.R2", "star": true, "deps": "fija", "from": "7.M", "frags": [{"ref": "S:AGENTE.militar"}, {"ref": "S:PRO.cace_india"}]},
+        {"id": "C13.R3", "star": false, "deps": "fija", "from": "7.M", "frags": [{"ref": "D32#llave_harris", "copy": "D32@L3"}, {"ref": "N:PRO.harris"}], "cut_by": ["M5"]}
+      ]
+    }
+  ]
+}

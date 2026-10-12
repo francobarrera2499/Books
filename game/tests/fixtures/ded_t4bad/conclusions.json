@@ -1,0 +1,8 @@
+{"_nota": "W2-DED: T4 negativo: un tramo (D97) y un nodo (L2.todo) llevan los dos grupos de C2.",
+ "mandatory": ["C2"], "lot_counts": ["C2"],
+ "conclusions": [
+  {"id": "C2", "kind": "obligatoria", "template": "T2",
+   "answers": {"fuente": ["fina"], "calla": ["raspadura"], "consta_en": ["nota_mala"]},
+   "groups": [{"id": "sin_raspadura", "line": 0, "tags": ["fina_impreso_sin_raspadura"]}, {"id": "registrada", "line": 1, "tags": ["raspadura_registrada"]}],
+   "keys": {"entities": ["fina", "raspadura"], "kinds": []}}
+ ]}

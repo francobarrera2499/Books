@@ -1,0 +1,10 @@
+{
+  "_nota": "W1-THEME. Ranuras de fuente (ARCHITECTURE §4.17, §12.1.1). \"embedded\" = fuente embebida de Godot. Cambiar de fuente = cambiar sólo esta tabla.",
+  "slots": {
+    "imprenta": {"file": "res://assets/fonts/IMFeENrm28P.ttf", "italic": "res://assets/fonts/IMFeENit28P.ttf"},
+    "maquina": {"file": "res://assets/fonts/SpecialElite-Regular.ttf"},
+    "manuscrito": {"file": "res://assets/fonts/HomemadeApple-Regular.ttf"},
+    "ui": {"file": "res://assets/fonts/IMFeENrm28P.ttf", "italic": "res://assets/fonts/IMFeENit28P.ttf"}
+  },
+  "fallback": "embedded"
+}

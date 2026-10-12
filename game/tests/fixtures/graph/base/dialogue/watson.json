@@ -1,0 +1,6 @@
+{"char": "watson", "label": "el doctor Watson", "addr": "doctor", "sensor": "K-W", "max_questions": 3,
+ "lines": [
+  {"id": "escribi_mycroft", "layer": "tema", "match": {"topic": ["mycroft", "fina"]}, "when": {"event_count": {"type": "say", "where": {"char": "watson"}, "gte": 1}}, "text": "{{#escribi a:vinculo_mycroft e:mycroft|Le escribí al señor Mycroft, como cuando lo de las pruebas.}}"},
+  {"id": "gen.1", "layer": "generica", "text": "Un hombre puede ser herido más de una vez, señor Lisle."}
+ ]
+}

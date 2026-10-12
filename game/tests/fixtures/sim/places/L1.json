@@ -1,0 +1,155 @@
+{
+ "id": "L1",
+ "name": "Holywell Street",
+ "streets": [
+  "Holywell Street"
+ ],
+ "areas": {
+  "buhardilla": {
+   "desc": "la buhardilla"
+  },
+  "tienda": {
+   "desc": "la tienda de Crane"
+  }
+ },
+ "observers": [],
+ "epigraph": "—Arriba, señor.",
+ "frames": [
+  {
+   "id": "escritorio",
+   "area": "buhardilla",
+   "pos": [
+    0.0,
+    1.5,
+    3.0
+   ],
+   "look": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "fov": 45
+  },
+  {
+   "id": "mostrador",
+   "area": "tienda",
+   "pos": [
+    0.0,
+    1.5,
+    3.0
+   ],
+   "look": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "dia_ventana",
+  "T": "tarde",
+  "N": "gas"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "estufa",
+   "noun": "estufa",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Una estufa de hierro, tibia.",
+   "tags": [],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "estantes",
+   "noun": "estantes",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Estantes de libros viejos, polvorientos.",
+   "tags": [],
+   "cls": "I",
+   "area": "tienda",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "crane",
+   "area": "tienda",
+   "pos": [
+    0.0,
+    0,
+    0.0
+   ],
+   "rot": 180,
+   "pose": "de_pie",
+   "trait": "mangas_ligas",
+   "when": {}
+  }
+ ],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "escritorio",
+   "pos": [
+    3.0,
+    0,
+    6.0
+   ],
+   "rot": 180
+  }
+ },
+ "variants": {
+  "registrada": {
+   "add_nodes": [
+    {
+     "id": "ceniza_registro",
+     "noun": "ceniza",
+     "anchor": {
+      "c": [
+       0.0,
+       1.0,
+       -1.0
+      ],
+      "s": [
+       1.0,
+       1.0,
+       0.5
+      ]
+     },
+     "examine": "Ceniza negra sobre el escritorio.",
+     "tags": [
+      "a:tirador",
+      "e:cheroot"
+     ],
+     "cls": "C",
+     "area": "buhardilla",
+     "when": {}
+    }
+   ]
+  }
+ }
+}

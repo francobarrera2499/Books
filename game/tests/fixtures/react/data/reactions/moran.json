@@ -1,0 +1,541 @@
+{
+ "reactions": [
+  {
+   "id": "M1",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 3,
+   "canal": "informe",
+   "actor": [
+    "hombres_de_moran"
+   ],
+   "disparador": {
+    "evento": "report",
+    "match": {
+     "cat": "original_p"
+    }
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "siguiente_salida"
+   },
+   "efecto": [
+    {
+     "op": "retirar",
+     "copias": "informadas",
+     "dias": 1
+    },
+    {
+     "op": "alterar_lugar",
+     "place": "L1",
+     "variant": "registrada"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "ceniza",
+     "nodo": "N:L1.ceniza_registro",
+     "tags": [
+      "a:tirador",
+      "e:cheroot"
+     ]
+    }
+   ],
+   "corta": [
+    {
+     "copias": "informadas",
+     "ventana": {
+      "dias": 1
+     }
+    }
+   ],
+   "agrega": [
+    "C10",
+    "C13"
+   ],
+   "variante_blanda": {
+    "efecto": [
+     {
+      "op": "alterar_lugar",
+      "place": "L1",
+      "variant": "registrada"
+     }
+    ],
+    "corta": []
+   },
+   "exento_d2_desde_dia": 8
+  },
+  {
+   "id": "M2",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 3,
+   "canal": "informe",
+   "actor": [
+    "hombres_de_moran",
+    "pell"
+   ],
+   "disparador": {
+    "evento": "report",
+    "match": {
+     "cat": "holmes_vive"
+    }
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "siguiente_salida"
+   },
+   "efecto": [
+    {
+     "op": "evento_mundo",
+     "id": "ladrillo"
+    },
+    {
+     "op": "carta"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#preocupado a:cebo e:ladrillo|El mayor está muy preocupado por su seguridad.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C10.Cd"
+   ],
+   "variante_blanda": null,
+   "doc": {
+    "title": "Nota de Pell, en mano",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "manuscrito",
+    "paper": "nota",
+    "paper_mm": [
+     180,
+     115
+    ],
+    "entity": "notas_de_pell",
+    "firma": "J. Pell"
+   }
+  },
+  {
+   "id": "M3",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 2,
+   "canal": "informe",
+   "actor": [
+    "hombres_de_moran"
+   ],
+   "disparador": {
+    "evento": "report",
+    "match": {
+     "cat": "watson_privado"
+    }
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "dias",
+    "n": 1
+   },
+   "efecto": [
+    {
+     "op": "silueta",
+     "who": "m3_hombres",
+     "place": "L4"
+    }
+   ],
+   "rastro": [],
+   "corta": [],
+   "agrega": [
+    "C10"
+   ],
+   "variante_blanda": null
+  },
+  {
+   "id": "M4",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 2,
+   "canal": "informe",
+   "actor": [
+    "moran",
+    "pell"
+   ],
+   "disparador": {
+    "evento": [
+     "report",
+     "show"
+    ],
+    "match": {
+     "any": [
+      {
+       "type": "report",
+       "cat": "moran_autor"
+      },
+      {
+       "char": "pell",
+       "cat": "moran_autor"
+      }
+     ]
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "dias",
+    "n": 1
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    },
+    {
+     "op": "flag",
+     "name": "pell_despedido",
+     "value": true
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#no_me_nombre a:pantalla e:pell|Le ruego no me nombre.}}"
+    }
+   ],
+   "corta": [
+    {
+     "ref": "C10.Id"
+    }
+   ],
+   "agrega": [
+    "C10"
+   ],
+   "variante_blanda": {
+    "efecto": [
+     {
+      "op": "carta"
+     },
+     {
+      "op": "flag",
+      "name": "pell_despedido",
+      "value": true
+     }
+    ],
+    "corta": []
+   },
+   "doc": {
+    "title": "Nota de Pell, en mano",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "manuscrito",
+    "paper": "nota",
+    "paper_mm": [
+     180,
+     115
+    ],
+    "entity": "notas_de_pell",
+    "firma": "J. Pell"
+   }
+  },
+  {
+   "id": "M5",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 2,
+   "canal": "informe",
+   "actor": [
+    "moran",
+    "chico_del_agente"
+   ],
+   "disparador": {
+    "evento": "report",
+    "match": {
+     "cat": [
+      "camden",
+      "regreso_jueves"
+     ]
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "dias",
+    "n": 1
+   },
+   "efecto": [
+    {
+     "op": "arrancar",
+     "copy": "D32@L3",
+     "part": "p1"
+    },
+    {
+     "op": "linea",
+     "char": "chico_del_agente",
+     "line": "ayer_vino"
+    },
+    {
+     "op": "carta"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#arbol a:tirador e:arbol|El árbol lo elige el cazador, señor, no el cabrito.}}"
+    }
+   ],
+   "corta": [
+    {
+     "copy": "D32@L3",
+     "ventana": {
+      "permanente": true
+     }
+    }
+   ],
+   "agrega": [
+    "C13"
+   ],
+   "variante_blanda": {
+    "efecto": [
+     {
+      "op": "linea",
+      "char": "chico_del_agente",
+      "line": "ayer_vino"
+     },
+     {
+      "op": "carta"
+     }
+    ],
+    "corta": []
+   },
+   "doc": {
+    "title": "Nota de Pell, en mano",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "manuscrito",
+    "paper": "nota",
+    "paper_mm": [
+     180,
+     115
+    ],
+    "entity": "notas_de_pell",
+    "firma": "J. Pell"
+   }
+  },
+  {
+   "id": "M9",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 2,
+   "canal": "informe",
+   "actor": [
+    "parker",
+    "pell"
+   ],
+   "disparador": {
+    "evento": "report",
+    "match": {
+     "cat": "falso_verificable"
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "dias",
+    "n": 1
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    },
+    {
+     "op": "paga",
+     "amount_d": 126
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "El mayor verificó su informe. {{#exactitud a:harris_es_moran e:adjetivos_repetidos|Le ruego exactitud, exactitud.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null,
+   "doc": {
+    "title": "Nota de Pell, en mano",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "manuscrito",
+    "paper": "nota",
+    "paper_mm": [
+     180,
+     115
+    ],
+    "entity": "notas_de_pell",
+    "firma": "J. Pell"
+   }
+  },
+  {
+   "id": "M10",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 1,
+   "canal": "parker",
+   "actor": [
+    "parker"
+   ],
+   "disparador": {
+    "evento": "go",
+    "match": {
+     "place": [
+      "L3",
+      "L8"
+     ]
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "siguiente_comunicacion"
+   },
+   "efecto": [
+    {
+     "op": "linea_siguiente_comunicacion"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#diligencia a:vigila_baker_street e:baker_street|El mayor celebra su diligencia en Baker Street.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C13.R5"
+   ],
+   "variante_blanda": null
+  },
+  {
+   "id": "M11",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 2,
+   "canal": "columna",
+   "actor": [
+    "hombre_del_abrigo"
+   ],
+   "disparador": {
+    "evento": "reaccion",
+    "match": {
+     "how": "columna",
+     "voice": "B",
+     "reply_to_ad": true
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {
+    "day": {
+     "gte": 5
+    }
+   },
+   "ancla": [],
+   "latencia": {
+    "tipo": "dias",
+    "n": 1
+   },
+   "efecto": [
+    {
+     "op": "silueta",
+     "who": "cochero",
+     "place": "*"
+    },
+    {
+     "op": "flag",
+     "name": "seguido_por_cochero",
+     "value": true
+    },
+    {
+     "op": "linea_siguiente_comunicacion"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#pasea a:cebo e:hombre_del_abrigo|El mayor sabe que usted pasea, señor.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C10"
+   ],
+   "variante_blanda": null
+  },
+  {
+   "id": "M12",
+   "tipo": "opcional",
+   "lado": "moran",
+   "voz": "M",
+   "nivel": 1,
+   "canal": "informe",
+   "actor": [
+    "moran"
+   ],
+   "disparador": {
+    "evento": "report",
+    "match": {
+     "cat": "paradero_extranjero"
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "siguiente_comunicacion"
+   },
+   "efecto": [
+    {
+     "op": "linea_siguiente_comunicacion"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#monte_ajeno a:busca_a_holmes e:donde|El mayor no caza en monte ajeno, señor.}} Quiere saber dónde va a estar, no dónde estuvo."
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C10"
+   ],
+   "variante_blanda": null
+  }
+ ]
+}

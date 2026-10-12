@@ -1,0 +1,394 @@
+{
+ "_nota": "Fixture de W2-REACT (T16): etiquetas de grupo por conclusión. Las reales son de W2-STRUCT.",
+ "mandatory": [
+  "C2",
+  "C3",
+  "C4",
+  "C5",
+  "C6",
+  "C7",
+  "C8",
+  "C9",
+  "C10",
+  "C11",
+  "C12",
+  "C13"
+ ],
+ "lot_counts": [
+  "C2",
+  "C3",
+  "C4",
+  "C5",
+  "C6",
+  "C7",
+  "C8",
+  "C9",
+  "C10",
+  "C11",
+  "C12",
+  "C13"
+ ],
+ "conclusions": [
+  {
+   "id": "C2",
+   "kind": "obligatoria",
+   "template": "T2",
+   "answers": {},
+   "groups": [
+    {
+     "id": "fina_impreso_sin_raspadura",
+     "line": 0,
+     "tags": [
+      "fina_impreso_sin_raspadura"
+     ]
+    },
+    {
+     "id": "raspadura_registrada",
+     "line": 1,
+     "tags": [
+      "raspadura_registrada"
+     ]
+    }
+   ],
+   "tags_extra": [],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C3",
+   "kind": "obligatoria",
+   "template": "T5",
+   "answers": {},
+   "groups": [
+    {
+     "id": "cornisa_existe",
+     "line": 0,
+     "tags": [
+      "cornisa_existe"
+     ]
+    },
+    {
+     "id": "sin_cuerpo",
+     "line": 1,
+     "tags": [
+      "sin_cuerpo"
+     ]
+    }
+   ],
+   "tags_extra": [
+    "refuta_rio_cuerpo",
+    "refuta_nota"
+   ],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C4",
+   "kind": "obligatoria",
+   "template": "T5",
+   "answers": {},
+   "groups": [
+    {
+     "id": "dispuso_bienes",
+     "line": 0,
+     "tags": [
+      "dispuso_bienes"
+     ]
+    },
+    {
+     "id": "as_arranged",
+     "line": 1,
+     "tags": [
+      "as_arranged"
+     ]
+    }
+   ],
+   "tags_extra": [
+    "remite_testamento"
+   ],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C5",
+   "kind": "obligatoria",
+   "template": "T4",
+   "answers": {},
+   "groups": [
+    {
+     "id": "moran_pulio",
+     "line": 0,
+     "tags": [
+      "moran_pulio"
+     ]
+    },
+    {
+     "id": "adjetivos_moran",
+     "line": 1,
+     "tags": [
+      "adjetivos_moran"
+     ]
+    }
+   ],
+   "tags_extra": [],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C6",
+   "kind": "obligatoria",
+   "template": "T6",
+   "answers": {},
+   "keys": {
+    "entities": [],
+    "kinds": [
+     "act_ref"
+    ]
+   },
+   "groups": [
+    {
+     "id": "acto_x",
+     "line": 0,
+     "tags": [
+      "acto_${ch:por_medio}"
+     ]
+    },
+    {
+     "id": "ancla_x",
+     "line": 0,
+     "tags": [
+      "ancla_${ch:por_medio}"
+     ]
+    },
+    {
+     "id": "acto_y",
+     "line": 1,
+     "tags": [
+      "acto_${ch:y_de}"
+     ]
+    },
+    {
+     "id": "ancla_y",
+     "line": 1,
+     "tags": [
+      "ancla_${ch:y_de}"
+     ]
+    }
+   ],
+   "tags_extra": [
+    "corresponsal_s"
+   ]
+  },
+  {
+   "id": "C7",
+   "kind": "obligatoria",
+   "template": "T4",
+   "answers": {},
+   "groups": [
+    {
+     "id": "me_vigila_de_cerca",
+     "line": 0,
+     "tags": [
+      "me_vigila_de_cerca"
+     ]
+    },
+    {
+     "id": "vinculo_mycroft",
+     "line": 1,
+     "tags": [
+      "vinculo_mycroft"
+     ]
+    }
+   ],
+   "tags_extra": [],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C8",
+   "kind": "obligatoria",
+   "template": "T7",
+   "answers": {},
+   "groups": [
+    {
+     "id": "holmes_vive_prueba",
+     "line": 0,
+     "tags": [
+      "holmes_vive_prueba"
+     ]
+    },
+    {
+     "id": "muestra_97",
+     "line": 1,
+     "tags": [
+      "muestra_97"
+     ]
+    }
+   ],
+   "tags_extra": [
+    "remite_journal"
+   ],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C9",
+   "kind": "obligatoria",
+   "template": "T8",
+   "answers": {},
+   "groups": [
+    {
+     "id": "regreso_jueves_a",
+     "line": 0,
+     "tags": [
+      "regreso_jueves_a"
+     ]
+    },
+    {
+     "id": "regreso_jueves_b",
+     "line": 1,
+     "tags": [
+      "regreso_jueves_b"
+     ]
+    }
+   ],
+   "tags_extra": [],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C10",
+   "kind": "obligatoria",
+   "template": "T9",
+   "answers": {},
+   "groups": [
+    {
+     "id": "harris_es_moran",
+     "line": 0,
+     "tags": [
+      "harris_es_moran"
+     ]
+    },
+    {
+     "id": "cebo",
+     "line": 1,
+     "tags": [
+      "cebo"
+     ]
+    },
+    {
+     "id": "busca_a_holmes",
+     "line": 2,
+     "tags": [
+      "busca_a_holmes"
+     ]
+    }
+   ],
+   "tags_extra": [
+    "dos_lectores",
+    "tercer_lector"
+   ],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C11",
+   "kind": "obligatoria",
+   "template": "T5",
+   "answers": {},
+   "groups": [
+    {
+     "id": "fusil_de_aire",
+     "line": 0,
+     "tags": [
+      "fusil_de_aire"
+     ]
+    },
+    {
+     "id": "desde_la_calle",
+     "line": 1,
+     "tags": [
+      "desde_la_calle"
+     ]
+    }
+   ],
+   "tags_extra": [],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C12",
+   "kind": "obligatoria",
+   "template": "T3",
+   "answers": {},
+   "groups": [
+    {
+     "id": "librero_falso",
+     "line": 0,
+     "tags": [
+      "librero_falso"
+     ]
+    },
+    {
+     "id": "dedos_amarillos",
+     "line": 1,
+     "tags": [
+      "dedos_amarillos"
+     ]
+    }
+   ],
+   "tags_extra": [],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  },
+  {
+   "id": "C13",
+   "kind": "obligatoria",
+   "template": "T5",
+   "answers": {},
+   "groups": [
+    {
+     "id": "tirador",
+     "line": 0,
+     "tags": [
+      "tirador"
+     ]
+    },
+    {
+     "id": "camden_preparada",
+     "line": 1,
+     "tags": [
+      "camden_preparada"
+     ]
+    }
+   ],
+   "tags_extra": [
+    "vigila_baker_street"
+   ],
+   "keys": {
+    "entities": [],
+    "kinds": []
+   }
+  }
+ ]
+}

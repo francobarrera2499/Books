@@ -1,0 +1,11 @@
+{
+  "char": "librero", "label": "el librero viejo", "intro": "Un librero de Church Street", "addr": "señor", "sensor": null,
+  "max_questions": 3, "trait": "joroba_libros",
+  "closing": "Buenos días, señor.",
+  "lines": [
+    {"id": "conf.1", "layer": "generica", "text": "Su patrón, señor, es un caballero que llora a un hermano. (fixture librero)"},
+    {"id": "conf.1.si", "layer": "generica", "text": "Hum. Un hermano muy bien informado sobre tigres."},
+    {"id": "conf.1.no", "layer": "generica", "text": "Eso prueba que su patrón lee, señor; no que caza."},
+    {"id": "gen.1", "layer": "generica", "text": "Una ganga, señor, cada uno de ellos."}
+  ]
+}

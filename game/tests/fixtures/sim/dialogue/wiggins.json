@@ -1,0 +1,17 @@
+{
+ "char": "wiggins",
+ "label": "Wiggins",
+ "intro": "Wiggins",
+ "addr": "jefe",
+ "sensor": "K-S",
+ "max_questions": 3,
+ "trait": "gorra_larga",
+ "closing": "Me esperan, jefe.",
+ "lines": [
+  {
+   "id": "gen.1",
+   "layer": "generica",
+   "text": "La vieja tarifa, jefe."
+  }
+ ]
+}

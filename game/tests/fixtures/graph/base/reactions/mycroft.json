@@ -1,0 +1,82 @@
+{"reactions": [
+  {
+    "id": "HA1", "tipo": "garantizada_por_acto", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-BM", "actor": ["cotter", "mycroft"],
+    "disparador": {"evento": "slip", "match": {"topic_group": "holmes"}, "una_vez_por": ["topic"]},
+    "condiciones": {"all": [{"day": {"gte": 1, "lte": 9}}, {"not": {"weekday": "dom"}}]},
+    "ancla": ["seat", "title", "hour"],
+    "latencia": {"tipo": "voz_a"},
+    "efecto": [{"op": "carta", "plantilla_por": "topic"}],
+    "doc": {"title": "Carta a máquina", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+    "rastro": [
+      {"tpl": "holmes_prensa_1891", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca e:remington|[[@act|Asiento ${seat}]]: los guías hablaron al Journal y el Journal a Reuter.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare e:remington|Le ahorraré el trabajo: lea a Reuter.}}"},
+      {"tpl": "holmes_cronicas", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca e:remington|[[@act|Asiento ${seat}]]: el doctor se equivoca dos veces por página.}}"}
+    ],
+    "corta": [], "agrega": ["C6", "C7.R3"], "variante_blanda": null, "exento_d2": false
+  },
+  {
+    "id": "HB4", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 3, "canal": "K-W", "actor": ["watson", "cotter"],
+    "disparador": {"evento": "say", "match": {"char": "watson", "topic_group": "mary"}, "contador": "hb4", "n_in": [2]},
+    "condiciones": {}, "ancla": ["phrase"],
+    "latencia": {"tipo": "inmediata"},
+    "efecto": [{"op": "cerrar", "target": "L4.consulta", "dias": 2}, {"op": "flag", "name": "hb4_veces", "value": 2}],
+    "rastro": [{"tpl": "carta", "texto": "{{#deje a:me_vigila_de_cerca e:watson|Deje al doctor su duelo.}}"}],
+    "corta": [{"acceso": "L4.consulta", "ventana": {"dias": 2}}],
+    "agrega": ["C6", "C7"],
+    "variante_blanda": {"efecto": [{"op": "linea", "char": "watson", "line": "gesto"}], "corta": []}
+  },
+  {
+    "id": "HB5", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-W", "actor": ["cotter"],
+    "disparador": {"evento": "say", "match": {"char": "watson", "topic": "fina"}, "contador": "hb5", "n_in": [2]},
+    "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "voz_a"},
+    "efecto": [{"op": "retirar", "copy": "D29a@L4", "dias": null}],
+    "rastro": [{"tpl": "recibo", "texto": "{{#recibo a:vinculo_mycroft e:mycroft|Prestadas a un caballero del Foreign Office; firma por poder M. H.}}"}],
+    "corta": [{"copy": "D29a@L4", "ventana": {"permanente": true}}, {"ref": "C2.R4", "ventana": {"permanente": true}}],
+    "agrega": ["C7.R5"],
+    "variante_blanda": {"efecto": [{"op": "linea", "char": "watson", "line": "prestadas"}], "corta": []}
+  },
+  {
+    "id": "HB6", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-H", "actor": ["cotter", "mrs_hudson"],
+    "disparador": {"evento": "go", "match": {"place": "L3", "area": "vestibulo"}, "una_vez_por": ["place"]},
+    "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "voz_a"},
+    "efecto": [{"op": "flag", "name": "hudson_cerrada", "value": true}],
+    "rastro": [{"tpl": "ordenes", "texto": "{{#ordenes a:ancla_kh a:me_vigila_de_cerca e:mycroft|Órdenes del empleado del señor Mycroft, sir.}}"}],
+    "corta": [{"copy": "D30@L3", "ventana": {"permanente": true}}, {"ref": "C4.R5", "ventana": {"permanente": true}}],
+    "agrega": ["C6"],
+    "variante_blanda": {"efecto": [], "corta": []}
+  },
+  {
+    "id": "HB8b", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 3, "canal": "K-S", "actor": ["cotter"],
+    "disparador": {"evento": "task", "match": {"char": "wiggins"}, "contador": "hb8b", "n_in": [2]},
+    "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "voz_a"},
+    "efecto": [{"op": "cerrar", "target": "char:wiggins", "dias": null}],
+    "rastro": [{"tpl": "carta", "texto": "{{#chelin a:me_vigila_de_cerca|Un chelín compra a un chico, señor; no compra un hecho.}}"}],
+    "corta": [{"ref": "C7.R7", "ventana": {"permanente": true}}, {"ref": "C10.Id", "ventana": {"permanente": true}}],
+    "agrega": ["C7"],
+    "variante_blanda": {"efecto": [], "corta": []}
+  },
+  {
+    "id": "HB11", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "*", "actor": ["cotter"],
+    "disparador": {"evento": "say", "match": {"canary": true}, "contador": "canary", "n_in": [2]},
+    "condiciones": {}, "ancla": ["phrase"],
+    "latencia": {"tipo": "voz_a"},
+    "efecto": [{"op": "cerrar", "target": "canal:K-H", "dias": null}],
+    "rastro": [{"tpl": "carta", "texto": "{{#experimento a:me_vigila_de_cerca|Su experimento fue elegante; no lo repita.}}"}],
+    "corta": [{"acceso": "canal:K-H", "ventana": {"permanente": true}}],
+    "agrega": [],
+    "variante_blanda": {"efecto": [], "corta": []}
+  },
+  {
+    "id": "HB12", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-T", "actor": ["mycroft"],
+    "disparador": {"evento": "show", "match": {"char": "mycroft"}, "contador": "hb12", "n_in": [2]},
+    "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "inmediata"},
+    "efecto": [{"op": "flag", "name": "forasteros_cerrada", "value": true}],
+    "rastro": [{"tpl": "linea", "texto": "{{#pereza a:me_vigila_de_cerca e:mycroft|Ha confundido usted mi pereza con mi ignorancia.}}"}],
+    "corta": [{"acceso": "L5.forasteros", "ventana": {"permanente": true}}],
+    "agrega": [],
+    "variante_blanda": {"efecto": [], "corta": []}
+  }
+]}

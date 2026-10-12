@@ -1,0 +1,20 @@
+{
+ "char": "watson",
+ "label": "el doctor Watson",
+ "intro": "Dr. J. H. Watson",
+ "addr": "doctor",
+ "sensor": "K-W",
+ "max_questions": 3,
+ "trait": "bombin_crespon",
+ "closing": "Tengo pacientes, señor Lisle.",
+ "ask_phrase": {
+  "default": "¿Qué sabe usted de ${topic}, ${addr}?"
+ },
+ "lines": [
+  {
+   "id": "gen.1",
+   "layer": "generica",
+   "text": "Un hombre puede ser herido más de una vez, señor Lisle."
+  }
+ ]
+}

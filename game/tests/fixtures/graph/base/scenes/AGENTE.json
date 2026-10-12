@@ -1,0 +1,3 @@
+{"id": "AGENTE", "place": "L3", "area": "agente", "when": {"day": {"gte": 7}}, "auto": true, "origin": "S.AGENTE",
+ "lines": [{"id": "militar", "who": "chico_agente", "text": "{{#militar a:escondite_preparado f:secreto_camden e:harris e:camden_house|La casa de enfrente la anda viendo un militar, el mayor Harris.}}"}]
+}

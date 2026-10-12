@@ -1,0 +1,11 @@
+{"id": "L8", "name": "Camden House",
+ "areas": {"interior": {"desc": "casa vacía"}},
+ "frames": [{"id": "general", "area": "*", "pos": [0.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0], "fov": 45}],
+ "props": [],
+ "nodes": [
+  {"id": "guillotina", "noun": "ventana de guillotina", "anchor": {"c": [0.0, 1.5, -2.0], "s": [1.0, 1.5, 0.2]}, "examine": "La guillotina de la ventana del frente está recién engrasada.", "tags": ["a:escondite_preparado", "f:secreto_camden", "e:camden_house"], "cls": "I", "area": "interior"},
+  {"id": "ceniza", "noun": "ceniza", "anchor": {"c": [0.5, 0.0, -1.5], "s": [0.2, 0.1, 0.2]}, "examine": "Ceniza negra de cheroot en el suelo.", "tags": ["a:tirador", "f:secreto_camden", "e:cheroot"], "cls": "I", "area": "interior"}
+ ],
+ "characters": [],
+ "variants": {}
+}

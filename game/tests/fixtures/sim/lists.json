@@ -1,0 +1,1299 @@
+{
+ "_nota": "W1-BIBLE. Listas cerradas, iguales para todas las conclusiones (GDD §8.2, ARCHITECTURE §4.6). Los ids de verbos, relaciones y estados se muestran cambiando «_» por espacio. Claves extra respecto del ejemplo de §4.6 (documentadas en su propio _nota): contracciones, london_places, camden_entities; campos extra: assertions[].channels/about_holmes/says_alive, ad_forms[].label/when/to_s/canary, sensors[*].char/place/assertion_kinds/visits/show/from_day, report_cats[].clip_voice.",
+ "verbos": [
+  "ceder",
+  "vender",
+  "comprar",
+  "matar",
+  "disparar",
+  "ocultar",
+  "suprimir",
+  "vigilar",
+  "pagar",
+  "escribir",
+  "dictar",
+  "volver",
+  "preparar",
+  "separarse_de",
+  "seguir",
+  "hallar"
+ ],
+ "relaciones": [
+  "lee_a",
+  "paga_a",
+  "vigila_a",
+  "obedece_a",
+  "usa_a",
+  "busca_a"
+ ],
+ "medios": [
+  {
+   "id": "sala_lectura",
+   "label": "la Sala de Lectura",
+   "ch": "kbm",
+   "entities": [
+    "hombre_de_la_canastilla"
+   ]
+  },
+  {
+   "id": "consultorio",
+   "label": "el consultorio de Watson",
+   "ch": "kw",
+   "entities": [
+    "watson"
+   ]
+  },
+  {
+   "id": "221b",
+   "label": "221B",
+   "ch": "kh",
+   "entities": [
+    "mrs_hudson"
+   ]
+  },
+  {
+   "id": "la_calle",
+   "label": "la calle",
+   "ch": "ks",
+   "entities": [
+    "muchacho_de_gorra"
+   ]
+  },
+  {
+   "id": "columna",
+   "label": "la columna del Times",
+   "ch": "kt",
+   "entities": [
+    "times"
+   ]
+  }
+ ],
+ "estados": [
+  "vivo",
+  "muerto",
+  "desconocido"
+ ],
+ "_templates_nota": "GDD §8.4. Rótulos «Campo: ___» con el artículo dentro del rótulo; ninguno presupone un hecho. accept.kinds = tipos de entidad del índice; accept.list = lista cerrada de este archivo (para medios valen también sus entities). Cada línea llena lleva su «según». Ids de campo: T1 fuente_a/dice_a/fuente_b/dice_b · T2 fuente/calla/consta_en · T3 persona/es · T4 documento/redacto · T5 persona/hizo/que/a/con/donde/cuando · T6 persona/relacion/a_quien/por_medio/y_de · T7 persona/estado · T8 persona/lugar/dia · T9 persona/usa_a/como/para/a_quien.",
+ "templates": {
+  "T1": {
+   "name": "Errata",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "fuente_a",
+       "label": "Fuente A: ___",
+       "accept": {
+        "kinds": [
+         "documento",
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "dice_a",
+       "label": "Dice: ___",
+       "accept": {
+        "kinds": [
+         "concepto",
+         "objeto",
+         "fecha",
+         "persona",
+         "lugar",
+         "suceso",
+         "documento"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "fuente_b",
+       "label": "Fuente B: ___",
+       "accept": {
+        "kinds": [
+         "documento",
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "dice_b",
+       "label": "Dice: ___",
+       "accept": {
+        "kinds": [
+         "concepto",
+         "objeto",
+         "fecha",
+         "persona",
+         "lugar",
+         "suceso",
+         "documento"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T2": {
+   "name": "Omisión",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "fuente",
+       "label": "Fuente: ___",
+       "accept": {
+        "kinds": [
+         "documento",
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "calla",
+       "label": "Calla: ___",
+       "accept": {
+        "kinds": [
+         "concepto",
+         "objeto",
+         "fecha",
+         "persona",
+         "lugar",
+         "suceso"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "consta_en",
+       "label": "Consta en: ___",
+       "accept": {
+        "kinds": [
+         "documento",
+         "persona"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T3": {
+   "name": "Identidad",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "es",
+       "label": "Es, en verdad: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T4": {
+   "name": "Autoría",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "documento",
+       "label": "Documento: ___",
+       "accept": {
+        "kinds": [
+         "documento"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "redacto",
+       "label": "Lo redactó: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T5": {
+   "name": "Hecho",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "hizo",
+       "label": "Hizo: ___",
+       "accept": {
+        "list": "verbos"
+       }
+      },
+      {
+       "id": "que",
+       "label": "Qué o a quién: ___",
+       "accept": {
+        "kinds": [
+         "persona",
+         "objeto",
+         "documento",
+         "concepto",
+         "lugar"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "a",
+       "label": "A o contra: ___",
+       "accept": {
+        "kinds": [
+         "persona",
+         "lugar",
+         "objeto"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "con",
+       "label": "Con: ___",
+       "accept": {
+        "kinds": [
+         "objeto",
+         "concepto"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "donde",
+       "label": "Dónde: ___",
+       "accept": {
+        "kinds": [
+         "lugar",
+         "concepto",
+         "suceso"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "cuando",
+       "label": "Cuándo: ___",
+       "accept": {
+        "kinds": [
+         "fecha",
+         "suceso",
+         "concepto"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T6": {
+   "name": "Relación",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "relacion",
+       "label": "Relación: ___",
+       "accept": {
+        "list": "relaciones"
+       }
+      },
+      {
+       "id": "a_quien",
+       "label": "A quién: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "por_medio",
+       "label": "Por medio de: ___",
+       "accept": {
+        "list": "medios"
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "y_de",
+       "label": "Y de: ___",
+       "accept": {
+        "list": "medios"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T7": {
+   "name": "Estado",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "estado",
+       "label": "Estado en marzo de 1894: ___",
+       "accept": {
+        "list": "estados"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T8": {
+   "name": "Paradero",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "lugar",
+       "label": "Lugar: ___",
+       "accept": {
+        "kinds": [
+         "lugar"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "dia",
+       "label": "Día: ___",
+       "accept": {
+        "kinds": [
+         "fecha",
+         "suceso"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T9": {
+   "name": "Propósito",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "usa_a",
+       "label": "Usa a: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "como",
+       "label": "Como: ___",
+       "accept": {
+        "kinds": [
+         "concepto",
+         "objeto",
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "para",
+       "label": "Para: ___",
+       "accept": {
+        "list": "verbos"
+       }
+      },
+      {
+       "id": "a_quien",
+       "label": "A quién: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "assertions": [
+  {
+   "id": "as.pared",
+   "kind": "cebo",
+   "topic": "pared",
+   "requires": [
+    "reichenbach",
+    "pared"
+   ],
+   "ad_text": "la pared era a pique",
+   "phrase": "La pared era a pique, ¿no, ${addr}?",
+   "about_holmes": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "as.cayeron",
+   "kind": "cebo",
+   "topic": "cayeron",
+   "requires": [
+    "reichenbach",
+    "profesor_moriarty"
+   ],
+   "ad_text": "cayeron los dos",
+   "phrase": "Cayeron los dos, ¿no es cierto, ${addr}?",
+   "about_holmes": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "as.nota_falsa",
+   "kind": "cebo",
+   "topic": "nota_falsa",
+   "requires": [
+    "holmes",
+    "nota_de_meiringen"
+   ],
+   "ad_text": "el señor Holmes no sabía que la nota de Meiringen era falsa",
+   "phrase": "El señor Holmes no sabía que la nota de Meiringen era falsa, ${addr}.",
+   "about_holmes": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "as.testamento",
+   "kind": "cebo",
+   "topic": "testamento",
+   "requires": [
+    "holmes",
+    "testamento"
+   ],
+   "ad_text": "el señor Holmes murió sin testamento",
+   "phrase": "El señor Holmes murió sin testamento, ${addr}.",
+   "about_holmes": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "as.mintio",
+   "kind": "cebo",
+   "topic": "mintio",
+   "requires": [
+    "watson",
+    "fina"
+   ],
+   "ad_text": "el doctor mintió",
+   "phrase": "En «El problema final» el cronista mintió, ${addr}.",
+   "about_holmes": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "as.vive",
+   "kind": "vive",
+   "topic": "vive",
+   "requires": [
+    "holmes"
+   ],
+   "ad_text": "Holmes vive",
+   "phrase": "Holmes vive, ${addr}.",
+   "about_holmes": true,
+   "says_alive": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "cn.chelsea",
+   "kind": "canario",
+   "topic": "lisle_mudanza",
+   "requires": [],
+   "ad_text": "",
+   "phrase": "Me mudo a Chelsea la semana que viene, ${addr}.",
+   "channels": [
+    "kh",
+    "kw"
+   ]
+  },
+  {
+   "id": "cn.oculista",
+   "kind": "canario",
+   "topic": "lisle_ojos",
+   "requires": [],
+   "ad_text": "",
+   "phrase": "Desde el lunes el oculista me prohíbe leer de noche, ${addr}.",
+   "channels": [
+    "kh",
+    "kw"
+   ]
+  },
+  {
+   "id": "cn.edimburgo",
+   "kind": "canario",
+   "topic": "lisle_viaje",
+   "requires": [],
+   "ad_text": "",
+   "phrase": "El sábado me voy a Edimburgo; me ofrecen un puesto de corrector, ${addr}.",
+   "channels": [
+    "kh",
+    "kw"
+   ]
+  },
+  {
+   "id": "cn.boda",
+   "kind": "canario",
+   "topic": "lisle_boda",
+   "requires": [],
+   "ad_text": "",
+   "phrase": "Me caso en junio con la hija de un impresor, ${addr}.",
+   "channels": [
+    "kh",
+    "kw"
+   ]
+  }
+ ],
+ "_assertions_nota": "kind cebo: los 5 temas de HB1/HB2 (pared, cayeron, nota_falsa, testamento, mintio); el contador de la Ley 2 es por topic. kind vive: HB4 ante Watson, HB7 en la columna. kind canario: dato falso sobre Lisle mismo, ajeno a Holmes (HA4/HB11); en la columna el canario es la forma de anuncio «perdido». requires = entidades que deben estar en el índice para ofrecer la afirmación. ${addr} = dialogue/<char>.json addr. channels = canales donde la afirmación puede decirse o publicarse (kt = anuncio).",
+ "ad_forms": [
+  {
+   "id": "testigo",
+   "label": "Se busca testigo",
+   "text": "Se busca testigo de ${suceso}. Escribir a E. L., Holywell Street.",
+   "slots": {
+    "suceso": {
+     "options": [
+      "suceso_reichenbach",
+      "suceso_park_lane",
+      "suceso_vere_street"
+     ]
+    }
+   },
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  },
+  {
+   "id": "a_proposito",
+   "label": "A propósito de…",
+   "text": "A propósito de ${fuente}: ${afirmacion}. —E. L.",
+   "slots": {
+    "fuente": {
+     "kinds": [
+      "documento"
+     ]
+    },
+    "afirmacion": {
+     "assertions": [
+      "cebo",
+      "vive"
+     ]
+    }
+   },
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  },
+  {
+   "id": "al_corresponsal",
+   "label": "Al corresponsal S.",
+   "text": "Al corresponsal S.: ${frase}. —E. L.",
+   "slots": {
+    "frase": {
+     "assertions": [
+      "cebo",
+      "vive"
+     ]
+    }
+   },
+   "when": {
+    "day": {
+     "gte": 4
+    }
+   },
+   "to_s": true,
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  },
+  {
+   "id": "perdido",
+   "label": "Perdido",
+   "text": "Perdido: ${objeto}. Se gratificará a quien lo devuelva a E. L., Holywell Street.",
+   "slots": {
+    "objeto": {
+     "kinds": [
+      "objeto"
+     ]
+    }
+   },
+   "canary": true,
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  }
+ ],
+ "_ad_forms_nota": "GDD §8.2 formas 1–4. Una opción o valor se ofrece sólo si su entidad está en el índice. ${suceso}/${fuente}/${objeto} se escriben con el name de la entidad (aplicar contracciones); ${afirmacion}/${frase} = ad_text de la afirmación. forbid_kinds_lugar_londres: ningún valor puede ser una entidad de london_places; forbid_tags: ningún valor puede ser una entidad de camden_entities. al_corresponsal existe desde que «—S.» contestó en la columna (HC10, 4.dawn) y se dirige a S. (HB7). perdido es el canario de la columna (HA4).",
+ "contracciones": [
+  [
+   "de el ",
+   "del "
+  ],
+  [
+   "De el ",
+   "Del "
+  ],
+  [
+   "a el ",
+   "al "
+  ],
+  [
+   "A el ",
+   "Al "
+  ],
+  [
+   "..",
+   "."
+  ]
+ ],
+ "_contracciones_nota": "Se aplican, en orden, al texto armado con ${...} (anuncios, telegramas, diario) después de Markup.fill: «A propósito de el Journal…» → «A propósito del Journal…»; «matasellos S.W..» → «matasellos S.W.». Los nombres propios que empiezan con «El» en mayúscula (El problema final) no se contraen.",
+ "london_places": [
+  "londres",
+  "holywell_street",
+  "buhardilla",
+  "tienda_de_crane",
+  "el_strand",
+  "st_clement_danes",
+  "fleet_street",
+  "chancery_lane",
+  "museo_britanico",
+  "sala_de_lectura",
+  "sala_de_periodicos",
+  "baker_street",
+  "221b",
+  "camden_house",
+  "casa_vacia",
+  "oficina_del_agente",
+  "kensington",
+  "kensington_high_street",
+  "church_street",
+  "club_diogenes",
+  "sala_de_forasteros",
+  "pall_mall",
+  "whitehall",
+  "somerset_house",
+  "park_lane",
+  "park_lane_427",
+  "parada_de_coches",
+  "hyde_park",
+  "imprenta",
+  "conduit_street",
+  "paddington",
+  "chelsea",
+  "victoria",
+  "charing_cross",
+  "lista_de_correos",
+  "vere_street",
+  "greenwich",
+  "scotland_yard",
+  "anglo_indian",
+  "bagatelle",
+  "tankerville"
+ ],
+ "camden_entities": [
+  "camden_house",
+  "casa_vacia",
+  "guillotina",
+  "polvo_removido",
+  "libro_de_llaves",
+  "llave",
+  "militar"
+ ],
+ "_camden_nota": "Entidades marcadas secreto_camden (GDD §2.4): ninguna forma de anuncio, telegrama o carta las admite. Las etiquetas f:secreto_camden de tramos y nodos siguen siendo la fuente para los sensores (strip_tags).",
+ "src_types": {
+  "cronica": "crónica",
+  "prueba": "otra edición o prueba",
+  "prensa_extranjera": "prensa extranjera",
+  "prensa_londres": "prensa de Londres",
+  "registro": "registro",
+  "libro": "libro",
+  "papel_privado": "papel privado",
+  "carta_recibida": "carta recibida",
+  "fotografia": "fotografía",
+  "escena": "dicho en ${lugar}",
+  "dicho": "dicho por ${quien}",
+  "lugar": "lugar u objeto",
+  "diario": "diario"
+ },
+ "slip_topics": {
+  "holmes_cronicas": "holmes",
+  "holmes_prensa_1891": "holmes",
+  "holmes_monografia": "holmes",
+  "sigerson": "holmes",
+  "coronel": "silencio",
+  "moran": "silencio",
+  "sudan": "silencio",
+  "gazette": "silencio",
+  "kelly": "silencio",
+  "prensa_1894": "silencio",
+  "watson_prensa": "silencio",
+  "otros": "silencio"
+ },
+ "_slip_topics_nota": "Tema de papeleta de cada doc del BM (docs/*.json slip_topic) → grupo. «holmes» dispara HA1 (una vez por tema); «silencio» = HB14 (cartas del coronel, libros de Moran, Ohrwalder y notas del Sudán, Gazette, Kelly's, prensa de 1894, Lancet y subasta, y todo lo demás).",
+ "topic_groups": {
+  "roca": [
+   "pared",
+   "a_pique",
+   "raspadura",
+   "marca_en_la_roca",
+   "cornisa",
+   "roca",
+   "sendero",
+   "reichenbach",
+   "fina",
+   "galerada",
+   "pruebas_americanas",
+   "pruebas_de_watson",
+   "journal_de_geneve",
+   "baston",
+   "carta_de_reichenbach",
+   "nota_de_meiringen",
+   "profesor_moriarty",
+   "suceso_reichenbach",
+   "cayeron",
+   "nota_falsa",
+   "testamento",
+   "mintio"
+  ],
+  "mary": [
+   "mary_watson",
+   "duelo",
+   "crespon",
+   "muerte_de_mary",
+   "esposa"
+  ],
+  "vive": [
+   "vive",
+   "vivo"
+  ],
+  "221b": [
+   "221b",
+   "cuartos",
+   "alquiler",
+   "mycroft",
+   "libro_de_recibos",
+   "shag",
+   "cajon_de_grenoble"
+  ],
+  "sigerson": [
+   "sigerson",
+   "despachos_sigerson",
+   "tibet",
+   "jartum"
+  ]
+ },
+ "_topic_groups_nota": "Miembros = entidades (tema preguntado, entidades visibles de lo presentado) o topic de una afirmación. K-W transmite roca, mary y vive (GDD §9.2: roca, FINA, Reichenbach, Mary; HB4 para «Holmes vive»); K-H transmite 221b (no otras casas). sigerson: HB3.",
+ "sensors": {
+  "K-W": {
+   "char": "watson",
+   "topics": [
+    "roca",
+    "mary",
+    "vive"
+   ],
+   "assertion_kinds": [
+    "cebo",
+    "vive",
+    "canario"
+   ],
+   "show": true,
+   "to_holmes_exclude": [
+    "mary",
+    "vive"
+   ]
+  },
+  "K-H": {
+   "char": "mrs_hudson",
+   "place": "L3",
+   "topics": [
+    "221b"
+   ],
+   "assertion_kinds": [
+    "cebo",
+    "vive",
+    "canario"
+   ],
+   "visits": true,
+   "show": true
+  },
+  "K-S": {
+   "fields": [
+    "streets",
+    "hour"
+   ],
+   "from_day": 3
+  },
+  "K-BM": {
+   "fields": [
+    "seat",
+    "title",
+    "hour"
+   ]
+  },
+  "K-T": {
+   "fields": [
+    "text"
+   ]
+  },
+  "strip_tags": [
+   "secreto_camden"
+  ]
+ },
+ "_sensors_nota": "GDD §9.2. K-W/K-H: un say pasa si su topic está en uno de sus topic_groups o si es una afirmación de assertion_kinds; un show pasa si alguna entidad visible está en sus grupos (show:true). K-H además ve toda visita al interior de 221B (visits:true). to_holmes_exclude: grupos que llegan a Mycroft (voz A) y no pasan a Holmes (Mary, «Holmes vive»: HB4). K-S desde el día 3, sólo calles y hora. K-BM: asiento, título y hora de la papeleta. K-T: texto publicado. strip_tags: ninguna etiqueta f:secreto_camden pasa por ningún sensor (T22).",
+ "abbrev": [
+  "Mr.",
+  "Mrs.",
+  "Messrs.",
+  "Dr.",
+  "St.",
+  "Sr.",
+  "Sra.",
+  "Srta.",
+  "Sres.",
+  "Dña.",
+  "Ud.",
+  "Uds.",
+  "Vd.",
+  "Cnel.",
+  "Col.",
+  "Gral.",
+  "Tte.",
+  "Cap.",
+  "My.",
+  "Rev.",
+  "Esq.",
+  "Co.",
+  "Ltd.",
+  "Bros.",
+  "Hon.",
+  "Vict.",
+  "F.O.",
+  "p.p.",
+  "G.V.",
+  "Hnos.",
+  "Cía.",
+  "Excmo.",
+  "Sto.",
+  "Sta.",
+  "vol.",
+  "vols.",
+  "cap.",
+  "caps.",
+  "pág.",
+  "págs.",
+  "núm.",
+  "n.º",
+  "art.",
+  "lám.",
+  "fig.",
+  "ed.",
+  "cf.",
+  "ej.",
+  "aprox.",
+  "a.",
+  "p.",
+  "m.",
+  "c.",
+  "etc.",
+  "Lun.",
+  "Mar.",
+  "Mié.",
+  "Jue.",
+  "Vie.",
+  "Sáb.",
+  "Dom.",
+  "lun.",
+  "mié.",
+  "jue.",
+  "vie.",
+  "sáb.",
+  "dom.",
+  "ene.",
+  "feb.",
+  "mar.",
+  "abr.",
+  "may.",
+  "jun.",
+  "jul.",
+  "ago.",
+  "sep.",
+  "oct.",
+  "nov.",
+  "dic."
+ ],
+ "_abbrev_nota": "Abreviaturas que no cortan oración (además de toda inicial mayúscula de una letra seguida de punto). Markup compara el token entero que precede al punto. Dinero dentro de una oración: escribir «2s\\. 6d\\.» (escape \\.); sólo el punto final de la oración queda sin escapar. F.O., p.p., G.V., Vict. y Hon. están porque el GDD los usa a media oración («a pedido del F.O. — la raspadura», «recibo p.p. M. H.», «G.V. — Grenoble», «22 y 23 Vict. c. 35»). Trampas para redactores: «mar.» (martes, en las etiquetas de actos «asiento 214, mar. 27») está en la lista, así que una oración que termina en la palabra «mar» no corta (reescribir: «el mar abierto.»); y una firma «—S.» o «—E. L.» no corta (la raya es apertura y queda una inicial): en la columna, separar los avisos con \\n.",
+ "diary": {
+  "go": {
+   "text": "${fecha}, ${franja}: [[@act|${lugar}]].",
+   "tags": [
+    "a:acto_ks"
+   ]
+  },
+  "go.L3": {
+   "text": "${fecha}, ${franja}: [[@act|Baker Street]], visita al 221B.",
+   "tags": [
+    "a:acto_ks",
+    "a:acto_kh"
+   ]
+  },
+  "go.L3.calle": {
+   "text": "${fecha}, ${franja}: [[@act|Baker Street]], la calle.",
+   "tags": [
+    "a:acto_ks"
+   ]
+  },
+  "go.L3.agente": {
+   "text": "${fecha}, ${franja}: [[@act|Baker Street]], la oficina del agente de fincas.",
+   "tags": [
+    "a:acto_ks"
+   ]
+  },
+  "stay": {
+   "text": "${fecha}, ${franja}: en casa.",
+   "tags": []
+  },
+  "slip": {
+   "text": "${fecha}, ${franja}: Sala de Lectura, [[@act|asiento ${seat}]]; pedí ${titulo}.",
+   "tags": [
+    "a:acto_kbm"
+   ]
+  },
+  "say": {
+   "text": "${fecha}, ${franja}: ${lugar}; le dije a ${quien}: [[@act|«${frase}»]]",
+   "tags": []
+  },
+  "say.watson": {
+   "text": "${fecha}, ${franja}: Kensington; le dije al doctor: [[@act|«${frase}»]]",
+   "tags": [
+    "a:acto_kw"
+   ]
+  },
+  "say.mrs_hudson": {
+   "text": "${fecha}, ${franja}: Baker Street; le dije a Mrs. Hudson: [[@act|«${frase}»]]",
+   "tags": [
+    "a:acto_kh"
+   ]
+  },
+  "show": {
+   "text": "${fecha}, ${franja}: ${lugar}; le mostré a ${quien} [[@act|${que}]].",
+   "tags": []
+  },
+  "show.watson": {
+   "text": "${fecha}, ${franja}: Kensington; le mostré al doctor [[@act|${que}]].",
+   "tags": [
+    "a:acto_kw"
+   ]
+  },
+  "show.mrs_hudson": {
+   "text": "${fecha}, ${franja}: Baker Street; le mostré a Mrs. Hudson [[@act|${que}]].",
+   "tags": [
+    "a:acto_kh"
+   ]
+  },
+  "pay": {
+   "text": "${fecha}, ${franja}: ${lugar}; [[@act|le di ${monto} a ${quien}]].",
+   "tags": []
+  },
+  "task": {
+   "text": "${fecha}, ${franja}: ${lugar}; le encargué a ${quien}: [[@act|${encargo}]].",
+   "tags": []
+  },
+  "ad": {
+   "text": "${fecha}, amanecer: sale mi aviso en el Times: [[@act|«${texto}…»]]",
+   "tags": [
+    "a:acto_kt"
+   ]
+  },
+  "telegram": {
+   "text": "${fecha}, ${franja}: [[@act|telegrama a ${destino}]]: «${texto}…»",
+   "tags": []
+  },
+  "letter": {
+   "text": "${fecha}, ${franja}: [[@act|carta a ${destino}]]: «${texto}…»",
+   "tags": []
+  },
+  "order_copy": {
+   "text": "${fecha}, ${franja}: Somerset House; [[@act|pedí copia]] de ${titulo}, que llegará por correo.",
+   "tags": []
+  },
+  "report": {
+   "text": "${fecha}, ${franja}: [[@act|entregué el informe ${n}]]: ${resumen}.",
+   "tags": []
+  },
+  "arrival": {
+   "text": "${fecha}, ${franja}: Recibido: ${que}.",
+   "tags": []
+  },
+  "go.L1.tienda": {
+   "text": "${fecha}, ${franja}: bajé a la tienda de Crane.",
+   "tags": []
+  }
+ },
+ "_diary_nota": "D36, una línea por acto observable o ciego y una por llegada (GDD §7.4). Cada plantilla es UNA oración (≤40 palabras): sus tags van en un tramo que cubre toda la línea, recortable de una vez. Búsqueda de plantilla: «<tipo>.<lugar>.<área>» → «<tipo>.<lugar>» → «<tipo>.<char>» → «<tipo>». Variables: ${fecha} = ui_text core.wd_corto.<día> con mayúscula inicial + día del mes (GDD §7.4: «Mar. 27»), ${franja} = M, T, N o ui_text core.slot.dawn / core.slot.N para amanecer y noche (las etiquetas de fechas son de W1-ENG, ui_text/core.json), ${lugar} (q_places name), ${seat}, ${titulo} (puede llevar [[mención]] del doc), ${frase} (frase exacta mostrada antes de decirla), ${quien} (label del personaje), ${que} (epígrafe de lo presentado o de lo recibido: «sobre, matasellos S.W.»), ${monto} («un chelín»), ${encargo}, ${texto} (primera oración del aviso, telegrama o carta, sin su punto final, a lo sumo 20 palabras), ${destino}, ${n}, ${resumen} («dos recortes y un asiento», «sin novedad», «lo quemé»). Después de Markup.fill se aplican lists.contracciones. [[@act|…]] = entidad runtime del acto (ctx.act); lo que va dentro de [[@act|…]] (${seat}, ${frase}, ${que}, ${monto}, ${quien}, ${encargo}, ${texto}, ${destino}, ${n}, ${lugar}) es texto plano, sin marcado. stay es opcional (franja gastada en casa). Las etiquetas a:acto_* son las del canal que observa ese tipo de acto (C6).",
+ "report_cats": [
+  {
+   "cat": "holmes_vive",
+   "entry_conclusions": [
+    "C8"
+   ],
+   "clip_tags": [
+    "c:holmes_vive"
+   ]
+  },
+  {
+   "cat": "regreso_jueves",
+   "entry_conclusions": [
+    "C9"
+   ],
+   "clip_tags": [
+    "c:regreso_jueves"
+   ]
+  },
+  {
+   "cat": "baker_street",
+   "entry_conclusions": [
+    "C9"
+   ],
+   "clip_tags": [
+    "c:baker_street"
+   ],
+   "entry_template_values": {
+    "T8": {
+     "lugar": [
+      "baker_street",
+      "221b"
+     ]
+    }
+   }
+  },
+  {
+   "cat": "camden",
+   "entry_conclusions": [
+    "C13"
+   ],
+   "clip_tags": [
+    "c:camden"
+   ]
+  },
+  {
+   "cat": "watson_privado",
+   "clip_doc_cats": [
+    "watson_privado"
+   ],
+   "clip_tags": [
+    "c:watson_privado"
+   ]
+  },
+  {
+   "cat": "original_p",
+   "clip_copy_class": [
+    "P"
+   ]
+  },
+  {
+   "cat": "moran_autor",
+   "entry_conclusions": [
+    "C5",
+    "C10",
+    "C10a",
+    "C11",
+    "C13"
+   ]
+  },
+  {
+   "cat": "paradero_extranjero",
+   "clip_tags": [
+    "c:paradero_extranjero"
+   ],
+   "entry_template_values": {
+    "T8": {
+     "lugar": [
+      "montpellier",
+      "grenoble",
+      "paris"
+     ]
+    }
+   }
+  },
+  {
+   "cat": "verdadero",
+   "entry_conclusions": [
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C14"
+   ],
+   "clip_tags": [
+    "c:verdadero"
+   ]
+  },
+  {
+   "cat": "falso_verificable",
+   "entry_template_values": {
+    "T8": {
+     "lugar": [
+      "@londres_falso"
+     ]
+    }
+   }
+  },
+  {
+   "cat": "respuesta_s",
+   "clip_voice": [
+    "B"
+   ]
+  }
+ ],
+ "_report_cats_nota": "Lo que Moran ve en cada elemento de un informe (GDD §7.3, §9.7): un asiento por sus valores (entry_conclusions = los valores coinciden con los de esa conclusión, aunque el fundamento falle; entry_template_values = valores de un campo de una plantilla); un recorte por sus etiquetas c:, por las visible_cats de su doc o por la clase de su ejemplar. M1 original_p · M2 holmes_vive · M3 watson_privado · M4 moran_autor · M5 camden/regreso_jueves · M9 falso_verificable (@londres_falso = lugar de london_places que no es el verdadero) · M12 paradero_extranjero · crédito: verdadero · F2: holmes_vive/regreso_jueves/baker_street/camden · respuesta_s: recorte de una respuesta firmada «—S.» (voz B, procedencia visible), variante de M8."
+}

@@ -1,0 +1,44 @@
+{
+ "id": "HC09",
+ "place": "L3",
+ "area": "calle",
+ "tk": "10.N",
+ "origin": "S.HC09",
+ "lines": [
+  {
+   "id": "viento",
+   "who": "lisle",
+   "text": "Sopla el viento por la calle larga."
+  }
+ ],
+ "variants": [
+  {
+   "when": {
+    "flag_eq": {
+     "noche_final": "baker_street"
+    }
+   },
+   "append": [
+    {
+     "id": "vidrio",
+     "who": "lisle",
+     "text": "Un silbido y un largo tintineo de vidrio roto."
+    }
+   ]
+  },
+  {
+   "when": {
+    "flag_eq": {
+     "noche_final": "casa"
+    }
+   },
+   "append": [
+    {
+     "id": "casa",
+     "who": "lisle",
+     "text": "Duermo mal; el gas silba toda la noche."
+    }
+   ]
+  }
+ ]
+}

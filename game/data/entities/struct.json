@@ -1,0 +1,11 @@
+{
+  "_nota": "W2-STRUCT. Entidades que sólo introducen los datos estructurales (documentos runtime de reacciones, siluetas, sucesos de Moran). El resto ya existe en core.json (W1-BIBLE): buscar ahí antes de crear (duplicado = error). Siluetas (claves de §4.11 en places/*.json y «who» de las reacciones): wiggins, m3_hombres (entidad hombres_de_moran), cochero (entidad hombre_del_abrigo, NO la entidad cochero de FINA) y muchacho_sin_gorra (HB8b).",
+  "entities": [
+    {"id": "muchacho_sin_gorra", "kind": "persona", "name": "un muchacho sin gorra", "index": "muchacho sin gorra", "noun": "muchacho sin gorra", "_nota": "HB8b: reemplaza a Wiggins como vigía de la calle (el muchacho de Cotter)."},
+    {"id": "tarjeta_de_devolucion", "kind": "documento", "name": "la tarjeta del paquete", "index": "tarjeta del paquete devuelto", "noun": "tarjeta", "_nota": "HB10: «Devuelto. Ponga cerrojo.»"},
+    {"id": "senalador", "kind": "documento", "name": "el señalador de papel", "index": "señalador de papel (Sala de Lectura)", "noun": "señalador", "_nota": "HA2: medio membrete «…GENES CLUB · PALL MALL…»."},
+    {"id": "copia_oficial", "kind": "documento", "name": "la copia oficial", "index": "copia oficial de Somerset House", "noun": "copia", "_nota": "Respuesta L6copia (order_copy)."},
+    {"id": "notas_firmadas_h", "kind": "documento", "name": "las notas firmadas «H.»", "index": "notas firmadas «H.»", "noun": "nota", "_nota": "Tras M4 (pell_despedido): M6 llega como nota «H.»."},
+    {"id": "registro_de_la_buhardilla", "kind": "suceso", "name": "el registro de la buhardilla", "index": "registro de la buhardilla", "noun": "registro", "_nota": "M1: los hombres de Moran registran la buhardilla."}
+  ]
+}

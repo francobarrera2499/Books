@@ -1,0 +1,389 @@
+{
+ "entities": [
+  {
+   "id": "watson",
+   "kind": "persona",
+   "name": "el doctor Watson",
+   "index": "Watson, John H., doctor",
+   "noun": "médico"
+  },
+  {
+   "id": "mrs_hudson",
+   "kind": "persona",
+   "name": "Mrs. Hudson",
+   "index": "Hudson, Mrs.",
+   "noun": "casera"
+  },
+  {
+   "id": "mycroft",
+   "kind": "persona",
+   "name": "Mycroft Holmes",
+   "index": "Holmes, Mycroft",
+   "noun": "caballero corpulento"
+  },
+  {
+   "id": "holmes",
+   "kind": "persona",
+   "name": "Sherlock Holmes",
+   "index": "Holmes, Sherlock",
+   "noun": "detective"
+  },
+  {
+   "id": "crane",
+   "kind": "persona",
+   "name": "Crane",
+   "index": "Crane, Abel, librero",
+   "noun": "librero"
+  },
+  {
+   "id": "pell",
+   "kind": "persona",
+   "name": "el señor Pell",
+   "index": "Pell, Josiah, procurador",
+   "noun": "procurador"
+  },
+  {
+   "id": "harris",
+   "kind": "persona",
+   "name": "el mayor Harris",
+   "index": "Harris, mayor",
+   "noun": "caballero con chistera"
+  },
+  {
+   "id": "cotter",
+   "kind": "persona",
+   "name": "el escribiente",
+   "index": "escribiente",
+   "noun": "escribiente"
+  },
+  {
+   "id": "hombre_de_la_canastilla",
+   "kind": "persona",
+   "name": "el hombre de la canastilla",
+   "index": "hombre de la canastilla",
+   "noun": "hombre"
+  },
+  {
+   "id": "wiggins",
+   "kind": "persona",
+   "name": "Wiggins",
+   "index": "Wiggins",
+   "noun": "muchacho de gorra"
+  },
+  {
+   "id": "librero",
+   "kind": "persona",
+   "name": "el librero viejo",
+   "index": "librero viejo",
+   "noun": "librero viejo"
+  },
+  {
+   "id": "chico_del_agente",
+   "kind": "persona",
+   "name": "el chico del agente",
+   "index": "chico del agente",
+   "noun": "muchacho"
+  },
+  {
+   "id": "portero",
+   "kind": "persona",
+   "name": "el portero",
+   "index": "portero del Diógenes",
+   "noun": "portero"
+  },
+  {
+   "id": "lisle",
+   "kind": "persona",
+   "name": "Edmund Lisle",
+   "index": "Lisle, Edmund",
+   "noun": "corrector"
+  },
+  {
+   "id": "reichenbach",
+   "kind": "lugar",
+   "name": "el Reichenbach",
+   "index": "Reichenbach, cascada del",
+   "noun": "cascada"
+  },
+  {
+   "id": "meiringen",
+   "kind": "lugar",
+   "name": "Meiringen",
+   "index": "Meiringen",
+   "noun": "pueblo"
+  },
+  {
+   "id": "india",
+   "kind": "lugar",
+   "name": "la India",
+   "index": "India",
+   "noun": "país"
+  },
+  {
+   "id": "galerada",
+   "kind": "documento",
+   "name": "la galerada",
+   "index": "galerada de «El problema final»",
+   "noun": "galerada"
+  },
+  {
+   "id": "fina",
+   "kind": "documento",
+   "name": "«El problema final»",
+   "index": "«El problema final»",
+   "noun": "crónica"
+  },
+  {
+   "id": "journal_de_geneve",
+   "kind": "documento",
+   "name": "el Journal de Genève",
+   "index": "Journal de Genève (6-may-1891)",
+   "noun": "diario"
+  },
+  {
+   "id": "times",
+   "kind": "documento",
+   "name": "el Times",
+   "index": "Times, The",
+   "noun": "diario"
+  },
+  {
+   "id": "encargo",
+   "kind": "documento",
+   "name": "el encargo de Pell",
+   "index": "encargo de Pell",
+   "noun": "encargo"
+  },
+  {
+   "id": "notas_de_watson",
+   "kind": "documento",
+   "name": "las notas del doctor",
+   "index": "notas del doctor Watson",
+   "noun": "hoja"
+  },
+  {
+   "id": "testamento",
+   "kind": "documento",
+   "name": "los testamentos de 1891",
+   "index": "testamentos de 1891",
+   "noun": "registro"
+  },
+  {
+   "id": "libro_de_telegramas",
+   "kind": "documento",
+   "name": "el libro de telegramas",
+   "index": "libro de telegramas",
+   "noun": "libro"
+  },
+  {
+   "id": "libro_de_ventas",
+   "kind": "documento",
+   "name": "el libro de ventas",
+   "index": "libro de ventas de Crane",
+   "noun": "libro"
+  },
+  {
+   "id": "fotografia_reichenbach",
+   "kind": "documento",
+   "name": "la fotografía del Reichenbach",
+   "index": "fotografía del Reichenbach",
+   "noun": "fotografía"
+  },
+  {
+   "id": "sendero",
+   "kind": "concepto",
+   "name": "el sendero",
+   "index": "sendero",
+   "noun": "sendero"
+  },
+  {
+   "id": "pared",
+   "kind": "concepto",
+   "name": "la pared",
+   "index": "pared",
+   "noun": "pared"
+  },
+  {
+   "id": "raspadura",
+   "kind": "concepto",
+   "name": "la raspadura",
+   "index": "raspadura",
+   "noun": "raspadura"
+  },
+  {
+   "id": "cornisa",
+   "kind": "concepto",
+   "name": "la cornisa",
+   "index": "cornisa",
+   "noun": "cornisa"
+  },
+  {
+   "id": "roca",
+   "kind": "concepto",
+   "name": "la roca",
+   "index": "roca",
+   "noun": "roca"
+  },
+  {
+   "id": "donde",
+   "kind": "concepto",
+   "name": "dónde",
+   "index": "dónde",
+   "noun": "pregunta"
+  },
+  {
+   "id": "adjetivos_repetidos",
+   "kind": "concepto",
+   "name": "los adjetivos repetidos",
+   "index": "adjetivos repetidos",
+   "noun": "adjetivos"
+  },
+  {
+   "id": "ventanas",
+   "kind": "objeto",
+   "name": "las ventanas",
+   "index": "ventanas del primer piso",
+   "noun": "ventanas"
+  },
+  {
+   "id": "cheroot",
+   "kind": "objeto",
+   "name": "el cheroot",
+   "index": "cheroot",
+   "noun": "cigarro"
+  },
+  {
+   "id": "trichinopolis",
+   "kind": "concepto",
+   "name": "Trichinópolis",
+   "index": "Trichinópolis",
+   "noun": "tabaco"
+  },
+  {
+   "id": "bigote",
+   "kind": "objeto",
+   "name": "el bigote",
+   "index": "bigote",
+   "noun": "bigote"
+  },
+  {
+   "id": "cesto",
+   "kind": "objeto",
+   "name": "el cesto",
+   "index": "cesto",
+   "noun": "cesto"
+  },
+  {
+   "id": "tomos",
+   "kind": "objeto",
+   "name": "los tomos",
+   "index": "tomos de la Strand",
+   "noun": "tomos"
+  },
+  {
+   "id": "crespon",
+   "kind": "objeto",
+   "name": "el crespón",
+   "index": "crespón",
+   "noun": "crespón"
+  },
+  {
+   "id": "bombin",
+   "kind": "objeto",
+   "name": "el bombín",
+   "index": "bombín",
+   "noun": "sombrero"
+  },
+  {
+   "id": "estante",
+   "kind": "objeto",
+   "name": "el estante",
+   "index": "estante",
+   "noun": "estante"
+  },
+  {
+   "id": "shag",
+   "kind": "objeto",
+   "name": "el shag",
+   "index": "shag",
+   "noun": "tabaco"
+  },
+  {
+   "id": "papel_corto",
+   "kind": "objeto",
+   "name": "el papel corto",
+   "index": "papel corto",
+   "noun": "papel"
+  },
+  {
+   "id": "suceso_reichenbach",
+   "kind": "suceso",
+   "name": "lo de Reichenbach",
+   "index": "Reichenbach (4-may-1891)",
+   "noun": "suceso"
+  },
+  {
+   "id": "suceso_park_lane",
+   "kind": "suceso",
+   "name": "lo de Park Lane",
+   "index": "Park Lane (30-mar-1894)",
+   "noun": "suceso"
+  },
+  {
+   "id": "suceso_vere_street",
+   "kind": "suceso",
+   "name": "lo de Vere Street",
+   "index": "Vere Street",
+   "noun": "suceso"
+  },
+  {
+   "id": "profesor_moriarty",
+   "kind": "persona",
+   "name": "el profesor Moriarty",
+   "index": "Moriarty, profesor",
+   "noun": "profesor"
+  },
+  {
+   "id": "nota_de_meiringen",
+   "kind": "documento",
+   "name": "la nota de Meiringen",
+   "index": "nota de Meiringen",
+   "noun": "nota"
+  },
+  {
+   "id": "seguir_chico_pell",
+   "kind": "concepto",
+   "name": "seguir al chico de Pell",
+   "index": "seguir al chico de Pell",
+   "noun": "encargo"
+  },
+  {
+   "id": "guia_suiza",
+   "kind": "documento",
+   "name": "la guía de Suiza",
+   "index": "guía de viajeros por Suiza",
+   "noun": "guía"
+  },
+  {
+   "id": "heavy_game",
+   "kind": "documento",
+   "name": "Heavy Game",
+   "index": "Heavy Game of the Western Himalayas",
+   "noun": "libro"
+  },
+  {
+   "id": "london_gazette",
+   "kind": "documento",
+   "name": "la London Gazette",
+   "index": "London Gazette",
+   "noun": "gaceta"
+  },
+  {
+   "id": "cabrito",
+   "kind": "concepto",
+   "name": "el cabrito",
+   "index": "cabrito",
+   "noun": "cabrito"
+  }
+ ]
+}

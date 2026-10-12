@@ -1,0 +1,14 @@
+{
+  "id": "D10", "entity": "heavy_game", "title": "«Heavy Game of the Western Himalayas», Londres, 1881",
+  "src_type": "libro", "class": "I", "date": "1881-01-01", "font": "imprenta", "paper": "registro",
+  "slip_topic": "moran",
+  "catalog": {"label": "Heavy Game of the Western Himalayas (1881)", "entities": ["heavy_game", "moran"]},
+  "copies": [
+    {"id": "D10@BM", "holder": "BM", "area": "libros", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"},
+    {"id": "D10@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#cabrito_atado a:cebo e:cabrito|Del [[cabrito_atado|cabrito atado]]: se lo ata en el claro y se espera arriba.}} {{#adjetivos a:harris_es_moran e:adjetivos_repetidos e:moran|Fue un trabajo cruel, cruel, escribe el [[moran|coronel]].}} La bala blanda se abre dentro de la bestia."}
+  ],
+  "words": 40
+}

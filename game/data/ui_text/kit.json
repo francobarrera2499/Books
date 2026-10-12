@@ -1,0 +1,10 @@
+{
+  "_nota": "W1-THEME. Textos del kit de UI (ui/kit/widgets.gd). Claves con prefijo kit.",
+  "text": {
+    "kit.confirm.ok": "Confirmar",
+    "kit.confirm.back": "Volver",
+    "kit.close": "Cerrar",
+    "kit.segun": "según",
+    "kit.stamp.visto": "Visto"
+  }
+}

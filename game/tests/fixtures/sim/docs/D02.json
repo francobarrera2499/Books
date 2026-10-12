@@ -1,0 +1,10 @@
+{
+  "id": "D02", "entity": "galerada", "title": "Galerada de «El problema final», 2 de noviembre de 1893",
+  "src_type": "papel_privado", "class": "P", "date": "1893-11-02", "chron_date": "1891-05-04", "font": "imprenta", "paper": "registro",
+  "paper_mm": [160, 480],
+  "copies": [{"id": "D02@L1", "holder": "L1", "area": "buhardilla", "via": "desk", "from": "P.N", "to": "10.N"}],
+  "parts": [
+    {"id": "p1", "text": "{{#clausula a:raspadura_registrada e:raspadura|En la [[roca|roca]], a la altura del hombro, [[raspadura|una raspadura]] fresca.}}"}
+  ],
+  "words": 14
+}

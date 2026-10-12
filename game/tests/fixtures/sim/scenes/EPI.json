@@ -1,0 +1,13 @@
+{
+ "id": "EPI",
+ "place": "L1",
+ "area": "buhardilla",
+ "origin": "S.EPI",
+ "lines": [
+  {
+   "id": "strand",
+   "who": "lisle",
+   "text": "Octubre de 1903: compro la Strand y leo «La casa vacía»."
+  }
+ ]
+}

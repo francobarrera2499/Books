@@ -1,0 +1,885 @@
+{
+ "_nota": "W2-PLACES-B. Camden House, interior (GDD§5 L8; EMPT): el cuarto delantero vacío de la planta baja. Las ventanas miran a -X (la luz del preset farol_calle entra por ahí); enfrente, al otro lado de Baker Street, el 221B (fachada en x=-18,7 mirando a +X) con una ventana del primer piso alineada con la de Moran (z=+1,25). La calle está un piso más abajo (vereda en y=-0,88). Ventana de Moran: postigos abiertos, polvo barrido en el alféizar, aceite en las poleas; la otra: postigos cerrados, polvo intacto. Días 8-9: enfrente, las ventanas del 221B abiertas (nodo ventanas_enfrente → casa.alts).",
+ "id": "L8",
+ "name": "Camden House",
+ "streets": [
+  "Baker Street"
+ ],
+ "areas": {
+  "interior": {
+   "desc": "el cuarto delantero vacío de la planta baja, con el chico del agente"
+  }
+ },
+ "observers": [],
+ "epigraph": "—Está como la dejaron, señor: el polvo de todo el invierno.",
+ "frames": [
+  {
+   "id": "sala",
+   "area": "*",
+   "pos": [
+    2.5,
+    1.65,
+    0.95
+   ],
+   "look": [
+    -2.7,
+    1.0,
+    -0.45
+   ],
+   "fov": 64,
+   "orbit": {
+    "pivot": [
+     -0.5,
+     1.2,
+     0.3
+    ],
+    "yaw": 25,
+    "pitch": 10
+   }
+  },
+  {
+   "id": "ventana",
+   "area": "*",
+   "pos": [
+    -1.55,
+    1.3,
+    1.95
+   ],
+   "look": [
+    -2.9,
+    0.8,
+    1.25
+   ],
+   "fov": 48,
+   "orbit": {
+    "pivot": [
+     -2.7,
+     1.1,
+     1.25
+    ],
+    "yaw": 20,
+    "pitch": 10
+   }
+  },
+  {
+   "id": "vista",
+   "area": "*",
+   "pos": [
+    -2.72,
+    0.87,
+    1.25
+   ],
+   "look": [
+    -18.6,
+    4.4,
+    1.6
+   ],
+   "fov": 52,
+   "orbit": {
+    "pivot": [
+     -2.78,
+     0.88,
+     1.25
+    ],
+    "yaw": 8,
+    "pitch": 4
+   }
+  }
+ ],
+ "light": {
+  "M": "farol_calle",
+  "T": "farol_calle",
+  "N": "farol_calle"
+ },
+ "props": [
+  {
+   "id": "sala",
+   "type": "architecture.room",
+   "pos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "p": {
+    "w": 5.6,
+    "d": 5.4,
+    "h": 3.5,
+    "t": 0.3,
+    "wall": "papel_pintado",
+    "floor": "suelo_tablas",
+    "ceiling": "yeso_sucio",
+    "dado": 0.9,
+    "dado_mat": "madera_media",
+    "openings": [
+     {
+      "wall": "w",
+      "kind": "void",
+      "x": -1.25,
+      "w": 1.1,
+      "h": 2.3,
+      "sill": 0.75
+     },
+     {
+      "wall": "w",
+      "kind": "void",
+      "x": 1.25,
+      "w": 1.1,
+      "h": 2.3,
+      "sill": 0.75
+     },
+     {
+      "wall": "s",
+      "kind": "door",
+      "x": 1.4,
+      "w": 1.0,
+      "h": 2.3,
+      "sill": 0.0,
+      "open": 0.9
+     }
+    ]
+   }
+  },
+  {
+   "id": "ventana_cerrada_p",
+   "type": "l8.ventana",
+   "pos": [
+    -2.95,
+    0.75,
+    -1.25
+   ],
+   "rot": 90,
+   "p": {
+    "w": 1.1,
+    "h": 2.3,
+    "depth": 0.3,
+    "shutters": "closed",
+    "dust_sill": "intact",
+    "dust": 0.9,
+    "dust_low": 0.92
+   }
+  },
+  {
+   "id": "ventana_moran",
+   "type": "l8.ventana",
+   "pos": [
+    -2.95,
+    0.75,
+    1.25
+   ],
+   "rot": 90,
+   "p": {
+    "w": 1.1,
+    "h": 2.3,
+    "depth": 0.3,
+    "shutters": "open",
+    "dust_sill": "removed",
+    "oil": true,
+    "dust": 0.8,
+    "dust_low": 0.22,
+    "open_frac": 0.142
+   }
+  },
+  {
+   "id": "chimenea",
+   "type": "furniture.fireplace",
+   "pos": [
+    -0.5,
+    0,
+    -2.7
+   ],
+   "rot": 0,
+   "p": {
+    "w": 1.5,
+    "mantel": 1.2,
+    "mirror": false,
+    "lit": false
+   }
+  },
+  {
+   "id": "papel_e",
+   "type": "l8.papel_tiras",
+   "pos": [
+    2.79,
+    0,
+    0
+   ],
+   "rot": -90,
+   "p": {
+    "len": 5.0,
+    "h": 3.5,
+    "n": 7,
+    "seed": 3
+   }
+  },
+  {
+   "id": "papel_n",
+   "type": "l8.papel_tiras",
+   "pos": [
+    0,
+    0,
+    -2.69
+   ],
+   "rot": 0,
+   "p": {
+    "len": 5.2,
+    "h": 3.5,
+    "n": 5,
+    "seed": 5
+   }
+  },
+  {
+   "id": "papel_s",
+   "type": "l8.papel_tiras",
+   "pos": [
+    -1.25,
+    0,
+    2.69
+   ],
+   "rot": 180,
+   "p": {
+    "len": 2.6,
+    "h": 3.5,
+    "n": 3,
+    "seed": 9
+   }
+  },
+  {
+   "id": "papel_w",
+   "type": "l8.papel_tiras",
+   "pos": [
+    -2.79,
+    0,
+    0
+   ],
+   "rot": 90,
+   "p": {
+    "len": 1.0,
+    "h": 3.5,
+    "n": 1,
+    "seed": 11
+   }
+  },
+  {
+   "id": "ceniza_p",
+   "type": "l8.ceniza_suelo",
+   "pos": [
+    -2.2,
+    0.0,
+    1.35
+   ],
+   "rot": 0,
+   "p": {
+    "seed": 7
+   }
+  },
+  {
+   "id": "polvo_1",
+   "type": "l8.polvo",
+   "pos": [
+    1.9,
+    0.0,
+    -1.9
+   ],
+   "rot": 0,
+   "p": {
+    "w": 1.6,
+    "d": 1.3,
+    "density": 0.4
+   }
+  },
+  {
+   "id": "polvo_2",
+   "type": "l8.polvo",
+   "pos": [
+    -2.0,
+    0.0,
+    -1.9
+   ],
+   "rot": 0,
+   "p": {
+    "w": 1.2,
+    "d": 1.1,
+    "density": 0.45
+   }
+  },
+  {
+   "id": "polvo_3",
+   "type": "l8.polvo",
+   "pos": [
+    -0.3,
+    0.0,
+    2.2
+   ],
+   "rot": 0,
+   "p": {
+    "w": 2.0,
+    "d": 0.8,
+    "density": 0.35
+   }
+  },
+  {
+   "id": "cano_gas",
+   "type": "l8.cano_gas",
+   "pos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.5
+   }
+  },
+  {
+   "id": "luz_ventana",
+   "type": "l8.luz_calle",
+   "pos": [
+    -4.3,
+    2.4,
+    1.25
+   ],
+   "rot": 0,
+   "p": {
+    "range": 6.5
+   }
+  },
+  {
+   "id": "farol_mano",
+   "type": "small.lantern",
+   "pos": [
+    0.35,
+    0.0,
+    2.3
+   ],
+   "rot": -60,
+   "p": {
+    "lit": true
+   }
+  },
+  {
+   "id": "pasillo",
+   "type": "l3.penumbra",
+   "pos": [
+    1.4,
+    0,
+    3.6
+   ],
+   "rot": 180,
+   "p": {
+    "w": 1.4,
+    "h": 2.6
+   }
+  },
+  {
+   "id": "pozo_camden",
+   "type": "street.pavement",
+   "pos": [
+    -3.75,
+    -1.0,
+    0
+   ],
+   "rot": 90,
+   "p": {
+    "w": 60,
+    "d": 1.3,
+    "kind": "losas"
+   }
+  },
+  {
+   "id": "verja_camden",
+   "type": "architecture.railing",
+   "pos": [
+    -4.4,
+    -0.88,
+    0
+   ],
+   "rot": 90,
+   "p": {
+    "len": 30,
+    "h": 1.0,
+    "plinth": true
+   }
+  },
+  {
+   "id": "vereda_camden",
+   "type": "street.pavement",
+   "pos": [
+    -5.75,
+    -1.0,
+    0
+   ],
+   "rot": 90,
+   "p": {
+    "w": 60,
+    "d": 2.7,
+    "kind": "losas",
+    "kerb": "-z"
+   }
+  },
+  {
+   "id": "calzada",
+   "type": "street.pavement",
+   "pos": [
+    -10.9,
+    -1.0,
+    0
+   ],
+   "rot": 90,
+   "p": {
+    "w": 60,
+    "d": 7.6,
+    "kind": "madera"
+   }
+  },
+  {
+   "id": "vereda_221b",
+   "type": "street.pavement",
+   "pos": [
+    -16.7,
+    -1.0,
+    0
+   ],
+   "rot": 90,
+   "p": {
+    "w": 60,
+    "d": 4.0,
+    "kind": "losas",
+    "kerb": "+z"
+   }
+  },
+  {
+   "id": "casa_221b",
+   "type": "l3.casa",
+   "pos": [
+    -18.7,
+    -0.88,
+    -0.4
+   ],
+   "rot": 90,
+   "p": {
+    "w": 6.6,
+    "h": 12.6,
+    "levels": [
+     0.6,
+     4.0,
+     7.3,
+     10.1
+    ],
+    "bays": 3,
+    "door_bay": 0,
+    "number": "221B",
+    "seed": 221,
+    "broad": {
+     "1": 2
+    },
+    "win": {
+     "0:0": {
+      "curtains": true,
+      "blind": 0.15
+     },
+     "0:1": {
+      "curtains": true,
+      "blind": 0.15
+     },
+     "1:0": {
+      "blind": 0.97,
+      "curtains": true
+     },
+     "1:1": {
+      "blind": 0.97,
+      "curtains": true
+     },
+     "2:0": {
+      "blind": 0.97
+     },
+     "2:1": {
+      "blind": 0.97
+     },
+     "2:2": {
+      "blind": 0.97
+     }
+    },
+    "alts": [
+     {
+      "node": "ventanas_enfrente",
+      "keys": [
+       "1:0",
+       "1:1"
+      ],
+      "state": {
+       "open": 1.0,
+       "blind": 0.0,
+       "curtains": true,
+       "curtain_out": true
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "vecinas_221b_n",
+   "type": "l3.hilera",
+   "pos": [
+    -18.7,
+    -0.88,
+    9.5
+   ],
+   "rot": 90,
+   "p": {
+    "n": 2,
+    "w": 6.6,
+    "seed": 41
+   }
+  },
+  {
+   "id": "vecinas_221b_s",
+   "type": "l3.hilera",
+   "pos": [
+    -18.7,
+    -0.88,
+    -10.3
+   ],
+   "rot": 90,
+   "p": {
+    "n": 2,
+    "w": 6.6,
+    "seed": 43
+   }
+  },
+  {
+   "id": "farol_camden",
+   "type": "street.gas_lamp",
+   "pos": [
+    -7.0,
+    -0.88,
+    3.8
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.4
+   }
+  },
+  {
+   "id": "farol_221b",
+   "type": "street.gas_lamp",
+   "pos": [
+    -15.0,
+    -0.88,
+    -2.9
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.4
+   }
+  },
+  {
+   "id": "farol_lejos",
+   "type": "street.gas_lamp",
+   "pos": [
+    -15.0,
+    -0.88,
+    9.0
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.4
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "guillotina",
+   "prop": "ventana_moran",
+   "noun": "ventana",
+   "anchor": {
+    "c": [
+     -2.95,
+     1.48,
+     1.25
+    ],
+    "s": [
+     0.3,
+     1.05,
+     1.2
+    ]
+   },
+   "examine": "La [[guillotina|ventana de guillotina]] tiene [[aceite|aceite]] fresco en las poleas: la hoja de abajo sube medio pie sin hacer ruido.",
+   "tags": [
+    "a:escondite_preparado",
+    "e:guillotina",
+    "e:aceite",
+    "e:camden_house",
+    "f:secreto_camden",
+    "c:camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "alfeizar",
+   "prop": "ventana_moran",
+   "noun": "alféizar",
+   "anchor": {
+    "c": [
+     -2.84,
+     0.77,
+     1.25
+    ],
+    "s": [
+     0.3,
+     0.1,
+     1.3
+    ]
+   },
+   "examine": "En el [[alfeizar|alféizar]] de esa ventana, el [[polvo_removido|polvo]] de meses está barrido en un tramo del ancho de dos antebrazos.",
+   "tags": [
+    "a:escondite_preparado",
+    "e:alfeizar",
+    "e:polvo_removido",
+    "e:camden_house",
+    "f:secreto_camden",
+    "c:camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "ceniza",
+   "prop": "ceniza_p",
+   "noun": "ceniza",
+   "anchor": {
+    "c": [
+     -2.2,
+     0.03,
+     1.35
+    ],
+    "s": [
+     0.45,
+     0.06,
+     0.4
+    ]
+   },
+   "examine": "En las tablas, junto a la ventana, hay [[ceniza_negra|ceniza negra]] y la [[colilla|colilla]] de un [[cheroot|cheroot]].",
+   "tags": [
+    "a:escondite_preparado",
+    "e:ceniza_negra",
+    "e:ceniza",
+    "e:cheroot",
+    "e:camden_house",
+    "f:secreto_camden",
+    "c:camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "vista",
+   "prop": "ventana_moran",
+   "noun": "ventana",
+   "anchor": {
+    "c": [
+     -2.95,
+     2.52,
+     1.25
+    ],
+    "s": [
+     0.3,
+     0.95,
+     1.2
+    ]
+   },
+   "examine": "Por la hoja de arriba, sucia, se ve que esta ventana domina, al otro lado de la calle, la ventana del primer piso del [[221b|221B]], un poco más alta.",
+   "tags": [
+    "a:escondite_preparado",
+    "e:ventana_de_holmes",
+    "e:221b",
+    "e:camden_house",
+    "f:secreto_camden",
+    "c:camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "ventanas_enfrente",
+   "prop": "casa_221b",
+   "noun": "ventanas",
+   "anchor": {
+    "c": [
+     -18.6,
+     4.71,
+     -2.05
+    ],
+    "s": [
+     0.35,
+     2.25,
+     1.6
+    ]
+   },
+   "examine": "Enfrente, en el primer piso del [[221b|221B]], la otra ventana ancha está abierta de par en par, con la cortina afuera.",
+   "tags": [
+    "a:preparativos_221b",
+    "e:ventanas_abiertas",
+    "e:221b",
+    "c:baker_street",
+    "f:secreto_camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {
+    "day": {
+     "gte": 8,
+     "lte": 9
+    }
+   }
+  },
+  {
+   "id": "ventana_cerrada",
+   "prop": "ventana_cerrada_p",
+   "noun": "postigos",
+   "anchor": {
+    "c": [
+     -2.85,
+     1.9,
+     -1.25
+    ],
+    "s": [
+     0.4,
+     2.35,
+     1.25
+    ]
+   },
+   "examine": "La otra ventana tiene los [[postigos|postigos]] cerrados y el polvo del alféizar intacto.",
+   "tags": [
+    "e:postigos",
+    "e:camden_house",
+    "f:secreto_camden",
+    "c:camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "tablas",
+   "prop": "sala",
+   "noun": "piso",
+   "anchor": {
+    "c": [
+     -0.6,
+     0.03,
+     0.3
+    ],
+    "s": [
+     1.3,
+     0.06,
+     1.1
+    ]
+   },
+   "examine": "[[tablas_desnudas|Tablas desnudas]], sin alfombra y sin un solo mueble.",
+   "tags": [
+    "e:tablas_desnudas",
+    "e:casa_vacia",
+    "f:secreto_camden",
+    "c:camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "papel",
+   "prop": "papel_n",
+   "noun": "papel pintado",
+   "anchor": {
+    "c": [
+     -0.4,
+     2.45,
+     -2.62
+    ],
+    "s": [
+     2.2,
+     1.4,
+     0.16
+    ]
+   },
+   "examine": "El papel de las paredes cuelga en [[papel_en_jirones|jirones]] y deja ver el yeso.",
+   "tags": [
+    "e:papel_en_jirones",
+    "e:casa_vacia",
+    "f:secreto_camden",
+    "c:camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "chimenea",
+   "prop": "chimenea",
+   "noun": "chimenea",
+   "anchor": {
+    "c": [
+     -0.5,
+     0.7,
+     -2.55
+    ],
+    "s": [
+     1.6,
+     1.4,
+     0.4
+    ]
+   },
+   "examine": "Una chimenea de mármol sin fuego, con hollín frío en el hogar.",
+   "tags": [
+    "e:camden_house",
+    "f:secreto_camden",
+    "c:camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "chico_del_agente",
+   "area": "*",
+   "pos": [
+    0.0,
+    0,
+    2.15
+   ],
+   "rot": -110,
+   "pose": "de_pie",
+   "trait": "",
+   "when": {}
+  }
+ ],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "vista",
+   "pos": [
+    -15.6,
+    -0.88,
+    3.4
+   ],
+   "rot": 100
+  },
+  "cochero": {
+   "frame": "vista",
+   "pos": [
+    -16.2,
+    -0.88,
+    -4.2
+   ],
+   "rot": 80
+  }
+ },
+ "variants": {}
+}

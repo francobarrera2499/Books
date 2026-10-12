@@ -1,0 +1,3 @@
+{"id": "HC05", "place": "L3", "area": "vestibulo", "when": {"day": {"gte": 8, "lte": 9}}, "auto": true, "origin": "S.HC05",
+ "lines": [{"id": "jueves_a", "who": "mrs_hudson", "text": "{{#jueves a:dia_jueves e:jueves e:221b|El empleado del señor Mycroft dijo que para el jueves, sir.}}"}]
+}

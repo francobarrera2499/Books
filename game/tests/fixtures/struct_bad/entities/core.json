@@ -1,0 +1,58 @@
+{
+ "entities": [
+  {
+   "id": "holmes",
+   "kind": "persona",
+   "name": "Sherlock Holmes",
+   "index": "Sherlock Holmes"
+  },
+  {
+   "id": "moran",
+   "kind": "persona",
+   "name": "el coronel Moran",
+   "index": "el coronel Moran"
+  },
+  {
+   "id": "ronald_adair",
+   "kind": "persona",
+   "name": "Ronald Adair",
+   "index": "Ronald Adair"
+  },
+  {
+   "id": "montpellier",
+   "kind": "lugar",
+   "name": "Montpellier",
+   "index": "Montpellier"
+  },
+  {
+   "id": "mycroft",
+   "kind": "persona",
+   "name": "Mycroft Holmes",
+   "index": "Mycroft Holmes"
+  },
+  {
+   "id": "foreign_office",
+   "kind": "persona",
+   "name": "el Foreign Office",
+   "index": "el Foreign Office"
+  },
+  {
+   "id": "pared",
+   "kind": "concepto",
+   "name": "la pared",
+   "index": "la pared"
+  },
+  {
+   "id": "fina",
+   "kind": "documento",
+   "name": "«El problema final»",
+   "index": "«El problema final»"
+  },
+  {
+   "id": "diario_x",
+   "kind": "documento",
+   "name": "el diario",
+   "index": "el diario"
+  }
+ ]
+}

@@ -1,0 +1,72 @@
+{
+ "id": "L6",
+ "name": "Somerset House",
+ "streets": [
+  "el Strand"
+ ],
+ "areas": {
+  "registro": {
+   "desc": "la sala de índices"
+  }
+ },
+ "observers": [],
+ "epigraph": "Un chelín por búsqueda.",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    4.0
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "dia_ventana",
+  "T": "tarde"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "mostrador",
+   "noun": "mostrador",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Un mostrador largo, con un empleado.",
+   "tags": [],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "fija",
+   "pos": [
+    3.0,
+    0,
+    5.0
+   ],
+   "rot": 180
+  }
+ },
+ "variants": {}
+}

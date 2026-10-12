@@ -1,0 +1,79 @@
+{
+  "_nota": "W2-STRUCT. Calendario real de 1894 (GDD §2.1; días de la semana verificados por T7 con un algoritmo propio: Pascua 1894 = domingo 25 de marzo). day 0 = P (lunes de Pascua, noche), 1..10 = mar. 27-mar … jue. 5-abr, 11 = E (oct. 1903). weekday = código (lun mar mie jue vie sab dom; Cond normaliza tildes). label = rótulo largo para la UI. Áreas por lugar (§4.10): L1 {buhardilla, tienda (free)}, L2 {sala}, L3 {interior, calle, agente}, L4 {consulta, estudio}, L5 {porteria, forasteros}, L6 {sala}, L7 {exterior}, L8 {interior}; los places/*.json, los ejemplares (copies[].area) y los mapas deben usar estos nombres (WorldModel compara copy.area con el área de la visita). Cierres por reacción: L4.consulta por el flag consulta_cerrada_hasta (HB4, lo resuelve Clock) y L5.forasteros por forasteros_cerrada (needs + Clock). money_d en peniques (sabor, §7.5): guinea 252, aviso 2s. 6d. = 30 (⚠ tarifa), telegrama al extranjero 3 por palabra con mínimo 6, carta 1, coche 12–24, Somerset House 12.",
+  "days": [
+    {"day": 0, "key": "P", "date": "1894-03-26", "weekday": "lun", "label": "Lunes de Pascua, 26 de marzo de 1894", "slots": [], "mail": false, "times": false},
+    {"day": 1, "key": "1", "date": "1894-03-27", "weekday": "mar", "label": "Martes 27 de marzo de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 2, "key": "2", "date": "1894-03-28", "weekday": "mie", "label": "Miércoles 28 de marzo de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 3, "key": "3", "date": "1894-03-29", "weekday": "jue", "label": "Jueves 29 de marzo de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 4, "key": "4", "date": "1894-03-30", "weekday": "vie", "label": "Viernes 30 de marzo de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 5, "key": "5", "date": "1894-03-31", "weekday": "sab", "label": "Sábado 31 de marzo de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 6, "key": "6", "date": "1894-04-01", "weekday": "dom", "label": "Domingo 1 de abril de 1894", "slots": ["T"], "mail": false, "times": false},
+    {"day": 7, "key": "7", "date": "1894-04-02", "weekday": "lun", "label": "Lunes 2 de abril de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 8, "key": "8", "date": "1894-04-03", "weekday": "mar", "label": "Martes 3 de abril de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 9, "key": "9", "date": "1894-04-04", "weekday": "mie", "label": "Miércoles 4 de abril de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 10, "key": "10", "date": "1894-04-05", "weekday": "jue", "label": "Jueves 5 de abril de 1894", "slots": ["M", "T", "N"], "mail": true, "times": true, "fixed": true},
+    {"day": 11, "key": "E", "date": "1903-10-01", "weekday": "jue", "label": "Octubre de 1903", "slots": [], "mail": false, "times": false}
+  ],
+  "slot_hours": {"M": "9–13", "T": "13–18", "N": "18–22"},
+  "passes": {"default": 1, "P.N": 0, "9.N": 2, "10.M": 1},
+  "lot": {"default": 2, "day10": 1},
+  "reports": [
+    {"n": 1, "tk": "2.night"},
+    {"n": 2, "tk": "5.night"},
+    {"n": 3, "tk": "8.night"},
+    {"n": 4, "tk": "10.M", "final": true}
+  ],
+  "ads": {"office_slots": ["M", "T"], "per_day": 1, "prologue_pub_day": 1, "_nota": "La oficina del Times cierra a las 18 h: el aviso sale el siguiente día con Times (sáb. → lun.); el del prólogo, el día 1. El evento ad se emite al amanecer del día de publicación."},
+  "places": {
+    "L1": {"areas": {
+      "buhardilla": {"open": [{"days": "all", "slots": "all"}]},
+      "tienda": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9, 10], "slots": "all"}], "free": true, "_nota": "Tienda de Crane: bajar no gasta franja; cerrada el domingo y la noche del prólogo."}
+    }},
+    "L2": {"areas": {
+      "sala": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9], "slots": ["M", "T", "N"]}], "_nota": "Sala de Lectura y Sala de Periódicos en una sola visita (tres papeletas). N hasta las 20 h. Domingo cerrada (§12.1.5)."}
+    }},
+    "L3": {"areas": {
+      "interior": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9], "slots": ["M", "T"]}, {"days": [6], "slots": ["T"]}], "_nota": "Vestíbulo y salita de Mrs. Hudson (K-H)."},
+      "calle": {"open": [{"days": "all", "slots": "all"}], "_nota": "Exterior de Baker Street (Camden House enfrente, Parker en la esquina)."},
+      "agente": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9], "slots": ["M", "T"]}], "_nota": "Oficina del agente de fincas (días hábiles); el chico del agente desde el día 7."}
+    }},
+    "L4": {"areas": {
+      "consulta": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9], "slots": ["M"]}], "_nota": "HB4 (2.ª vez) la cierra con el flag consulta_cerrada_hasta (Clock.CLOSE_UNTIL_FLAGS)."},
+      "estudio": {"open": [{"days": [6], "slots": ["T"]}], "_nota": "Visita del domingo en su casa (16 a 18 h); HB4 no la cierra."}
+    }},
+    "L5": {"areas": {
+      "porteria": {"open": [{"days": [1, 2, 3, 4, 5, 6, 7, 8, 9], "slots": "all"}]},
+      "forasteros": {"open": [{"days": [8, 9], "slots": ["T", "N"]}], "needs": {"not": {"flag": "forasteros_cerrada"}}, "_nota": "16:45 a 19:40; el portero admite a Lisle por su nombre (HC04 es la invitación, no la llave)."}
+    }},
+    "L6": {"areas": {
+      "sala": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9], "slots": ["M", "T"]}], "_nota": "Somerset House, de 10 a 15 h."}
+    }},
+    "L7": {"areas": {
+      "exterior": {"open": [{"days": [5, 6, 7, 8, 9], "slots": "all"}], "_nota": "Park Lane 427 desde el día 5; el día 10 a las 18 h es escena fija (HC08)."}
+    }},
+    "L8": {"areas": {
+      "interior": {"open": [{"from": "7.T", "to": "9.T", "slots": ["M", "T"]}], "_nota": "Camden House con el chico del agente; el jueves ya está tomada."}
+    }}
+  },
+  "column": [
+    {"tk": "1.dawn", "r": "HC01"},
+    {"tk": "2.dawn", "r": "HA0"},
+    {"tk": "3.dawn", "r": "HC02"},
+    {"tk": "4.dawn", "r": "HC10"},
+    {"tk": "5.dawn", "r": "M6"},
+    {"tk": "6.dawn", "r": "HC03"},
+    {"tk": "7.night", "r": "M7"},
+    {"tk": "8.dawn", "r": "HC04"},
+    {"tk": "8.dawn", "r": "HC05"},
+    {"tk": "9.dawn", "r": "M8"},
+    {"tk": "10.M", "r": "HC07"},
+    {"tk": "10.T", "r": "HC08"},
+    {"tk": "10.N", "r": "HC09"}
+  ],
+  "_column_nota": "Lo que ocurre aunque el jugador no haga nada (GDD §2.1). r = id de reacción; si además existe scenes/<r>.json con place L1 es escena fija (M6, M7, HC07, HC08, HC09). HC06 no está: es la escena del Diógenes que abre la visita a L5.forasteros los días 8–9.",
+  "voice_b": {"1": "4.dawn", "2": "5.dawn", "3": "7.dawn", "4": "8.dawn", "5": "8.dawn", "6": "10.dawn", "7": "10.dawn", "8": "10.dawn", "9": "10.M"},
+  "_voice_b_nota": "GDD §9.3: día del acto (o de publicación del anuncio) → entrega de la voz B. Día 6 sin Times ni correo; día 9 sin voz B (el viajero está en camino) y su respuesta es en persona a las 9:30 del 10 (HC07).",
+  "voice_a": {"default_days": 1, "sunday": "en_mano"},
+  "money_d": {"guinea": 252, "media_guinea": 126, "chelin": 12, "ad": 30, "telegram_word": 3, "telegram_min": 6, "letter": 1, "cab_min": 12, "cab_max": 24, "somerset": 12},
+  "baedeker": "HORARIOS ÚTILES (Baedeker, Londres, 1894).\nSALA DE LECTURA DEL MUSEO BRITÁNICO, Great Russell Street. — De 9 a 20 h; cerrada el domingo. Los libros se piden por papeleta, con el número del asiento; tres papeletas por visita. La Sala de Periódicos está en el mismo edificio.\nSOMERSET HOUSE, el Strand. — Índices de sucesiones y de defunciones, de 10 a 15 h, salvo el domingo; un chelín por búsqueda. De los testamentos no se permiten extractos: se pide copia oficial, que llega por correo.\nCLUB DIÓGENES, Pall Mall. — La portería recibe tarjetas a toda hora. Los socios no se hablan; con forasteros, sólo en la Sala de Forasteros.\nBAKER STREET. — Casas particulares; el agente de fincas abre de 9 a 18 h, salvo el domingo.\nKENSINGTON. — Los médicos reciben por la mañana; el domingo, visitas de 16 a 18 h.\nPARK LANE. — Frente a Hyde Park; parada de coches a cien yardas.\nEL DOMINGO no hay correo ni Times; la Sala de Lectura, Somerset House y las tiendas están cerradas."
+}

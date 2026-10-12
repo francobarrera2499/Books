@@ -1,0 +1,20 @@
+{
+ "id": "HC05",
+ "place": "L3",
+ "area": "interior",
+ "auto": true,
+ "when": {
+  "day": {
+   "gte": 8,
+   "lte": 9
+  }
+ },
+ "origin": "S.HC05",
+ "lines": [
+  {
+   "id": "jueves_a",
+   "who": "mrs_hudson",
+   "text": "{{#jueves a:regreso_jueves e:shag|El empleado del señor Mycroft dijo que para el jueves, sir.}}"
+  }
+ ]
+}

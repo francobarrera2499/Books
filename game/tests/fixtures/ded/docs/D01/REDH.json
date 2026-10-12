@@ -1,0 +1,9 @@
+{
+  "id": "D01.REDH", "entity": "liga_pelirrojos", "title": "«La liga de los pelirrojos», tomo II",
+  "src_type": "cronica", "class": "P", "date": "1891-08-01", "font": "imprenta", "paper": "strand",
+  "copies": [{"id": "D01.REDH@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"}],
+  "parts": [
+    {"id": "p1", "text": "{{#abril a:inc10 e:fecha_abril|El anuncio salió el [[fecha_abril|27 de abril]], y ocho semanas de copiar siguieron.}} {{#octubre a:inc10 e:fecha_octubre|La liga se disolvió el [[fecha_octubre|9 de octubre]].}}"}
+  ],
+  "words": 24
+}

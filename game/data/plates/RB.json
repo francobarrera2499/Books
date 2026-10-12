@@ -1,0 +1,78 @@
+{
+  "_nota": "W2-PLACES-C. Lámina fija del Reichenbach (GDD§5 «Láminas», §14.4; ARCHITECTURE §4.11). Una variante por fuente; la elige el documento abierto (doc_variant). Sin variante se arma la de FINA (geometría base) con los nodos neutros. Cada variante trae _origin/_doc/_frame/_epigraph (ver respuesta del WP: propuesta de campos para W2-SIM/W2-DED). El juego no dice cuál es cierta.",
+  "id": "RB",
+  "name": "La cascada del Reichenbach",
+  "fixed": true,
+  "origin": "PL.reichenbach",
+  "slot": "T",
+  "streets": [],
+  "areas": {},
+  "observers": [],
+  "epigraph": "—La cascada del Reichenbach, señor.",
+  "doc_variant": {"D03": "fina", "D05": "journal", "D07": "foto"},
+  "frames": [
+    {"id": "otra_orilla", "area": "*", "pos": [-4.0, 3.6, 17.2], "look": [4.0, 3.2, 0.0], "fov": 62, "orbit": {"pivot": [1.5, 4.0, 1.0], "yaw": 10, "pitch": 6}},
+    {"id": "sendero", "area": "*", "pos": [-10.0, 1.65, 0.7], "look": [4.0, -1.6, 4.6], "fov": 62, "orbit": {"pivot": [0.0, 1.0, 1.5], "yaw": 15, "pitch": 8}},
+    {"id": "pared", "area": "*", "pos": [-1.0, 1.62, 0.85], "look": [1.6, 1.3, 0.0], "fov": 48, "orbit": {"pivot": [1.0, 1.3, 0.2], "yaw": 20, "pitch": 10}}
+  ],
+  "light": {"dawn": "manana_perla", "M": "manana_perla", "T": "manana_perla", "N": "manana_perla", "night": "manana_perla"},
+  "props": [
+    {"id": "garganta", "type": "plates.reichenbach", "pos": [0, 0, 0], "rot": 0, "p": {"variant": "fina", "seed": 1891}}
+  ],
+  "nodes": [
+    {"id": "sendero", "prop": "garganta", "noun": "sendero", "anchor": {"c": [-4.5, 0.1, 0.48], "s": [14.0, 0.24, 0.96]}, "examine": "Un [[sendero|sendero]] de unos tres pies, abierto en la roca; se corta de golpe, sin baranda.", "tags": [], "cls": "I", "area": "*", "when": {}},
+    {"id": "precipicio", "prop": "garganta", "noun": "precipicio", "anchor": {"c": [-4.5, -5.0, 1.25], "s": [14.0, 9.6, 0.6]}, "examine": "Del lado de afuera, el [[precipicio|precipicio]]: la roca cae a plomo y muy abajo hierve el agua.", "tags": [], "cls": "I", "area": "*", "when": {}},
+    {"id": "cascada", "prop": "garganta", "noun": "cascada", "anchor": {"c": [13.0, -3.0, 7.3], "s": [2.4, 38.0, 3.0]}, "examine": "La cascada del [[reichenbach|Reichenbach]] se despeña desde lo alto; abajo, la espuma sube como humo.", "tags": [], "cls": "I", "area": "*", "when": {}},
+    {"id": "orilla", "prop": "garganta", "noun": "orilla", "anchor": {"c": [-12.0, -8.0, 15.8], "s": [24.0, 18.0, 0.3]}, "examine": "La otra orilla: roca oscura, a plomo, y pinos en lo alto.", "tags": [], "cls": "I", "area": "*", "when": {}}
+  ],
+  "characters": [],
+  "silhouettes": {},
+  "variants": {
+    "fina": {
+      "_origin": "D03",
+      "_doc": "D03",
+      "_frame": "sendero",
+      "_epigraph": "«…con una pared a pique a un lado y un precipicio a pique al otro.»",
+      "add_nodes": [
+        {"id": "pared", "prop": "garganta", "noun": "pared", "anchor": {"c": [-4.0, 6.2, 0.12], "s": [14.0, 12.0, 0.24]}, "examine": "A un lado, la [[pared|pared]] de roca sube lisa y [[a_pique|a pique]], sin un saliente ni una grieta.", "tags": ["e:fina"], "cls": "I", "area": "*", "when": {}},
+        {"id": "baston", "prop": "garganta", "noun": "bastón", "anchor": {"c": [1.97, 0.74, 0.36], "s": [0.4, 1.5, 0.66]}, "examine": "Un [[baston|bastón]] herrado, apoyado contra la [[roca|roca]] donde termina el sendero.", "tags": ["e:fina"], "cls": "I", "area": "*", "when": {}}
+      ]
+    },
+    "journal": {
+      "_origin": "D05",
+      "_doc": "D05",
+      "_frame": "otra_orilla",
+      "_epigraph": "«Plus haut, une corniche.»",
+      "remove_props": ["garganta"],
+      "add_props": [
+        {"id": "garganta_j", "type": "plates.reichenbach", "pos": [0, 0, 0], "rot": 0, "p": {"variant": "journal", "seed": 1891}},
+        {"id": "saliente_j", "type": "plates.reichenbach_saliente", "pos": [0, 0, 0], "rot": 0, "p": {"variant": "journal", "seed": 1891}}
+      ],
+      "add_nodes": [
+        {"id": "pared", "prop": "garganta_j", "noun": "pared", "anchor": {"c": [-4.0, 2.05, 0.12], "s": [14.0, 3.6, 0.24]}, "examine": "Junto al sendero, la [[pared|pared]] de roca, áspera y vertical.", "tags": ["e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}},
+        {"id": "saliente", "prop": "saliente_j", "noun": "saliente", "anchor": {"c": [-2.7, 5.05, 0.55], "s": [14.6, 2.3, 1.1]}, "examine": "Más arriba, la roca forma un saliente que vuela sobre el sendero.", "tags": ["e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}},
+        {"id": "cornisa", "prop": "garganta_j", "noun": "cornisa", "anchor": {"c": [-1.1, 6.93, -0.25], "s": [7.0, 1.4, 2.5]}, "examine": "Por encima del saliente, una [[cornisa|cornisa]] honda, de varios pies, cubierta de musgo.", "tags": ["a:cornisa_existe", "e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}},
+        {"id": "roca_alta", "prop": "garganta_j", "noun": "roca", "anchor": {"c": [-4.0, 11.0, 0.2], "s": [14.0, 3.6, 0.4]}, "examine": "Arriba, la roca desnuda sigue hasta el borde de la garganta.", "tags": ["e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}},
+        {"id": "marca", "prop": "garganta_j", "noun": "marca", "anchor": {"c": [0.75, 1.46, 0.15], "s": [0.6, 0.26, 0.3]}, "examine": "En la [[pared|pared]], a la altura del hombro, una [[raspadura|raspadura]] clara y reciente, de un palmo.", "tags": ["a:raspadura_registrada", "e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}},
+        {"id": "baston", "prop": "garganta_j", "noun": "bastón", "anchor": {"c": [1.97, 0.74, 0.36], "s": [0.4, 1.5, 0.66]}, "examine": "Un [[baston|bastón]] herrado, apoyado contra la [[roca|roca]] donde termina el sendero.", "tags": ["e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}}
+      ]
+    },
+    "foto": {
+      "_origin": "D07",
+      "_doc": "D07",
+      "_frame": "otra_orilla",
+      "_epigraph": "Reichenbach, vista desde la otra orilla.",
+      "remove_props": ["garganta"],
+      "add_props": [
+        {"id": "garganta_f", "type": "plates.reichenbach", "pos": [0, 0, 0], "rot": 0, "p": {"variant": "foto", "seed": 1891}},
+        {"id": "saliente_f", "type": "plates.reichenbach_saliente", "pos": [0, 0, 0], "rot": 0, "p": {"variant": "foto", "seed": 1891}}
+      ],
+      "add_nodes": [
+        {"id": "pared", "prop": "garganta_f", "noun": "pared", "anchor": {"c": [-4.0, 2.05, 0.12], "s": [14.0, 3.6, 0.24]}, "examine": "La [[pared|pared]] de roca, gris y áspera, sobre el [[sendero|sendero]].", "tags": ["e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}},
+        {"id": "saliente", "prop": "saliente_f", "noun": "saliente", "anchor": {"c": [-2.7, 5.05, 0.55], "s": [14.6, 2.3, 1.1]}, "examine": "Sobre el sendero, la roca hace un saliente.", "tags": ["e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}},
+        {"id": "linea", "prop": "garganta_f", "noun": "línea oscura", "anchor": {"c": [-1.1, 6.93, -0.25], "s": [7.0, 1.4, 2.5]}, "examine": "En la [[pared|pared]], por encima del final del [[sendero|sendero]], corre una línea oscura, horizontal.", "tags": ["a:cornisa_existe", "e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}},
+        {"id": "roca_alta", "prop": "garganta_f", "noun": "roca", "anchor": {"c": [-4.0, 11.0, 0.2], "s": [14.0, 3.6, 0.4]}, "examine": "Arriba, la roca sigue hasta el borde de la garganta.", "tags": ["e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}}
+      ]
+    }
+  }
+}

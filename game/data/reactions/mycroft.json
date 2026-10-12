@@ -1,0 +1,284 @@
+{
+  "_nota": "W2-STRUCT. Órdenes permanentes de Mycroft ejecutadas por Cotter (voz A: seca, perezosa, una noche; firma «Un amigo de la exactitud»; giro «Le ahorraré el trabajo»), y las reacciones del bando de Holmes que ejecuta su entorno (Watson, Mrs. Hudson, Wiggins, Mycroft en persona). GDD §9.6. Toda carta de voz A lleva me_vigila_de_cerca (C7) y, si cita un acto, ancla_<canal> (C6); papel 203×244 mm, un centímetro más corto (measure papel_corto). Contadores compartidos por nombre (W2-REACT): «canario:channel» (HA4 1.º, HB11 2.º por canal). Disparadores internos: «reaccion» (entrega de otra reacción: HB9 ← M3, HB10 ← M1) e «inactividad» (HB13). HB4, HB5 y HB6 también tienen líneas inmediatas en dialogue/ (W3-CT-DLG-A): esta reacción aplica la carta y los cortes del día siguiente; HB8 y HB12 los aplica Dialogue en escena vía Director.immediate. Cortes: siempre con variante_blanda (D1).",
+  "reactions": [
+    {
+      "id": "HA1", "tipo": "garantizada_por_acto", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-BM",
+      "actor": ["cotter", "mycroft"],
+      "_nota": "Primera papeleta por tema con lists.slip_topics[topic] == holmes (crónicas, prensa de mayo de 1891, monografías, Sigerson); excluye coronel y libros de Moran (Ley 7, HB14). Desvía hacia la fuente menos informativa: qué teme Mycroft. «Tres fuentes que son una» es la pista falsa falsa_reuter (refutada por D05#corniche, la fotografía y D08). Todas las plantillas llevan el tramo #giro (C7.R8).",
+      "disparador": {"evento": "slip", "match": {"topic_group": "holmes"}, "una_vez_por": ["topic"]},
+      "condiciones": {"all": [{"day": {"gte": 1, "lte": 9}}, {"not": {"weekday": "dom"}}]},
+      "ancla": ["seat", "title", "hour"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [{"op": "carta", "entrega": "correo", "plantilla_por": "topic"}],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "holmes_prensa_1891", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: los [[guias|guías]] hablaron al [[journal_de_geneve|Journal]], el Journal a [[reuter|Reuter]] y el doctor no habló con nadie.}} {{#tres_fuentes f:refutado a:falsa_reuter e:despacho_reuter|Tres fuentes que son una.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: lea a Reuter.}}"},
+        {"tpl": "holmes_cronicas", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: el doctor se equivoca dos veces por página.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: no pierda la vista con la tercera.}}"},
+        {"tpl": "holmes_monografia", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: la [[ceniza|ceniza]] no es su ramo, señor.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: devuelva el volumen.}}"},
+        {"tpl": "sigerson", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: los noruegos escriben de montañas, no de usted.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: el [[tibet|Tíbet]] queda lejos de Holywell Street.}}"}
+      ],
+      "corta": [], "agrega": ["C6", "C7.R1", "C7.R3", "C7.R8"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "HA2", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-BM",
+      "actor": ["cotter"],
+      "_nota": "Descuido de Cotter: con la segunda papeleta del mismo tema, el volumen llega con un señalador de papel del club (medio membrete). Aproximación: el contador es por tema en toda la partida (el GDD dice «misma visita»; el DSL no compara la visita del ancla). No se nombra el club entero: el enlace con GREE es Pall Mall (C7.R4). No es una carta: doc.firma vacía (sin ella, Effects firmaría la tira «Un amigo de la exactitud» como toda voz A).",
+      "disparador": {"evento": "slip", "match": {"topic_group": "holmes"}, "contador": "slip_tema:topic", "n_in": [2]},
+      "condiciones": {"all": [{"day": {"gte": 1, "lte": 9}}, {"not": {"weekday": "dom"}}]},
+      "ancla": ["seat", "title"],
+      "latencia": {"tipo": "inmediata"},
+      "efecto": [{"op": "carta", "entrega": "en_mano"}],
+      "doc": {"entity": "senalador", "title": "Tira de papel usada como señalador", "src_type": "lugar", "class": "P", "font": "imprenta", "paper": "diogenes_recortado", "paper_mm": [22, 190], "firma": ""},
+      "rastro": [
+        {"tpl": "senalador", "texto": "{{#tira a:vinculo_mycroft e:membrete_recortado e:tiras_de_papel|Entre las páginas de [[@act|«${title}»]], de señalador, una tira de papel de carta con medio membrete impreso: «…GENES CLUB · [[pall_mall|PALL MALL]]…».}}"}
+      ],
+      "corta": [], "agrega": ["C7.R4"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "HA3", "tipo": "garantizada_por_acto", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-S",
+      "actor": ["wiggins", "cotter", "mycroft"],
+      "_nota": "Primer día, desde el 3, en que Lisle sale de L1 (Wiggins informa a Cotter). acumula: las salidas del mismo día se suman al itinerario (${itinerario}: «Kensington High Street a las diez, el Strand a las tres»). Nombra calles y horas, nunca lo consultado ni una casa.",
+      "disparador": {"evento": "go", "match": {}, "una_vez_por": ["*"], "acumula": "dia"},
+      "condiciones": {"day": {"gte": 3}},
+      "ancla": ["streets", "hour"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [{"op": "carta", "entrega": "correo"}],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "calles", "texto": "{{#ancla a:ancla_ks a:me_vigila_de_cerca|[[@act|${itinerario}]]: un hombre de su vista no debería caminar tanto.}}"}
+      ],
+      "corta": [], "agrega": ["C6", "C7.R3"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "HA4", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "*",
+      "actor": ["cotter", "mycroft"],
+      "_nota": "Primer canario de un canal (dato falso sobre Lisle mismo, lists.assertions kind canario; en la columna, la forma de anuncio «perdido»): la voz A repite el dato con sequedad. Plantillas «<tema>.<kh|kw>» fijadas por when (canal y tema de la afirmación) y «K-T» para el aviso «perdido» de la columna; anclas explícitas por canal (sin ${ch}), así el grafo las resuelve. Sólo K-H, K-W y K-T (GDD §9.6: Mrs. Hudson, la columna, el doctor): un dato falso dicho a Wiggins (K-S) es HB8b, no un canario; sin el filtro, HA4/HB11 lo contaban y salían sin plantilla (HA4) o con la de Mrs. Hudson (HB11).",
+      "disparador": {"evento": ["say", "ad"], "match": {"canary": true, "channel": ["K-H", "K-W", "K-T"]}, "contador": "canario:channel", "n_in": [1]},
+      "condiciones": {},
+      "ancla": ["phrase", "text"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [{"op": "carta", "entrega": "correo"}],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "K-T", "when": {"anchor": {"channel": "K-T"}}, "texto": "{{#ancla a:ancla_kt a:me_vigila_de_cerca|[[@act|Su aviso del ${act_day}]]: nadie devuelve lo que no se perdió, señor.}}"},
+        {"tpl": "lisle_mudanza.kh", "when": {"anchor": {"channel": "K-H", "topic": "lisle_mudanza"}}, "texto": "{{#ancla a:ancla_kh a:me_vigila_de_cerca|[[@act|Chelsea]] es húmeda para sus ojos, señor.}}"},
+        {"tpl": "lisle_mudanza.kw", "when": {"anchor": {"channel": "K-W", "topic": "lisle_mudanza"}}, "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|[[@act|Chelsea]] es húmeda para sus ojos, señor.}}"},
+        {"tpl": "lisle_ojos.kh", "when": {"anchor": {"channel": "K-H", "topic": "lisle_ojos"}}, "texto": "{{#ancla a:ancla_kh a:me_vigila_de_cerca|[[@act|El oculista]] tiene razón, señor: de noche se lee mal.}}"},
+        {"tpl": "lisle_ojos.kw", "when": {"anchor": {"channel": "K-W", "topic": "lisle_ojos"}}, "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|[[@act|El oculista]] tiene razón, señor: de noche se lee mal.}}"},
+        {"tpl": "lisle_viaje.kh", "when": {"anchor": {"channel": "K-H", "topic": "lisle_viaje"}}, "texto": "{{#ancla a:ancla_kh a:me_vigila_de_cerca|En [[@act|Edimburgo]] también se corrige mal, señor.}}"},
+        {"tpl": "lisle_viaje.kw", "when": {"anchor": {"channel": "K-W", "topic": "lisle_viaje"}}, "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|En [[@act|Edimburgo]] también se corrige mal, señor.}}"},
+        {"tpl": "lisle_boda.kh", "when": {"anchor": {"channel": "K-H", "topic": "lisle_boda"}}, "texto": "{{#ancla a:ancla_kh a:me_vigila_de_cerca|Mis respetos [[@act|al impresor y a su hija]], señor.}}"},
+        {"tpl": "lisle_boda.kw", "when": {"anchor": {"channel": "K-W", "topic": "lisle_boda"}}, "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|Mis respetos [[@act|al impresor y a su hija]], señor.}}"}
+      ],
+      "corta": [], "agrega": ["C6"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "HB4", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 3, "canal": "K-W",
+      "actor": ["watson", "cotter", "mycroft"],
+      "_nota": "Hablarle a Watson de Mary o de su duelo, o decirle o presentarle que Holmes vive (K-W, grupos mary/vive: sólo llega a Mycroft). En el acto, Watson se toca el crespón (1.ª) o cierra la consulta con fecha (2.ª): líneas de dialogue/watson.json con reaction HB4. Al día siguiente: 1.ª, carta sin ironía; 2.ª, consulta cerrada dos días (Effects escribe consulta_cerrada_hasta = día del acto + 2, último día cerrado inclusive según Clock.CLOSE_UNTIL_FLAGS; el estudio del domingo no se cierra). Nada llega a Holmes.",
+      "disparador": {"evento": ["say", "show"], "match": {"char": "watson", "any": [{"topic_group": "mary"}, {"says_alive": true}]}, "contador": "hb4:", "n_in": [1, 2]},
+      "condiciones": {},
+      "ancla": ["phrase"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [
+        {"op": "carta", "entrega": "correo", "si_n": [1]},
+        {"op": "cerrar", "target": "L4.consulta", "dias": 2, "flag": "consulta_cerrada_hasta", "si_n": [2]}
+      ],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "1", "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|[[@act|Lo de Kensington, el ${act_day}]]: a un hombre de luto no se le habla de eso.}} {{#duelo a:me_vigila_de_cerca e:duelo h:F.mary_muerte|Deje al doctor su duelo.}}"}
+      ],
+      "corta": [{"acceso": "L4.consulta", "ventana": {"dias": 2}, "si_n": [2]}],
+      "variante_blanda": {"efecto": [{"op": "carta", "entrega": "correo", "si_n": [1]}], "corta": []},
+      "agrega": ["C6", "C7"], "exento_d2": false
+    },
+    {
+      "id": "HB5", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-W",
+      "actor": ["cotter", "watson"],
+      "_nota": "Insistir con Watson en sus pruebas o en «El problema final», o mostrarle la galerada (D02) o las pruebas americanas (D04): al segundo acto que lo toque, Cotter recoge por pedido «de Estado» las pruebas de Watson (D29a, C, definitivo) y deja un recibo «p.p. M. H.» en el consultorio (variante «prestadas» de L4: nodo recibo, a:vinculo_mycroft). La carta original (D29b) no se presta nunca. Línea de Watson al volver: dialogue/watson.json (hb5_llevadas: «Se las llevaron ayer. Asuntos de Estado, me dijeron.»; hb5_pedidas, variante blanda D1: se las pidieron de parte del Foreign Office y el doctor las conserva; ambas con a:vinculo_mycroft).",
+      "disparador": {"evento": ["say", "show"], "match": {"char": "watson", "any": [{"topic": ["pruebas_de_watson", "fina", "galerada", "pruebas_americanas", "pedido_del_fo"]}, {"doc": ["D02", "D04", "D29a"]}, {"ent": ["galerada", "pruebas_americanas", "pruebas_de_watson"]}]}, "contador": "hb5:", "n_in": [2]},
+      "condiciones": {},
+      "ancla": ["phrase"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [
+        {"op": "retirar", "copy": "D29a@L4", "dias": null},
+        {"op": "alterar_lugar", "place": "L4", "variant": "prestadas"},
+        {"op": "linea", "char": "watson", "line": "hb5_llevadas"}
+      ],
+      "rastro": [
+        {"tpl": "recibo", "nodo": "N:L4.recibo", "tags": ["a:vinculo_mycroft", "e:recibo_pp_mh", "e:remington_s_alzada"]}
+      ],
+      "corta": [{"copy": "D29a@L4", "ventana": {"permanente": true}}],
+      "variante_blanda": {"efecto": [{"op": "linea", "char": "watson", "line": "hb5_pedidas"}], "corta": []},
+      "agrega": ["C7.R5"], "exento_d2": false
+    },
+    {
+      "id": "HB6", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-H",
+      "actor": ["cotter", "mrs_hudson"],
+      "_nota": "Primera visita al interior de 221B (en esa visita el libro de recibos todavía se puede ver). A las 9 del día siguiente Cotter instruye a Mrs. Hudson: no muestra el libro (D30) ni habla del alquiler, dobla los «sir» (flag hudson_cerrada, lo lee Dialogue) y dice «Órdenes del empleado del señor Mycroft, sir» (L:mrs_hudson.ordenes, C6 K-H). Sigue diciendo las líneas de HC05. Variante blanda: más «sir», sin cerrar nada.",
+      "disparador": {"evento": "go", "match": {"place": "L3", "visit": true}, "una_vez_por": ["*"]},
+      "condiciones": {},
+      "ancla": ["hour"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [
+        {"op": "flag", "name": "hudson_cerrada", "value": true},
+        {"op": "retirar", "copy": "D30@L3", "dias": null}
+      ],
+      "rastro": [
+        {"tpl": "ordenes", "nodo": "L:mrs_hudson.ordenes", "tags": ["a:ancla_kh", "a:vinculo_mycroft", "e:mycroft"]}
+      ],
+      "corta": [{"copy": "D30@L3", "ventana": {"permanente": true}}, {"ref": "C4.R5", "ventana": {"permanente": true}}],
+      "variante_blanda": {"efecto": [{"op": "evento_mundo", "id": "hudson_mas_sir"}], "corta": []},
+      "agrega": ["C6"], "exento_d2": false
+    },
+    {
+      "id": "HB8", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-S",
+      "actor": ["wiggins"],
+      "_nota": "Hablarle a Wiggins en un diorama (desde el día 3) y pagarle, o mostrarle el recorte de «the old scale of pay» (D44, e:vieja_tarifa): se vuelve aliado (flag wiggins_aliado) y dice la línea de la vieja tarifa (L:wiggins.vieja_tarifa, C7.R7). Acepta un encargo por día, sólo contra Moran (task seguir_chico_pell; tras M4, seguir_parker): al día siguiente informa en la ventana (L:wiggins.conduit, C10.Id).",
+      "disparador": {"evento": ["pay", "show"], "match": {"char": "wiggins", "any": [{"type": "pay"}, {"type": "show", "ent": "vieja_tarifa"}]}, "una_vez_por": ["*"]},
+      "condiciones": {"day": {"gte": 3}},
+      "ancla": ["amount_d"],
+      "latencia": {"tipo": "inmediata"},
+      "efecto": [
+        {"op": "flag", "name": "wiggins_aliado", "value": true},
+        {"op": "linea", "char": "wiggins", "line": "vieja_tarifa"}
+      ],
+      "rastro": [
+        {"tpl": "tarifa", "nodo": "L:wiggins.vieja_tarifa", "tags": ["a:vinculo_mycroft", "e:vieja_tarifa", "e:pall_mall", "e:whitehall"]},
+        {"tpl": "conduit", "nodo": "L:wiggins.conduit", "tags": ["a:harris_es_moran", "e:conduit_street"]}
+      ],
+      "corta": [], "agrega": ["C7.R7", "C10"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "HB8b", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 3, "canal": "K-S",
+      "actor": ["cotter", "wiggins"],
+      "_nota": "Usar dos veces a Wiggins (aliado) para pasar información falsa a Holmes (cebos, canarios o «vive» dichos a Wiggins): voz A, otro muchacho sin gorra sigue a Lisle y Wiggins ya no habla (flag wiggins_quemado). Corta C7.R7 y C10.Id (ruta C10.R4). Variante blanda: sólo la carta.",
+      "disparador": {"evento": "say", "match": {"char": "wiggins", "any": [{"bait": true}, {"canary": true}, {"says_alive": true}]}, "contador": "hb8b:", "n_in": [2]},
+      "condiciones": {"flag": "wiggins_aliado"},
+      "ancla": ["phrase"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [
+        {"op": "carta", "entrega": "correo"},
+        {"op": "flag", "name": "wiggins_quemado", "value": true},
+        {"op": "silueta", "who": "muchacho_sin_gorra", "reemplaza": "wiggins"}
+      ],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "chelin", "texto": "{{#ancla a:ancla_ks a:me_vigila_de_cerca|[[@act|Lo que le contó usted al muchacho de la gorra el ${act_day}]] llegó, y no era cierto.}} {{#chelin a:me_vigila_de_cerca|Un chelín compra a un chico, señor; no compra un hecho.}}"}
+      ],
+      "corta": [{"ref": "C7.R7", "ventana": {"permanente": true}}, {"ref": "C10.R4", "ventana": {"permanente": true}}],
+      "variante_blanda": {"efecto": [{"op": "carta", "entrega": "correo"}], "corta": []},
+      "agrega": ["C7"], "exento_d2": false
+    },
+    {
+      "id": "HB9", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 3, "canal": "*",
+      "actor": ["wiggins", "cotter", "mycroft"],
+      "_nota": "Wiggins (o el muchacho de Cotter) ve a los hombres de Moran frente a la consulta (M3). 1.ª: aviso sin ironía (watson_avisado); no marca nada. 2.ª (otro informe con watson_privado después del aviso): «Se lo dije.» y watson_expuesto (bloquea F1; desde entonces la voz B calla salvo HB10). «No esperan al doctor»: busca_a_holmes (C10.Cd2).",
+      "disparador": {"evento": "reaccion", "match": {"rid": "M3"}, "contador": "hb9:", "n_in": [1, 2]},
+      "condiciones": {},
+      "ancla": ["day"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [
+        {"op": "carta", "entrega": "correo"},
+        {"op": "flag", "name": "watson_avisado", "value": true, "si_n": [1]},
+        {"op": "flag", "name": "watson_expuesto", "value": true, "si_n": [2]}
+      ],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "1", "texto": "{{#hombres a:me_vigila_de_cerca a:busca_a_holmes e:hombres_de_moran|Desde el ${act_day} hay dos hombres frente a la puerta del [[watson|doctor]], y no esperan al doctor.}} {{#aviso a:me_vigila_de_cerca|Puede usted leer lo que él imprimió.}} Lo que no imprimió no es suyo."},
+        {"tpl": "2", "texto": "{{#hombres a:me_vigila_de_cerca a:busca_a_holmes e:hombres_de_moran|Los dos hombres siguen frente a la puerta del [[watson|doctor]].}} Se lo dije."}
+      ],
+      "corta": [], "agrega": ["C10.Cd"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "HB10", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "*",
+      "actor": ["wiggins", "cotter"],
+      "_nota": "Ley 3: lo que roba Moran (M1) vuelve intacto a la mañana siguiente, en un paquete en el mostrador de Crane, con una tarjeta a máquina. Si Wiggins es aliado, la tarjeta dice dónde estaban (Conduit Street: C10, identidad con D17). No lo difiere D2. No ocurre si M1 fue blanda (no se llevaron nada).",
+      "disparador": {"evento": "reaccion", "match": {"rid": "M1", "soft": false}},
+      "condiciones": {"day": {"gte": 3}},
+      "ancla": ["copies"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [
+        {"op": "devolver", "copias": "informadas"},
+        {"op": "carta", "entrega": "mostrador_crane"}
+      ],
+      "doc": {"entity": "tarjeta_de_devolucion", "title": "Paquete en el mostrador de Crane, tarjeta a máquina", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [89, 57]},
+      "rastro": [
+        {"tpl": "devuelto", "when": {"not": {"flag": "wiggins_aliado"}}, "texto": "Devuelto. {{#cerrojo a:me_vigila_de_cerca e:cerrojo|Ponga cerrojo.}}"},
+        {"tpl": "conduit", "when": {"flag": "wiggins_aliado"}, "texto": "Devuelto. {{#cerrojo a:me_vigila_de_cerca e:cerrojo|Ponga cerrojo.}} {{#conduit a:harris_es_moran e:conduit_street|Estaban en una casa de [[conduit_street|Conduit Street]].}}"}
+      ],
+      "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HB11", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "*",
+      "actor": ["cotter", "mycroft"],
+      "_nota": "Ley 8: segundo canario confirmado en un mismo canal (HA4 ya ocurrió ahí; los cebos no son canarios). Ese canal deja de producir reacciones opcionales nuevas (flag canal_cerrado.<K-x>, lo escribe Effects con op cerrar target canal:*); la columna y las garantizadas siguen; lo obtenido queda (T5: exige dos reacciones del canal ya obtenidas). Mismo filtro de canal que HA4 (K-H, K-W, K-T; Wiggins = HB8b).",
+      "disparador": {"evento": ["say", "ad"], "match": {"canary": true, "channel": ["K-H", "K-W", "K-T"]}, "contador": "canario:channel", "n_in": [2]},
+      "condiciones": {},
+      "ancla": ["phrase", "text"],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [
+        {"op": "carta", "entrega": "correo"},
+        {"op": "cerrar", "target": "canal:*", "dias": null}
+      ],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "K-H", "texto": "{{#ancla a:ancla_kh a:me_vigila_de_cerca|Su experimento con [[@act|Mrs. Hudson]] fue elegante.}} No lo repita."},
+        {"tpl": "K-W", "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|Su experimento con [[@act|el doctor]] fue elegante.}} No lo repita."},
+        {"tpl": "K-T", "texto": "{{#ancla a:ancla_kt a:me_vigila_de_cerca|Su experimento con [[@act|la columna]] fue elegante.}} No lo repita."}
+      ],
+      "corta": [{"acceso": "canal:*", "ventana": {"permanente": true}, "solo_opcionales": true}],
+      "variante_blanda": {"efecto": [{"op": "carta", "entrega": "correo"}], "corta": []},
+      "agrega": ["C6"], "exento_d2": false
+    },
+    {
+      "id": "HB12", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 4, "canal": "*",
+      "actor": ["mycroft"],
+      "_nota": "Lo aplica Dialogue en la Sala de Forasteros (§5.7) tras el desafío de HC06 (g): éxito si se presenta un asiento SELLADO de C6 o C7 que sigue siendo válido sin los recortes de origen S.HC06 (§12.1.4); material secreto_camden = error sin leerlo. 1.er error tolerado; el 2.º cierra la Sala de Forasteros (forasteros_cerrada; la portería y D31 siguen abiertas). El cierre llega después de que (a)–(f) se dijeron: esas líneas quedan en el diario, así que no corta ninguna fuente I (D9); sí corta el acceso a L5.forasteros (T5'), con variante blanda (D1: Mycroft despide a Lisle sin cerrar la Sala). Sus líneas, en persona, atan la mano a Mycroft (C7: ley de la huella). errata_ofrecida y forasteros_cerrada los escribe Dialogue (§3.9). Las líneas están en dialogue/mycroft.json o scenes/HC06.json (W3-CT-DLG-B).",
+      "disparador": {"evento": "show", "match": {"char": "mycroft"}},
+      "condiciones": {"day": {"gte": 8, "lte": 9}},
+      "ancla": [],
+      "latencia": {"tipo": "inmediata"},
+      "efecto": [
+        {"op": "linea", "char": "mycroft", "line": "hb12_exito", "resultado": "exito"},
+        {"op": "flag", "name": "errata_ofrecida", "value": "mycroft", "resultado": "exito"},
+        {"op": "linea", "char": "mycroft", "line": "hb12_error_1", "resultado": "error_1"},
+        {"op": "linea", "char": "mycroft", "line": "hb12_error_2", "resultado": "error_2"},
+        {"op": "flag", "name": "forasteros_cerrada", "value": true, "resultado": "error_2"}
+      ],
+      "rastro": [
+        {"tpl": "exito", "nodo": "L:mycroft.hb12_exito", "tags": ["a:vinculo_mycroft", "e:mycroft"]},
+        {"tpl": "error_1", "nodo": "L:mycroft.hb12_error_1", "tags": ["a:vinculo_mycroft", "e:mycroft"]},
+        {"tpl": "error_2", "nodo": "L:mycroft.hb12_error_2", "tags": ["a:vinculo_mycroft", "e:mycroft"]}
+      ],
+      "corta": [{"acceso": "L5.forasteros", "ventana": {"permanente": true}, "resultado": "error_2"}],
+      "variante_blanda": {"efecto": [
+        {"op": "linea", "char": "mycroft", "line": "hb12_exito", "resultado": "exito"},
+        {"op": "flag", "name": "errata_ofrecida", "value": "mycroft", "resultado": "exito"},
+        {"op": "linea", "char": "mycroft", "line": "hb12_error_1", "resultado": "error_1"},
+        {"op": "linea", "char": "mycroft", "line": "hb12_error_2", "resultado": "error_2"}
+      ], "corta": []},
+      "agrega": ["C7"], "exento_d2": true
+    },
+    {
+      "id": "HB13", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "inactividad",
+      "actor": ["cotter", "mycroft"],
+      "_nota": "Antiestancamiento (D4): dos franjas seguidas sin actos observados (Lisle no sale de L1 ni publica). Motivo de Holmes: el cabrito tiene que moverse para que se mueva el tigre. Empuja hacia actividades, nunca hacia el documento clave; T16: sólo la etiqueta de C7 propia de toda carta de voz A (no hay acto que anclar). Plantilla al azar (Det).",
+      "disparador": {"evento": "inactividad", "match": {}},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "voz_a"},
+      "efecto": [{"op": "carta", "entrega": "correo"}],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "empuje_salir", "texto": "{{#empuje a:me_vigila_de_cerca|Un hombre que no sale no es leído, señor.}}"},
+        {"tpl": "empuje_doctor", "texto": "{{#empuje a:me_vigila_de_cerca|El doctor acostumbra equivocarse dos veces en la misma página.}}"},
+        {"tpl": "empuje_periodicos", "texto": "{{#empuje a:me_vigila_de_cerca|La [[sala_de_periodicos|Sala de Periódicos]] abre hasta las ocho.}}"},
+        {"tpl": "empuje_consulta", "texto": "{{#empuje a:me_vigila_de_cerca|El doctor recibe por las mañanas, señor.}}"},
+        {"tpl": "empuje_columna", "texto": "{{#empuje a:me_vigila_de_cerca|El [[times|Times]] admite avisos hasta las seis.}}"},
+        {"tpl": "empuje_calles", "texto": "{{#empuje a:me_vigila_de_cerca|Londres se lee mejor a pie, señor.}}"}
+      ],
+      "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": false
+    }
+  ]
+}

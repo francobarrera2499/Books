@@ -1,0 +1,8 @@
+{"facts": [
+  {"id": "F.reichenbach", "event": "1891-05-04", "published": "1893-12-01", "mark": "C", "src": "EMPT", "src_en": "a ledge several feet deep and covered with soft green moss, where I could lie unseen",
+   "knowable": {"publico": "1893-12-01", "holmes": "1891-05-04", "mycroft": "1891-05-04", "moran": "1891-05-04", "watson": "1894-04-05"}, "text": "Holmes no cayó: subió a una cornisa; Moran lo vio vivo."},
+  {"id": "F.mary_muerte", "event": "1893-11-25", "published": "1894-02-03", "mark": "INV", "hue": "HUE-06",
+   "knowable": {"publico": "1894-02-03", "watson": "1893-11-25", "mycroft": "1893-11-26", "holmes": "1894-04-05"}, "text": "Muere Mary Watson en Paddington; sin aviso en el Times; The Lancet alude al duelo."},
+  {"id": "F.jartum", "event": "1893-06-01", "published": "1893-06-01", "mark": "INV", "hue": "HUE-04", "false_lead": true,
+   "knowable": {"publico": "1893-06-01"}, "text": "Nota comunicada: Sigerson en Jartum, huésped del Califa (error: el Califa reside en Omdurmán)."}
+]}

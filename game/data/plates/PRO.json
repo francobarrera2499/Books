@@ -1,0 +1,1640 @@
+{
+ "_nota": "W2-PLACES-A. Lámina del prólogo (GDD §3.2, §5): Pell y Harris en la buhardilla; en el vidrio, el reflejo de Lisle; por la ventana, Parker junto a la puerta y, enfrente, Cotter. Nodo del contrato §4.8: N:PRO.harris (C10 Ia, C13.R3). Escrito con un generador de trabajo no versionado (.work/w2placesa/): este JSON es la fuente de verdad; la buhardilla es la de places/L1.json.",
+ "id": "PRO",
+ "name": "Lámina del prólogo: el encargo",
+ "fixed": true,
+ "origin": "PL.prologo",
+ "place": "L1",
+ "day": 0,
+ "slot": "N",
+ "streets": [
+  "Holywell Street"
+ ],
+ "areas": {
+  "buhardilla": {
+   "desc": "la buhardilla, la noche del lunes de Pascua"
+  }
+ },
+ "observers": [],
+ "epigraph": "—Una guinea diaria, señor Lisle, en debida forma.",
+ "frames": [
+  {
+   "id": "lamina",
+   "area": "*",
+   "pos": [
+    0.55,
+    1.55,
+    1.75
+   ],
+   "look": [
+    -0.05,
+    1.2,
+    -2.0
+   ],
+   "fov": 58,
+   "orbit": {
+    "pivot": [
+     0.0,
+     1.1,
+     -0.9
+    ],
+    "yaw": 18,
+    "pitch": 8
+   }
+  },
+  {
+   "id": "ventana",
+   "area": "*",
+   "pos": [
+    0.12,
+    1.25,
+    -2.72
+   ],
+   "look": [
+    0.3,
+    -4.6,
+    -6.6
+   ],
+   "fov": 72,
+   "orbit": {
+    "pivot": [
+     0.3,
+     -5.0,
+     -5.5
+    ],
+    "yaw": 12,
+    "pitch": 6
+   }
+  },
+  {
+   "id": "escritorio",
+   "area": "*",
+   "pos": [
+    0.9,
+    1.62,
+    0.1
+   ],
+   "look": [
+    -0.16,
+    0.92,
+    -1.9
+   ],
+   "fov": 56,
+   "orbit": {
+    "pivot": [
+     -0.1,
+     0.9,
+     -1.8
+    ],
+    "yaw": 18,
+    "pitch": 8
+   }
+  }
+ ],
+ "light": {
+  "N": "gas",
+  "night": "gas"
+ },
+ "props": [
+  {
+   "id": "buhardilla",
+   "type": "architecture.attic",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 4.8,
+    "d": 4.4,
+    "h": 2.8,
+    "slope": 40,
+    "knee": 1.05,
+    "wall": "yeso",
+    "ceiling": "yeso",
+    "floor": "suelo_tablas",
+    "openings": [
+     {
+      "wall": "n",
+      "kind": "window",
+      "x": 0.0,
+      "w": 1.0,
+      "h": 1.25,
+      "sill": 0.85,
+      "panes": 4,
+      "open": 0.0
+     },
+     {
+      "wall": "s",
+      "kind": "door",
+      "x": 0.45,
+      "w": 0.8,
+      "h": 1.95,
+      "open": 0.12
+     }
+    ]
+   }
+  },
+  {
+   "id": "escalera_baja",
+   "type": "l1.stair_glimpse",
+   "pos": [
+    0.45,
+    0.0,
+    2.36
+   ],
+   "rot": 180.0,
+   "p": {
+    "w": 0.8,
+    "dir": "down"
+   }
+  },
+  {
+   "id": "alfombra",
+   "type": "l1.rug",
+   "pos": [
+    -0.05,
+    0.0,
+    0.25
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 1.7,
+    "d": 1.15
+   }
+  },
+  {
+   "id": "escritorio",
+   "type": "furniture.desk",
+   "pos": [
+    0.0,
+    0.0,
+    -1.8
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 1.5,
+    "d": 0.75,
+    "drawers": 3
+   }
+  },
+  {
+   "id": "silla",
+   "type": "furniture.chair",
+   "pos": [
+    0.08,
+    0.0,
+    -1.06
+   ],
+   "rot": 180.0,
+   "p": {
+    "style": "oficina"
+   }
+  },
+  {
+   "id": "tomos",
+   "type": "small.tome_set",
+   "pos": [
+    -0.24,
+    0.76,
+    -2.05
+   ],
+   "rot": 0.0,
+   "p": {
+    "n": 5
+   }
+  },
+  {
+   "id": "atril",
+   "type": "l1.reading_stand",
+   "pos": [
+    -0.58,
+    0.76,
+    -1.98
+   ],
+   "rot": 14.0
+  },
+  {
+   "id": "calendario",
+   "type": "small.desk_calendar",
+   "pos": [
+    0.06,
+    0.76,
+    -2.07
+   ],
+   "rot": -6.0
+  },
+  {
+   "id": "tintero",
+   "type": "small.ink_pot",
+   "pos": [
+    0.27,
+    0.76,
+    -2.1
+   ],
+   "rot": 0.0
+  },
+  {
+   "id": "sello",
+   "type": "small.stamp",
+   "pos": [
+    0.4,
+    0.76,
+    -1.74
+   ],
+   "rot": 0.0
+  },
+  {
+   "id": "lampara",
+   "type": "small.desk_lamp",
+   "pos": [
+    0.62,
+    0.76,
+    -2.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "lit": true
+   }
+  },
+  {
+   "id": "bandeja",
+   "type": "small.tray",
+   "pos": [
+    -0.55,
+    0.76,
+    -1.68
+   ],
+   "rot": 6.0,
+   "p": {
+    "letters": 3
+   }
+  },
+  {
+   "id": "libro_mayor",
+   "type": "l1.ledger_open",
+   "pos": [
+    0.38,
+    0.76,
+    -1.62
+   ],
+   "rot": -6.0
+  },
+  {
+   "id": "tijera",
+   "type": "small.scissors",
+   "pos": [
+    -0.05,
+    0.76,
+    -1.52
+   ],
+   "rot": -35.0
+  },
+  {
+   "id": "lupa",
+   "type": "small.lens",
+   "pos": [
+    0.12,
+    0.76,
+    -1.55
+   ],
+   "rot": 70.0
+  },
+  {
+   "id": "monedas",
+   "type": "l1.desk_coins",
+   "pos": [
+    0.69,
+    0.76,
+    -1.5
+   ],
+   "rot": 0.0,
+   "p": {
+    "n": 7
+   }
+  },
+  {
+   "id": "mesita",
+   "type": "furniture.table",
+   "pos": [
+    -1.6,
+    0.0,
+    -1.55
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 0.75,
+    "d": 0.5,
+    "h": 0.72
+   }
+  },
+  {
+   "id": "concordancia",
+   "type": "l1.thick_book",
+   "pos": [
+    -1.74,
+    0.72,
+    -1.6
+   ],
+   "rot": 8.0
+  },
+  {
+   "id": "estuche",
+   "type": "l1.spectacles_case",
+   "pos": [
+    -1.42,
+    0.72,
+    -1.42
+   ],
+   "rot": -20.0
+  },
+  {
+   "id": "brazo_gas",
+   "type": "l1.gas_bracket",
+   "pos": [
+    -1.1,
+    0.0,
+    -2.2
+   ],
+   "rot": 0.0,
+   "p": {
+    "y": 1.72
+   }
+  },
+  {
+   "id": "brazo_gas_puerta",
+   "type": "l1.gas_bracket",
+   "pos": [
+    -0.15,
+    0.0,
+    2.2
+   ],
+   "rot": 180.0,
+   "p": {
+    "y": 1.78
+   }
+  },
+  {
+   "id": "estufa",
+   "type": "furniture.stove",
+   "pos": [
+    1.3,
+    0.0,
+    -1.78
+   ],
+   "rot": -20.0,
+   "p": {
+    "h": 2.02
+   }
+  },
+  {
+   "id": "cama",
+   "type": "furniture.bed",
+   "pos": [
+    1.72,
+    0.0,
+    1.12
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 0.9,
+    "d": 1.9
+   }
+  },
+  {
+   "id": "lavamanos",
+   "type": "l1.washstand",
+   "pos": [
+    -1.7,
+    0.0,
+    0.8
+   ],
+   "rot": 90.0
+  },
+  {
+   "id": "estante",
+   "type": "furniture.bookshelf",
+   "pos": [
+    -2.18,
+    0.0,
+    -0.35
+   ],
+   "rot": 90.0,
+   "p": {
+    "w": 1.1,
+    "h": 0.95,
+    "rows": 2,
+    "d": 0.3,
+    "fill": 0.8,
+    "seed": 31
+   }
+  },
+  {
+   "id": "mapa",
+   "type": "l1.wall_map",
+   "pos": [
+    -0.85,
+    0.0,
+    2.2
+   ],
+   "rot": 180.0,
+   "p": {
+    "w": 0.9,
+    "h": 0.62,
+    "y": 1.25
+   }
+  },
+  {
+   "id": "percha",
+   "type": "l1.peg_rail",
+   "pos": [
+    1.17,
+    0.0,
+    2.2
+   ],
+   "rot": 180.0,
+   "p": {
+    "y": 1.6
+   }
+  },
+  {
+   "id": "fachada",
+   "type": "l1.own_front",
+   "pos": [
+    0.0,
+    -6.33,
+    -2.36
+   ],
+   "rot": 180.0,
+   "p": {
+    "w": 5.12,
+    "y0": 3.1,
+    "y1": 6.33,
+    "sign": "A. CRANE · LIBROS VIEJOS"
+   }
+  },
+  {
+   "id": "vereda",
+   "type": "street.pavement",
+   "pos": [
+    0.0,
+    -6.45,
+    -2.86
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 34,
+    "d": 1.0,
+    "kind": "losas",
+    "kerb": "-z"
+   }
+  },
+  {
+   "id": "calzada",
+   "type": "street.pavement",
+   "pos": [
+    0.0,
+    -6.49,
+    -5.06
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 34,
+    "d": 3.4,
+    "kind": "granito"
+   }
+  },
+  {
+   "id": "vereda_enfrente",
+   "type": "street.pavement",
+   "pos": [
+    0.0,
+    -6.45,
+    -7.26
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 34,
+    "d": 1.0,
+    "kind": "losas",
+    "kerb": "+z"
+   }
+  },
+  {
+   "id": "enfrente",
+   "type": "l1.holywell_row",
+   "pos": [
+    0.4,
+    -6.33,
+    -7.76
+   ],
+   "rot": 0.0,
+   "p": {
+    "seed": 36,
+    "jetty": 0.3,
+    "houses": [
+     {
+      "w": 3.8,
+      "floors": 2,
+      "gable": false,
+      "brick": true,
+      "shut": true,
+      "door": "left"
+     },
+     {
+      "w": 4.2,
+      "floors": 2,
+      "gable": true,
+      "sign": "LIBROS · GRABADOS",
+      "stall": true,
+      "door": "right"
+     },
+     {
+      "w": 3.6,
+      "floors": 2,
+      "gable": false,
+      "moon": true,
+      "sign": "J. DIXON",
+      "door": "left"
+     },
+     {
+      "w": 4.4,
+      "floors": 2,
+      "gable": true,
+      "sign": "LIBRERÍA ANTIGUA",
+      "door": "left"
+     },
+     {
+      "w": 3.7,
+      "floors": 3,
+      "gable": false,
+      "brick": true,
+      "sign": "IMPRENTA",
+      "door": "right"
+     },
+     {
+      "w": 4.0,
+      "floors": 2,
+      "gable": true,
+      "stall": true,
+      "door": "left"
+     }
+    ]
+   }
+  },
+  {
+   "id": "farol",
+   "type": "street.gas_lamp",
+   "pos": [
+    -2.75,
+    -6.33,
+    -6.98
+   ],
+   "rot": 0.0,
+   "p": {
+    "h": 3.3,
+    "light": true
+   }
+  },
+  {
+   "id": "farol_2",
+   "type": "street.gas_lamp",
+   "pos": [
+    6.2,
+    -6.33,
+    -3.15
+   ],
+   "rot": 0.0,
+   "p": {
+    "h": 3.3,
+    "light": true
+   }
+  },
+  {
+   "id": "tienda",
+   "type": "architecture.room",
+   "pos": [
+    0.0,
+    -6.33,
+    1.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 4.8,
+    "d": 6.4,
+    "h": 2.95,
+    "wall": "papel_pintado",
+    "ceiling": "yeso_sucio",
+    "floor": "suelo_tablas",
+    "dado": 0,
+    "openings": [
+     {
+      "wall": "n",
+      "kind": "void",
+      "x": -0.85,
+      "w": 2.3,
+      "h": 1.85,
+      "sill": 0.55
+     },
+     {
+      "wall": "n",
+      "kind": "void",
+      "x": 1.45,
+      "w": 0.95,
+      "h": 2.35,
+      "sill": 0.0
+     },
+     {
+      "wall": "s",
+      "kind": "door",
+      "x": 1.55,
+      "w": 0.85,
+      "h": 2.05,
+      "open": 0.35
+     }
+    ]
+   }
+  },
+  {
+   "id": "escaparate",
+   "type": "l1.shop_window",
+   "pos": [
+    -0.85,
+    -5.78,
+    -2.28
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 2.3,
+    "h": 1.85,
+    "depth": 0.5,
+    "seed": 12
+   }
+  },
+  {
+   "id": "puerta_calle",
+   "type": "l1.shop_door",
+   "pos": [
+    1.45,
+    -6.33,
+    -2.28
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 0.95,
+    "h": 2.35,
+    "open": 0.0
+   }
+  },
+  {
+   "id": "encargo",
+   "type": "l1.paper_pile",
+   "pos": [
+    -0.28,
+    0.76,
+    -1.6
+   ],
+   "rot": 72.0,
+   "p": {
+    "n": 6,
+    "w": 0.21,
+    "h": 0.3
+   }
+  },
+  {
+   "id": "recorte",
+   "type": "l1.clipping",
+   "pos": [
+    0.0,
+    0.76,
+    -1.76
+   ],
+   "rot": 15.0
+  },
+  {
+   "id": "billetes",
+   "type": "l1.banknotes",
+   "pos": [
+    0.52,
+    0.76,
+    -1.52
+   ],
+   "rot": 12.0,
+   "p": {
+    "n": 6
+   }
+  },
+  {
+   "id": "reflejo",
+   "type": "l1.reflection",
+   "pos": [
+    0.2,
+    1.1,
+    -2.318
+   ],
+   "rot": 0.0,
+   "p": {
+    "s": 0.5
+   }
+  },
+  {
+   "id": "parker_fig",
+   "type": "figure.bajo_agachado",
+   "pos": [
+    0.95,
+    -6.33,
+    -2.86
+   ],
+   "rot": 180.0
+  },
+  {
+   "id": "cotter_fig",
+   "type": "figure.fajo_bajo_brazo",
+   "pos": [
+    -1.15,
+    -6.33,
+    -7.48
+   ],
+   "rot": 6.0
+  },
+  {
+   "id": "pell",
+   "type": "l1.marker",
+   "pos": [
+    1.4,
+    0.0,
+    -0.3
+   ],
+   "rot": 0.0
+  },
+  {
+   "id": "harris",
+   "type": "l1.marker",
+   "pos": [
+    -0.7,
+    0.0,
+    -0.35
+   ],
+   "rot": 0.0
+  }
+ ],
+ "nodes": [
+  {
+   "id": "escritorio",
+   "prop": "escritorio",
+   "noun": "escritorio",
+   "anchor": {
+    "c": [
+     0.0,
+     0.38,
+     -1.8
+    ],
+    "s": [
+     1.52,
+     0.78,
+     0.77
+    ]
+   },
+   "examine": "Un escritorio de pedestales, de tapa de cuero gastada; en el borde del cuero hay cortes de tijera.",
+   "tags": [
+    "e:escritorio_de_lisle"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "cajon",
+   "prop": "escritorio",
+   "noun": "cajón",
+   "anchor": {
+    "c": [
+     0.0,
+     0.675,
+     -1.395
+    ],
+    "s": [
+     0.5,
+     0.11,
+     0.06
+    ]
+   },
+   "examine": "El cajón del centro cierra mal. Adentro, doblada en cuatro, una [[galerada|prueba de imprenta]] con un sello: «1.ª prueba — lector: E. L.».",
+   "tags": [
+    "e:galerada",
+    "e:cajon_del_escritorio"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "calendario",
+   "prop": "calendario",
+   "noun": "calendario",
+   "anchor": {
+    "c": [
+     0.06,
+     0.83,
+     -2.07
+    ],
+    "s": [
+     0.15,
+     0.15,
+     0.1
+    ]
+   },
+   "examine": "Un [[calendario_de_escritorio|calendario perpetuo]] de tarjetas que se cambian a mano.",
+   "tags": [
+    "e:calendario_de_escritorio"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "tintero",
+   "prop": "tintero",
+   "noun": "tintero",
+   "anchor": {
+    "c": [
+     0.31,
+     0.79,
+     -2.1
+    ],
+    "s": [
+     0.2,
+     0.07,
+     0.08
+    ]
+   },
+   "examine": "Un tintero de vidrio con tapa de latón y una pluma de acero.",
+   "tags": [
+    "e:tintero_de_lisle"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "sello",
+   "prop": "sello",
+   "noun": "sello",
+   "anchor": {
+    "c": [
+     0.45,
+     0.805,
+     -1.74
+    ],
+    "s": [
+     0.2,
+     0.1,
+     0.08
+    ]
+   },
+   "examine": "El [[sello_visto|sello «Visto»]], de goma, y su tampón de lata.",
+   "tags": [
+    "e:sello_visto"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "lampara",
+   "prop": "lampara",
+   "noun": "lámpara",
+   "anchor": {
+    "c": [
+     0.62,
+     1.0,
+     -2.0
+    ],
+    "s": [
+     0.28,
+     0.48,
+     0.28
+    ]
+   },
+   "examine": "Una lámpara de mesa de gas, con tubo de goma y pantalla opalina. Está encendida.",
+   "tags": [
+    "e:luz_de_gas"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "atril",
+   "prop": "atril",
+   "noun": "atril",
+   "anchor": {
+    "c": [
+     -0.58,
+     0.9,
+     -1.98
+    ],
+    "s": [
+     0.44,
+     0.3,
+     0.32
+    ]
+   },
+   "examine": "Un atril de lectura con una pinza de latón para sujetar la hoja.",
+   "tags": [
+    "e:atril_de_lisle"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "bandeja",
+   "prop": "bandeja",
+   "noun": "bandeja",
+   "anchor": {
+    "c": [
+     -0.55,
+     0.82,
+     -1.68
+    ],
+    "s": [
+     0.36,
+     0.12,
+     0.28
+    ]
+   },
+   "examine": "Una [[bandeja|bandeja]] de correspondencia de dos pisos, de madera; lo que llega se apila arriba.",
+   "tags": [
+    "e:bandeja"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "libro_mayor",
+   "prop": "libro_mayor",
+   "noun": "libro mayor",
+   "anchor": {
+    "c": [
+     0.38,
+     0.775,
+     -1.62
+    ],
+    "s": [
+     0.5,
+     0.04,
+     0.36
+    ]
+   },
+   "examine": "Un libro mayor abierto, de renglones y columnas rojas; en la primera hoja, a pluma: «Fe de erratas».",
+   "tags": [
+    "e:libro_mayor"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "tijera",
+   "prop": "tijera",
+   "noun": "tijera",
+   "anchor": {
+    "c": [
+     -0.05,
+     0.77,
+     -1.52
+    ],
+    "s": [
+     0.17,
+     0.03,
+     0.17
+    ]
+   },
+   "examine": "Una [[tijera|tijera]] de corrector, de hojas largas y punta roma.",
+   "tags": [
+    "e:tijera"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "lupa",
+   "prop": "lupa",
+   "noun": "lupa",
+   "anchor": {
+    "c": [
+     0.12,
+     0.772,
+     -1.55
+    ],
+    "s": [
+     0.18,
+     0.04,
+     0.12
+    ]
+   },
+   "examine": "Una [[lupa|lupa]] de aro de latón con el mango de ébano gastado.",
+   "tags": [
+    "e:lupa"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "monedas",
+   "prop": "monedas",
+   "noun": "monedas",
+   "anchor": {
+    "c": [
+     0.69,
+     0.77,
+     -1.5
+    ],
+    "s": [
+     0.12,
+     0.03,
+     0.1
+    ]
+   },
+   "examine": "Unas [[monedas|monedas]] sobre la mesa: chelines, peniques y un soberano.",
+   "tags": [
+    "e:monedas"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "silla",
+   "prop": "silla",
+   "noun": "silla",
+   "anchor": {
+    "c": [
+     0.08,
+     0.45,
+     -1.06
+    ],
+    "s": [
+     0.52,
+     0.9,
+     0.52
+    ]
+   },
+   "examine": "Una silla de escritorio de brazos curvos, con el asiento gastado.",
+   "tags": [],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "mesita",
+   "prop": "mesita",
+   "noun": "mesita",
+   "anchor": {
+    "c": [
+     -1.6,
+     0.36,
+     -1.55
+    ],
+    "s": [
+     0.78,
+     0.72,
+     0.52
+    ]
+   },
+   "examine": "Una mesita de patas torneadas, arrimada al faldón del techo.",
+   "tags": [],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "concordancia",
+   "prop": "concordancia",
+   "noun": "cuaderno",
+   "anchor": {
+    "c": [
+     -1.74,
+     0.755,
+     -1.6
+    ],
+    "s": [
+     0.26,
+     0.08,
+     0.32
+    ]
+   },
+   "examine": "Un cuaderno grueso de tapas de hule, cerrado con una cinta: la [[concordancia|concordancia]] de E. L., llena de fichas sujetas con alfileres.",
+   "tags": [
+    "e:concordancia"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "estuche",
+   "prop": "estuche",
+   "noun": "estuche",
+   "anchor": {
+    "c": [
+     -1.42,
+     0.75,
+     -1.42
+    ],
+    "s": [
+     0.18,
+     0.08,
+     0.1
+    ]
+   },
+   "examine": "Un estuche de cuero para anteojos, abierto y vacío; tiene el nombre de un óptico del Strand.",
+   "tags": [
+    "e:anteojos_azules"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "brazo_gas",
+   "prop": "brazo_gas",
+   "noun": "brazo de gas",
+   "anchor": {
+    "c": [
+     -1.1,
+     1.72,
+     -2.0
+    ],
+    "s": [
+     0.2,
+     0.3,
+     0.3
+    ]
+   },
+   "examine": "Un brazo de gas de pared con globo de vidrio esmerilado; el techo de encima está ahumado.",
+   "tags": [
+    "e:luz_de_gas"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "estufa",
+   "prop": "estufa",
+   "noun": "estufa",
+   "anchor": {
+    "c": [
+     1.3,
+     1.0,
+     -1.78
+    ],
+    "s": [
+     0.6,
+     2.0,
+     0.6
+    ]
+   },
+   "examine": "Una [[estufa|estufa]] de hierro de las que llaman tortugas; el caño sale por el techo inclinado.",
+   "tags": [
+    "e:estufa"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "estante",
+   "prop": "estante",
+   "noun": "estante",
+   "anchor": {
+    "c": [
+     -2.18,
+     0.48,
+     -0.35
+    ],
+    "s": [
+     0.32,
+     0.96,
+     1.12
+    ]
+   },
+   "examine": "Un estante bajo con diccionarios, un [[baedeker|Baedeker]] de Londres y pruebas viejas atadas con cordel.",
+   "tags": [
+    "e:baedeker"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "ventana",
+   "prop": "buhardilla",
+   "noun": "ventana",
+   "anchor": {
+    "c": [
+     0.0,
+     1.48,
+     -2.24
+    ],
+    "s": [
+     1.02,
+     1.27,
+     0.2
+    ]
+   },
+   "examine": "Una ventana de guillotina en el muro del frontón. Da a [[holywell_street|Holywell Street]], tan angosta que los pisos de enfrente parecen al alcance de la mano.",
+   "tags": [
+    "e:holywell_street"
+   ],
+   "cls": "I",
+   "area": "buhardilla",
+   "when": {}
+  },
+  {
+   "id": "calle",
+   "prop": "calzada",
+   "noun": "calle",
+   "anchor": {
+    "c": [
+     0.0,
+     -6.38,
+     -5.08
+    ],
+    "s": [
+     24.0,
+     0.25,
+     5.4
+    ]
+   },
+   "examine": "[[holywell_street|Holywell Street]]: calzada de adoquines, aceras angostas y librerías de viejo a los dos lados.",
+   "tags": [
+    "e:holywell_street"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "enfrente",
+   "prop": "enfrente",
+   "noun": "casas de enfrente",
+   "anchor": {
+    "c": [
+     0.4,
+     -1.73,
+     -7.56
+    ],
+    "s": [
+     23.7,
+     9.2,
+     1.0
+    ]
+   },
+   "examine": "Las casas de enfrente son viejas, de entramado y revoque; cada piso sale un poco más que el de abajo, y los [[alero|aleros]] vuelan sobre la calle.",
+   "tags": [
+    "e:alero",
+    "e:holywell_street"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "media_luna",
+   "prop": "enfrente",
+   "noun": "letrero",
+   "anchor": {
+    "c": [
+     -0.47,
+     -2.23,
+     -7.38
+    ],
+    "s": [
+     0.9,
+     0.9,
+     0.2
+    ]
+   },
+   "examine": "Sobre una tienda de enfrente hay un letrero antiguo: una media luna de latón con cara.",
+   "tags": [
+    "e:media_luna"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "puesto_libros",
+   "prop": "enfrente",
+   "noun": "caballete",
+   "anchor": {
+    "c": [
+     -6.055,
+     -5.38,
+     -7.21
+    ],
+    "s": [
+     2.44,
+     1.9,
+     0.85
+    ]
+   },
+   "examine": "En la acera de enfrente, un caballete con libros de a penique, bajo un toldo de hule.",
+   "tags": [
+    "e:puesto_de_libros"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "farol",
+   "prop": "farol",
+   "noun": "farol",
+   "anchor": {
+    "c": [
+     -2.75,
+     -4.63,
+     -6.98
+    ],
+    "s": [
+     0.5,
+     3.4,
+     0.5
+    ]
+   },
+   "examine": "Un farol de gas de hierro fundido, con travesaño para la escalera del farolero.",
+   "tags": [
+    "e:luz_de_gas"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "tomos",
+   "prop": "tomos",
+   "noun": "tomos",
+   "anchor": {
+    "c": [
+     -0.24,
+     0.89,
+     -2.05
+    ],
+    "s": [
+     0.36,
+     0.27,
+     0.2
+    ]
+   },
+   "examine": "Cinco [[tomos|tomos encuadernados]] de la [[strand|Strand]], volúmenes II a VI, que el señor Pell acaba de dejar; entre las hojas asoman papeles.",
+   "tags": [
+    "e:tomos",
+    "e:strand"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "harris",
+   "prop": "harris",
+   "noun": "caballero",
+   "anchor": {
+    "c": [
+     -0.7,
+     1.5,
+     -0.35
+    ],
+    "s": [
+     0.62,
+     0.95,
+     0.55
+    ]
+   },
+   "examine": "El [[harris|mayor Harris]], de pie con las manos a la espalda: alto, ancho de hombros, de [[bigote|bigote canoso]] enorme y [[chistera|chistera de ópera]].",
+   "tags": [
+    "a:harris_es_moran",
+    "a:tirador",
+    "e:harris",
+    "e:bigote",
+    "e:chistera",
+    "f:secreto_camden"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "pell",
+   "prop": "pell",
+   "noun": "procurador",
+   "anchor": {
+    "c": [
+     1.4,
+     1.2,
+     -0.3
+    ],
+    "s": [
+     0.6,
+     1.1,
+     0.55
+    ]
+   },
+   "examine": "El señor [[pell|Pell]], procurador, se seca la frente con un pañuelo; lleva una [[cartera|cartera]] de cuero gastada.",
+   "tags": [
+    "e:pell",
+    "e:cartera"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "reflejo",
+   "prop": "reflejo",
+   "noun": "reflejo",
+   "anchor": {
+    "c": [
+     0.2,
+     1.58,
+     -2.3
+    ],
+    "s": [
+     0.42,
+     0.98,
+     0.08
+    ]
+   },
+   "examine": "En el vidrio negro de la ventana se refleja un hombre alto y delgado, de [[anteojos_azules|anteojos de color]].",
+   "tags": [
+    "e:reflejo_en_el_vidrio",
+    "e:anteojos_azules",
+    "e:lisle"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "parker",
+   "prop": "parker_fig",
+   "noun": "hombrecito",
+   "anchor": {
+    "c": [
+     0.95,
+     -5.58,
+     -2.86
+    ],
+    "s": [
+     0.62,
+     1.5,
+     0.62
+    ]
+   },
+   "examine": "Abajo, junto a la puerta de la tienda, un hombrecito agachado espera con las manos en la boca; se oye, muy bajo, un [[arpa_de_boca|arpa de boca]].",
+   "tags": [
+    "e:hombrecito_del_arpa",
+    "e:arpa_de_boca"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "cotter_enfrente",
+   "prop": "cotter_fig",
+   "noun": "hombre con un fajo",
+   "anchor": {
+    "c": [
+     -1.15,
+     -5.47,
+     -7.48
+    ],
+    "s": [
+     0.66,
+     1.72,
+     0.62
+    ]
+   },
+   "examine": "Enfrente, en el portal de una tienda cerrada, un hombre delgado con un [[fajo_de_papel|fajo de papel]] bajo el brazo mira hacia esta ventana.",
+   "tags": [
+    "a:me_vigila_de_cerca",
+    "e:fajo_de_papel"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "billetes",
+   "prop": "billetes",
+   "noun": "billetes",
+   "anchor": {
+    "c": [
+     0.52,
+     0.768,
+     -1.52
+    ],
+    "s": [
+     0.26,
+     0.04,
+     0.2
+    ]
+   },
+   "examine": "Sobre el escritorio, un fajo de [[billetes_de_cinco_libras|billetes de cinco libras]], numerados, atado con una cinta.",
+   "tags": [
+    "e:billetes_de_cinco_libras"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "recorte",
+   "prop": "recorte",
+   "noun": "recorte",
+   "anchor": {
+    "c": [
+     0.0,
+     0.765,
+     -1.76
+    ],
+    "s": [
+     0.18,
+     0.02,
+     0.24
+    ]
+   },
+   "examine": "Un recorte de la [[pall_mall_gazette|Pall Mall Gazette]] doblado en dos: dos cartas firmadas por un coronel.",
+   "tags": [
+    "e:pall_mall_gazette",
+    "e:cartas_del_coronel"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "encargo",
+   "prop": "encargo",
+   "noun": "pliego",
+   "anchor": {
+    "c": [
+     -0.28,
+     0.77,
+     -1.6
+    ],
+    "s": [
+     0.34,
+     0.03,
+     0.3
+    ]
+   },
+   "examine": "Un pliego de condiciones escrito a pluma, firmado por Josiah Pell, con fechas de entrega subrayadas.",
+   "tags": [
+    "e:encargo"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "pell",
+   "area": "*",
+   "pos": [
+    1.4,
+    0.0,
+    -0.3
+   ],
+   "rot": -22.5,
+   "pose": "de_pie",
+   "trait": "cartera",
+   "when": {}
+  },
+  {
+   "id": "harris",
+   "area": "*",
+   "pos": [
+    -0.7,
+    0.0,
+    -0.35
+   ],
+   "rot": 30.8,
+   "pose": "de_pie",
+   "trait": "chistera_bigote",
+   "when": {}
+  }
+ ],
+ "silhouettes": {},
+ "variants": {}
+}

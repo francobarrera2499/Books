@@ -1,0 +1,433 @@
+{
+  "_nota": "W2-STRUCT. Conclusiones de GDD §10.4 con el contrato de fragmentos de ARCHITECTURE §4.8. answers: valores aceptados por campo (todos los campos listados son obligatorios para el validador; los ausentes son libres); {list: medios} = cualquier medio o su entidad; \"@alias:harris\" vale sólo con C10a sellada. groups[].tags sin prefijo = a:<x>. Las rutas son ejemplos (R8): el validador acepta toda prueba válida. Sintaxis de ref (§4.8): D05#corniche · N:<lugar|lámina>.<nodo> (N:*.sil_wiggins = silueta en cualquier lámina con día ≥ 3) · S:<escena>.<línea> · L:<char>.<línea> · R:<reacción>.<sel> · J:<tipo de diario> · AD:prologo | AD:* (aviso propio impreso) · M:<doc|escena[.x]> (medida). Selector R:<rid>.<sel>: nombre de plantilla de rastro (tpl), o id de tramo presente en el rastro, o «col»/«carta»/«noticia» = el rastro entregado con ese efecto, o «*» = cualquiera; R:HB*.col = cualquier HB en columna. Las rutas usan ejemplos concretos cuando la plantilla depende del canal o del tema (R:HB1.pared.1.col es un caso de R:HB1.col; R:HB1.pared.1.kw de R:HB1.carta; R:HA4.lisle_mudanza.kh de R:HA4.*). Los dueños de cada fuente DEBEN crear esos ids con esas etiquetas (§4.8). Las personas de diálogo se nombran por su char de dialogue/ (mrs_hudson; el contrato §4.8 escribe «hudson»). _apoyo: filas de §10.4 marcadas «apoyo» o «no cuenta» (no completan los grupos: no son rutas para T1/T3; quedan para documentación y bots). _pistas_falsas: GDD §10.5 (convención: la pista falsa lleva f:refutado + a:falsa_<x>; cada refutación lleva a:refuta_<x>).",
+  "mandatory": ["C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13"],
+  "lot_counts": ["C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14"],
+  "alias_rules": [{"when_sealed": "C10a", "equiv": ["harris", "moran"]}],
+  "_pistas_falsas": [
+    {"id": "falsa_baston", "texto": "El muchacho suizo se llevó el bastón", "origen": ["R:HB2.pared.3.col", "R:HB2.pared.3.kw", "R:HB2.pared.3.kh"], "refutaciones": ["D03#baston", "D05#baton"]},
+    {"id": "falsa_rio_cuerpo", "texto": "El río devolvió un cuerpo en junio", "origen": ["R:HB2.cayeron.3.col", "R:HB2.cayeron.3.kw", "R:HB2.cayeron.3.kh"], "refutaciones": ["D03#hopeless", "D19#presume", "D05#aucun_corps"]},
+    {"id": "falsa_posadero", "texto": "La nota la escribió el posadero", "origen": ["R:HB2.nota_falsa.3.col", "R:HB2.nota_falsa.3.kw", "R:HB2.nota_falsa.3.kh"], "refutaciones": ["D03#steiler", "R:D27.texto"]},
+    {"id": "falsa_herencia", "texto": "El hermano reclamó la herencia en 1892", "origen": ["R:HB2.testamento.3.col", "R:HB2.testamento.3.kw", "R:HB2.testamento.3.kh"], "refutaciones": ["D18#calendars", "D19#indice"]},
+    {"id": "falsa_tachadura", "texto": "El doctor tachó la frase por su cuenta", "origen": ["R:HB2.mintio.3.col", "R:HB2.mintio.3.kw", "R:HB2.mintio.3.kh"], "refutaciones": ["D04#cajista", "D01N#fina_fo", "D29a#tachadura"]},
+    {"id": "falsa_jartum", "texto": "Sigerson en Jartum, huésped del Califa", "origen": ["D13#jartum", "R:HB3.nota"], "refutaciones": ["D34#ruinas", "D35#califa"]},
+    {"id": "falsa_reuter", "texto": "«Lea a Reuter»: tres fuentes que son una", "origen": ["R:HA1.tres_fuentes"], "refutaciones": ["D05#corniche", "N:RB.foto.linea", "D08#kanzel"]},
+    {"id": "falsa_anarquistas", "texto": "Park Lane fue obra de anarquistas", "origen": ["D15.0331"], "refutaciones": ["D15.0403#nada_falta", "N:L7.azafranes"], "_nota": "la teoría de la prensa del sábado; el tramo lo elige W3-CT-TIMES"},
+    {"id": "falsa_meunier", "texto": "Meunier, el anarquista detenido en Victoria", "origen": ["D15.0405"], "refutaciones": ["N:L3.cajon", "D15.0405#meunier"], "_nota": "la coincidencia de apellidos: O. Meunier, mouleur (cajón) no es Théodule Meunier, ebanista"}
+  ],
+  "conclusions": [
+    {
+      "id": "C1.01", "kind": "practica", "template": "T1", "_resumen": "INC-01: hombro (STUD) frente a pierna (SIGN)",
+      "answers": {"fuente_a": ["stud", "sign"], "dice_a": ["hombro", "pierna", "herida"], "fuente_b": ["stud", "sign"], "dice_b": ["hombro", "pierna", "herida"]},
+      "constraints": [{"distinct": ["fuente_a", "fuente_b"]}, {"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc01"]}, {"id": "inc_b", "line": 1, "tags": ["inc01"]}],
+      "keys": {"entities": ["herida", "hombro", "pierna", "watson"], "kinds": []},
+      "validate": {"from": "1.M", "until": null}, "practice_origins": "pasajes",
+      "routes": [{"id": "C1.01.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D43#hombro", "copy": "D43@Crane"}, {"ref": "D44#pierna", "copy": "D44@Crane"}]}]
+    },
+    {
+      "id": "C1.02", "kind": "practica", "template": "T1", "_resumen": "INC-02: «John H. Watson» (STUD) frente a «James» (TWIS)",
+      "answers": {"fuente_a": ["stud", "twis"], "dice_a": ["john_h", "james"], "fuente_b": ["stud", "twis"], "dice_b": ["john_h", "james"]},
+      "constraints": [{"distinct": ["fuente_a", "fuente_b"]}, {"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc02"]}, {"id": "inc_b", "line": 1, "tags": ["inc02"]}],
+      "keys": {"entities": ["john_h", "james", "watson"], "kinds": []},
+      "validate": {"from": "1.M", "until": null}, "practice_origins": "pasajes",
+      "routes": [{"id": "C1.02.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D43#john_h", "copy": "D43@BM"}, {"ref": "D01.TWIS#james", "copy": "D01.TWIS@BM"}]}]
+    },
+    {
+      "id": "C1.03", "kind": "practica", "template": "T1", "_resumen": "INC-03: Mrs. Hudson (SPEC) frente a Mrs. Turner (SCAN)",
+      "answers": {"fuente_a": ["spec", "scan"], "dice_a": ["mrs_hudson", "mrs_turner"], "fuente_b": ["spec", "scan"], "dice_b": ["mrs_hudson", "mrs_turner"]},
+      "constraints": [{"distinct": ["fuente_a", "fuente_b"]}, {"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc03"]}, {"id": "inc_b", "line": 1, "tags": ["inc03"]}],
+      "keys": {"entities": ["mrs_hudson", "mrs_turner", "baker_street", "221b", "holmes"], "kinds": []},
+      "validate": {"from": "P.N", "until": null}, "practice_origins": "pasajes",
+      "routes": [
+        {"id": "C1.03.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01.SPEC#hudson", "copy": "D01.SPEC@BM"}, {"ref": "D01.SCAN#turner", "copy": "D01.SCAN@BM"}]},
+        {"id": "C1.03.R2", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D01.SPEC#hudson", "copy": "D01.SPEC@tomo"}, {"ref": "D01.SCAN#turner", "copy": "D01.SCAN@tomo"}]}
+      ]
+    },
+    {
+      "id": "C1.06", "kind": "practica", "template": "T1", "_resumen": "INC-06: casado en marzo de 1888 (SCAN) frente a conocer a Mary en 1888 (SIGN)",
+      "answers": {"fuente_a": ["scan", "sign"], "dice_a": ["boda_de_watson", "marzo_1888", "veinte_de_marzo_1888", "mary_watson"], "fuente_b": ["scan", "sign"], "dice_b": ["boda_de_watson", "marzo_1888", "veinte_de_marzo_1888", "mary_watson"]},
+      "constraints": [{"distinct": ["fuente_a", "fuente_b"]}, {"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc06"]}, {"id": "inc_b", "line": 1, "tags": ["inc06"]}],
+      "keys": {"entities": ["boda_de_watson", "marzo_1888", "mary_watson", "watson"], "kinds": []},
+      "validate": {"from": "P.N", "until": null}, "practice_origins": "pasajes",
+      "routes": [{"id": "C1.06.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01.SCAN#boda", "copy": "D01.SCAN@BM"}, {"ref": "D44#conoce_mary", "copy": "D44@Crane"}]}]
+    },
+    {
+      "id": "C1.07", "kind": "practica", "template": "T1", "_resumen": "INC-07: visita a su madre (FIVE, 1887) frente a «my mother was dead» (SIGN)",
+      "answers": {"fuente_a": ["five", "sign"], "dice_a": ["madre_de_mary", "esposa", "ano_87", "mary_watson"], "fuente_b": ["five", "sign"], "dice_b": ["madre_de_mary", "esposa", "ano_87", "mary_watson"]},
+      "constraints": [{"distinct": ["fuente_a", "fuente_b"]}, {"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc07"]}, {"id": "inc_b", "line": 1, "tags": ["inc07"]}],
+      "keys": {"entities": ["madre_de_mary", "esposa", "mary_watson", "watson"], "kinds": []},
+      "validate": {"from": "P.N", "until": null}, "practice_origins": "pasajes",
+      "routes": [{"id": "C1.07.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01.FIVE#madre", "copy": "D01.FIVE@BM"}, {"ref": "D44#madre_muerta", "copy": "D44@BM"}]}]
+    },
+    {
+      "id": "C1.08", "kind": "practica", "template": "T1", "_resumen": "INC-08: «una mujer» en 1887 (FIVE) frente a 1888 (SCAN)",
+      "answers": {"fuente_a": ["five", "scan"], "dice_a": ["esposa", "ano_87", "marzo_1888", "boda_de_watson"], "fuente_b": ["five", "scan"], "dice_b": ["esposa", "ano_87", "marzo_1888", "boda_de_watson"]},
+      "constraints": [{"distinct": ["fuente_a", "fuente_b"]}, {"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc08"]}, {"id": "inc_b", "line": 1, "tags": ["inc08"]}],
+      "keys": {"entities": ["esposa", "ano_87", "marzo_1888", "boda_de_watson", "watson"], "kinds": []},
+      "validate": {"from": "P.N", "until": null}, "practice_origins": "pasajes",
+      "routes": [
+        {"id": "C1.08.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01.FIVE#una_mujer", "copy": "D01.FIVE@BM"}, {"ref": "D01.SCAN#marzo_1888", "copy": "D01.SCAN@BM"}]},
+        {"id": "C1.08.R2", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D01.FIVE#una_mujer", "copy": "D01.FIVE@tomo"}, {"ref": "D01.SCAN#marzo_1888", "copy": "D01.SCAN@tomo"}]}
+      ]
+    },
+    {
+      "id": "C1.09", "kind": "practica", "template": "T1", "_resumen": "INC-09: «July 7» (SIGN cap. 2) frente a «September evening» (SIGN cap. 3)",
+      "answers": {"fuente_a": ["sign"], "dice_a": ["siete_de_julio", "tarde_de_septiembre"], "fuente_b": ["sign"], "dice_b": ["siete_de_julio", "tarde_de_septiembre"]},
+      "constraints": [{"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc09"]}, {"id": "inc_b", "line": 1, "tags": ["inc09"]}],
+      "keys": {"entities": ["siete_de_julio", "tarde_de_septiembre", "mary_watson", "watson"], "kinds": []},
+      "validate": {"from": "1.M", "until": null}, "practice_origins": "pasajes",
+      "routes": [{"id": "C1.09.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D44#july7", "copy": "D44@Crane"}, {"ref": "D44#septiembre", "copy": "D44@Crane"}]}]
+    },
+    {
+      "id": "C1.10", "kind": "practica", "template": "T1", "_resumen": "INC-10 (tutorial, marcado en D21): 27 de abril más ocho semanas frente al 9 de octubre (REDH)",
+      "answers": {"fuente_a": ["redh"], "dice_a": ["abril_27_1890", "ocho_semanas", "octubre_9_1890"], "fuente_b": ["redh"], "dice_b": ["abril_27_1890", "ocho_semanas", "octubre_9_1890"]},
+      "constraints": [{"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc10"]}, {"id": "inc_b", "line": 1, "tags": ["inc10"]}],
+      "keys": {"entities": ["abril_27_1890", "ocho_semanas", "octubre_9_1890", "jabez_wilson", "holmes"], "kinds": []},
+      "validate": {"from": "P.N", "until": null}, "practice_origins": "pasajes",
+      "routes": [
+        {"id": "C1.10.R1", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D01.REDH#abril", "copy": "D01.REDH@tomo"}, {"ref": "D01.REDH#octubre", "copy": "D01.REDH@tomo"}]},
+        {"id": "C1.10.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01.REDH#abril", "copy": "D01.REDH@BM"}, {"ref": "D01.REDH#octubre", "copy": "D01.REDH@BM"}]}
+      ]
+    },
+    {
+      "id": "C2", "kind": "obligatoria", "template": "T2", "_resumen": "FINA impreso calla la raspadura de la roca",
+      "answers": {"fuente": ["fina"], "calla": ["raspadura", "marca_en_la_roca"], "consta_en": ["galerada", "pruebas_americanas", "journal_de_geneve", "pruebas_de_watson", "notas_de_los_tomos"]},
+      "constraints": [],
+      "groups": [
+        {"id": "sin_raspadura", "line": 0, "tags": ["fina_impreso_sin_raspadura"]},
+        {"id": "registrada", "line": 1, "tags": ["raspadura_registrada"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["fina", "reichenbach", "roca", "pared", "raspadura", "marca_en_la_roca"], "kinds": []},
+      "validate": {"from": "P.N", "until": null},
+      "routes": [
+        {"id": "C2.R1", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D02#clausula", "copy": "D02@L1"}, {"ref": "D03#sheer", "copy": "D03@tomo"}], "cut_by": ["M1"]},
+        {"id": "C2.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D05#marque", "copy": "D05@BM"}, {"ref": "D03#sheer", "copy": "D03@Crane"}], "cut_by": []},
+        {"id": "C2.R3", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D04#clausula", "copy": "D04@Crane"}, {"ref": "D03#sheer", "copy": "D03@BM"}], "cut_by": []},
+        {"id": "C2.R4", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D29a#tachadura", "copy": "D29a@L4"}, {"ref": "D03#sheer", "copy": "D03@BM"}], "cut_by": ["HB5", "HB4"]},
+        {"id": "C2.R5", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D01N#fina_fo", "copy": "D01N@tomo"}, {"ref": "D03#sheer", "copy": "D03@tomo"}], "cut_by": ["M1"]}
+      ],
+      "blue_pencil": {"missing": "Falta: lo que el impreso calla.", "wrong": "Dele: el impreso calla una marca, no una opinión."}
+    },
+    {
+      "id": "C3", "kind": "obligatoria", "template": "T1", "_resumen": "Reichenbach tenía salida (FINA «a pique» frente a una cornisa)",
+      "answers": {"fuente_a": ["fina"], "dice_a": ["a_pique"], "fuente_b": ["journal_de_geneve", "fotografia_reichenbach", "guia_de_suiza", "telegrama_steiler"], "dice_b": ["cornisa"]},
+      "constraints": [],
+      "groups": [
+        {"id": "a_pique", "line": 0, "tags": ["fina_a_pique"]},
+        {"id": "cornisa", "line": 1, "tags": ["cornisa_existe"]}
+      ],
+      "tags_extra": ["remite_journal"],
+      "keys": {"entities": ["reichenbach", "pared", "sendero", "cornisa"], "kinds": []},
+      "validate": {"from": "1.M", "until": null},
+      "routes": [
+        {"id": "C3.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D05#corniche", "copy": "D05@BM"}, {"ref": "D03#sheer", "copy": "D03@Crane"}], "cut_by": []},
+        {"id": "C3.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "N:RB.foto.linea", "copy": "D07@Crane"}, {"ref": "D03#sheer", "copy": "D03@BM"}], "cut_by": []},
+        {"id": "C3.R3", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D08#kanzel", "copy": "D08@BM"}, {"ref": "D03#sheer", "copy": "D03@Crane"}], "cut_by": []},
+        {"id": "C3.R4", "star": false, "deps": "opcional", "from": "2.dawn", "frags": [{"ref": "R:D27.texto"}, {"ref": "D03#sheer", "copy": "D03@tomo"}], "cut_by": ["M1"]}
+      ],
+      "_apoyo": [{"id": "C3.apoyo", "frags": ["R:HC01.no_lo_es", "R:HC10.texto"], "_nota": "no cubren cornisa_existe"}],
+      "blue_pencil": {"missing": "Falta: lo que no se ve desde el sendero.", "wrong": "Dele: la cornisa no se ve desde el sendero."}
+    },
+    {
+      "id": "C4", "kind": "obligatoria", "template": "T5", "_resumen": "Holmes dispuso de sus bienes en vida, ante una muerte probable",
+      "answers": {"persona": ["holmes"], "hizo": ["ceder"], "que": ["bienes"], "a": ["mycroft"], "cuando": ["en_vida", "antes_de_partir", "antes_del_cuatro_de_mayo"]},
+      "constraints": [],
+      "groups": [
+        {"id": "bienes", "line": 0, "tags": ["bienes_a_mycroft"]},
+        {"id": "bienes_a", "line": 1, "tags": ["bienes_a_mycroft"]},
+        {"id": "en_vida", "line": 4, "tags": ["en_vida"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["holmes", "mycroft", "bienes"], "kinds": []},
+      "validate": {"from": "1.M", "until": null},
+      "routes": [
+        {"id": "C4.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft", "copy": "D03@Crane"}, {"ref": "D18#calendars", "copy": "D18@L6"}], "cut_by": []},
+        {"id": "C4.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft", "copy": "D03@BM"}, {"ref": "D19#indice", "copy": "D19@BM"}], "cut_by": []},
+        {"id": "C4.R3", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft", "copy": "D03@Crane"}, {"ref": "D30#recibo", "copy": "D30@L3"}], "cut_by": ["HB6"]},
+        {"id": "C4.R4", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft", "copy": "D03@BM"}, {"ref": "D29b#surcos", "copy": "D29b@L4"}], "cut_by": ["HB4"]},
+        {"id": "C4.R5", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#a_mycroft", "copy": "D03@Crane"}, {"ref": "L:mrs_hudson.mycroft_paga"}], "cut_by": ["HB6"]}
+      ],
+      "blue_pencil": {"missing": "Falta: quién paga el alquiler.", "wrong": "Dele: dispuso de lo suyo; no preparó ninguna desaparición."}
+    },
+    {
+      "id": "C5", "kind": "obligatoria", "template": "T4", "_resumen": "Las cartas del coronel las pulió Sebastian Moran",
+      "answers": {"documento": ["cartas_del_coronel"], "redacto": ["moran", "autor_heavy_game", "@alias:harris"]},
+      "constraints": [],
+      "groups": [
+        {"id": "cartas", "line": 0, "tags": ["estilo_cartas_coronel"]},
+        {"id": "moran", "line": 1, "tags": ["estilo_o_rostro_moran"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["tigre", "desague", "cruel", "bigote", "cazador"], "kinds": []},
+      "validate": {"from": "1.M", "until": null},
+      "routes": [
+        {"id": "C5.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D09#desague", "copy": "D09@BM"}, {"ref": "D11#desague", "copy": "D11@BM"}], "cut_by": []},
+        {"id": "C5.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D09#cruel", "copy": "D09@Crane"}, {"ref": "D10#cruel", "copy": "D10@Crane"}], "cut_by": []},
+        {"id": "C5.R3", "star": false, "deps": "opcional", "from": "3.M", "frags": [{"ref": "R:D28.anglo"}, {"ref": "D10#portada", "copy": "D10@BM"}], "cut_by": ["M1"]},
+        {"id": "C5.R4", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D09#nota_redactor", "copy": "D09@BM"}, {"ref": "D10#frontispicio", "copy": "D10@BM"}], "cut_by": []}
+      ],
+      "blue_pencil": {"missing": "Falta: quién pule las cartas del coronel.", "wrong": "Dele: el coronel firma; otra mano pule."}
+    },
+    {
+      "id": "C6", "kind": "obligatoria", "template": "T6", "_resumen": "Me leen por dos canales concretos",
+      "_nota": "Una ruta es un par de subrutas de canal (≤ 4 recortes). validate.from = la subruta más temprana posible (K-BM garantizada + K-H opcional desde el día 2); el contrato de ejemplo decía 4.dawn (la primera ruta ★).",
+      "answers": {"persona": ["holmes", "mycroft", "corresponsal_s"], "relacion": ["lee_a"], "a_quien": ["lisle"], "por_medio": {"list": "medios"}, "y_de": {"list": "medios"}},
+      "constraints": [{"distinct": ["por_medio", "y_de"]}],
+      "groups": [
+        {"id": "acto_x", "line": 0, "tags": ["acto_${ch:por_medio}"]},
+        {"id": "ancla_x", "line": 0, "tags": ["ancla_${ch:por_medio}"]},
+        {"id": "acto_y", "line": 1, "tags": ["acto_${ch:y_de}"]},
+        {"id": "ancla_y", "line": 1, "tags": ["ancla_${ch:y_de}"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": [], "kinds": ["act_ref"]},
+      "validate": {"from": "2.dawn", "until": null},
+      "subroutes": {
+        "K-S": {"star": true, "deps": "columna", "from": "3.M", "frags": [{"ref": "J:go"}, {"ref": "N:*.sil_wiggins"}], "cut_by": []},
+        "K-Sa": {"star": false, "deps": "garantizada", "from": "4.dawn", "frags": [{"ref": "J:go"}, {"ref": "R:HA3.*"}], "cut_by": ["M1"]},
+        "K-T": {"star": true, "deps": "columna", "from": "4.dawn", "frags": [{"ref": "AD:prologo", "copy": "D15.0327@L1"}, {"ref": "R:HC10.texto", "copy": "D15.0330@L1"}], "cut_by": []},
+        "K-Tc": {"star": true, "deps": "garantizada", "from": "5.dawn", "frags": [{"ref": "AD:*"}, {"ref": "R:HB1.pared.1.col"}], "cut_by": []},
+        "K-BMx": {"star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "J:slip"}, {"ref": "S:HC06.b_kbm"}], "cut_by": []},
+        "K-Wx": {"star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "J:say.watson"}, {"ref": "S:HC06.b_kw"}], "cut_by": []},
+        "K-Hx": {"star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "J:go.L3"}, {"ref": "S:HC06.b_kh"}], "cut_by": []},
+        "K-BM": {"star": false, "deps": "garantizada", "from": "2.dawn", "frags": [{"ref": "J:slip"}, {"ref": "R:HA1.*"}], "cut_by": ["M1"]},
+        "K-W": {"star": false, "deps": "opcional", "from": "4.dawn", "frags": [{"ref": "J:say.watson"}, {"ref": "R:HB1.pared.1.kw"}], "cut_by": ["M1"]},
+        "K-W4": {"star": false, "deps": "opcional", "from": "2.dawn", "frags": [{"ref": "J:say.watson"}, {"ref": "R:HB4.carta"}], "cut_by": ["M1"]},
+        "K-H": {"star": false, "deps": "opcional", "from": "2.M", "frags": [{"ref": "J:go.L3"}, {"ref": "L:mrs_hudson.ordenes"}], "cut_by": ["HB11"]},
+        "K-Hc": {"star": false, "deps": "opcional", "from": "2.dawn", "frags": [{"ref": "J:say.mrs_hudson"}, {"ref": "R:HA4.lisle_mudanza.kh"}], "cut_by": ["M1", "HB11"]}
+      },
+      "routes": [
+        {"id": "C6.R1", "star": true, "pair": ["K-S", "K-T"], "from": "4.dawn"},
+        {"id": "C6.R2", "star": true, "pair": ["K-T", "K-BMx"], "from": "8.T"},
+        {"id": "C6.R3", "star": true, "pair": ["K-T", "K-Wx"], "from": "8.T"},
+        {"id": "C6.R4", "star": true, "pair": ["K-T", "K-Hx"], "from": "8.T"},
+        {"id": "C6.R5", "star": true, "pair": ["K-S", "K-BMx"], "from": "8.T"},
+        {"id": "C6.R6", "star": true, "pair": ["K-S", "K-Wx"], "from": "8.T"},
+        {"id": "C6.R7", "star": true, "pair": ["K-S", "K-Hx"], "from": "8.T"},
+        {"id": "C6.R8", "star": true, "pair": ["K-S", "K-Tc"], "from": "5.dawn"},
+        {"id": "C6.R9", "star": false, "pair": ["K-T", "K-BM"], "from": "4.dawn"},
+        {"id": "C6.R10", "star": false, "pair": ["K-S", "K-BM"], "from": "3.M"},
+        {"id": "C6.R11", "star": false, "pair": ["K-BM", "K-Sa"], "from": "4.dawn"},
+        {"id": "C6.R12", "star": false, "pair": ["K-T", "K-Sa"], "from": "4.dawn"},
+        {"id": "C6.R13", "star": false, "pair": ["K-BM", "K-W"], "from": "4.dawn"},
+        {"id": "C6.R14", "star": false, "pair": ["K-BM", "K-H"], "from": "2.M"},
+        {"id": "C6.R15", "star": false, "pair": ["K-W4", "K-Hc"], "from": "2.dawn"}
+      ],
+      "blue_pencil": {"missing": "Falta: quién me lee, y por dónde.", "wrong": "Dele: un canal no es una persona, ni una persona un canal."}
+    },
+    {
+      "id": "C7", "kind": "obligatoria", "template": "T4", "_resumen": "La mano que me escribe a máquina obedece a Mycroft Holmes",
+      "answers": {"documento": ["cartas_a_maquina"], "redacto": ["mycroft"]},
+      "constraints": [],
+      "groups": [
+        {"id": "cerca", "line": 0, "tags": ["me_vigila_de_cerca"]},
+        {"id": "mycroft", "line": 1, "tags": ["vinculo_mycroft"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["club_diogenes", "pall_mall", "mycroft", "remington", "remington_s_alzada", "papel_corto", "giro_ahorrare", "whitehall", "matasellos_sw", "watson"], "kinds": []},
+      "validate": {"from": "1.dawn", "until": null},
+      "routes": [
+        {"id": "C7.R1", "star": false, "deps": "columna", "from": "8.T", "frags": [{"ref": "M:D25"}, {"ref": "M:HC06.papel"}], "cut_by": ["M1"]},
+        {"id": "C7.R1b", "star": false, "deps": "columna", "from": "8.dawn", "frags": [{"ref": "R:HA1.*"}, {"ref": "R:HC04.tarjeta"}], "cut_by": ["M1"]},
+        {"id": "C7.R2", "star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "S:HC06.b_*"}, {"ref": "D31#para_mholmes", "copy": "D31@L5"}], "cut_by": []},
+        {"id": "C7.R3", "star": false, "deps": "garantizada", "from": "2.dawn", "frags": [{"ref": "R:HA1.*"}, {"ref": "D30#recibo", "copy": "D30@L3"}], "cut_by": ["HB6", "M1"]},
+        {"id": "C7.R3b", "star": false, "deps": "columna", "from": "2.dawn", "frags": [{"ref": "R:HA0.*"}, {"ref": "D30#recibo", "copy": "D30@L3"}], "cut_by": ["HB6", "M1"]},
+        {"id": "C7.R4", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "N:L2.cotter_canastilla"}, {"ref": "N:L2.cesto_tiras"}, {"ref": "D01.GREE#founders", "copy": "D01.GREE@BM"}], "cut_by": []},
+        {"id": "C7.R5", "star": false, "deps": "opcional", "from": "4.dawn", "frags": [{"ref": "L:watson.escribi_mycroft"}, {"ref": "R:HB1.pared.1.kw"}], "cut_by": ["HB4", "M1"]},
+        {"id": "C7.R5b", "star": false, "deps": "opcional", "from": "4.dawn", "frags": [{"ref": "R:HB5.recibo"}, {"ref": "R:HB1.pared.1.kw"}], "cut_by": ["M1"]},
+        {"id": "C7.R6", "star": false, "deps": "columna", "from": "1.M", "frags": [{"ref": "R:HC01.sobre"}, {"ref": "D01.GREE#pall_mall", "copy": "D01.GREE@BM"}], "cut_by": ["M1"]},
+        {"id": "C7.R6b", "star": false, "deps": "columna", "from": "1.dawn", "frags": [{"ref": "R:HC01.sobre"}, {"ref": "D01.GREE#pall_mall", "copy": "D01.GREE@tomo"}], "cut_by": ["M1"]},
+        {"id": "C7.R7", "star": false, "deps": "opcional", "from": "3.M", "frags": [{"ref": "L:wiggins.vieja_tarifa"}, {"ref": "D01.GREE#whitehall", "copy": "D01.GREE@BM"}], "cut_by": ["HB8b"]},
+        {"id": "C7.R8", "star": false, "deps": "columna", "from": "8.T", "frags": [{"ref": "R:HA1.giro"}, {"ref": "S:HC06.a"}], "cut_by": ["M1"]},
+        {"id": "C7.R8b", "star": false, "deps": "columna", "from": "8.T", "frags": [{"ref": "R:HA0.giro"}, {"ref": "S:HC06.a"}], "cut_by": ["M1"]}
+      ],
+      "blue_pencil": {"missing": "Falta: de quién es la mano que escribe a máquina.", "wrong": "Dele: el escribiente teclea; otro dicta."}
+    },
+    {
+      "id": "C8", "kind": "obligatoria", "template": "T7", "_resumen": "Sherlock Holmes vive",
+      "answers": {"persona": ["holmes"], "estado": ["vivo"]},
+      "constraints": [],
+      "groups": [
+        {"id": "identidad", "line": 0, "tags": ["identidad_holmes"]},
+        {"id": "actividad", "line": 1, "tags": ["actividad_posterior_a_mayo_1891"]}
+      ],
+      "tags_extra": ["refuta_jartum"],
+      "keys": {"entities": ["numero_97", "monografia_cenizas", "opusculo_oficios", "forma_de_la_mano", "mycroft", "letra"], "kinds": []},
+      "validate": {"from": "1.M", "until": null},
+      "routes": [
+        {"id": "C8.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D13#muestra97", "copy": "D13@BM"}, {"ref": "D12#n97", "copy": "D12@BM"}], "cut_by": []},
+        {"id": "C8.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D14#opusculo", "copy": "D14@BM"}, {"ref": "D44#oficios_mano", "copy": "D44@Crane"}], "cut_by": []},
+        {"id": "C8.R3", "star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "S:HC06.c"}, {"ref": "D31#telegramas", "copy": "D31@L5"}], "cut_by": []},
+        {"id": "C8.R4", "star": false, "deps": "columna", "from": "1.M", "frags": [{"ref": "R:HC01.no_lo_es"}, {"ref": "D12#dedicatoria", "copy": "D12@BM"}], "cut_by": ["M1"]}
+      ],
+      "_apoyo": [{"id": "C8.apoyo", "frags": ["D13#jartum", "D34#ruinas", "D35#califa"], "_nota": "el paradero de Sigerson es fabricado; no cubre identidad_holmes"}],
+      "blue_pencil": {"missing": "Falta: quién firma después de mayo de 1891.", "wrong": "Dele: «detestaba» es una errata de su hermano, no un certificado."}
+    },
+    {
+      "id": "C9", "kind": "obligatoria", "template": "T8", "_resumen": "Holmes vuelve a Baker Street el jueves 5",
+      "_nota": "La línea [Persona] no tiene grupo: basta un «según» con etiqueta de la conclusión. latencia_s (tags_extra) = las respuestas de voz B que citan la fecha del acto (C9.R3, no cuenta por sí sola).",
+      "answers": {"persona": ["holmes"], "lugar": ["baker_street", "221b"], "dia": ["jueves", "jueves_5_abril"]},
+      "constraints": [],
+      "groups": [
+        {"id": "lugar", "line": 1, "tags": ["preparativos_221b"]},
+        {"id": "dia", "line": 2, "tags": ["dia_jueves"]}
+      ],
+      "tags_extra": ["latencia_s"],
+      "keys": {"entities": ["jueves", "221b", "mycroft", "baker_street"], "kinds": []},
+      "validate": {"from": "8.dawn", "until": null},
+      "routes": [
+        {"id": "C9.R1", "star": true, "deps": "columna", "from": "8.M", "frags": [{"ref": "S:HC05.jueves_a"}, {"ref": "N:L3.ventanas_abiertas"}], "cut_by": []},
+        {"id": "C9.R1b", "star": true, "deps": "columna", "from": "8.M", "frags": [{"ref": "S:HC05.jueves_a"}, {"ref": "N:L3.shag"}], "cut_by": []},
+        {"id": "C9.R2", "star": true, "deps": "columna", "from": "9.T", "frags": [{"ref": "S:HC06.e"}, {"ref": "N:L3.cajon"}], "cut_by": []}
+      ],
+      "_apoyo": [
+        {"id": "C9.R3", "frags": ["J:arrival", "R:HB*.col"], "_nota": "sellos «Recibido» y fechas de la voz B; depende de disparos: no cuenta"},
+        {"id": "C9.R5", "frags": ["S:HC05.jueves_a", "D31#ruta"], "_nota": "apoyo: D31 no cubre preparativos_221b"}
+      ],
+      "blue_pencil": {"missing": "Falta: adónde vuelve, y qué día.", "wrong": "Dele: el jueves se airea un cuarto, no se airea una tumba."}
+    },
+    {
+      "id": "C10", "kind": "obligatoria", "template": "T9", "_resumen": "Quien me paga es Moran y me usa como cebo para hallar a Holmes",
+      "_nota": "Todo fragmento de identidad (Ia–Id) lleva harris_es_moran (así sirve también a C10a). Ca–Cd: un fragmento con cebo y otro con busca_a_holmes.",
+      "answers": {"persona": ["moran", "autor_heavy_game", "@alias:harris"], "usa_a": ["lisle"], "como": ["cebo", "cabrito", "cabrito_atado"], "para": ["hallar"], "a_quien": ["holmes"]},
+      "constraints": [],
+      "groups": [
+        {"id": "identidad", "line": 0, "tags": ["harris_es_moran"]},
+        {"id": "cebo", "line": 1, "tags": ["cebo"]},
+        {"id": "busca", "line": 2, "tags": ["busca_a_holmes"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["harris", "moran", "bigote", "cabrito", "cabrito_atado", "cebo", "donde", "tigre", "adjetivos_repetidos"], "kinds": []},
+      "validate": {"from": "3.M", "until": null},
+      "subroutes": {
+        "Ia": {"star": true, "deps": "fija", "from": "8.dawn", "frags": [{"ref": "N:PRO.harris", "copy": "PL.prologo"}, {"ref": "D16#moran", "copy": "D16@BM"}], "cut_by": []},
+        "Ib": {"star": true, "deps": "columna", "from": "7.night", "frags": [{"ref": "S:M7.inteligente"}, {"ref": "D10#adjetivos", "copy": "D10@Crane"}], "cut_by": []},
+        "Ic": {"star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D23#cruel", "copy": "D23@L1"}, {"ref": "D10#adjetivos", "copy": "D10@BM"}], "cut_by": ["M1"]},
+        "Id": {"star": false, "deps": "opcional", "from": "4.dawn", "frags": [{"ref": "L:wiggins.conduit"}, {"ref": "D17#moran_conduit", "copy": "D17@BM"}], "cut_by": ["HB8b", "M4"]},
+        "Ca": {"star": true, "deps": "columna", "from": "5.dawn", "frags": [{"ref": "D10#cabrito_atado", "copy": "D10@BM"}, {"ref": "S:M6.donde"}], "cut_by": []},
+        "Cb": {"star": true, "deps": "columna", "from": "7.night", "frags": [{"ref": "D11#no_bala", "copy": "D11@BM"}, {"ref": "S:M7.donde_duerme"}], "cut_by": []},
+        "Cc": {"star": false, "deps": "opcional", "from": "5.dawn", "frags": [{"ref": "R:HB7.col"}, {"ref": "D10#cabrito_atado", "copy": "D10@Crane"}], "cut_by": []},
+        "Cd": {"star": false, "deps": "opcional", "from": "3.M", "frags": [{"ref": "R:M2.nota"}, {"ref": "D11#hacerlo_balar", "copy": "D11@BM"}], "cut_by": []},
+        "Cd2": {"star": false, "deps": "opcional", "from": "4.dawn", "frags": [{"ref": "R:HB9.carta"}, {"ref": "D11#hacerlo_balar", "copy": "D11@BM"}], "cut_by": []}
+      },
+      "routes": [
+        {"id": "C10.R1", "star": true, "pair": ["Ia", "Ca"], "from": "8.dawn"},
+        {"id": "C10.R2", "star": true, "pair": ["Ib", "Cb"], "from": "7.night"},
+        {"id": "C10.R3", "star": false, "pair": ["Ic", "Ca"], "from": "5.dawn"},
+        {"id": "C10.R4", "star": false, "pair": ["Id", "Cb"], "from": "7.night"},
+        {"id": "C10.R5", "star": true, "pair": ["Ib", "Ca"], "from": "7.night"},
+        {"id": "C10.R6", "star": true, "pair": ["Ia", "Cb"], "from": "8.dawn"},
+        {"id": "C10.R7", "star": false, "pair": ["Ic", "Cd"], "from": "3.M"}
+      ],
+      "blue_pencil": {"missing": "Falta: para qué me paga.", "wrong": "Dele: el cabrito no elige el árbol."}
+    },
+    {
+      "id": "C10a", "kind": "opcional", "template": "T3", "_resumen": "Harris es, en verdad, Sebastian Moran (auxiliar: activa la regla de alias)",
+      "answers": {"persona": ["harris"], "es": ["moran", "autor_heavy_game"]},
+      "constraints": [],
+      "groups": [
+        {"id": "harris", "line": 0, "tags": ["harris_es_moran"]},
+        {"id": "moran", "line": 1, "tags": ["harris_es_moran"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["harris", "moran", "bigote", "adjetivos_repetidos", "conduit_street", "cruel"], "kinds": []},
+      "validate": {"from": "1.M", "until": null},
+      "routes": [
+        {"id": "C10a.R1", "star": true, "deps": "fija", "from": "8.dawn", "frags": [{"ref": "N:PRO.harris", "copy": "PL.prologo"}, {"ref": "D16#moran", "copy": "D16@BM"}], "cut_by": []},
+        {"id": "C10a.R2", "star": true, "deps": "columna", "from": "7.night", "frags": [{"ref": "S:M7.inteligente"}, {"ref": "D10#adjetivos", "copy": "D10@Crane"}], "cut_by": []},
+        {"id": "C10a.R3", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D23#cruel", "copy": "D23@L1"}, {"ref": "D10#adjetivos", "copy": "D10@BM"}], "cut_by": ["M1"]},
+        {"id": "C10a.R4", "star": false, "deps": "opcional", "from": "4.dawn", "frags": [{"ref": "L:wiggins.conduit"}, {"ref": "D17#moran_conduit", "copy": "D17@BM"}], "cut_by": ["HB8b", "M4"]}
+      ],
+      "blue_pencil": {"missing": "Falta: quién es el mayor.", "wrong": "Dele: un bigote no es una prueba; dos sí."}
+    },
+    {
+      "id": "C11", "kind": "obligatoria", "template": "T5", "_resumen": "Moran mató a Adair con un fusil de aire, desde la calle",
+      "_nota": "Lectura por líneas de GDD §10.4 ([Persona · Hizo · A] es UNA línea): Adair va en «Qué o a quién». El móvil no se valida. validate.from = 5.dawn y no 8.dawn (las rutas ★ son del día 8): desde el sábado 31 hay Adair en el Times (D15.0331) y el nodo L7.linea_de_tiro (disparo_desde_fuera, L7 abre el día 5), que con D10/D11 (autor_moran) y D03 «air-guns» (arma_de_aire) pueden formar una prueba válida antes de la indagatoria; la ventana no debe rechazarla en silencio (R8, mismo criterio que C6).",
+      "answers": {"persona": ["moran", "autor_heavy_game"], "hizo": ["matar"], "que": ["ronald_adair"], "con": ["fusil_de_aire", "arma_de_aire_comprimido"], "donde": ["desde_la_calle", "desde_fuera", "ventana_abierta"]},
+      "constraints": [],
+      "groups": [
+        {"id": "autor", "line": 0, "tags": ["autor_moran"]},
+        {"id": "arma", "line": 2, "tags": ["arma_de_aire"]},
+        {"id": "fuera", "line": 3, "tags": ["disparo_desde_fuera"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["ronald_adair", "moran", "disparo", "bala", "bala_blanda", "fusil_de_aire", "arma_de_aire_comprimido", "park_lane", "park_lane_427", "linea_de_tiro"], "kinds": []},
+      "validate": {"from": "5.dawn", "until": null},
+      "routes": [
+        {"id": "C11.R1", "star": true, "deps": "fija", "from": "8.dawn", "frags": [{"ref": "D15.0403#whist", "copy": "D15.0403@L1"}, {"ref": "D15.0403#nadie_oyo", "copy": "D15.0403@L1"}, {"ref": "D03#air_guns", "copy": "D03@BM"}, {"ref": "D10#bala_blanda", "copy": "D10@BM"}], "cut_by": []},
+        {"id": "C11.R2", "star": true, "deps": "fija", "from": "8.M", "frags": [{"ref": "N:L7.linea_de_tiro"}, {"ref": "D11#mejor_tiro", "copy": "D11@BM"}, {"ref": "D16#moran", "copy": "D16@L1"}, {"ref": "D03#air_guns", "copy": "D03@Crane"}], "cut_by": []}
+      ],
+      "blue_pencil": {"missing": "Falta: quién disparó, con qué y desde dónde.", "wrong": "Dele: nadie oyó el disparo; el aire no hace ruido."}
+    },
+    {
+      "id": "C12", "kind": "obligatoria", "template": "T3", "_resumen": "El librero viejo es Sherlock Holmes (sólo el día 10, antes de las 12 h)",
+      "answers": {"persona": ["librero", "anciano"], "es": ["holmes"]},
+      "constraints": [],
+      "groups": [
+        {"id": "falso", "line": 0, "tags": ["librero_falso"]},
+        {"id": "rasgo", "line": 1, "tags": ["rasgo_holmes"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["librero", "anciano", "church_street", "letra", "amarillo", "sombra"], "kinds": []},
+      "validate": {"from": "10.M", "until": "10.M"},
+      "routes": [
+        {"id": "C12.R1", "star": true, "deps": "columna", "from": "10.M", "frags": [{"ref": "N:L1.librero_dedos"}, {"ref": "D14#amarillo", "copy": "D14@BM"}, {"ref": "N:L1.librero_sombra"}], "cut_by": []},
+        {"id": "C12.R3", "star": true, "deps": "columna", "from": "10.M", "frags": [{"ref": "D33#direccion", "copy": "D33@Crane"}, {"ref": "D17#church_street", "copy": "D17@Crane"}, {"ref": "D12#dedicatoria", "copy": "D12@BM"}], "cut_by": []},
+        {"id": "C12.R4", "star": false, "deps": "columna", "from": "10.M", "frags": [{"ref": "R:D37.precio"}, {"ref": "D12#dedicatoria", "copy": "D12@BM"}, {"ref": "N:L1.librero_sombra"}], "cut_by": []}
+      ],
+      "_apoyo": [{"id": "C12.R2", "frags": ["N:PARK.libros", "D33#tree_worship"], "_nota": "sólo epílogo: llega después de las 12 h (variante V.C12)"}],
+      "blue_pencil": {"missing": "Falta: quién compró Tree Worship.", "wrong": "Dele: en esa esquina de Church Street no hay librería."}
+    },
+    {
+      "id": "C13", "kind": "obligatoria", "template": "T5", "_resumen": "El tigre disparará contra 221B desde Camden House (sólo antes de las 12 h del día 10)",
+      "_nota": "Todo fragmento que la sostiene lleva además f:secreto_camden (D10, T22). Lectura por líneas: [Persona · Hizo · Contra] es la línea 0 (221B va en «Qué o a quién»).",
+      "answers": {"persona": ["moran", "autor_heavy_game", "@alias:harris"], "hizo": ["disparar"], "que": ["221b", "ventana_de_holmes", "holmes"], "donde": ["camden_house", "casa_vacia"]},
+      "constraints": [],
+      "groups": [
+        {"id": "tirador", "line": 0, "tags": ["tirador"]},
+        {"id": "escondite", "line": 3, "tags": ["escondite_preparado"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["camden_house", "casa_vacia", "harris", "moran", "cheroot", "221b"], "kinds": []},
+      "validate": {"from": "7.M", "until": "10.M"},
+      "routes": [
+        {"id": "C13.R1", "star": true, "deps": "columna", "from": "7.night", "frags": [{"ref": "N:L8.guillotina"}, {"ref": "N:L8.ceniza"}, {"ref": "S:M7.trichinopolis"}], "cut_by": []},
+        {"id": "C13.R2", "star": true, "deps": "fija", "from": "7.M", "frags": [{"ref": "S:AGENTE.militar"}, {"ref": "S:PRO.cace_india"}], "cut_by": []},
+        {"id": "C13.R2b", "star": true, "deps": "fija", "from": "7.M", "frags": [{"ref": "S:AGENTE.militar"}, {"ref": "S:PRO.cace_india"}, {"ref": "D10#apostarse", "copy": "D10@BM"}], "cut_by": []},
+        {"id": "C13.R3", "star": false, "deps": "fija", "from": "7.M", "frags": [{"ref": "D32#llave_harris", "copy": "D32@L3"}, {"ref": "N:PRO.harris", "copy": "PL.prologo"}], "cut_by": ["M5"]}
+      ],
+      "_apoyo": [{"id": "C13.R5", "frags": ["R:M10.linea", "D10#apostarse"], "_nota": "opcional y sin escondite_preparado (sólo L8, el chico del agente o D32 lo llevan)"}],
+      "blue_pencil": {"missing": "Falta: desde dónde.", "wrong": "Dele: el árbol que domina al cebo está enfrente."}
+    },
+    {
+      "id": "C14", "kind": "opcional", "template": "T5", "_resumen": "Los tomos eran de Watson, y el hueco del estante (íntima)",
+      "_nota": "C14.R1 usa D18 «Watson, Mary — Paddington» (⚠ GDD §15.8): no es ruta ★ ni de una conclusión obligatoria.",
+      "answers": {"persona": ["watson"], "hizo": ["separarse_de", "vender"], "que": ["tomos"], "donde": ["subasta_de_paddington", "paddington"], "cuando": ["tras_la_muerte_de_mary", "enero_1894", "muerte_de_mary"]},
+      "constraints": [],
+      "groups": [
+        {"id": "tomos", "line": 0, "tags": ["tomos_de_watson"]},
+        {"id": "tomos_donde", "line": 3, "tags": ["tomos_de_watson"]},
+        {"id": "duelo", "line": 4, "tags": ["duelo"]}
+      ],
+      "tags_extra": [],
+      "keys": {"entities": ["watson", "paddington", "tomos", "mary_watson", "subasta_de_paddington", "notas_de_los_tomos"], "kinds": []},
+      "validate": {"from": "1.M", "until": null},
+      "routes": [
+        {"id": "C14.R1", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01N#mi_james", "copy": "D01N@tomo"}, {"ref": "D18#mary", "copy": "D18@L6"}], "cut_by": ["M1"]},
+        {"id": "C14.R1b", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01N#nov93", "copy": "D01N@tomo"}, {"ref": "D18#mary", "copy": "D18@L6"}], "cut_by": ["M1"]},
+        {"id": "C14.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D20#subasta", "copy": "D20@BM"}, {"ref": "D45#duelo", "copy": "D45@BM"}], "cut_by": []},
+        {"id": "C14.R3", "star": false, "deps": "fija", "from": "6.T", "frags": [{"ref": "N:L4.hueco_estante"}, {"ref": "D01N#nov93", "copy": "D01N@tomo"}], "cut_by": ["HB4", "M1"]},
+        {"id": "C14.R3b", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "N:L4.crespon"}, {"ref": "D01N#nov93", "copy": "D01N@tomo"}], "cut_by": ["HB4", "M1"]}
+      ],
+      "blue_pencil": {"missing": "Falta: de quién eran los tomos.", "wrong": "Dele: los vendió en enero; el crespón es de noviembre."}
+    }
+  ]
+}

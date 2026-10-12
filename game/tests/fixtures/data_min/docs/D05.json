@@ -1,0 +1,29 @@
+{
+  "id": "D05",
+  "entity": "journal_de_geneve",
+  "title": "Journal de Genève, miércoles 6 de mayo de 1891",
+  "src_type": "prensa_extranjera",
+  "class": "I",
+  "origin": "D05",
+  "date": "1891-05-06",
+  "chron_date": "1891-05-04",
+  "knowable": "1891-05-06",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [300, 420],
+  "machine": null,
+  "clip_entities": [],
+  "measure": null,
+  "clip_mode": "normal",
+  "slip_topic": "holmes_prensa_1891",
+  "visible_cats": [],
+  "catalog": {"label": "Journal de Genève, mayo de 1891", "entities": ["journal_de_geneve", "reichenbach", "meiringen"]},
+  "copies": [
+    {"id": "D05@BM", "holder": "BM", "area": "periodicos", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "MEIRINGEN, 5 de mayo. — {{#viajeros d:1891-05-04 p:reichenbach|Dos viajeros ingleses subieron ayer por el sendero de la [[reichenbach|cascada del Reichenbach]]; uno solo volvió a la posada.}} {{#aucun_corps a:refuta_rio_cuerpo e:cuerpo|Los [[guias|guías]] no hallaron ningún cuerpo: «on n'a retrouvé aucun corps».}} {{#baton a:refuta_baston|El [[baston|bastón]] herrado seguía apoyado contra [[roca]], «le bâton ferré appuyé contre le rocher».}} {{#corniche a:cornisa_existe e:reichenbach|Más arriba hay [[cornisa|una cornisa]] que no se ve desde [[sendero]], «une corniche que l'on ne voit pas du sentier»; sólo un nidero temerario subió alguna vez.}} {{#marque a:raspadura_registrada e:raspadura|En [[pared]], «une marque récente».}} {{#pastor|Un pastor oyó caer piedras «à la tombée de la nuit».}}\n<f=manuscrito><ink=lapiz>marque = marca, raspadura</ink></f>"}
+  ],
+  "src_en": {},
+  "words": 97
+}

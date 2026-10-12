@@ -1,0 +1,17 @@
+{"reactions": [
+  {
+    "id": "HA1", "tipo": "garantizada_por_acto", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-BM",
+    "actor": ["cotter", "mycroft"],
+    "disparador": {"evento": "slip", "match": {"topic_group": "holmes"}, "una_vez_por": ["topic"]},
+    "condiciones": {"all": [{"day": {"gte": 1, "lte": 9}}, {"not": {"weekday": "dom"}}]},
+    "ancla": ["seat", "title", "hour"],
+    "latencia": {"tipo": "voz_a"},
+    "efecto": [{"op": "carta", "plantilla_por": "topic"}],
+    "doc": {"title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+    "rastro": [
+      {"tpl": "holmes_prensa_1891", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: los guías hablaron al Journal, el Journal a Reuter y el doctor no habló con nadie.}} Tres fuentes que son una. {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: lea a Reuter.}}"},
+      {"tpl": "holmes_cronicas", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: el doctor se equivoca dos veces por página; no pierda la vista con la tercera.}}"}
+    ],
+    "corta": [], "agrega": ["C6", "C7.R1", "C7.R3"], "variante_blanda": null, "exento_d2": false
+  }
+]}

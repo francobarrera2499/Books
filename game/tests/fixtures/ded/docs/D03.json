@@ -1,0 +1,22 @@
+{
+  "id": "D03", "entity": "fina", "title": "«El problema final», The Strand Magazine, diciembre de 1893",
+  "src_type": "cronica", "class": "I", "date": "1893-12-01", "chron_date": "1891-05-04", "font": "imprenta", "paper": "strand",
+  "paper_mm": [170, 250],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "The Strand Magazine, vol. VI", "entities": ["fina", "strand", "reichenbach"]},
+  "copies": [
+    {"id": "D03@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D03@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"},
+    {"id": "D03@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "—¿De qué tiene miedo? —le pregunté. {{#air_guns a:teme_fusil_de_aire e:fusil_de_aire q:air_guns|—De los [[fusil_de_aire|fusiles de aire]].}} Cerró los postigos con cuidado y se sentó junto a la lámpara."},
+    {"id": "p7", "text": "{{#baston a:baston_prueba_muerte e:baston|Fue la vista de aquel [[baston|bastón]] lo que me heló la sangre.}} {{#sheer a:fina_impreso_sin_raspadura a:fina_a_pique q:sheer e:reichenbach|Era [[sendero|un sendero]] de tres pies, con [[pared|una pared]] a pique a un lado y un precipicio a pique al otro.}} El joven suizo también se había ido.\n{{#a_mycroft a:dispuso_bienes e:mycroft q:a_mycroft|«Dispuse de todos mis bienes antes de salir de Inglaterra y se los entregué a mi hermano [[mycroft|Mycroft]].»}} Sr. Holmes, se lee al pie, y nada más."}
+  ],
+  "src_en": {
+    "sheer": "three-foot path, with sheer wall on one side and sheer drop on the other",
+    "a_mycroft": "I made every disposition of my property before leaving England, and handed it to my brother Mycroft.",
+    "air_guns": "Of air-guns."
+  },
+  "words": 90
+}

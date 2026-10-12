@@ -1,0 +1,12 @@
+{
+  "char": "mrs_hudson", "label": "Mrs. Hudson", "intro": "Mrs. Hudson, la casera", "addr": "señora", "sensor": "K-H",
+  "max_questions": 3, "trait": "cofia",
+  "closing": "Tengo la cocina al fuego, sir.",
+  "ask_phrase": {"default": "¿Qué me dice de ${topic}, ${addr}?"},
+  "lines": [
+    {"id": "cuartos", "layer": "tema", "match": {"topic": ["221b", "alquiler"]}, "when": {"not": {"flag": "hudson_cerrada"}}, "text": "Los cuartos están como él los dejó, sir. Así lo quiere el señor Mycroft, sir."},
+    {"id": "cuartos.cerrada", "layer": "tema", "match": {"topic": ["221b", "alquiler"]}, "text": "Órdenes del empleado del señor Mycroft, sir. No se alquila, sir, sir."},
+    {"id": "gen.1", "layer": "generica", "text": "No sabría decirle, sir."},
+    {"id": "gen.2", "layer": "generica", "text": "Esa casa no es asunto mío, sir."}
+  ]
+}

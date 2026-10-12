@@ -1,0 +1,14 @@
+{
+ "id": "HC08",
+ "place": "L7",
+ "area": "exterior",
+ "tk": "10.T",
+ "origin": "S.HC08",
+ "lines": [
+  {
+   "id": "choque",
+   "who": "librero",
+   "text": "Caen los libros; el viejo gruñe y se aleja encorvado."
+  }
+ ]
+}

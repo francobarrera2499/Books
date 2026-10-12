@@ -1,0 +1,1765 @@
+{
+ "_nota": "W2-PLACES-B. Baker Street (GDD§5 L3): la calle con el 221B al sur y Camden House enfrente; el vestíbulo y la salita de Mrs. Hudson detrás de la fachada del 221B; la oficina del agente de fincas junto al 221B. Ejes: la calle corre en X; el 221B mira a +Z (z=-7,6), Camden House a -Z (z=+7,6). Piso de la planta baja del 221B en y=0,72. Geometría condicionada por nodos (l3.gated y casa.alts): ventanas abiertas (días 8-9), shag (día 8+), cajón (9.T+), Parker (noche), silueta en la persiana (día 10). Áreas: calle (siempre), interior (221B), agente (días hábiles); los encuadres '*' (calle) se ven desde cualquier área; van después de los propios de cada área porque la visita arranca en el primer encuadre que coincide (WorldModel.snapshot / WorldRoot._first_frame): interior → vestíbulo, agente → oficina, calle → 221B. Luz 'night' = noche_viento: la única noche en Baker Street es la del día 10 (HC09, «a bleak and boisterous night»). Personajes: mrs_hudson (interior) y chico_del_agente (agente, desde el día 7, no el domingo); el agente de fincas es un nodo con figura genérica (figure.agente: rasgo inexistente → maniquí genérico, sin diálogo). Parker (noche) es un nodo con figura (cameo sin diálogo).",
+ "id": "L3",
+ "name": "Baker Street",
+ "streets": [
+  "Baker Street"
+ ],
+ "areas": {
+  "calle": {
+   "desc": "la calle frente al 221B; enfrente, Camden House"
+  },
+  "interior": {
+   "desc": "vestíbulo y salita de Mrs. Hudson en el 221B"
+  },
+  "agente": {
+   "desc": "oficina del agente de fincas, junto al 221B"
+  }
+ },
+ "observers": [
+  "mrs_hudson",
+  "parker"
+ ],
+ "epigraph": "—¿Cuartos, sir? Éstos no se alquilan, sir.",
+ "frames": [
+  {
+   "id": "vestibulo",
+   "area": "interior",
+   "pos": [
+    -1.45,
+    2.25,
+    -8.25
+   ],
+   "look": [
+    -1.8,
+    2.6,
+    -13.8
+   ],
+   "fov": 64,
+   "orbit": {
+    "pivot": [
+     -2.0,
+     2.2,
+     -11.0
+    ],
+    "yaw": 20,
+    "pitch": 8
+   }
+  },
+  {
+   "id": "salita",
+   "area": "interior",
+   "pos": [
+    -0.45,
+    2.15,
+    -8.5
+   ],
+   "look": [
+    2.5,
+    1.2,
+    -12.0
+   ],
+   "fov": 60,
+   "orbit": {
+    "pivot": [
+     1.5,
+     1.4,
+     -10.8
+    ],
+    "yaw": 20,
+    "pitch": 8
+   }
+  },
+  {
+   "id": "agente",
+   "area": "agente",
+   "pos": [
+    9.3,
+    1.95,
+    -8.45
+   ],
+   "look": [
+    6.0,
+    1.2,
+    -12.4
+   ],
+   "fov": 62,
+   "orbit": {
+    "pivot": [
+     6.0,
+     1.3,
+     -10.8
+    ],
+    "yaw": 20,
+    "pitch": 8
+   }
+  },
+  {
+   "id": "221b",
+   "area": "*",
+   "pos": [
+    1.6,
+    1.85,
+    5.0
+   ],
+   "look": [
+    -0.3,
+    5.3,
+    -7.6
+   ],
+   "fov": 58,
+   "orbit": {
+    "pivot": [
+     -0.2,
+     3.2,
+     -6.0
+    ],
+    "yaw": 25,
+    "pitch": 10
+   }
+  },
+  {
+   "id": "camden",
+   "area": "*",
+   "pos": [
+    -1.6,
+    1.85,
+    -5.0
+   ],
+   "look": [
+    0.4,
+    4.6,
+    7.6
+   ],
+   "fov": 56,
+   "orbit": {
+    "pivot": [
+     0.2,
+     3.0,
+     6.0
+    ],
+    "yaw": 25,
+    "pitch": 10
+   }
+  }
+ ],
+ "light": {
+  "M": "manana_perla",
+  "T": "tarde",
+  "N": "farol_calle",
+  "night": "noche_viento"
+ },
+ "props": [
+  {
+   "id": "calzada",
+   "type": "street.pavement",
+   "pos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "p": {
+    "w": 48,
+    "d": 7.2,
+    "kind": "madera"
+   }
+  },
+  {
+   "id": "vereda_221b",
+   "type": "street.pavement",
+   "pos": [
+    0,
+    0,
+    -5.6
+   ],
+   "rot": 0,
+   "p": {
+    "w": 48,
+    "d": 4.0,
+    "kind": "losas",
+    "kerb": "+z"
+   }
+  },
+  {
+   "id": "vereda_camden",
+   "type": "street.pavement",
+   "pos": [
+    0,
+    0,
+    5.6
+   ],
+   "rot": 0,
+   "p": {
+    "w": 48,
+    "d": 4.0,
+    "kind": "losas",
+    "kerb": "-z"
+   }
+  },
+  {
+   "id": "casa_221b",
+   "type": "l3.casa",
+   "pos": [
+    0,
+    0.12,
+    -7.6
+   ],
+   "rot": 0,
+   "p": {
+    "w": 6.6,
+    "h": 12.6,
+    "levels": [
+     0.6,
+     4.0,
+     7.3,
+     10.1
+    ],
+    "bays": 3,
+    "door_bay": 0,
+    "number": "221B",
+    "seed": 221,
+    "broad": {
+     "1": 2
+    },
+    "hollow": [
+     "0:0",
+     "0:1"
+    ],
+    "win": {
+     "0:0": {
+      "curtains": true,
+      "blind": 0.15
+     },
+     "0:1": {
+      "curtains": true,
+      "blind": 0.15
+     },
+     "1:0": {
+      "blind": 0.97,
+      "curtains": true
+     },
+     "1:1": {
+      "blind": 0.97,
+      "curtains": true
+     },
+     "2:0": {
+      "blind": 0.97
+     },
+     "2:1": {
+      "blind": 0.97
+     },
+     "2:2": {
+      "blind": 0.97
+     }
+    },
+    "alts": [
+     {
+      "node": "ventanas_abiertas",
+      "keys": [
+       "1:0",
+       "1:1"
+      ],
+      "state": {
+       "open": 1.0,
+       "blind": 0.0,
+       "curtains": true,
+       "curtain_out": true
+      }
+     },
+     {
+      "node": "silueta_ventana",
+      "keys": [
+       "1:0"
+      ],
+      "state": {
+       "open": 0.0,
+       "blind": 1.0,
+       "lit": true,
+       "bust": true,
+       "curtains": true
+      }
+     },
+     {
+      "node": "silueta_ventana",
+      "keys": [
+       "1:1"
+      ],
+      "state": {
+       "open": 0.0,
+       "blind": 1.0,
+       "lit": true,
+       "curtains": true
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "vecinas_oeste",
+   "type": "l3.hilera",
+   "pos": [
+    -9.9,
+    0.12,
+    -7.6
+   ],
+   "rot": 0,
+   "p": {
+    "n": 2,
+    "w": 6.6,
+    "seed": 41
+   }
+  },
+  {
+   "id": "casa_agente",
+   "type": "l3.casa",
+   "pos": [
+    6.6,
+    0.12,
+    -7.6
+   ],
+   "rot": 0,
+   "p": {
+    "w": 6.6,
+    "h": 12.4,
+    "levels": [
+     0.12,
+     4.0,
+     7.3,
+     10.1
+    ],
+    "bays": 3,
+    "seed": 223,
+    "shop": {
+     "sign": "AGENCIA DE FINCAS · ALQUILERES",
+     "door_bay": 2,
+     "letters": "CASAS · CUARTOS · LLAVES"
+    }
+   }
+  },
+  {
+   "id": "vecinas_este",
+   "type": "l3.hilera",
+   "pos": [
+    16.5,
+    0.12,
+    -7.6
+   ],
+   "rot": 0,
+   "p": {
+    "n": 2,
+    "w": 6.6,
+    "seed": 43
+   }
+  },
+  {
+   "id": "camden_house",
+   "type": "l3.casa",
+   "pos": [
+    0,
+    0.12,
+    7.6
+   ],
+   "rot": 180,
+   "p": {
+    "w": 7.0,
+    "h": 13.0,
+    "levels": [
+     0.6,
+     4.1,
+     7.5,
+     10.3
+    ],
+    "bays": 3,
+    "door_bay": 0,
+    "dusty": true,
+    "brick": "ladrillo_hollin",
+    "seed": 101
+   }
+  },
+  {
+   "id": "cartel_camden",
+   "type": "l3.tablero_alquiler",
+   "pos": [
+    -1.2,
+    0.12,
+    6.95
+   ],
+   "rot": 180,
+   "p": {
+    "text": "SE ALQUILA",
+    "sub": "Razón: agencia de fincas, en esta calle",
+    "w": 1.5,
+    "h": 0.8,
+    "y": 1.75
+   }
+  },
+  {
+   "id": "vecinas_camden_oeste",
+   "type": "l3.hilera",
+   "pos": [
+    -10.5,
+    0.12,
+    7.6
+   ],
+   "rot": 180,
+   "p": {
+    "n": 2,
+    "w": 7.0,
+    "h": 13.0,
+    "levels": [
+     0.6,
+     4.1,
+     7.5,
+     10.3
+    ],
+    "seed": 47
+   }
+  },
+  {
+   "id": "vecinas_camden_este",
+   "type": "l3.hilera",
+   "pos": [
+    10.5,
+    0.12,
+    7.6
+   ],
+   "rot": 180,
+   "p": {
+    "n": 2,
+    "w": 7.0,
+    "h": 13.0,
+    "levels": [
+     0.6,
+     4.1,
+     7.5,
+     10.3
+    ],
+    "seed": 53
+   }
+  },
+  {
+   "id": "farol_221b",
+   "type": "street.gas_lamp",
+   "pos": [
+    -4.4,
+    0.12,
+    -4.1
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.4
+   }
+  },
+  {
+   "id": "farol_camden",
+   "type": "street.gas_lamp",
+   "pos": [
+    4.6,
+    0.12,
+    4.1
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.4
+   }
+  },
+  {
+   "id": "farol_oeste",
+   "type": "street.gas_lamp",
+   "pos": [
+    -16.0,
+    0.12,
+    4.1
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.4
+   }
+  },
+  {
+   "id": "farol_este",
+   "type": "street.gas_lamp",
+   "pos": [
+    15.0,
+    0.12,
+    -4.1
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.4
+   }
+  },
+  {
+   "id": "buzon",
+   "type": "street.post_box",
+   "pos": [
+    11.2,
+    0.12,
+    -4.0
+   ],
+   "rot": 0,
+   "p": {}
+  },
+  {
+   "id": "coche",
+   "type": "street.cab",
+   "pos": [
+    -15.5,
+    0.0,
+    2.2
+   ],
+   "rot": 90,
+   "p": {
+    "kind": "growler"
+   }
+  },
+  {
+   "id": "transeuntes",
+   "type": "crowd.make",
+   "pos": [
+    -13.0,
+    0.12,
+    -5.0
+   ],
+   "rot": 0,
+   "p": {
+    "n": 3,
+    "seed": 7,
+    "w": 4.0,
+    "d": 1.0
+   }
+  },
+  {
+   "id": "parker_p",
+   "type": "l3.gated",
+   "pos": [
+    -6.0,
+    0.12,
+    5.4
+   ],
+   "rot": 200,
+   "p": {
+    "node": "parker",
+    "type": "figure.bajo_agachado",
+    "p": {
+     "pose": "encorvado"
+    }
+   }
+  },
+  {
+   "id": "vestibulo",
+   "type": "architecture.room",
+   "pos": [
+    -2.1,
+    0.72,
+    -11.56
+   ],
+   "rot": 0,
+   "p": {
+    "w": 2.4,
+    "d": 7.0,
+    "h": 6.6,
+    "t": 0.16,
+    "wall": "papel_pintado",
+    "floor": "suelo_tablas",
+    "dado": 0.95,
+    "openings": [
+     {
+      "wall": "s",
+      "kind": "void",
+      "x": -0.1,
+      "w": 1.15,
+      "h": 3.0,
+      "sill": 0.0
+     },
+     {
+      "wall": "e",
+      "kind": "void",
+      "x": 2.16,
+      "w": 0.9,
+      "h": 2.2,
+      "sill": 0.0
+     },
+     {
+      "wall": "n",
+      "kind": "door",
+      "x": 0.45,
+      "w": 0.9,
+      "h": 2.1,
+      "sill": 3.4,
+      "open": 0.22
+     }
+    ]
+   }
+  },
+  {
+   "id": "baldosas",
+   "type": "l3.baldosas",
+   "pos": [
+    -2.1,
+    0.72,
+    -11.56
+   ],
+   "rot": 0,
+   "p": {
+    "w": 2.4,
+    "d": 7.0
+   }
+  },
+  {
+   "id": "escalera",
+   "type": "architecture.stairs",
+   "pos": [
+    -2.825,
+    0.72,
+    -9.0
+   ],
+   "rot": 0,
+   "p": {
+    "n": 17,
+    "w": 0.95,
+    "rise": 0.2,
+    "run": 0.25,
+    "rail": "right",
+    "runner": true
+   }
+  },
+  {
+   "id": "descanso",
+   "type": "l3.descanso",
+   "pos": [
+    -2.1,
+    0.72,
+    -13.25
+   ],
+   "rot": 0,
+   "p": {
+    "w": 2.4,
+    "d": 1.81,
+    "h": 3.4,
+    "rail_from": -0.25,
+    "rail_to": 1.16,
+    "runner_x": -0.35
+   }
+  },
+  {
+   "id": "penumbra_arriba",
+   "type": "l3.penumbra",
+   "pos": [
+    -1.65,
+    4.12,
+    -15.75
+   ],
+   "rot": 0,
+   "p": {
+    "w": 1.3,
+    "h": 2.4
+   }
+  },
+  {
+   "id": "mesa_vestibulo",
+   "type": "furniture.table",
+   "pos": [
+    -1.13,
+    0.72,
+    -11.7
+   ],
+   "rot": -90,
+   "p": {
+    "w": 0.9,
+    "d": 0.36,
+    "h": 0.8
+   }
+  },
+  {
+   "id": "bandeja",
+   "type": "l3.bandeja_tarjetas",
+   "pos": [
+    -1.12,
+    1.52,
+    -11.9
+   ],
+   "rot": 0,
+   "p": {}
+  },
+  {
+   "id": "shag_p",
+   "type": "l3.gated",
+   "pos": [
+    -1.12,
+    1.52,
+    -11.45
+   ],
+   "rot": 20,
+   "p": {
+    "node": "shag",
+    "type": "l3.paquete_shag",
+    "p": {}
+   }
+  },
+  {
+   "id": "gas_vestibulo",
+   "type": "l3.sin_ocluir",
+   "pos": [
+    -0.92,
+    0.72,
+    -10.5
+   ],
+   "rot": -90,
+   "p": {
+    "type": "street.wall_lamp",
+    "p": {
+     "h": 2.1,
+     "kind": "gas"
+    }
+   }
+  },
+  {
+   "id": "cajon_p",
+   "type": "l3.gated",
+   "pos": [
+    -1.95,
+    0.72,
+    -14.35
+   ],
+   "rot": 15,
+   "p": {
+    "node": "cajon",
+    "type": "l3.cajon",
+    "p": {
+     "w": 0.7,
+     "h": 0.95,
+     "d": 0.6,
+     "seed": 9,
+     "stencil": "NE PAS OUVRIR",
+     "label": "G.V. — GRENOBLE\nO. Meunier, mouleur\npour M. Mycroft Holmes\n221B Baker Street\nNE PAS OUVRIR — cire"
+    }
+   }
+  },
+  {
+   "id": "salita",
+   "type": "architecture.room",
+   "pos": [
+    1.28,
+    0.72,
+    -10.46
+   ],
+   "rot": 0,
+   "p": {
+    "w": 4.04,
+    "d": 4.8,
+    "h": 3.3,
+    "t": 0.16,
+    "wall": "papel_pintado",
+    "floor": "suelo_tablas",
+    "dado": 0.9,
+    "openings": [
+     {
+      "wall": "s",
+      "kind": "void",
+      "x": -1.28,
+      "w": 1.12,
+      "h": 2.04,
+      "sill": 0.75
+     },
+     {
+      "wall": "s",
+      "kind": "void",
+      "x": 0.92,
+      "w": 1.12,
+      "h": 2.04,
+      "sill": 0.75
+     },
+     {
+      "wall": "w",
+      "kind": "void",
+      "x": 1.06,
+      "w": 0.9,
+      "h": 2.2,
+      "sill": 0.0
+     }
+    ]
+   }
+  },
+  {
+   "id": "chimenea_salita",
+   "type": "furniture.fireplace",
+   "pos": [
+    3.3,
+    0.72,
+    -10.6
+   ],
+   "rot": -90,
+   "p": {
+    "w": 1.3,
+    "mantel": 1.1,
+    "mirror": true,
+    "lit": false,
+    "breast_h": 3.3
+   }
+  },
+  {
+   "id": "reloj_salita",
+   "type": "small.clock_mantel",
+   "pos": [
+    3.12,
+    1.82,
+    -10.6
+   ],
+   "rot": -90,
+   "p": {
+    "hour": 10.2
+   }
+  },
+  {
+   "id": "retrato_salita",
+   "type": "small.photo_frame",
+   "pos": [
+    3.12,
+    1.82,
+    -10.15
+   ],
+   "rot": -110,
+   "p": {}
+  },
+  {
+   "id": "escritorio_salita",
+   "type": "furniture.desk",
+   "pos": [
+    1.9,
+    0.72,
+    -12.42
+   ],
+   "rot": 0,
+   "p": {
+    "w": 1.1,
+    "d": 0.55,
+    "pigeonholes": true
+   }
+  },
+  {
+   "id": "libro_recibos_p",
+   "type": "l3.gated",
+   "pos": [
+    1.9,
+    1.482,
+    -12.32
+   ],
+   "rot": 0,
+   "p": {
+    "node": "libro_recibos",
+    "type": "small.open_ledger_book",
+    "p": {}
+   }
+  },
+  {
+   "id": "sillon_salita",
+   "type": "furniture.armchair",
+   "pos": [
+    2.35,
+    0.72,
+    -9.35
+   ],
+   "rot": -130,
+   "p": {
+    "wing": false
+   }
+  },
+  {
+   "id": "mesita_salita",
+   "type": "furniture.table",
+   "pos": [
+    0.55,
+    0.72,
+    -10.9
+   ],
+   "rot": 0,
+   "p": {
+    "round": true,
+    "w": 0.7,
+    "d": 0.7,
+    "cloth": true
+   }
+  },
+  {
+   "id": "silla_salita",
+   "type": "furniture.chair",
+   "pos": [
+    0.05,
+    0.72,
+    -11.75
+   ],
+   "rot": 35,
+   "p": {
+    "style": "comedor"
+   }
+  },
+  {
+   "id": "oficina",
+   "type": "architecture.room",
+   "pos": [
+    6.6,
+    0.24,
+    -10.36
+   ],
+   "rot": 0,
+   "p": {
+    "w": 6.28,
+    "d": 4.6,
+    "h": 3.5,
+    "t": 0.16,
+    "wall": "yeso",
+    "floor": "suelo_tablas",
+    "dado": 1.0,
+    "dado_mat": "madera_oscura",
+    "openings": [
+     {
+      "wall": "s",
+      "kind": "void",
+      "x": -2.2,
+      "w": 1.89,
+      "h": 2.63,
+      "sill": 0.5
+     },
+     {
+      "wall": "s",
+      "kind": "void",
+      "x": 0.0,
+      "w": 1.89,
+      "h": 2.63,
+      "sill": 0.5
+     },
+     {
+      "wall": "s",
+      "kind": "void",
+      "x": 2.2,
+      "w": 1.0,
+      "h": 2.5,
+      "sill": 0.0
+     }
+    ]
+   }
+  },
+  {
+   "id": "mostrador_agente",
+   "type": "furniture.counter",
+   "pos": [
+    5.9,
+    0.24,
+    -10.6
+   ],
+   "rot": 0,
+   "p": {
+    "w": 2.6,
+    "d": 0.6,
+    "h": 0.98,
+    "bell": true
+   }
+  },
+  {
+   "id": "libro_llaves_p",
+   "type": "small.open_ledger_book",
+   "pos": [
+    5.4,
+    1.22,
+    -10.52
+   ],
+   "rot": 8,
+   "p": {}
+  },
+  {
+   "id": "tablero_llaves_p",
+   "type": "l3.tablero_llaves",
+   "pos": [
+    5.9,
+    0.24,
+    -12.66
+   ],
+   "rot": 0,
+   "p": {
+    "w": 1.2,
+    "h": 0.8,
+    "y": 1.2,
+    "seed": 3
+   }
+  },
+  {
+   "id": "planos_p",
+   "type": "l3.planos",
+   "pos": [
+    3.47,
+    0.24,
+    -10.4
+   ],
+   "rot": 90,
+   "p": {
+    "n": 3,
+    "y": 1.5,
+    "seed": 5
+   }
+  },
+  {
+   "id": "escritorio_agente",
+   "type": "furniture.desk",
+   "pos": [
+    8.7,
+    0.24,
+    -12.15
+   ],
+   "rot": 0,
+   "p": {
+    "w": 1.3,
+    "d": 0.65
+   }
+  },
+  {
+   "id": "silla_agente",
+   "type": "furniture.chair",
+   "pos": [
+    8.7,
+    0.24,
+    -11.45
+   ],
+   "rot": 180,
+   "p": {
+    "style": "oficina"
+   }
+  },
+  {
+   "id": "agente_p",
+   "type": "l3.gated",
+   "pos": [
+    8.7,
+    0.24,
+    -11.5
+   ],
+   "rot": 180,
+   "p": {
+    "node": "agente_fincas",
+    "type": "figure.agente",
+    "p": {
+     "pose": "sentado"
+    }
+   }
+  },
+  {
+   "id": "mapa_agente",
+   "type": "small.map_board",
+   "pos": [
+    9.73,
+    1.34,
+    -10.2
+   ],
+   "rot": -90,
+   "p": {}
+  },
+  {
+   "id": "aviso_vidriera_1",
+   "type": "l3.cartel_papel",
+   "pos": [
+    4.4,
+    1.95,
+    -7.69
+   ],
+   "rot": 0,
+   "p": {
+    "text": "SE ALQUILA\nCASA EN ESTA CALLE",
+    "w": 0.52,
+    "h": 0.36
+   }
+  },
+  {
+   "id": "aviso_vidriera_2",
+   "type": "l3.cartel_papel",
+   "pos": [
+    6.7,
+    1.75,
+    -7.69
+   ],
+   "rot": 0,
+   "p": {
+    "text": "CUARTOS\nAMUEBLADOS",
+    "w": 0.46,
+    "h": 0.34
+   }
+  },
+  {
+   "id": "gas_oficina",
+   "type": "l3.sin_ocluir",
+   "pos": [
+    9.73,
+    0.24,
+    -11.4
+   ],
+   "rot": -90,
+   "p": {
+    "type": "street.wall_lamp",
+    "p": {
+     "h": 2.1,
+     "kind": "gas"
+    }
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "puerta_221b",
+   "prop": "casa_221b",
+   "noun": "puerta",
+   "anchor": {
+    "c": [
+     -2.2,
+     2.05,
+     -7.64
+    ],
+    "s": [
+     1.3,
+     2.75,
+     0.3
+    ]
+   },
+   "examine": "La puerta del [[221b|221B]], negra, con el número en una placa esmaltada sobre el montante.",
+   "tags": [
+    "e:221b",
+    "e:baker_street"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "ventanas_cerradas",
+   "prop": "casa_221b",
+   "noun": "ventanas",
+   "anchor": {
+    "c": [
+     0.0,
+     5.71,
+     -7.65
+    ],
+    "s": [
+     4.9,
+     2.3,
+     0.4
+    ]
+   },
+   "examine": "Las dos ventanas anchas del primer piso del [[221b|221B]] tienen las [[persianas|persianas]] bajas hasta el alféizar.",
+   "tags": [
+    "e:ventana_de_holmes",
+    "e:221b",
+    "e:persianas"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {
+    "not": {
+     "any": [
+      {
+       "day": {
+        "gte": 8,
+        "lte": 9
+       }
+      },
+      {
+       "all": [
+        {
+         "day": {
+          "gte": 10
+         }
+        },
+        {
+         "slot": [
+          "N",
+          "night"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "ventanas_abiertas",
+   "prop": "casa_221b",
+   "noun": "ventanas",
+   "anchor": {
+    "c": [
+     0.0,
+     5.71,
+     -7.65
+    ],
+    "s": [
+     4.9,
+     2.3,
+     0.4
+    ]
+   },
+   "examine": "Las dos ventanas anchas del primer piso del [[221b|221B]] están abiertas de par en par, con las persianas recogidas y una cortina que asoma afuera.",
+   "tags": [
+    "a:preparativos_221b",
+    "e:ventanas_abiertas",
+    "e:ventana_de_holmes",
+    "e:221b",
+    "c:baker_street"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {
+    "day": {
+     "gte": 8,
+     "lte": 9
+    }
+   }
+  },
+  {
+   "id": "silueta_ventana",
+   "prop": "casa_221b",
+   "noun": "ventana",
+   "anchor": {
+    "c": [
+     -1.65,
+     5.71,
+     -7.68
+    ],
+    "s": [
+     1.65,
+     2.3,
+     0.35
+    ]
+   },
+   "examine": "Sobre la persiana iluminada de una ventana del primer piso del [[221b|221B]] se recorta la [[sombra|sombra]] de un hombre sentado.",
+   "tags": [
+    "e:ventana_de_holmes",
+    "e:221b",
+    "e:sombra"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {
+    "all": [
+     {
+      "day": {
+       "gte": 10
+      }
+     },
+     {
+      "slot": [
+       "N",
+       "night"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "camden_house",
+   "prop": "camden_house",
+   "noun": "casa",
+   "anchor": {
+    "c": [
+     0.0,
+     5.95,
+     7.72
+    ],
+    "s": [
+     6.6,
+     2.9,
+     0.3
+    ]
+   },
+   "examine": "Enfrente, [[camden_house|Camden House]]: ventanas sucias en todos los pisos, sin una cortina ni una persiana.",
+   "tags": [
+    "e:camden_house",
+    "e:casa_vacia"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "cartel",
+   "prop": "cartel_camden",
+   "noun": "cartel",
+   "anchor": {
+    "c": [
+     -1.2,
+     2.27,
+     6.93
+    ],
+    "s": [
+     1.6,
+     0.9,
+     0.16
+    ]
+   },
+   "examine": "En el patio de [[camden_house|Camden House]], un [[cartel_se_alquila|cartel]] en lo alto de un poste: «SE ALQUILA. Razón: agencia de fincas, en esta calle».",
+   "tags": [
+    "e:cartel_se_alquila",
+    "e:camden_house"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "oficina_agente",
+   "prop": "casa_agente",
+   "noun": "oficina",
+   "anchor": {
+    "c": [
+     6.6,
+     1.8,
+     -7.62
+    ],
+    "s": [
+     6.0,
+     3.3,
+     0.35
+    ]
+   },
+   "examine": "La [[oficina_del_agente|oficina del agente de fincas]], con [[planos_de_casas|planos de casas]] y [[avisos_de_alquiler|avisos de alquiler]] en la vidriera.",
+   "tags": [
+    "e:oficina_del_agente",
+    "e:agente_de_fincas"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "farol",
+   "prop": "farol_221b",
+   "noun": "farol",
+   "anchor": {
+    "c": [
+     -4.4,
+     3.45,
+     -4.1
+    ],
+    "s": [
+     0.5,
+     0.9,
+     0.5
+    ]
+   },
+   "examine": "Un farol de gas en el cordón de la vereda, frente al [[221b|221B]].",
+   "tags": [
+    "e:luz_de_gas"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "parker",
+   "prop": "parker_p",
+   "noun": "hombrecito agachado",
+   "anchor": {
+    "c": [
+     -6.0,
+     0.9,
+     5.4
+    ],
+    "s": [
+     0.6,
+     1.6,
+     0.6
+    ]
+   },
+   "examine": "En la vereda de enfrente, un [[hombrecito_del_arpa|hombrecito agachado]] toca un [[arpa_de_boca|arpa de boca]] sin mirar a nadie.",
+   "tags": [
+    "e:hombrecito_del_arpa",
+    "e:arpa_de_boca",
+    "e:baker_street"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {
+    "slot": [
+     "N",
+     "night"
+    ]
+   }
+  },
+  {
+   "id": "escalera",
+   "prop": "escalera",
+   "noun": "escalera",
+   "anchor": {
+    "c": [
+     -2.825,
+     3.3,
+     -12.2
+    ],
+    "s": [
+     0.95,
+     1.7,
+     2.1
+    ]
+   },
+   "examine": "[[diecisiete_escalones|Diecisiete escalones]] suben del vestíbulo al primer piso, con una alfombra sujeta con varillas de latón.",
+   "tags": [
+    "e:diecisiete_escalones",
+    "e:221b"
+   ],
+   "cls": "I",
+   "area": "interior",
+   "when": {}
+  },
+  {
+   "id": "puerta_entreabierta",
+   "prop": "vestibulo",
+   "noun": "puerta",
+   "anchor": {
+    "c": [
+     -1.65,
+     5.17,
+     -15.1
+    ],
+    "s": [
+     1.0,
+     2.2,
+     0.3
+    ]
+   },
+   "examine": "Arriba, en el descanso, una [[puerta_entreabierta|puerta]] queda entreabierta sobre un cuarto en penumbra.",
+   "tags": [
+    "e:puerta_entreabierta",
+    "e:221b"
+   ],
+   "cls": "I",
+   "area": "interior",
+   "when": {}
+  },
+  {
+   "id": "shag",
+   "prop": "shag_p",
+   "noun": "paquete de tabaco",
+   "anchor": {
+    "c": [
+     -1.12,
+     1.57,
+     -11.45
+    ],
+    "s": [
+     0.3,
+     0.12,
+     0.24
+    ]
+   },
+   "examine": "Sobre la mesa del vestíbulo hay una libra de [[shag]] todavía envuelta, y la casa entera huele a tabaco fuerte y fresco.",
+   "tags": [
+    "a:preparativos_221b",
+    "e:shag",
+    "e:221b",
+    "c:baker_street"
+   ],
+   "cls": "I",
+   "area": "interior",
+   "when": {
+    "day": {
+     "gte": 8
+    }
+   }
+  },
+  {
+   "id": "cajon",
+   "prop": "cajon_p",
+   "noun": "cajón",
+   "anchor": {
+    "c": [
+     -1.95,
+     1.22,
+     -14.35
+    ],
+    "s": [
+     0.85,
+     1.0,
+     0.8
+    ]
+   },
+   "examine": "En el vestíbulo, un [[cajon_de_grenoble|cajón]] con etiqueta de gran velocidad: «Grenoble — [[oscar_meunier|O. Meunier]], mouleur — pour M. [[mycroft|Mycroft Holmes]], 221B Baker Street — NE PAS OUVRIR — [[cera|cire]]».",
+   "tags": [
+    "a:preparativos_221b",
+    "a:refuta_meunier",
+    "e:cajon_de_grenoble",
+    "e:oscar_meunier",
+    "e:mycroft",
+    "e:221b",
+    "e:grenoble",
+    "e:cera",
+    "c:baker_street"
+   ],
+   "cls": "I",
+   "area": "interior",
+   "when": {
+    "tk": {
+     "gte": "9.T"
+    }
+   }
+  },
+  {
+   "id": "mesa_vestibulo",
+   "prop": "mesa_vestibulo",
+   "noun": "mesa",
+   "anchor": {
+    "c": [
+     -1.13,
+     1.4,
+     -11.75
+    ],
+    "s": [
+     0.42,
+     0.25,
+     0.95
+    ]
+   },
+   "examine": "En la mesa del vestíbulo, una [[bandeja_de_tarjetas|bandeja]] de plata para tarjetas de visita, vacía.",
+   "tags": [
+    "e:bandeja_de_tarjetas"
+   ],
+   "cls": "I",
+   "area": "interior",
+   "when": {}
+  },
+  {
+   "id": "chimenea_salita",
+   "prop": "chimenea_salita",
+   "noun": "chimenea",
+   "anchor": {
+    "c": [
+     3.05,
+     1.5,
+     -10.6
+    ],
+    "s": [
+     0.5,
+     1.3,
+     1.4
+    ]
+   },
+   "examine": "En la salita, una chimenea de mármol con el fuego apagado, un [[reloj_de_repisa|reloj de repisa]] y un retrato en su marco.",
+   "tags": [
+    "e:reloj_de_repisa"
+   ],
+   "cls": "I",
+   "area": "interior",
+   "when": {}
+  },
+  {
+   "id": "libro_recibos",
+   "prop": "libro_recibos_p",
+   "noun": "libro de recibos",
+   "anchor": {
+    "c": [
+     1.9,
+     1.52,
+     -12.32
+    ],
+    "s": [
+     0.46,
+     0.1,
+     0.36
+    ]
+   },
+   "examine": "Sobre el escritorio de la salita, un [[libro_de_recibos|libro de recibos]] abierto en las cuentas del trimestre.",
+   "tags": [
+    "e:libro_de_recibos",
+    "e:alquiler"
+   ],
+   "cls": "C",
+   "area": "interior",
+   "when": {
+    "not": {
+     "flag": "hudson_cerrada"
+    }
+   }
+  },
+  {
+   "id": "ventanas_salita",
+   "prop": "casa_221b",
+   "noun": "ventanas",
+   "anchor": {
+    "c": [
+     1.1,
+     2.49,
+     -7.66
+    ],
+    "s": [
+     3.4,
+     2.1,
+     0.3
+    ]
+   },
+   "examine": "Las ventanas de la planta baja del [[221b|221B]] tienen [[visillos|visillos]] de encaje; detrás se adivina una salita.",
+   "tags": [
+    "e:visillos",
+    "e:221b"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "libro_llaves",
+   "prop": "libro_llaves_p",
+   "noun": "libro",
+   "anchor": {
+    "c": [
+     5.4,
+     1.26,
+     -10.52
+    ],
+    "s": [
+     0.46,
+     0.1,
+     0.36
+    ]
+   },
+   "examine": "Sobre el mostrador, abierto, el [[libro_de_llaves|libro de llaves]] del agente, con un renglón por cada llave prestada.",
+   "tags": [
+    "e:libro_de_llaves",
+    "e:agente_de_fincas"
+   ],
+   "cls": "C",
+   "area": "agente",
+   "when": {}
+  },
+  {
+   "id": "tablero_llaves",
+   "prop": "tablero_llaves_p",
+   "noun": "tablero",
+   "anchor": {
+    "c": [
+     5.9,
+     1.84,
+     -12.62
+    ],
+    "s": [
+     1.25,
+     0.85,
+     0.12
+    ]
+   },
+   "examine": "Detrás del mostrador, un [[tablero_de_llaves|tablero]] con llaves colgadas de ganchos, cada una con su rótulo de cartón.",
+   "tags": [
+    "e:tablero_de_llaves"
+   ],
+   "cls": "I",
+   "area": "agente",
+   "when": {}
+  },
+  {
+   "id": "planos",
+   "prop": "planos_p",
+   "noun": "planos",
+   "anchor": {
+    "c": [
+     3.52,
+     1.74,
+     -10.4
+    ],
+    "s": [
+     0.12,
+     0.5,
+     1.55
+    ]
+   },
+   "examine": "En la pared, [[planos_de_casas|planos de casas]] en alquiler clavados con chinches.",
+   "tags": [
+    "e:planos_de_casas"
+   ],
+   "cls": "I",
+   "area": "agente",
+   "when": {}
+  },
+  {
+   "id": "agente_fincas",
+   "prop": "agente_p",
+   "noun": "agente de fincas",
+   "anchor": {
+    "c": [
+     8.7,
+     0.95,
+     -11.55
+    ],
+    "s": [
+     0.6,
+     1.3,
+     0.7
+    ]
+   },
+   "examine": "Sentado a su escritorio, el [[agente_de_fincas|agente de fincas]] anota alquileres en un libro y no levanta la vista.",
+   "tags": [
+    "e:agente_de_fincas"
+   ],
+   "cls": "I",
+   "area": "agente",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "mrs_hudson",
+   "area": "interior",
+   "pos": [
+    -2.0,
+    0.72,
+    -9.75
+   ],
+   "rot": 25,
+   "pose": "de_pie",
+   "trait": "cofia",
+   "when": {}
+  },
+  {
+   "id": "chico_del_agente",
+   "area": "agente",
+   "pos": [
+    6.3,
+    0.24,
+    -11.3
+   ],
+   "rot": 10,
+   "pose": "de_pie",
+   "trait": "",
+   "when": {
+    "all": [
+     {
+      "day": {
+       "gte": 7
+      }
+     },
+     {
+      "not": {
+       "weekday": "dom"
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "221b",
+   "pos": [
+    4.2,
+    0.12,
+    -4.4
+   ],
+   "rot": 200
+  },
+  "cochero": {
+   "frame": "camden",
+   "pos": [
+    4.6,
+    0.12,
+    5.0
+   ],
+   "rot": 200
+  }
+ },
+ "variants": {}
+}

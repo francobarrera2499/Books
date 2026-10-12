@@ -1,0 +1,10 @@
+{
+  "id": "HC06", "place": "L5", "area": "forasteros", "origin": "S.HC06", "auto": true, "when": {"day": {"gte": 8, "lte": 9}},
+  "lines": [
+    {"id": "a", "who": "mycroft", "text": "Le ahorraré el trabajo, señor Lisle: tiene usted mala vista y una deuda con su librero."},
+    {"id": "b", "who": "mycroft", "gen": "acts_by_channel",
+     "tpl": {"kbm": "{{#b_kbm a:ancla_kbm|El ${fecha}, en el [[@act|asiento ${seat}]], pidió usted ${titulo}.}}", "kw": "{{#b_kw a:ancla_kw|Al doctor le dijo [[@act|«${frase}»]].}}", "ks": "{{#b_ks a:ancla_ks|Anduvo por [[@act|${streets}]] a las ${hour}.}}"},
+     "fallback": "Su carta de enero, señor, y la visita del lunes."},
+    {"id": "g", "who": "mycroft", "text": "¿Y quién cree usted que le contesta, señor Lisle? Muéstremelo; en limpio, si es tan amable."}
+  ]
+}

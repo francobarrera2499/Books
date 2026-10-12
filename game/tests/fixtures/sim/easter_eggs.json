@@ -1,0 +1,23 @@
+{
+ "eggs": [
+  {
+   "id": "EE01",
+   "name": "«Mi James»",
+   "trigger": {
+    "clip_tag": "x:EE01"
+   },
+   "note": "Mary llamaba «James» a su marido. Sic, con ternura."
+  },
+  {
+   "id": "EE13",
+   "name": "Trichinópolis",
+   "trigger": {
+    "pair_tags": [
+     "e:trichinopolis",
+     "e:cheroot"
+    ]
+   },
+   "note": "El autor de la monografía habría sabido de quién era."
+  }
+ ]
+}

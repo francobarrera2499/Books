@@ -1,0 +1,30 @@
+{
+ "eggs": [
+  {
+   "id": "EE01",
+   "name": "Nota con tramo",
+   "trigger": {
+    "clip_tag": "x:EE01"
+   },
+   "note": "{{#t a:sin_raspadura|Una nota con etiquetas.}}"
+  },
+  {
+   "id": "EE02",
+   "name": "Sobre una ruta",
+   "trigger": {
+    "pairs_over": [
+     "D91#raro"
+    ]
+   },
+   "note": "Sobre una ruta."
+  },
+  {
+   "id": "EE03",
+   "name": "Disparador raro",
+   "trigger": {
+    "magia": true
+   },
+   "note": "Nada."
+  }
+ ]
+}

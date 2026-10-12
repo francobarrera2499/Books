@@ -1,0 +1,31 @@
+{
+ "reactions": [
+  {
+   "id": "HX1",
+   "tipo": "opcional",
+   "lado": "holmes",
+   "voz": "B",
+   "nivel": 1,
+   "canal": "*",
+   "actor": [
+    "holmes"
+   ],
+   "disparador": {
+    "evento": "egg",
+    "match": {
+     "egg": "EE01"
+    }
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_b"
+   },
+   "efecto": [],
+   "rastro": [],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null
+  }
+ ]
+}

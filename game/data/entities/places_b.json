@@ -1,0 +1,23 @@
+{
+  "_nota": "W2-PLACES-B. Entidades nuevas de los lugares L3 (Baker Street), L7 (Park Lane 427), L8 (Camden House) y la lámina PARK. Todo lo demás ya existe en core.json (W1-BIBLE). Casi todo es ruido de lugar (§4.5: todo lo nombrable es entidad).",
+  "entities": [
+    {"id": "persianas", "kind": "objeto", "name": "las persianas bajas", "index": "persianas bajas", "noun": "persiana"},
+    {"id": "diecisiete_escalones", "kind": "concepto", "name": "los diecisiete escalones", "index": "diecisiete escalones", "noun": "escalera"},
+    {"id": "puerta_entreabierta", "kind": "objeto", "name": "la puerta entreabierta", "index": "puerta entreabierta", "noun": "puerta"},
+    {"id": "bandeja_de_tarjetas", "kind": "objeto", "name": "la bandeja de las tarjetas", "index": "bandeja de tarjetas de visita", "noun": "bandeja"},
+    {"id": "reloj_de_repisa", "kind": "objeto", "name": "un reloj de repisa", "index": "reloj de repisa", "noun": "reloj"},
+    {"id": "visillos", "kind": "objeto", "name": "los visillos", "index": "visillos", "noun": "visillo"},
+    {"id": "planos_de_casas", "kind": "objeto", "name": "unos planos de casas", "index": "planos de casas", "noun": "planos"},
+    {"id": "tablero_de_llaves", "kind": "objeto", "name": "el tablero de llaves", "index": "tablero de llaves", "noun": "tablero"},
+    {"id": "avisos_de_alquiler", "kind": "objeto", "name": "los avisos de alquiler", "index": "avisos de alquiler", "noun": "aviso"},
+    {"id": "murete", "kind": "objeto", "name": "el murete", "index": "murete del jardín", "noun": "murete"},
+    {"id": "franja_de_cesped", "kind": "objeto", "name": "la franja de césped", "index": "franja de césped", "noun": "césped"},
+    {"id": "refugio_de_cocheros", "kind": "objeto", "name": "el refugio de los cocheros", "index": "refugio de cocheros", "noun": "casilla"},
+    {"id": "platanos", "kind": "objeto", "name": "los plátanos", "index": "plátanos del parque", "noun": "árbol"},
+    {"id": "tablas_desnudas", "kind": "objeto", "name": "las tablas desnudas", "index": "tablas desnudas", "noun": "tablas"},
+    {"id": "papel_en_jirones", "kind": "objeto", "name": "el papel en jirones", "index": "papel pintado en jirones", "noun": "papel pintado"},
+    {"id": "postigos", "kind": "objeto", "name": "los postigos", "index": "postigos", "noun": "postigo"},
+    {"id": "aceite", "kind": "objeto", "name": "aceite fresco", "index": "aceite", "noun": "aceite"},
+    {"id": "colilla", "kind": "objeto", "name": "una colilla", "index": "colilla", "noun": "colilla"}
+  ]
+}

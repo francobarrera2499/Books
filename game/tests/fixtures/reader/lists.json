@@ -1,0 +1,5 @@
+{
+  "_nota": "W2-READER. Fixture del lector: sólo lo que el DataRepo usa para parsear y armar líneas de fuente.",
+  "src_types": {"prensa_londres": "prensa de Londres", "carta_recibida": "carta recibida", "papel_privado": "papel privado"},
+  "abbrev": ["Mr.", "Mrs.", "Dr.", "St.", "Sr.", "Sra.", "Cnel.", "Col.", "vol.", "vols.", "cap.", "pág.", "n.º", "a.", "p.", "m.", "etc."]
+}

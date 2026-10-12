@@ -1,0 +1,15 @@
+{
+  "char": "watson", "label": "el doctor Watson", "intro": "Dr. J. H. Watson", "addr": "doctor", "sensor": "K-W",
+  "max_questions": 3, "trait": "bombin_crespon",
+  "closing": "Tengo pacientes, señor Lisle.",
+  "ask_phrase": {"default": "¿Qué sabe usted de ${topic}, ${addr}?"},
+  "lines": [
+    {"id": "pared", "layer": "tema", "match": {"topic": ["pared", "a_pique", "reichenbach"]}, "when": {}, "text": "Palidece. —Era un sendero estrecho, señor Lisle. Lo escribí como lo vi."},
+    {"id": "escribi_mycroft", "layer": "tema", "match": {"topic": ["mycroft", "fina"]}, "when": {"event_count": {"type": "say", "where": {"char": "watson", "topic_group": "roca"}, "gte": 1}}, "text": "{{#escribi a:vinculo_mycroft e:mycroft|Le escribí al señor Mycroft, como cuando lo de las pruebas.}}"},
+    {"id": "herida", "layer": "tema", "match": {"topic": ["herida", "hombro", "pierna"]}, "text": "{{#bala x:EE02|La bala no leyó mis crónicas, señor.}}"},
+    {"id": "doc.galerada", "layer": "documento", "match": {"doc": ["D02", "D04"]}, "text": "Mira la prueba largo rato. —¿De dónde ha sacado usted esto?"},
+    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "No lo conozco lo bastante para opinar, señor Lisle."},
+    {"id": "gen.1", "layer": "generica", "text": "Un hombre puede ser herido más de una vez, señor Lisle."},
+    {"id": "gen.2", "layer": "generica", "text": "Lo que imprimí, lo imprimí de buena fe."}
+  ]
+}

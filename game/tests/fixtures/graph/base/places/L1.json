@@ -1,0 +1,11 @@
+{"id": "L1", "name": "Holywell Street, buhardilla y tienda de Crane",
+ "areas": {"buhardilla": {"desc": "buhardilla"}, "tienda": {"desc": "tienda de Crane"}},
+ "frames": [{"id": "general", "area": "*", "pos": [0.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0], "fov": 45}],
+ "props": [],
+ "nodes": [
+  {"id": "librero_dedos", "noun": "dedos", "anchor": {"c": [0.5, 1.0, 0.0], "s": [0.2, 0.2, 0.2]}, "examine": "Dedos manchados de amarillo.", "tags": ["a:rasgo_holmes", "e:amarillo", "e:librero"], "cls": "I", "area": "tienda", "when": {"day": 10}},
+  {"id": "librero_sombra", "noun": "sombra", "anchor": {"c": [0.5, 2.5, 0.0], "s": [0.5, 0.5, 0.2]}, "examine": "La sombra del librero llega al techo bajo el gas.", "tags": ["a:librero_falso", "e:librero"], "cls": "I", "area": "tienda", "when": {"day": 10}}
+ ],
+ "characters": [{"id": "crane", "area": "tienda", "pos": [0.0, 0.0, 0.0]}, {"id": "librero", "area": "tienda", "pos": [1.0, 0.0, 0.0], "when": {"day": 10}}],
+ "variants": {"registrada": {"add_nodes": [{"id": "ceniza_registro", "noun": "ceniza", "anchor": {"c": [0.0, 0.8, 0.0], "s": [0.2, 0.1, 0.2]}, "examine": "Ceniza de cheroot sobre el escritorio.", "tags": ["a:tirador", "e:cheroot"], "cls": "C", "area": "buhardilla"}]}}
+}

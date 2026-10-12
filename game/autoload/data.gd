@@ -13,5 +13,8 @@ func repo():
 		_repo = load(REPO_SCRIPT).load_dir(DATA_ROOT)
 	return _repo
 
+# Descarta la caché (también la estática de DataRepo) y vuelve a leer data/ en el próximo repo().
 func reload() -> void:
+	if ResourceLoader.exists(REPO_SCRIPT):
+		load(REPO_SCRIPT).clear_cache(DATA_ROOT)
 	_repo = null

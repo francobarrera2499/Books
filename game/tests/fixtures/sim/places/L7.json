@@ -1,0 +1,82 @@
+{
+ "id": "L7",
+ "name": "Park Lane 427",
+ "streets": [
+  "Park Lane"
+ ],
+ "areas": {
+  "exterior": {
+   "desc": "la acera frente a la casa"
+  }
+ },
+ "observers": [],
+ "epigraph": "La multitud mira la ventana.",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    4.0
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "dia_ventana",
+  "T": "dorada_parklane",
+  "N": "farol_calle"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "azafranes",
+   "noun": "macizo",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Un macizo de azafranes intactos.",
+   "tags": [],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "fija",
+   "pos": [
+    3.0,
+    0,
+    5.0
+   ],
+   "rot": 180
+  },
+  "cochero": {
+   "frame": "fija",
+   "pos": [
+    -3.0,
+    0,
+    6.0
+   ],
+   "rot": 160
+  }
+ },
+ "variants": {}
+}

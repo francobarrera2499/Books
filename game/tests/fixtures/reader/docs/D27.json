@@ -1,0 +1,11 @@
+{
+  "_nota": "W2-READER. Telegrama de prueba para el lector. No es contenido del juego.",
+  "id": "D27", "entity": "telegrama_steiler", "title": "Telegrama de Meiringen, jueves 29 de marzo de 1894",
+  "src_type": "carta_recibida", "class": "P", "date": "1894-03-29", "font": "maquina", "paper": "telegrama",
+  "paper_mm": [203, 127],
+  "copies": [{"id": "D27@L1", "holder": "L1", "via": "desk", "from": "3.dawn", "to": "10.N"}],
+  "parts": [
+    {"id": "p1", "text": "<f=manuscrito><ink=azul>Meiringen, 29.3.94, 8.40 a\\. m\\.</ink></f>\n<f=manuscrito><ink=azul>A: Lisle, [[holywell_street|Holywell Street]], Londres</ink></f>\n\n{{#cornisa_alta e:cornisa|CORNISA ALTA EN LA PARED SOBRE EL SENDERO.}} NO SE VE DESDE ABAJO. SOLO NIDEROS TEMERARIOS. PADRE NO ESCRIBIO NOTA ALGUNA. STEILER"}
+  ],
+  "words": 30
+}

@@ -1,0 +1,95 @@
+{
+ "id": "L5",
+ "name": "Club Diógenes, Pall Mall",
+ "streets": [
+  "Pall Mall"
+ ],
+ "areas": {
+  "porteria": {
+   "desc": "la portería"
+  },
+  "forasteros": {
+   "desc": "la Sala de Forasteros"
+  }
+ },
+ "observers": [
+  "mycroft"
+ ],
+ "epigraph": "Silencio.",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    4.0
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "dia_ventana",
+  "T": "tarde",
+  "N": "gas"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "mostrador",
+   "noun": "mostrador",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Un mostrador de caoba con un libro abierto.",
+   "tags": [],
+   "cls": "I",
+   "area": "porteria",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "portero",
+   "area": "porteria",
+   "pos": [
+    0.0,
+    0,
+    0.0
+   ],
+   "rot": 180,
+   "pose": "de_pie",
+   "trait": "librea",
+   "when": {}
+  },
+  {
+   "id": "mycroft",
+   "area": "forasteros",
+   "pos": [
+    0.0,
+    0,
+    0.0
+   ],
+   "rot": 180,
+   "pose": "sentado",
+   "trait": "esfera_panuelo",
+   "when": {}
+  }
+ ],
+ "silhouettes": {},
+ "variants": {}
+}

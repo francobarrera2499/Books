@@ -1,0 +1,12 @@
+{"id": "L7", "name": "Park Lane, 427",
+ "areas": {"calle": {"desc": "la acera frente a la casa"}},
+ "frames": [{"id": "general", "area": "*", "pos": [0.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0], "fov": 45}],
+ "props": [],
+ "nodes": [
+  {"id": "linea_de_tiro", "noun": "ventana", "anchor": {"c": [0.0, 6.0, 0.0], "s": [1.0, 1.0, 0.2]}, "examine": "Desde la calle se ve la ventana abierta del segundo piso, a unos veinte pies.", "tags": ["a:disparo_desde_fuera", "e:disparo", "e:park_lane"], "cls": "I", "area": "calle"},
+  {"id": "azafranes", "noun": "azafranes", "anchor": {"c": [0.0, 0.2, 1.0], "s": [1.0, 0.2, 0.5]}, "examine": "Los azafranes del arriate están intactos.", "tags": ["a:refuta_anarquistas", "a:disparo_desde_fuera", "e:park_lane"], "cls": "I", "area": "calle"}
+ ],
+ "characters": [],
+ "silhouettes": {"wiggins": {"frame": "general", "pos": [3.0, 0.0, 4.5], "rot": 180}},
+ "variants": {}
+}

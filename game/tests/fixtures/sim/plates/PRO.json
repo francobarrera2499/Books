@@ -1,0 +1,70 @@
+{
+ "id": "PRO",
+ "name": "Prólogo: la buhardilla, lunes de Pascua",
+ "fixed": true,
+ "origin": "PL.prologo",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    3.2
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "N": "gas"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "harris",
+   "noun": "caballero con chistera",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Un caballero de chistera y [[bigote|bigote]] enorme.",
+   "tags": [
+    "a:harris_es_moran",
+    "e:harris",
+    "e:bigote"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "harris",
+   "area": "*",
+   "pos": [
+    0.0,
+    0,
+    0.0
+   ],
+   "rot": 180,
+   "pose": "de_pie",
+   "trait": "chistera_bigote",
+   "when": {}
+  }
+ ],
+ "variants": {}
+}

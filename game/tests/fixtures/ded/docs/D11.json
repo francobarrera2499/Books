@@ -1,0 +1,11 @@
+{
+  "id": "D11", "entity": "carta_moran", "title": "Carta del coronel Moran, 1893",
+  "src_type": "papel_privado", "class": "I", "date": "1893-10-09", "font": "manuscrito", "paper": "carta",
+  "slip_topic": "moran",
+  "catalog": {"label": "Cartas de un cazador (1893)", "entities": ["carta_moran", "moran"]},
+  "copies": [{"id": "D11@BM", "holder": "BM", "area": "manuscritos", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}],
+  "parts": [
+    {"id": "p1", "text": "{{#no_bala a:busca_a_holmes e:donde e:cabrito|Un [[cabrito|cabrito]] que no bala no le dice a nadie [[donde|dónde]] duerme el tigre.}}"}
+  ],
+  "words": 14
+}

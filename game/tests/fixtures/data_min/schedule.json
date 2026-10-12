@@ -1,0 +1,33 @@
+{
+  "days": [
+    {"day": 0, "key": "P", "date": "1894-03-26", "weekday": "lun", "label": "Lunes de Pascua", "slots": [], "mail": false, "times": false},
+    {"day": 1, "key": "1", "date": "1894-03-27", "weekday": "mar", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 2, "key": "2", "date": "1894-03-28", "weekday": "mie", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 3, "key": "3", "date": "1894-03-29", "weekday": "jue", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 4, "key": "4", "date": "1894-03-30", "weekday": "vie", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 5, "key": "5", "date": "1894-03-31", "weekday": "sab", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 6, "key": "6", "date": "1894-04-01", "weekday": "dom", "slots": ["T"], "mail": false, "times": false},
+    {"day": 7, "key": "7", "date": "1894-04-02", "weekday": "lun", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 8, "key": "8", "date": "1894-04-03", "weekday": "mar", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 9, "key": "9", "date": "1894-04-04", "weekday": "mie", "slots": ["M", "T", "N"], "mail": true, "times": true},
+    {"day": 10, "key": "10", "date": "1894-04-05", "weekday": "jue", "slots": ["M", "T", "N"], "mail": true, "times": true, "fixed": true},
+    {"day": 11, "key": "E", "date": "1903-10-01", "weekday": "jue", "slots": [], "mail": false, "times": false}
+  ],
+  "slot_hours": {"M": "9–13", "T": "13–18", "N": "18–22"},
+  "passes": {"default": 1, "P.N": 0, "9.N": 2, "10.M": 1},
+  "lot": {"default": 2, "day10": 1},
+  "reports": [{"n": 1, "tk": "2.night"}, {"n": 2, "tk": "5.night"}, {"n": 3, "tk": "8.night"}, {"n": 4, "tk": "10.M", "final": true}],
+  "ads": {"office_slots": ["M", "T"], "per_day": 1, "prologue_pub_day": 1},
+  "places": {
+    "L1": {"areas": {"buhardilla": {"open": [{"days": "all", "slots": "all"}]}, "tienda": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9, 10], "slots": "all"}], "free": true}}},
+    "L2": {"areas": {"sala": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9], "slots": ["M", "T", "N"]}], "_nota": "N hasta las 20 h; domingo cerrada (§12.1.5)"}}},
+    "L4": {"areas": {"consulta": {"open": [{"days": [1, 2, 3, 4, 5, 7, 8, 9, 10], "slots": ["M"]}], "needs": {"not": {"flag": "consulta_cerrada"}}}, "estudio": {"open": [{"days": [6], "slots": ["T"]}]}}}
+  },
+  "column": [
+    {"tk": "1.dawn", "r": "HC01"}, {"tk": "4.dawn", "r": "HC10"}, {"tk": "7.night", "r": "M7"}
+  ],
+  "voice_b": {"1": "4.dawn", "2": "5.dawn", "3": "7.dawn", "4": "8.dawn", "5": "8.dawn", "6": "10.dawn", "7": "10.dawn", "8": "10.dawn", "9": "10.M"},
+  "voice_a": {"default_days": 1, "sunday": "en_mano"},
+  "money_d": {"guinea": 252, "ad": 30, "cab_min": 12, "cab_max": 24, "somerset": 12},
+  "baedeker": "SALA DE LECTURA DEL MUSEO BRITÁNICO. — Abierta de 9 a 20 h; cerrada el domingo, Viernes Santo y Navidad. Se pide por papeleta, con número de asiento."
+}

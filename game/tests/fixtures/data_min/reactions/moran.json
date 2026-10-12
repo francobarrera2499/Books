@@ -1,0 +1,16 @@
+{"reactions": [
+  {
+    "id": "M1", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
+    "actor": ["hombres_de_moran"],
+    "disparador": {"evento": "report", "match": {"cat": "original_p"}},
+    "condiciones": {},
+    "ancla": [],
+    "latencia": {"tipo": "siguiente_salida"},
+    "efecto": [{"op": "retirar", "copias": "informadas", "dias": 1}, {"op": "alterar_lugar", "place": "L1", "variant": "registrada"}],
+    "rastro": [{"tpl": "ceniza", "nodo": "N:L1.ceniza_registro", "tags": ["a:tirador", "e:cheroot"]}],
+    "corta": [{"copias": "informadas", "ventana": {"dias": 1}}],
+    "agrega": ["C10", "C13"],
+    "variante_blanda": {"efecto": [{"op": "alterar_lugar", "place": "L1", "variant": "registrada"}], "corta": []},
+    "exento_d2_desde_dia": 8
+  }
+]}

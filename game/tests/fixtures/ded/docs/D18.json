@@ -1,0 +1,9 @@
+{
+  "id": "D18", "entity": "testamentos", "title": "Testamentos, Somerset House, 1891–1893",
+  "src_type": "registro", "class": "I", "date": "1894-01-01", "font": "imprenta", "paper": "registro", "clip_mode": "memoria",
+  "copies": [{"id": "D18@L6", "holder": "L6", "area": "testamentos", "class": "I", "via": "place", "from": "1.M", "to": "9.N"}],
+  "parts": [
+    {"id": "p1", "text": "Testamento de un tendero. Testamento de un sastre. Testamento de un coronel. Testamento de un pastor."}
+  ],
+  "words": 16
+}

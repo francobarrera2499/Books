@@ -1,0 +1,136 @@
+{
+ "id": "L3",
+ "name": "Baker Street",
+ "streets": [
+  "Baker Street",
+  "Blandford Street"
+ ],
+ "areas": {
+  "calle": {
+   "desc": "la calle"
+  },
+  "interior": {
+   "desc": "el vestíbulo del 221B"
+  },
+  "agente": {
+   "desc": "la oficina del agente de fincas"
+  }
+ },
+ "observers": [
+  "mrs_hudson"
+ ],
+ "epigraph": "—¿Sir?",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    4.0
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "dia_ventana",
+  "T": "tarde",
+  "N": "farol_calle"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "ventanas_abiertas",
+   "noun": "ventanas",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Las [[ventanas|ventanas]] del primer piso están abiertas.",
+   "tags": [
+    "a:regreso_jueves"
+   ],
+   "cls": "C",
+   "area": "calle",
+   "when": {
+    "day": {
+     "gte": 8
+    }
+   }
+  },
+  {
+   "id": "escalera",
+   "noun": "escalera",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Diecisiete escalones hacia arriba.",
+   "tags": [],
+   "cls": "I",
+   "area": "interior",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "mrs_hudson",
+   "area": "interior",
+   "pos": [
+    0.0,
+    0,
+    0.0
+   ],
+   "rot": 180,
+   "pose": "de_pie",
+   "trait": "cofia",
+   "when": {}
+  },
+  {
+   "id": "chico_del_agente",
+   "area": "agente",
+   "pos": [
+    0.0,
+    0,
+    0.0
+   ],
+   "rot": 180,
+   "pose": "de_pie",
+   "trait": "gorra_corta",
+   "when": {}
+  }
+ ],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "fija",
+   "pos": [
+    3.0,
+    0,
+    5.0
+   ],
+   "rot": 180
+  }
+ },
+ "variants": {}
+}

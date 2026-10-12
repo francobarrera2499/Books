@@ -1,0 +1,12 @@
+{
+  "id": "D05", "entity": "journal_de_geneve", "title": "Journal de Genève, miércoles 6 de mayo de 1891",
+  "src_type": "prensa_extranjera", "class": "I", "date": "1891-05-06", "chron_date": "1891-05-04", "font": "imprenta", "paper": "diario_hueso",
+  "paper_mm": [300, 420],
+  "slip_topic": "holmes_prensa_1891",
+  "catalog": {"label": "Journal de Genève, mayo de 1891", "entities": ["journal_de_geneve", "reichenbach", "meiringen"]},
+  "copies": [{"id": "D05@BM", "holder": "BM", "area": "periodicos", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}],
+  "parts": [
+    {"id": "p1", "text": "MEIRINGEN, 5 de mayo. — {{#corniche a:cornisa_existe e:reichenbach|Más arriba hay [[cornisa|una cornisa]] que no se ve desde [[sendero|el sendero]].}} {{#marque a:raspadura_registrada e:raspadura|En [[pared|la pared]], «une marque récente».}}"}
+  ],
+  "words": 27
+}

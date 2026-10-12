@@ -1,0 +1,26 @@
+{
+ "id": "D91",
+ "entity": "fina",
+ "title": "Papel con un dato a verificar",
+ "src_type": "papel_privado",
+ "class": "I",
+ "date": "1893-12-01",
+ "font": "imprenta",
+ "paper": "strand",
+ "words": 20,
+ "copies": [
+  {
+   "id": "D91@BM",
+   "holder": "BM",
+   "via": "slip",
+   "from": "1.M",
+   "to": "9.N"
+  }
+ ],
+ "parts": [
+  {
+   "id": "p1",
+   "text": "{{#raro w:dato_dudoso a:sin_raspadura x:EE01|Un dato que nadie verificó.}} {{#refuta w:otro_dato a:refuta_algo|Una refutación dudosa.}} {{#huevo x:EE99|Un huevo sin dueño.}}"
+  }
+ ]
+}

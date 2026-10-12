@@ -1,0 +1,31 @@
+{"reactions": [
+  {
+    "id": "HB1", "tipo": "opcional", "garantizada_si": {"canal": "K-T", "n": 1}, "lado": "holmes", "voz": "B", "nivel": 1, "canal": "*", "actor": ["holmes", "cotter"],
+    "disparador": {"evento": ["ad", "say"], "match": {"bait": true}, "contador": "bait_topic", "n_in": [1, 2]},
+    "condiciones": {"not": {"flag": "watson_expuesto"}},
+    "ancla": ["phrase"],
+    "latencia": {"tipo": "voz_b"},
+    "efecto": [{"op": "columna", "si_canal": "K-T"}, {"op": "carta", "si_canal": ["K-W", "K-H"], "firma": "—S."}],
+    "rastro": [
+      {"tpl": "pared.1", "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|«A pique»]]: dele.}} {{#fuente a:remite_journal e:journal_de_geneve|Véase el Journal de Genève del 6 de mayo de 1891.}}"},
+      {"tpl": "pared.2", "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|Quien fotografía la cascada desde la otra orilla]] ve lo que no ve quien camina el sendero.}}"}
+    ],
+    "corta": [], "agrega": ["C6", "C9.R3"], "variante_blanda": null, "exento_d2": true
+  },
+  {
+    "id": "HB2", "tipo": "opcional", "lado": "holmes", "voz": "B", "nivel": 3, "canal": "*", "actor": ["holmes", "cotter"],
+    "disparador": {"evento": ["ad", "say"], "match": {"bait": true}, "contador": "bait_topic", "n_in": [3]},
+    "condiciones": {"not": {"flag": "watson_expuesto"}},
+    "ancla": ["phrase"],
+    "latencia": {"tipo": "voz_b"},
+    "efecto": [{"op": "columna", "si_canal": "K-T"}, {"op": "carta", "si_canal": ["K-W", "K-H"], "firma": "—S."}],
+    "rastro": [
+      {"tpl": "pared.3", "texto": "{{#concedo f:refutado a:baston_robado e:baston|Se lo concedo: el muchacho suizo se llevó el bastón.}}"},
+      {"tpl": "cayeron.3", "texto": "{{#concedo f:refutado a:rio_cuerpo e:cuerpo|Se lo concedo: el río devolvió un cuerpo en junio.}}"},
+      {"tpl": "carta.3", "texto": "{{#concedo f:refutado a:nota_posadero e:steiler|Se lo concedo: la nota la escribió el posadero.}}"},
+      {"tpl": "testamento.3", "texto": "{{#concedo f:refutado a:herencia e:bienes|Se lo concedo: el hermano reclamó la herencia en 1892.}}"},
+      {"tpl": "watson.3", "texto": "{{#concedo f:refutado a:tacho_watson e:watson|Se lo concedo: el doctor tachó la frase por su cuenta.}}"}
+    ],
+    "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": true
+  }
+]}

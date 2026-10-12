@@ -1,0 +1,20 @@
+{"_nota": "W2-DED: entidades propias del fixture de deducción (además de core.json, copia de data_min).",
+ "entities": [
+  {"id": "heavy_game", "kind": "documento", "name": "«Heavy Game of the Western Himalayas»", "index": "Heavy Game (Moran, 1881)", "noun": "libro", "doc": "D10"},
+  {"id": "carta_moran", "kind": "documento", "name": "la carta de Moran", "index": "carta de Moran (1893)", "noun": "carta", "doc": "D11"},
+  {"id": "grabado_moran", "kind": "documento", "name": "el grabado del coronel", "index": "grabado del coronel Moran", "noun": "grabado", "doc": "D16"},
+  {"id": "estudio_escarlata", "kind": "documento", "name": "«Estudio en escarlata»", "index": "Estudio en escarlata", "noun": "libro", "doc": "D43"},
+  {"id": "signo_de_los_cuatro", "kind": "documento", "name": "«El signo de los cuatro»", "index": "Signo de los cuatro, El", "noun": "libro", "doc": "D44"},
+  {"id": "liga_pelirrojos", "kind": "documento", "name": "«La liga de los pelirrojos»", "index": "Liga de los pelirrojos, La", "noun": "relato", "doc": "D01.REDH"},
+  {"id": "carta_maquina", "kind": "documento", "name": "la carta a máquina", "index": "carta a máquina", "noun": "carta", "doc": "D25"},
+  {"id": "testamentos", "kind": "documento", "name": "los testamentos", "index": "testamentos de Somerset House", "noun": "registro", "doc": "D18"},
+  {"id": "nota_suiza", "kind": "documento", "name": "la nota suiza", "index": "nota suiza", "noun": "nota", "doc": "D99"},
+  {"id": "libro_largo", "kind": "documento", "name": "el libro largo", "index": "libro largo", "noun": "libro", "doc": "D98"},
+  {"id": "fecha_abril", "kind": "fecha", "name": "el 27 de abril", "index": "27 de abril", "noun": "fecha"},
+  {"id": "fecha_octubre", "kind": "fecha", "name": "el 9 de octubre", "index": "9 de octubre", "noun": "fecha"},
+  {"id": "wiggins", "kind": "persona", "name": "Wiggins", "index": "Wiggins", "noun": "muchacho con gorra"},
+  {"id": "cochero", "kind": "persona", "name": "el cochero", "index": "cochero", "noun": "cochero"},
+  {"id": "buhardilla", "kind": "lugar", "name": "la buhardilla", "index": "buhardilla de Holywell Street", "noun": "buhardilla"},
+  {"id": "librero_falso", "kind": "concepto", "name": "la librería que no existe", "index": "librería inexistente", "noun": "esquina"},
+  {"id": "ruido_azul", "kind": "objeto", "name": "un frasco azul", "index": "frasco azul", "noun": "frasco"}
+]}

@@ -1,0 +1,32 @@
+{
+ "id": "HC06",
+ "place": "L5",
+ "area": "forasteros",
+ "auto": true,
+ "when": {
+  "day": {
+   "gte": 8,
+   "lte": 9
+  }
+ },
+ "origin": "S.HC06",
+ "lines": [
+  {
+   "id": "a",
+   "who": "mycroft",
+   "text": "Le ahorraré el trabajo, señor Lisle."
+  },
+  {
+   "id": "b",
+   "who": "mycroft",
+   "gen": "acts_by_channel",
+   "tpl": {
+    "kbm": "{{#b a:ancla_kbm|El [[@act|asiento ${seat}]], el ${act_day}.}}",
+    "ks": "{{#b a:ancla_ks|Por [[@act|${streets}]], a las ${hour}.}}",
+    "kw": "{{#b a:ancla_kw|Le dijo al doctor: [[@act|«${phrase}»]]}}",
+    "kt": "{{#b a:ancla_kt|Su aviso: [[@act|«${text}»]]}}"
+   },
+   "fallback": "Su carta de enero, señor, y la visita del lunes."
+  }
+ ]
+}

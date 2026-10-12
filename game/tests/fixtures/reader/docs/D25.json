@@ -1,0 +1,12 @@
+{
+  "_nota": "W2-READER. Carta de prueba (voz A) para el lector: Remington, papel del Diógenes recortado, medida. No es contenido del juego.",
+  "id": "D25", "entity": "carta_voz_a", "title": "Carta a máquina sin remitente, recibida el miércoles 28 de marzo de 1894",
+  "src_type": "carta_recibida", "class": "P", "date": "1894-03-28", "font": "maquina", "paper": "diogenes_recortado",
+  "paper_mm": [178, 219], "machine": "remington_cotter",
+  "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]},
+  "copies": [{"id": "D25@L1", "holder": "L1", "via": "desk", "from": "2.dawn", "to": "10.N"}],
+  "parts": [
+    {"id": "p1", "text": "Señor Lisle:\n\n{{#ancla a:ancla_kbm|Asiento 214, martes por la mañana: pidió usted el [[journal_de_geneve|Journal de Genève]] del 6 de mayo de 1891.}} Los guías hablaron a ese diario porque nadie más les preguntaba; no hay en la nota nada que no esté en el [[times|Times]] del día siguiente. {{#ahorro e:reuter|Le ahorraré el trabajo: lea a [[reuter|Reuter]].}}\n\nLea lo que quiera; no publique lo que no sabe. Las erratas de un médico son asunto de su editor, y los muertos, de sus deudos.\n\nUn amigo de la exactitud"}
+  ],
+  "words": 85
+}

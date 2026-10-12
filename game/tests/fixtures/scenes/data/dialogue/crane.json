@@ -1,0 +1,13 @@
+{
+  "char": "crane", "label": "Crane", "intro": "Abel Crane, librero", "addr": "señor Crane", "sensor": null,
+  "max_questions": 99, "trait": "mangas_ligas",
+  "closing": "Si no compra, señor, por lo menos no me tape la vidriera.",
+  "ask_phrase": {"default": "¿Qué me dice de ${topic}, ${addr}?", "fina": "¿Se vendió bien «El problema final», ${addr}?"},
+  "lines": [
+    {"id": "fina", "layer": "tema", "match": {"topic": ["fina"]}, "text": "Se vendió como pan caliente, señor. Las viudas lo compraban de a dos."},
+    {"id": "doc.journal", "layer": "documento", "match": {"doc": ["D05"]}, "text": "Diarios extranjeros no compro, señor: nadie los entiende y huelen a tren."},
+    {"id": "ent.librero", "layer": "entidad", "match": {"ent": ["librero"]}, "text": "¿El viejo de Church Street? Yo no conozco a ningún colega por ahí, señor."},
+    {"id": "gen.1", "layer": "generica", "text": "Todo libro tiene precio, señor; algunos, dos."},
+    {"id": "gen.2", "layer": "generica", "text": "Se rasca la oreja con el lápiz. —Eso no se vende, señor."}
+  ]
+}

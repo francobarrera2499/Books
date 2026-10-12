@@ -1,0 +1,5 @@
+{"id": "D97", "entity": "nota_mala", "title": "Nota mala", "src_type": "libro", "class": "I", "date": "1890-01-01",
+ "font": "imprenta", "paper": "registro",
+ "copies": [{"id": "D97@BM", "holder": "BM", "via": "slip", "from": "1.M", "to": "9.N"}],
+ "parts": [{"id": "p1", "text": "Primera oración sin nada. {{#todo a:fina_impreso_sin_raspadura a:raspadura_registrada e:raspadura|El impreso calla la raspadura que la galerada registra.}}"}],
+ "words": 14}

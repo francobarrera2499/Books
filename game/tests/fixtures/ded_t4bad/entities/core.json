@@ -1,0 +1,6 @@
+{"entities": [
+  {"id": "fina", "kind": "documento", "name": "«El problema final»", "index": "«El problema final»", "noun": "revista"},
+  {"id": "raspadura", "kind": "concepto", "name": "la raspadura", "index": "raspadura", "noun": "raspadura"},
+  {"id": "pared", "kind": "lugar", "name": "la pared", "index": "pared", "noun": "pared"},
+  {"id": "nota_mala", "kind": "documento", "name": "la nota mala", "index": "nota mala", "noun": "nota"}
+]}

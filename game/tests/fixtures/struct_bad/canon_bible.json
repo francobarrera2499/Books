@@ -1,0 +1,25 @@
+{
+ "facts": [
+  {
+   "id": "F.secreto",
+   "event": "1891-05-04",
+   "published": null,
+   "mark": "INV",
+   "knowable": {
+    "publico": "1894-04-05",
+    "holmes": "1891-05-04"
+   },
+   "text": "Un secreto."
+  },
+  {
+   "id": "F.ok",
+   "event": "1890-01-01",
+   "published": "1890-01-01",
+   "mark": "C",
+   "knowable": {
+    "publico": "1890-01-01"
+   },
+   "text": "Público."
+  }
+ ]
+}

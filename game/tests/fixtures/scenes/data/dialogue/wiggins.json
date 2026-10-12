@@ -1,0 +1,11 @@
+{
+  "char": "wiggins", "label": "Wiggins", "intro": "Wiggins, jefe de los irregulares", "addr": "muchacho", "sensor": "K-S",
+  "max_questions": 3, "trait": "gorra_larga",
+  "closing": "Me esperan, jefe.",
+  "lines": [
+    {"id": "hb8", "layer": "tema", "reaction": "HB8", "text": "La vieja tarifa, jefe. El que la paga escribe a máquina; el que la manda no camina más que de Pall Mall a Whitehall."},
+    {"id": "pago", "layer": "generica", "text": "Se guarda la moneda en la gorra. —Gracias, jefe."},
+    {"id": "tarea.seguir_parker", "layer": "generica", "text": "Al del arpa, jefe. Mañana le digo dónde duerme."},
+    {"id": "gen.1", "layer": "generica", "text": "Mastica el mondadientes. —¿Y a mí qué, jefe?"}
+  ]
+}

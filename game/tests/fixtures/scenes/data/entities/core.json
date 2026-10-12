@@ -1,0 +1,370 @@
+{
+ "entities": [
+  {
+   "id": "watson",
+   "kind": "persona",
+   "name": "el doctor Watson",
+   "index": "Watson, John H., doctor",
+   "noun": "médico"
+  },
+  {
+   "id": "mrs_hudson",
+   "kind": "persona",
+   "name": "Mrs. Hudson",
+   "index": "Hudson, Mrs.",
+   "noun": "casera con cofia"
+  },
+  {
+   "id": "pell",
+   "kind": "persona",
+   "name": "el señor Pell",
+   "index": "Pell, Josiah, procurador",
+   "noun": "procurador con cartera"
+  },
+  {
+   "id": "wiggins",
+   "kind": "persona",
+   "name": "Wiggins",
+   "index": "Wiggins",
+   "noun": "muchacho con gorra"
+  },
+  {
+   "id": "mycroft",
+   "kind": "persona",
+   "name": "el señor Mycroft Holmes",
+   "index": "Holmes, Mycroft",
+   "noun": "caballero corpulento"
+  },
+  {
+   "id": "crane",
+   "kind": "persona",
+   "name": "el señor Crane",
+   "index": "Crane, Abel, librero",
+   "noun": "librero con ligas en las mangas"
+  },
+  {
+   "id": "librero",
+   "kind": "persona",
+   "name": "el librero viejo",
+   "index": "librero viejo",
+   "noun": "anciano encorvado"
+  },
+  {
+   "id": "ujier",
+   "kind": "persona",
+   "name": "el ujier",
+   "index": "ujier de la Sala de Lectura",
+   "noun": "ujier"
+  },
+  {
+   "id": "harris",
+   "kind": "persona",
+   "name": "el mayor Harris",
+   "index": "Harris, mayor",
+   "noun": "caballero de bigote canoso"
+  },
+  {
+   "id": "moran",
+   "kind": "persona",
+   "name": "el coronel Sebastian Moran",
+   "index": "Moran, Sebastian, coronel",
+   "noun": "militar"
+  },
+  {
+   "id": "holmes",
+   "kind": "persona",
+   "name": "Sherlock Holmes",
+   "index": "Holmes, Sherlock",
+   "noun": "caballero"
+  },
+  {
+   "id": "mary_watson",
+   "kind": "persona",
+   "name": "la señora Watson",
+   "index": "Watson, Mary (Morstan)",
+   "noun": "dama"
+  },
+  {
+   "id": "lisle",
+   "kind": "persona",
+   "name": "el señor Lisle",
+   "index": "Lisle, Edmund",
+   "noun": "hombre alto y delgado"
+  },
+  {
+   "id": "steiler",
+   "kind": "persona",
+   "name": "Peter Steiler",
+   "index": "Steiler, Peter, posadero",
+   "noun": "posadero"
+  },
+  {
+   "id": "coronel_moriarty",
+   "kind": "persona",
+   "name": "el coronel James Moriarty",
+   "index": "Moriarty, James, coronel",
+   "noun": "coronel"
+  },
+  {
+   "id": "reichenbach",
+   "kind": "lugar",
+   "name": "la cascada del Reichenbach",
+   "index": "Reichenbach, cascada del",
+   "noun": "cascada"
+  },
+  {
+   "id": "meiringen",
+   "kind": "lugar",
+   "name": "Meiringen",
+   "index": "Meiringen",
+   "noun": "pueblo"
+  },
+  {
+   "id": "bath",
+   "kind": "lugar",
+   "name": "Bath",
+   "index": "Bath",
+   "noun": "ciudad"
+  },
+  {
+   "id": "montpellier",
+   "kind": "lugar",
+   "name": "Montpellier",
+   "index": "Montpellier",
+   "noun": "ciudad"
+  },
+  {
+   "id": "londres",
+   "kind": "lugar",
+   "name": "Londres",
+   "index": "Londres",
+   "noun": "ciudad"
+  },
+  {
+   "id": "park_lane",
+   "kind": "lugar",
+   "name": "Park Lane",
+   "index": "Park Lane",
+   "noun": "calle"
+  },
+  {
+   "id": "baker_street",
+   "kind": "lugar",
+   "name": "Baker Street",
+   "index": "Baker Street",
+   "noun": "calle"
+  },
+  {
+   "id": "221b",
+   "kind": "lugar",
+   "name": "el 221B de Baker Street",
+   "index": "221B, Baker Street",
+   "noun": "casa"
+  },
+  {
+   "id": "camden_house",
+   "kind": "lugar",
+   "name": "Camden House",
+   "index": "Camden House",
+   "noun": "casa vacía"
+  },
+  {
+   "id": "kensington",
+   "kind": "lugar",
+   "name": "Kensington",
+   "index": "Kensington",
+   "noun": "barrio"
+  },
+  {
+   "id": "holywell_street",
+   "kind": "lugar",
+   "name": "Holywell Street",
+   "index": "Holywell Street",
+   "noun": "calle"
+  },
+  {
+   "id": "pared",
+   "kind": "concepto",
+   "name": "la pared",
+   "index": "pared",
+   "noun": "pared"
+  },
+  {
+   "id": "cornisa",
+   "kind": "concepto",
+   "name": "la cornisa",
+   "index": "cornisa",
+   "noun": "cornisa"
+  },
+  {
+   "id": "raspadura",
+   "kind": "concepto",
+   "name": "la raspadura",
+   "index": "raspadura",
+   "noun": "raspadura"
+  },
+  {
+   "id": "roca",
+   "kind": "concepto",
+   "name": "la roca",
+   "index": "roca",
+   "noun": "roca"
+  },
+  {
+   "id": "duelo",
+   "kind": "concepto",
+   "name": "el duelo",
+   "index": "duelo",
+   "noun": "duelo"
+  },
+  {
+   "id": "crespon",
+   "kind": "objeto",
+   "name": "el crespón",
+   "index": "crespón",
+   "noun": "crespón"
+  },
+  {
+   "id": "vive",
+   "kind": "concepto",
+   "name": "que vive",
+   "index": "vive",
+   "noun": "afirmación"
+  },
+  {
+   "id": "vivo",
+   "kind": "concepto",
+   "name": "vivo",
+   "index": "vivo",
+   "noun": "estado"
+  },
+  {
+   "id": "testamento",
+   "kind": "documento",
+   "name": "el testamento",
+   "index": "testamento",
+   "noun": "testamento"
+  },
+  {
+   "id": "vieja_tarifa",
+   "kind": "concepto",
+   "name": "la vieja tarifa",
+   "index": "vieja tarifa",
+   "noun": "tarifa"
+  },
+  {
+   "id": "cheroot",
+   "kind": "objeto",
+   "name": "un cheroot",
+   "index": "cheroot",
+   "noun": "cigarro"
+  },
+  {
+   "id": "trichinopolis",
+   "kind": "lugar",
+   "name": "Trichinópolis",
+   "index": "Trichinópolis",
+   "noun": "ciudad"
+  },
+  {
+   "id": "tigre",
+   "kind": "concepto",
+   "name": "el tigre",
+   "index": "tigre",
+   "noun": "tigre"
+  },
+  {
+   "id": "donde",
+   "kind": "concepto",
+   "name": "dónde",
+   "index": "dónde",
+   "noun": "pregunta"
+  },
+  {
+   "id": "adjetivos_repetidos",
+   "kind": "concepto",
+   "name": "los adjetivos repetidos",
+   "index": "adjetivos repetidos",
+   "noun": "rasgo"
+  },
+  {
+   "id": "guillotina",
+   "kind": "objeto",
+   "name": "la guillotina engrasada",
+   "index": "guillotina",
+   "noun": "ventana"
+  },
+  {
+   "id": "alquiler",
+   "kind": "concepto",
+   "name": "el alquiler",
+   "index": "alquiler",
+   "noun": "alquiler"
+  },
+  {
+   "id": "baston",
+   "kind": "objeto",
+   "name": "el bastón",
+   "index": "bastón",
+   "noun": "bastón"
+  },
+  {
+   "id": "paraguas",
+   "kind": "objeto",
+   "name": "un paraguas",
+   "index": "paraguas",
+   "noun": "paraguas"
+  },
+  {
+   "id": "perro",
+   "kind": "objeto",
+   "name": "un perro perdido",
+   "index": "perro perdido",
+   "noun": "perro"
+  },
+  {
+   "id": "journal_de_geneve",
+   "kind": "documento",
+   "name": "el Journal de Genève",
+   "index": "Journal de Genève (6-may-1891)",
+   "noun": "diario",
+   "doc": "D05"
+  },
+  {
+   "id": "fina",
+   "kind": "documento",
+   "name": "«El problema final»",
+   "index": "Problema final, El",
+   "noun": "relato",
+   "doc": "D03"
+  },
+  {
+   "id": "times",
+   "kind": "documento",
+   "name": "el Times",
+   "index": "Times, The",
+   "noun": "diario"
+  },
+  {
+   "id": "suceso_reichenbach",
+   "kind": "suceso",
+   "name": "lo ocurrido en el Reichenbach el 4 de mayo de 1891",
+   "index": "Reichenbach, 4 de mayo de 1891",
+   "noun": "suceso"
+  },
+  {
+   "id": "suceso_park_lane",
+   "kind": "suceso",
+   "name": "lo ocurrido en Park Lane el 30 de marzo",
+   "index": "Park Lane, 30 de marzo de 1894",
+   "noun": "suceso"
+  },
+  {
+   "id": "suceso_vere_street",
+   "kind": "suceso",
+   "name": "el ladrillo de Vere Street",
+   "index": "Vere Street, el ladrillo de",
+   "noun": "suceso"
+  }
+ ]
+}

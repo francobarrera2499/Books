@@ -1,0 +1,29 @@
+{
+ "id": "D90",
+ "entity": "diario_x",
+ "title": "Diario con violaciones",
+ "src_type": "prensa_londres",
+ "class": "I",
+ "date": "1894-03-28",
+ "font": "imprenta",
+ "paper": "diario_hueso",
+ "words": 60,
+ "copies": [
+  {
+   "id": "D90@BM",
+   "holder": "BM",
+   "via": "slip",
+   "from": "1.M",
+   "to": "9.N"
+  }
+ ],
+ "src_en": {
+  "q1": "this sentence is certainly not in any canon fixture"
+ },
+ "parts": [
+  {
+   "id": "p1",
+   "text": "{{#secreto h:F.secreto|El misterio, contado antes de tiempo.}} [[moran|El coronel Moran]] jugaba al whist con [[ronald_adair|Adair]].\n[[holmes|Holmes]] pasa el invierno en [[montpellier|Montpellier]].\n[[mycroft|Mycroft]] manda en el [[foreign_office|Foreign Office]].\nEl Daily Mail lo cuenta el lunes 27 de marzo de 1894. {{#cita q:q1|Una cita inventada.}}"
+  }
+ ]
+}

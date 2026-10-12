@@ -1,0 +1,8 @@
+{
+  "id": "D18", "entity": "testamento", "title": "Testamentos de 1891, Somerset House",
+  "src_type": "registro", "class": "I", "date": "1892-01-10", "font": "imprenta", "paper": "registro",
+  "clip_mode": "memoria",
+  "copies": [{"id": "D18@L6", "holder": "L6", "area": "registro", "via": "place", "from": "1.M", "to": "9.N"}],
+  "parts": [{"id": "p1", "text": "{{#holmes_t e:holmes|Holmes, Rebecca; Holmes, Thomas.}} Ningún otro asiento con ese apellido."}],
+  "words": 10
+}

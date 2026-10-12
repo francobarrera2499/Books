@@ -1,0 +1,7 @@
+{"char": "wiggins", "label": "el muchacho de la gorra", "addr": "jefe", "max_questions": 3,
+ "lines": [
+  {"id": "vieja_tarifa", "layer": "tema", "match": {"topic": ["mycroft"]}, "text": "{{#tarifa a:me_vigila_de_cerca e:pall_mall|El que la manda no camina más que de Pall Mall a Whitehall, jefe.}}"},
+  {"id": "conduit", "layer": "tema", "match": {"topic": ["moran"]}, "when": {"not": {"flag": "pell_despedido"}}, "text": "{{#conduit a:harris_es_moran e:moran e:conduit_street|El chico del procurador fue a una casa de Conduit Street, jefe.}}"},
+  {"id": "gen.1", "layer": "generica", "text": "La vieja tarifa, jefe."}
+ ]
+}

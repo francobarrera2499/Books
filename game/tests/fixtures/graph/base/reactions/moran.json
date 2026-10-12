@@ -1,0 +1,36 @@
+{"reactions": [
+  {
+    "id": "M1", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe", "actor": ["hombres_de_moran"],
+    "disparador": {"evento": "report", "match": {"cat": "original_p"}},
+    "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "siguiente_salida"},
+    "efecto": [{"op": "retirar", "copias": "informadas", "dias": 1}, {"op": "alterar_lugar", "place": "L1", "variant": "registrada"}],
+    "rastro": [{"tpl": "ceniza", "nodo": "N:L1.registrada.ceniza_registro", "tags": ["a:tirador", "e:cheroot"]}],
+    "corta": [{"copias": "informadas", "ventana": {"dias": 1}}],
+    "agrega": ["C10", "C13"],
+    "variante_blanda": {"efecto": [{"op": "alterar_lugar", "place": "L1", "variant": "registrada"}], "corta": []},
+    "exento_d2_desde_dia": 8
+  },
+  {
+    "id": "M4", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe", "actor": ["moran"],
+    "disparador": {"evento": "report", "match": {"cat": "moran_autor"}},
+    "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "siguiente_comunicacion"},
+    "efecto": [{"op": "flag", "name": "pell_despedido", "value": true}],
+    "rastro": [{"tpl": "nota", "texto": "{{#h a:harris_es_moran e:harris|Le ruego que no me nombre, firma H.}}"}],
+    "corta": [{"ref": "C10.Id", "ventana": {"permanente": true}}],
+    "agrega": ["C10"],
+    "variante_blanda": {"efecto": [{"op": "linea_siguiente_comunicacion", "text": "Seguimos por Charing Cross."}], "corta": []}
+  },
+  {
+    "id": "M5", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe", "actor": ["moran"],
+    "disparador": {"evento": "report", "match": {"cat": "camden"}},
+    "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "siguiente_salida"},
+    "efecto": [{"op": "arrancar", "copy": "D32@L3"}],
+    "rastro": [{"tpl": "chico", "texto": "{{#ayer a:escondite_preparado e:harris|Ayer vino un caballero a consultar el libro.}}"}],
+    "corta": [{"copy": "D32@L3", "ventana": {"permanente": true}}],
+    "agrega": ["C13"],
+    "variante_blanda": {"efecto": [{"op": "linea", "char": "chico_agente", "line": "ayer"}], "corta": []}
+  }
+]}

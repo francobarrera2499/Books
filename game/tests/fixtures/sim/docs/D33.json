@@ -1,0 +1,10 @@
+{
+  "id": "D33", "entity": "libro_de_ventas", "title": "Libro de ventas de Crane",
+  "src_type": "registro", "class": "I", "date": "1894-04-05", "font": "manuscrito", "paper": "registro",
+  "copies": [{"id": "D33@Crane", "holder": "Crane", "via": "counter", "from": "1.M", "to": "10.N"}],
+  "parts": [
+    {"id": "p1", "text": "Ventas de la semana: un Gibbon, dos Scott."},
+    {"id": "p2", "text": "{{#direccion a:librero_falso e:librero|Un anciano, [[librero|librero]], dice vivir en la esquina de Church Street.}}", "when": {"day": {"gte": 10}}}
+  ],
+  "words": 20
+}

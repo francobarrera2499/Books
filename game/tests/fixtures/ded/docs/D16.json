@@ -1,0 +1,11 @@
+{
+  "id": "D16", "entity": "grabado_moran", "title": "Grabado del coronel Moran, Illustrated London News",
+  "src_type": "prensa_londres", "class": "I", "date": "1890-06-01", "font": "imprenta", "paper": "diario_hueso",
+  "slip_topic": "moran",
+  "catalog": {"label": "Illustrated London News, junio de 1890", "entities": ["grabado_moran", "moran"]},
+  "copies": [{"id": "D16@BM", "holder": "BM", "area": "periodicos", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}],
+  "parts": [
+    {"id": "p1", "text": "{{#moran a:harris_es_moran e:moran e:bigote|El [[moran|coronel Moran]], con un [[bigote|bigote]] enorme y la chistera en la mano.}}"}
+  ],
+  "words": 15
+}

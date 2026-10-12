@@ -1,0 +1,17 @@
+{
+ "char": "mrs_hudson",
+ "label": "Mrs. Hudson",
+ "intro": "Mrs. Hudson",
+ "addr": "señora",
+ "sensor": "K-H",
+ "max_questions": 3,
+ "trait": "cofia",
+ "closing": "Tengo que subir, sir.",
+ "lines": [
+  {
+   "id": "gen.1",
+   "layer": "generica",
+   "text": "Los cuartos están como él los dejó, sir."
+  }
+ ]
+}

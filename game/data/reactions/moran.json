@@ -1,0 +1,207 @@
+{
+  "_nota": "W2-STRUCT. Moran, el otro lector (GDD §9.7): roba, rompe y responde exactamente a lo informado; ciego salvo los informes (cats de MoranAgent.report_cats), lo que ve Parker en Baker Street, lo que ve su hombre cuando sigue a Lisle y la columna. Reacciona a cada informe al día siguiente. Sus notas llegan en mano por el chico de Pell o, tras M4 (pell_despedido), firmadas «H.» y retiradas por Parker en la lista de correos de Charing Cross. La firma («—J. Pell» / «—H.») NO va en los rastros: la pone Effects una sola vez al pie, después de las líneas pendientes de M10–M12 que se adjuntan a la nota. Flags que escribe MoranAgent, no estos efectos (§3.9): moran_credito, moran_credito_perdido (M9), holmes_entregado (M12 y regreso/lugar/Camden informados), informes_vacios. Las líneas «en la siguiente comunicación» (M10, M11, M12) esperan la próxima nota de Pell/«H.» o M7/M8. Ley de la huella (T5): toda reacción de Moran que corta agrega etiquetas de C10 o C13.",
+  "reactions": [
+    {
+      "id": "M1", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
+      "actor": ["hombres_de_moran"],
+      "_nota": "El informe contiene ≥1 elemento de un original P (galerada, tomos, cartas recibidas, telegrama, copia de Somerset House): al día siguiente, en la primera franja en que Lisle sale (o de noche), registran la buhardilla y se llevan ESOS originales por un día (HB10 los devuelve). Dejan ceniza de cheroot y una pisada pesada (variante «registrada» de L1). Variante blanda (§12.1.3): registran sin llevarse originales. Desde el día 8 no lo difiere D2.",
+      "disparador": {"evento": "report", "match": {"cat": "original_p"}},
+      "condiciones": {},
+      "ancla": ["n"],
+      "latencia": {"tipo": "siguiente_salida"},
+      "efecto": [{"op": "retirar", "copias": "informadas", "dias": 1}, {"op": "alterar_lugar", "place": "L1", "variant": "registrada"}],
+      "rastro": [
+        {"tpl": "ceniza", "nodo": "N:L1.ceniza_registro", "tags": ["a:tirador", "e:cheroot", "e:ceniza_negra", "f:secreto_camden"]},
+        {"tpl": "pisada", "nodo": "N:L1.pisada", "tags": ["e:pisada", "e:registro_de_la_buhardilla"]}
+      ],
+      "corta": [{"copias": "informadas", "ventana": {"dias": 1}}],
+      "agrega": ["C10", "C13"],
+      "variante_blanda": {"efecto": [{"op": "alterar_lugar", "place": "L1", "variant": "registrada"}], "corta": []},
+      "exento_d2_desde_dia": 8
+    },
+    {
+      "id": "M2", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
+      "actor": ["hombres_de_moran", "pell"],
+      "_nota": "El informe afirma que Holmes vive (asiento con valores de C8 o recorte con holmes_vive): al salir al día siguiente cae un ladrillo de un alero de Holywell Street a un paso de Lisle (eco de Vere Street en FINA) y llega la nota. «Hay que hacerlo balar» (D11): C10.Cd.",
+      "disparador": {"evento": "report", "match": {"cat": "holmes_vive"}},
+      "condiciones": {},
+      "ancla": ["n"],
+      "latencia": {"tipo": "siguiente_salida"},
+      "efecto": [{"op": "evento_mundo", "id": "ladrillo"}, {"op": "carta", "entrega": "en_mano"}],
+      "doc": {"entity": "notas_de_pell", "title": "Nota en mano, tinta de procurador", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
+      "rastro": [
+        {"tpl": "nota", "when": {"not": {"flag": "pell_despedido"}}, "texto": "{{#nota a:busca_a_holmes e:harris|[[harris|El mayor]] está muy preocupado por su seguridad.}}"},
+        {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "{{#nota a:busca_a_holmes e:harris|[[harris|El mayor]] está muy preocupado por su seguridad.}}"}
+      ],
+      "corta": [], "agrega": ["C10.Cd"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "M3", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
+      "actor": ["hombres_de_moran"],
+      "_nota": "El informe contiene material privado de Watson (watson_privado: notas de los tomos, Mary, papeles de Watson; por su procedencia visible). 1.ª: desde el día siguiente dos hombres vigilan la consulta (silueta m3_hombres en L4, clave de §4.11; su entidad es hombres_de_moran) y dispara HB9 (aviso). 2.ª, después de HB9: dispara la segunda HB9 (watson_expuesto). «Después de HB9» se evalúa al recibir el informe (GDD §9.6 HB9: «si después de esta carta otro informe vuelve a entregar watson_privado»): un informe con watson_privado que llega antes de que la carta de aviso (watson_avisado) se haya entregado —p. ej. si D2 difirió M3 o HB9— no cuenta como reincidencia. El contador m3 sigue contando todos los informes; la condición elige el 1.º y los posteriores al aviso. «Esperan a otro»: busca_a_holmes.",
+      "disparador": {"evento": "report", "match": {"cat": "watson_privado"}, "contador": "m3:", "n_gte": 1},
+      "condiciones": {"any": [{"counter": {"name": "n", "eq": 1}}, {"all": [{"flag": "watson_avisado"}, {"not": {"flag": "watson_expuesto"}}]}]},
+      "ancla": ["n"],
+      "latencia": {"tipo": "dias", "n": 1},
+      "efecto": [{"op": "silueta", "who": "m3_hombres", "place": "L4", "si_n": [1]}, {"op": "evento_mundo", "id": "vigilancia_watson"}],
+      "rastro": [
+        {"tpl": "siluetas", "nodo": "N:L4.sil_m3_hombres", "tags": ["a:busca_a_holmes", "e:hombres_de_moran"]}
+      ],
+      "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "M4", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
+      "actor": ["moran", "pell"],
+      "_nota": "El informe nombra a Moran o a Harris como autor o asesino (asiento con valores de C5, C10, C10a, C11 o C13), o Lisle se lo presenta a Pell (show con item.cats que incluya moran_autor; Pell palidece en el acto: dialogue/pell.json). Despiden a Pell; los informes siguientes van a la lista de correos de Charing Cross «a nombre de H.» y los retira Parker. M6 y M7 ocurren igual (M6 como nota «H.»). Corta C10.Id en su forma «seguir al chico de Pell» (task seguir_chico_pell); variante blanda: Wiggins puede seguir a Parker desde Charing Cross hasta Conduit Street (task seguir_parker).",
+      "disparador": {"evento": ["report", "show"], "match": {"any": [{"type": "report", "cat": "moran_autor"}, {"type": "show", "char": "pell", "cat": "moran_autor"}]}, "una_vez_por": ["*"]},
+      "condiciones": {},
+      "ancla": ["n"],
+      "latencia": {"tipo": "dias", "n": 1},
+      "efecto": [{"op": "flag", "name": "pell_despedido", "value": true}, {"op": "carta", "entrega": "en_mano"}],
+      "doc": {"entity": "notas_de_pell", "title": "Nota en mano, letra temblorosa", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
+      "rastro": [
+        {"tpl": "nota", "texto": "{{#nombre a:harris_es_moran e:pell|Le ruego no me nombre.}} {{#lista a:harris_es_moran e:lista_de_correos e:charing_cross|En adelante deje usted sus informes en la [[lista_de_correos|lista de correos]] de [[charing_cross|Charing Cross]], a nombre de H.}}"}
+      ],
+      "corta": [{"acceso": "task:seguir_chico_pell", "ventana": {"permanente": true}}],
+      "agrega": ["C10"],
+      "variante_blanda": {"efecto": [{"op": "flag", "name": "pell_despedido", "value": true}, {"op": "carta", "entrega": "en_mano"}, {"op": "evento_mundo", "id": "seguir_parker"}], "corta": []},
+      "exento_d2": false
+    },
+    {
+      "id": "M5", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
+      "actor": ["moran", "chico_del_agente", "pell"],
+      "_nota": "El informe contiene etiquetas de C13 (Camden House) o de C9 (jueves, regreso, Baker Street): el libro de llaves del agente aparece con la página del 2-abr arrancada (D32, C), el chico del agente dice que ayer vino un caballero a consultar el libro (dialogue/chico_del_agente.json, línea vino_un_caballero) y llega la nota. Moran no cambia de plan (vanidad, canon). Sólo desde el día 7 (lun. 2-abr): antes no hay página que arrancar (la llave se presta ese día, D32), el chico del agente no está (GDD §5 L3) y Moran todavía no eligió su árbol; un informe anterior con esas categorías no la dispara ni consume la única vez. En la práctica responde al informe 3 (mar. 3). Variante blanda: sólo la nota y la línea.",
+      "disparador": {"evento": "report", "match": {"cat": ["camden", "regreso_jueves", "baker_street"]}, "una_vez_por": ["*"]},
+      "condiciones": {"day": {"gte": 7}},
+      "ancla": ["n"],
+      "latencia": {"tipo": "dias", "n": 1},
+      "efecto": [{"op": "arrancar", "copy": "D32@L3"}, {"op": "linea", "char": "chico_del_agente", "line": "vino_un_caballero"}, {"op": "carta", "entrega": "en_mano"}],
+      "doc": {"entity": "notas_de_pell", "title": "Nota en mano, tinta de procurador", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
+      "rastro": [
+        {"tpl": "nota", "when": {"not": {"flag": "pell_despedido"}}, "texto": "{{#arbol a:cebo e:cabrito e:arbol|[[harris|El mayor]] le manda decir: «El árbol lo elige el cazador, señor, no el cabrito».}}"},
+        {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "{{#arbol a:cebo e:cabrito e:arbol|El árbol lo elige el cazador, señor, no el cabrito.}}"},
+        {"tpl": "chico", "nodo": "L:chico_del_agente.vino_un_caballero", "tags": ["a:escondite_preparado", "f:secreto_camden", "e:libro_de_llaves"]}
+      ],
+      "corta": [{"copy": "D32@L3", "ventana": {"permanente": true}}],
+      "agrega": ["C13"],
+      "variante_blanda": {"efecto": [{"op": "linea", "char": "chico_del_agente", "line": "vino_un_caballero"}, {"op": "carta", "entrega": "en_mano"}], "corta": []},
+      "exento_d2": false
+    },
+    {
+      "id": "M6", "tipo": "columna", "lado": "moran", "voz": "M", "nivel": 4, "canal": "pell",
+      "actor": ["pell", "moran"],
+      "_nota": "Sábado 31, al amanecer: Pell sube, paga y transmite la pregunta (scenes/M6.json, línea donde, W3-CT-DLG-B; la escena debe tener when {not: {flag: pell_despedido}}). Si M4 despidió a Pell, llega en cambio una nota firmada «H.» con la misma línea y las mismas etiquetas (C10.Ca se mantiene).",
+      "disparador": {"evento": "tiempo", "tk": "5.dawn"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "5.dawn"},
+      "efecto": [
+        {"op": "escena", "scene": "M6", "si_cond": {"not": {"flag": "pell_despedido"}}},
+        {"op": "carta", "entrega": "en_mano", "si_cond": {"flag": "pell_despedido"}}
+      ],
+      "doc": {"entity": "notas_firmadas_h", "title": "Nota en mano, firmada «H.»", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
+      "rastro": [
+        {"tpl": "escena", "when": {"not": {"flag": "pell_despedido"}}, "nodo": "S:M6.donde", "tags": ["a:busca_a_holmes", "e:donde", "e:harris"]},
+        {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "{{#donde a:busca_a_holmes e:donde h:F.holmes_vive|[[harris|El mayor]] no pregunta si vive, señor Lisle: pregunta dónde.}}"}
+      ],
+      "corta": [], "agrega": ["C8", "C10.Ca"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "M7", "tipo": "columna", "lado": "moran", "voz": "M", "nivel": 4, "canal": "en_persona",
+      "actor": ["harris"],
+      "_nota": "Lunes 2, 22 h, en el escritorio de L1 (Lisle siempre está en casa a esa hora): Harris sube en persona (scenes/M7.json, lámina PL.M7). Variantes de la escena: más frío si pell_despedido; «Un cabrito mudo no me sirve» si informes_vacios ≥ 2; «Le ruego exactitud, exactitud» si moran_credito_perdido. Deja ceniza en el escritorio (queda en la lámina archivada PL.M7). Las líneas pendientes de M10–M12 se dicen aquí si es la siguiente comunicación.",
+      "disparador": {"evento": "tiempo", "tk": "7.night"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "7.night"},
+      "efecto": [{"op": "escena", "scene": "M7"}],
+      "rastro": [
+        {"tpl": "inteligente", "nodo": "S:M7.inteligente", "tags": ["a:harris_es_moran", "e:adjetivos_repetidos", "e:harris"]},
+        {"tpl": "donde_duerme", "nodo": "S:M7.donde_duerme", "tags": ["a:busca_a_holmes", "e:tigre", "e:donde"]},
+        {"tpl": "trichinopolis", "nodo": "S:M7.trichinopolis", "tags": ["a:tirador", "e:cheroot", "e:trichinopolis", "f:secreto_camden"]}
+      ],
+      "corta": [], "agrega": ["C10.Ib", "C10.Cb", "C13.R1"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "M8", "tipo": "columna", "lado": "moran", "voz": "M", "nivel": 4, "canal": "pell",
+      "actor": ["pell", "moran"],
+      "_nota": "Miércoles 4, mañana: ultimátum. Variante si algún informe incluyó respuestas de «—S.» (cat respuesta_s; contador del motor moran.respuesta_s): el tigre mide las mismas latencias que Lisle (C9 apoyo: latencia_s). Firmada «H.» si M4.",
+      "disparador": {"evento": "tiempo", "tk": "9.dawn"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "9.dawn"},
+      "efecto": [{"op": "carta", "entrega": "en_mano"}],
+      "doc": {"entity": "notas_de_pell", "title": "Nota en mano, tinta de procurador", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
+      "rastro": [
+        {"tpl": "pell", "when": {"all": [{"not": {"flag": "pell_despedido"}}, {"not": {"counter": {"name": "moran.respuesta_s", "gte": 1}}}]}, "texto": "{{#plazo a:busca_a_holmes e:jueves|[[harris|El mayor]] exige el lugar antes del jueves a mediodía.}}"},
+        {"tpl": "pell_s", "when": {"all": [{"not": {"flag": "pell_despedido"}}, {"counter": {"name": "moran.respuesta_s", "gte": 1}}]}, "texto": "{{#plazo a:busca_a_holmes e:jueves|[[harris|El mayor]] exige el lugar antes del jueves a mediodía.}} {{#deprisa a:latencia_s e:corresponsal_s|El mayor observa que su corresponsal «S.» contesta cada vez más deprisa.}}"},
+        {"tpl": "h", "when": {"all": [{"flag": "pell_despedido"}, {"not": {"counter": {"name": "moran.respuesta_s", "gte": 1}}}]}, "texto": "{{#plazo a:busca_a_holmes e:jueves|El lugar, antes del jueves a mediodía.}}"},
+        {"tpl": "h_s", "when": {"all": [{"flag": "pell_despedido"}, {"counter": {"name": "moran.respuesta_s", "gte": 1}}]}, "texto": "{{#plazo a:busca_a_holmes e:jueves|El lugar, antes del jueves a mediodía.}} {{#deprisa a:latencia_s e:corresponsal_s|Su corresponsal «S.» contesta cada vez más deprisa.}}"}
+      ],
+      "corta": [], "agrega": ["C10", "C9"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "M9", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 2, "canal": "informe",
+      "actor": ["parker", "pell"],
+      "_nota": "El informe contiene un dato falso verificable por Parker (un paradero inventado en Londres: cat falso_verificable): paga reducida a media guinea (sabor) y Lisle pierde el crédito ante Moran (MoranAgent escribe moran_credito_perdido). No hay game over. Los adjetivos repetidos son del mayor.",
+      "disparador": {"evento": "report", "match": {"cat": "falso_verificable"}, "una_vez_por": ["*"]},
+      "condiciones": {},
+      "ancla": ["n"],
+      "latencia": {"tipo": "dias", "n": 1},
+      "efecto": [{"op": "paga", "amount_d": 126, "diaria": true}, {"op": "carta", "entrega": "en_mano"}],
+      "doc": {"entity": "notas_de_pell", "title": "Nota en mano, tinta de procurador", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
+      "rastro": [
+        {"tpl": "nota", "when": {"not": {"flag": "pell_despedido"}}, "texto": "[[harris|El mayor]] verificó su informe. {{#exactitud a:harris_es_moran e:adjetivos_repetidos|Le ruego exactitud, exactitud.}}"},
+        {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "Verificado. {{#exactitud a:harris_es_moran e:adjetivos_repetidos|Le ruego exactitud, exactitud.}}"}
+      ],
+      "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "M10", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 1, "canal": "parker",
+      "actor": ["parker", "pell"],
+      "_nota": "Lisle visita 221B o Camden House (Parker lo ve en Baker Street; ciego para el bando de Holmes): una línea en la siguiente comunicación de Pell o de Harris. C13.R5 (apoyo, sin escondite_preparado).",
+      "disparador": {"evento": "go", "match": {"place": ["L3", "L8"]}, "una_vez_por": ["*"]},
+      "condiciones": {},
+      "ancla": ["place"],
+      "latencia": {"tipo": "siguiente_comunicacion"},
+      "efecto": [{"op": "linea_siguiente_comunicacion", "tpl": "linea"}],
+      "rastro": [
+        {"tpl": "linea", "texto": "{{#linea a:tirador f:secreto_camden e:baker_street|[[harris|El mayor]] celebra su diligencia en [[baker_street|Baker Street]].}}"}
+      ],
+      "corta": [], "agrega": ["C13.R5"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "M11", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "columna",
+      "actor": ["hombre_del_abrigo", "pell"],
+      "_nota": "Desde el día 5, la columna trae una respuesta de «—S.» a un anuncio de Lisle (evento interno reaccion: how columna, reply_to_ad): una vez. Desde el día siguiente un hombre de abrigo de cochero sigue a Lisle (silueta «cochero» de §4.11 en los dioramas —su entidad es hombre_del_abrigo, no el cochero de FINA—, además de Wiggins; flag seguido_por_cochero) y la siguiente comunicación lo dice.",
+      "disparador": {"evento": "reaccion", "match": {"how": "columna", "reply_to_ad": true}, "una_vez_por": ["*"]},
+      "condiciones": {"day": {"gte": 5}},
+      "ancla": ["day"],
+      "latencia": {"tipo": "dias", "n": 1},
+      "efecto": [
+        {"op": "silueta", "who": "cochero", "desde": "+1"},
+        {"op": "flag", "name": "seguido_por_cochero", "value": true},
+        {"op": "linea_siguiente_comunicacion", "tpl": "linea"}
+      ],
+      "rastro": [
+        {"tpl": "linea", "texto": "{{#linea a:cebo e:hombre_del_abrigo|[[harris|El mayor]] sabe que usted pasea, señor.}}"},
+        {"tpl": "silueta", "nodo": "N:*.sil_cochero", "tags": ["a:cebo", "e:hombre_del_abrigo"]}
+      ],
+      "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "M12", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 2, "canal": "informe",
+      "actor": ["moran", "pell"],
+      "_nota": "El informe da un paradero de Holmes fuera de Londres (Montpellier, Grenoble, París; por ejemplo, leído en D31): Moran no viaja (el cazador espera en el cebo, D10). Cuenta como haber entregado a Holmes (MoranAgent: holmes_entregado; F1 se pierde).",
+      "disparador": {"evento": "report", "match": {"cat": "paradero_extranjero"}, "una_vez_por": ["*"]},
+      "condiciones": {},
+      "ancla": ["n"],
+      "latencia": {"tipo": "siguiente_comunicacion"},
+      "efecto": [{"op": "linea_siguiente_comunicacion", "tpl": "linea"}],
+      "rastro": [
+        {"tpl": "linea", "texto": "{{#monte a:busca_a_holmes|[[harris|El mayor]] no caza en monte ajeno, señor.}} {{#donde a:busca_a_holmes e:donde|Quiere saber dónde va a estar, no dónde estuvo.}}"}
+      ],
+      "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": false
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "char": "mycroft", "label": "el señor Mycroft Holmes", "intro": "Mycroft Holmes", "addr": "señor Holmes", "sensor": null,
+  "max_questions": 3, "trait": "esfera_panuelo",
+  "closing": "Le ahorraré el trabajo, señor Lisle: ya no tengo más que decirle.",
+  "lines": [
+    {"id": "duelo", "layer": "tema", "match": {"topic": ["duelo", "mary_watson", "watson"]}, "text": "Mi hermano no necesitaba más motivos para volver antes de tiempo."},
+    {"id": "hb12.ok", "layer": "tema", "reaction": "HB12", "text": "Su último informe, señor Lisle. ¿Me permite dictarle una errata?"},
+    {"id": "hb12.err1", "layer": "tema", "reaction": "HB12", "text": "Otra vez, señor Lisle; no tengo toda la tarde."},
+    {"id": "hb12.err2", "layer": "tema", "reaction": "HB12", "text": "Ha confundido usted mi pereza con mi ignorancia. Buenas tardes."},
+    {"id": "gen.1", "layer": "generica", "text": "Toma rapé. —Siga, señor Lisle."}
+  ]
+}

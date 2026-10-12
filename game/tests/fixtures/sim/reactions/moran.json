@@ -1,0 +1,16 @@
+{
+  "_nota": "Fixture de W2-SIM: sólo M7 (escena fija de las 22 h del día 7) para probar que las líneas que el director agrega a una escena ya abierta (siguiente comunicación de Moran: M10–M12) se dicen en la escena.",
+  "reactions": [
+    {
+      "id": "M7", "tipo": "columna", "lado": "moran", "voz": "M", "nivel": 4, "canal": "en_persona",
+      "actor": ["harris"],
+      "disparador": {"evento": "tiempo", "tk": "7.night"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "7.night"},
+      "efecto": [{"op": "escena", "scene": "M7"}],
+      "rastro": [],
+      "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": true
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "_nota": "W2-DED: conclusiones de prueba. C1.01/C1.10 práctica (pasajes), C2 con tags_extra, C6 con ${ch:campo} y distinct, C10 con @alias:harris, C10a (regla de alias), C12 con ventana validate 10.M.",
+  "mandatory": ["C2", "C6", "C10", "C12"],
+  "lot_counts": ["C2", "C6", "C10", "C12"],
+  "alias_rules": [{"when_sealed": "C10a", "equiv": ["harris", "moran"]}],
+  "conclusions": [
+    {
+      "id": "C1.01", "kind": "practica", "template": "T1", "practice_origins": "pasajes",
+      "answers": {"fuente_a": ["estudio_escarlata", "signo_de_los_cuatro"], "dice_a": ["hombro", "pierna"], "fuente_b": ["estudio_escarlata", "signo_de_los_cuatro"], "dice_b": ["hombro", "pierna"]},
+      "constraints": [{"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc01"]}, {"id": "inc_b", "line": 1, "tags": ["inc01"]}],
+      "keys": {"entities": ["herida"], "kinds": []}
+    },
+    {
+      "id": "C1.10", "kind": "practica", "template": "T1", "practice_origins": "pasajes",
+      "answers": {"fuente_a": ["liga_pelirrojos"], "dice_a": ["fecha_abril", "fecha_octubre"], "fuente_b": ["liga_pelirrojos"], "dice_b": ["fecha_abril", "fecha_octubre"]},
+      "constraints": [{"distinct": ["dice_a", "dice_b"]}],
+      "groups": [{"id": "inc_a", "line": 0, "tags": ["inc10"]}, {"id": "inc_b", "line": 1, "tags": ["inc10"]}],
+      "keys": {"entities": ["liga_pelirrojos"], "kinds": []}
+    },
+    {
+      "id": "C2", "kind": "obligatoria", "template": "T2",
+      "answers": {"fuente": ["fina"], "calla": ["raspadura", "marca_en_la_roca"], "consta_en": ["galerada", "pruebas_americanas", "journal_de_geneve", "pruebas_de_watson", "notas_de_los_tomos"]},
+      "constraints": [],
+      "groups": [{"id": "sin_raspadura", "line": 0, "tags": ["fina_impreso_sin_raspadura"]}, {"id": "registrada", "line": 1, "tags": ["raspadura_registrada"]}],
+      "tags_extra": ["cornisa_existe"],
+      "keys": {"entities": ["fina", "reichenbach", "roca", "pared", "raspadura"], "kinds": []},
+      "validate": {"from": "P.N", "until": null},
+      "routes": [
+        {"id": "C2.R1", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D02#clausula", "copy": "D02@L1"}, {"ref": "D03#sheer", "copy": "D03@tomo"}], "cut_by": ["M1"]},
+        {"id": "C2.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D05#marque", "copy": "D05@BM"}, {"ref": "D03#sheer", "copy": "D03@Crane"}], "cut_by": []}
+      ],
+      "blue_pencil": {"missing": "Falta: lo que el impreso calla.", "wrong": "Dele: el impreso calla una marca, no una opinión."}
+    },
+    {
+      "id": "C6", "kind": "obligatoria", "template": "T6",
+      "answers": {"persona": ["holmes", "mycroft", "corresponsal_s"], "relacion": ["lee_a"], "a_quien": ["lisle"], "por_medio": {"list": "medios"}, "y_de": {"list": "medios"}},
+      "constraints": [{"distinct": ["por_medio", "y_de"]}],
+      "groups": [
+        {"id": "acto_x", "line": 0, "tags": ["acto_${ch:por_medio}"]},
+        {"id": "ancla_x", "line": 0, "tags": ["ancla_${ch:por_medio}"]},
+        {"id": "acto_y", "line": 1, "tags": ["acto_${ch:y_de}"]},
+        {"id": "ancla_y", "line": 1, "tags": ["ancla_${ch:y_de}"]}
+      ],
+      "keys": {"entities": [], "kinds": ["act_ref"]},
+      "validate": {"from": "4.dawn", "until": null}
+    },
+    {
+      "id": "C10", "kind": "obligatoria", "template": "T9",
+      "answers": {"persona": ["moran", "autor_heavy_game", "@alias:harris"], "usa_a": ["lisle"], "como": ["cebo", "cabrito", "cabrito_atado"], "para": ["hallar"], "a_quien": ["holmes"]},
+      "groups": [{"id": "identidad", "line": 0, "tags": ["harris_es_moran"]}, {"id": "cebo", "line": 1, "tags": ["cebo"]}, {"id": "busca", "line": 2, "tags": ["busca_a_holmes"]}],
+      "keys": {"entities": ["harris", "moran", "bigote", "cabrito", "donde"], "kinds": []},
+      "validate": {"from": "5.dawn", "until": null}
+    },
+    {
+      "id": "C10a", "kind": "opcional", "template": "T3",
+      "answers": {"persona": ["harris"], "es": ["moran"]},
+      "groups": [{"id": "harris", "line": 0, "tags": ["harris_es_moran"]}, {"id": "moran", "line": 1, "tags": ["retrato_moran"]}],
+      "keys": {"entities": ["harris", "moran", "bigote"], "kinds": []},
+      "validate": {"from": "P.N", "until": null}
+    },
+    {
+      "id": "C12", "kind": "obligatoria", "template": "T3",
+      "answers": {"persona": ["librero"], "es": ["holmes"]},
+      "groups": [{"id": "librero_falso", "line": 0, "tags": ["librero_falso"]}, {"id": "rasgo", "line": 1, "tags": ["rasgo_holmes"]}],
+      "keys": {"entities": ["librero", "holmes"], "kinds": []},
+      "validate": {"from": "10.M", "until": "10.M"}
+    }
+  ]
+}

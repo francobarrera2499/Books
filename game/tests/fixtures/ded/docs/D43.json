@@ -1,0 +1,9 @@
+{
+  "id": "D43", "entity": "estudio_escarlata", "title": "«Estudio en escarlata», Beeton's Christmas Annual, 1887",
+  "src_type": "cronica", "class": "I", "date": "1887-11-01", "font": "imprenta", "paper": "strand",
+  "copies": [{"id": "D43@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}],
+  "parts": [
+    {"id": "p1", "text": "Volví de la India con la salud perdida. {{#hombro a:inc01 e:herida e:hombro|La bala me dio en el [[hombro|hombro]] y me rozó la arteria.}}"}
+  ],
+  "words": 20
+}

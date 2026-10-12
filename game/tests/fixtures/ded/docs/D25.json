@@ -1,0 +1,11 @@
+{
+  "id": "D25", "entity": "carta_maquina", "title": "Carta a máquina, matasellos S.W.",
+  "src_type": "carta_recibida", "class": "P", "date": "1894-03-28", "font": "maquina", "paper": "diogenes_recortado",
+  "paper_mm": [203, 244], "machine": "remington_cotter", "clip_entities": ["cotter"],
+  "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]},
+  "copies": [{"id": "D25@L1", "holder": "L1", "area": "buhardilla", "class": "P", "via": "desk", "from": "2.dawn", "to": "10.N"}],
+  "parts": [
+    {"id": "p1", "text": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|Asiento 214: lea a Reuter.}} Le ahorraré el trabajo."}
+  ],
+  "words": 9
+}

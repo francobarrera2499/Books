@@ -1,0 +1,9 @@
+{"id": "L6", "name": "Somerset House",
+ "areas": {"sala": {"desc": "sala de consulta"}},
+ "frames": [{"id": "general", "area": "*", "pos": [0.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0], "fov": 45}],
+ "props": [],
+ "nodes": [],
+ "characters": [],
+ "silhouettes": {"wiggins": {"frame": "general", "pos": [3.0, 0.0, 4.5], "rot": 180}},
+ "variants": {}
+}

@@ -1,0 +1,139 @@
+{
+ "id": "L4",
+ "name": "Consultorio del doctor Watson, Kensington",
+ "streets": [
+  "Kensington High Street",
+  "Church Street"
+ ],
+ "areas": {
+  "consulta": {
+   "desc": "sala de espera y consultorio"
+  },
+  "estudio": {
+   "desc": "estudio de la casa"
+  }
+ },
+ "observers": [
+  "watson"
+ ],
+ "epigraph": "—¿Sus ojos, señor Lisle?",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    4.0
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "dia_ventana",
+  "T": "tarde",
+  "N": "gas"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "hueco_estante",
+   "noun": "estante",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "En el segundo [[estante|estante]] falta una hilera de cinco tomos.",
+   "tags": [
+    "a:tomos_de_watson",
+    "e:tomos"
+   ],
+   "cls": "C",
+   "area": "estudio",
+   "when": {}
+  },
+  {
+   "id": "crespon",
+   "noun": "sombrero",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Un [[bombin|bombín]] con una banda de [[crespon|crespón]].",
+   "tags": [
+    "a:duelo"
+   ],
+   "cls": "C",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "watson",
+   "area": "*",
+   "pos": [
+    0.0,
+    0,
+    0.0
+   ],
+   "rot": 180,
+   "pose": "de_pie",
+   "trait": "bombin_crespon",
+   "when": {
+    "any": [
+     {
+      "slot": [
+       "M"
+      ]
+     },
+     {
+      "day": 6
+     }
+    ]
+   }
+  }
+ ],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "fija",
+   "pos": [
+    3.0,
+    0,
+    5.0
+   ],
+   "rot": 180
+  },
+  "m3_hombres": {
+   "frame": "fija",
+   "pos": [
+    4.0,
+    0,
+    6.5
+   ],
+   "rot": 180
+  }
+ },
+ "variants": {}
+}

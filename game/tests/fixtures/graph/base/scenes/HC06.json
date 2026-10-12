@@ -1,0 +1,16 @@
+{"id": "HC06", "place": "L5", "area": "forasteros", "auto": true, "origin": "S.HC06",
+ "lines": [
+  {"id": "a", "who": "mycroft", "text": "{{#ahorrare a:vinculo_mycroft e:giro_ahorrare e:mycroft|Le ahorraré el trabajo, señor Lisle.}}"},
+  {"id": "b", "who": "mycroft", "gen": "acts_by_channel",
+   "tpl": {
+    "kbm": "{{#b a:ancla_kbm a:me_vigila_de_cerca e:mycroft e:asiento|[[@act|El asiento ${seat}]], a las ${hour}, según me cuentan.}}",
+    "kw": "{{#b a:ancla_kw a:me_vigila_de_cerca e:mycroft|[[@act|Lo que le dijo al doctor]], según me cuentan.}}",
+    "kh": "{{#b a:ancla_kh a:me_vigila_de_cerca e:mycroft|[[@act|Su visita a Baker Street]], según me cuentan.}}",
+    "ks": "{{#b a:ancla_ks a:me_vigila_de_cerca e:mycroft|[[@act|Sus paseos por ${streets}]], según me cuentan.}}",
+    "kt": "{{#b a:ancla_kt a:me_vigila_de_cerca e:mycroft|[[@act|Su aviso en el Times]], según me cuentan.}}"
+   },
+   "fallback": "Su carta de enero, señor Lisle, y la visita del lunes."},
+  {"id": "c", "who": "mycroft", "text": "{{#detestaba a:identidad_holmes e:mr_m_holmes e:holmes|Mi hermano detesta las erratas, o detestaba.}}"},
+  {"id": "e", "who": "mycroft", "text": "{{#jueves a:dia_jueves e:jueves e:mycroft|El jueves no estaré en el club: un compromiso de familia.}}"}
+ ]
+}

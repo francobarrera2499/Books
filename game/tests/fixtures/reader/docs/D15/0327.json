@@ -1,0 +1,11 @@
+{
+  "_nota": "W2-READER. Columna de avisos de prueba (texto largo) para el lector. No es contenido del juego.",
+  "id": "D15.0327", "entity": "times", "title": "The Times, martes 27 de marzo de 1894, columna de avisos personales",
+  "src_type": "prensa_londres", "class": "I", "date": "1894-03-27", "font": "imprenta", "paper": "diario_hueso",
+  "paper_mm": [300, 420],
+  "copies": [{"id": "D15.0327@L1", "holder": "L1", "via": "desk", "from": "1.M", "to": "10.N"}],
+  "parts": [
+    {"id": "p1", "text": "<sc>Perdido</sc>, el sábado por la tarde, en Regent Street, [[perro_perdido|un perro de aguas]], blanco, con collar de latón y una medalla que dice «Bob». Se gratificará a quien lo devuelva al 14 de Brook Street.\n<sc>Clases</sc> de dibujo y acuarela para señoritas, por una dama de larga experiencia en el Continente. Dirigirse a M. R., oficina de este diario.\nA. B. — Todo perdonado. Vuelve. La llave, donde siempre.\n{{#aviso_lisle a:acto_kt e:reichenbach|<sc>Se busca testigo</sc> de lo ocurrido en la cascada del [[reichenbach|Reichenbach]] el 4 de mayo de 1891.}} Escribir a E. L., [[holywell_street|Holywell Street]].\n<sc>Caballero</sc> de cuarenta años, sobrio y de buena letra, ofrece sus servicios como secretario o bibliotecario. Referencias inmejorables de un miembro del Parlamento.\n<sc>A los acreedores</sc> de la difunta Mrs. Eliza Hartley, de Clapham, se les ruega presentar sus cuentas a los señores Pike y Pike, procuradores, antes del 30 de abril próximo.\n<sc>Habitaciones</sc> amuebladas, con vista al parque, para caballero soltero. Sin niños ni perros. 22, Bayswater Road.\nJORGE. — El paquete llegó roto. Escribe por el conducto acostumbrado; no por éste.\n<sc>Se vende</sc>, por ausencia de su dueño, un juego completo de la <i>Encyclopaedia Britannica</i>, novena edición, encuadernado en media pasta, en muy buen estado. Puede verse en Holborn, por las mañanas.\n<sc>Recompensa</sc> de cinco libras por [[reloj_de_oro|un reloj de oro]], con las iniciales J. W. B. en la tapa, perdido entre Charing Cross y el Strand el jueves pasado. Ninguna pregunta.\n<sc>Al lector</sc> que preguntó por la marea del Támesis: el puente de Londres no la detiene, la desordena.\nH. — Mañana no. El jueves, a la hora de costumbre, si la niebla lo permite."}
+  ],
+  "words": 300
+}

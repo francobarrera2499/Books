@@ -1,0 +1,3 @@
+{"captions": {"bells.st_clement": "campanas de St Clement Danes", "sfx.tijera": "tijera"},
+ "ambience": {"L2": {"*": "amb.sala_lectura"}, "L1": {"M": "amb.calle", "N": "amb.gas"}},
+ "events": {"dawn": ["bells.st_clement", "evt.lechero", "evt.persiana_crane"]}}

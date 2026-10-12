@@ -1,0 +1,36 @@
+{
+  "_nota": "W1-BIBLE. Primera página del libro mayor (GDD §8.0), mensajes del chequeo formal (§8.5), resultado de la pasada y errores de recorte y de asiento (códigos de ARCHITECTURE §3.5). Voz de Lisle: precisa, seca, de oficio; explica la forma, nunca el contenido. Variables: pass.lote ${n} = «dos» o «uno»; clip.memoria_agotada ${n} = «tres». rules.4 dice «de dos en dos» (español neutro) donde GDD §8.0 dice «de a dos».",
+  "text": {
+    "rules.title": "Reglas del asiento",
+    "rules.1": "Todo asiento se escribe en una plantilla. Cada línea llena lleva su <i>según</i>: el recorte que la sostiene.",
+    "rules.2": "Una sola fuente no es prueba. Dos recortes del mismo papel son una sola fuente.",
+    "rules.3": "No más de cuatro recortes por asiento.",
+    "rules.4": "Lo que se pasa en limpio se pasa de dos en dos (de uno en uno el último día). Si uno no se sostiene, ninguno se entinta.",
+    "rules.5": "No se pasa en limpio dos veces lo mismo.",
+    "rules.6": "Una errata inocente se practica aparte.",
+
+    "formal.falta_segun": "Falta un <i>según</i>.",
+    "formal.una_fuente": "Una sola fuente no es prueba.",
+    "formal.demasiado_papel": "Demasiado papel.",
+    "pass.formal": "El plumín no toma tinta.",
+    "pass.fail": "Alguno no se sostiene.",
+    "pass.ok": "Visto.",
+    "pass.sin_pasada": "El tampón está seco hasta la franja que viene.",
+    "pass.lote": "Se pasa de ${n} en ${n}, ni uno más ni uno menos.",
+    "practice.ok": "Visto. Errata inocente: sic.",
+    "practice.fail": "No se sostiene.",
+
+    "clip.vacio": "La tijera no tomó ninguna palabra.",
+    "clip.cruza_oracion": "La tira no cruza un punto.",
+    "clip.mas_de_40": "Cuarenta palabras como mucho: la tira es del ancho de una columna.",
+    "clip.inaccesible": "No lo tengo delante.",
+    "clip.memoria_agotada": "De memoria, ${n} pasajes por visita; el cuarto ya no me queda.",
+    "clip.rect_grande": "El encuadre es demasiado grande para una tira.",
+    "clip.demasiados_nodos": "Una tira, dos cosas como mucho.",
+    "clip.anidado": "Un par no se vincula con otro par.",
+
+    "entry.no_indexado": "No puedo escribir lo que no tengo en el índice.",
+    "entry.fuera_de_lista": "Ese campo sólo admite su lista.",
+    "entry.en_tinta": "Lo que está en tinta no se corrige."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "D15.0330", "entity": "times", "title": "The Times, viernes 30 de marzo de 1894",
+  "src_type": "prensa_londres", "class": "I", "origin": "D15.0330", "date": "1894-03-30", "font": "imprenta", "paper": "diario_hueso",
+  "copies": [{"id": "D15.0330@L1", "holder": "L1", "via": "desk", "from": "4.dawn", "to": "10.N"}],
+  "parts": [
+    {"id": "p1", "text": "NOTICIAS. — Se corre hoy el Grand National.", "inserts": {"noticias": "p1"}},
+    {"id": "p2", "text": "COLUMNA DE AVISOS. — Clases de dibujo, a domicilio.", "inserts": {"columna": "p2"}}
+  ],
+  "words": 14
+}

@@ -1,0 +1,8 @@
+{
+  "char": "ujier", "label": "el ujier", "intro": "El ujier de la Sala", "addr": "señor", "sensor": "K-BM",
+  "max_questions": 3, "trait": "",
+  "closing": "Silencio en la Sala, señor.",
+  "lines": [
+    {"id": "gen.1", "layer": "generica", "text": "Papeleta blanca para libros, verde para periódicos, señor."}
+  ]
+}

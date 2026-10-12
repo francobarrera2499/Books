@@ -1,0 +1,9 @@
+{
+  "char": "pell", "label": "el señor Pell", "intro": "Josiah Pell, procurador", "addr": "señor Pell", "sensor": null,
+  "max_questions": 3, "trait": "cartera",
+  "closing": "In extenso, señor Lisle: tengo otro compromiso.",
+  "lines": [
+    {"id": "m4", "layer": "tema", "reaction": "M4", "text": "Palidece y se seca la frente. —Yo no he visto eso, señor Lisle."},
+    {"id": "gen.1", "layer": "generica", "text": "En debida forma, señor Lisle, in extenso."}
+  ]
+}

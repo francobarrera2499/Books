@@ -1,0 +1,18 @@
+{
+  "_nota": "W2-READER. Textos del lector de documentos (ui/reader/*). Claves con prefijo reader. Los errores de recorte usan clip.* (rules.json, W1-BIBLE).",
+  "text": {
+    "reader.tool.tijera": "Tijera",
+    "reader.tool.lupa": "Lupa",
+    "reader.tool.regla": "Regla",
+    "reader.zoom.menos": "–",
+    "reader.zoom.mas": "+",
+    "reader.zoom.pct": "${n} %",
+    "reader.page": "Hoja ${n} de ${total}",
+    "reader.prev": "‹",
+    "reader.next": "›",
+    "reader.measure": "Anotar la medida",
+    "reader.plate": "Ver la lámina",
+    "reader.close": "Volver",
+    "reader.no_cuadra": "La tira no coincide con el papel; otra vez, con más cuidado."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "_nota": "W2-STRUCT. Respuestas de canales ciegos (prio 4; nadie del bando de Holmes ni de Moran las ve): el telegrama de Steiler el joven (D27), la carta del coronel James Moriarty desde Bath (D28), la copia oficial de Somerset House (L6copia) y el precio a lápiz que deja el librero (D37, HC07). Son originales P en posesión (M1 puede llevárselos un día). Voces: Steiler, telegráfico, mayúsculas sin tildes; el coronel, prosa militar seca, opuesta a la de las cartas publicadas. Para T7 «quien» es el primer actor.",
+  "reactions": [
+    {
+      "id": "D27", "tipo": "respuesta", "lado": "respuesta", "voz": "R", "nivel": 0, "canal": "telegrama",
+      "actor": ["steiler_joven"],
+      "_nota": "Telegrama a Meiringen (Englischer Hof): contesta al día siguiente. Cubre cornisa_existe (C3.R4) y refuta la pista falsa del posadero (falsa_posadero).",
+      "disparador": {"evento": "telegram", "match": {"to": ["meiringen", "steiler", "steiler_joven", "englischer_hof"]}, "una_vez_por": ["*"]},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "dias", "n": 1},
+      "efecto": [{"op": "carta", "entrega": "correo"}],
+      "doc": {"entity": "telegrama_steiler", "title": "Telegrama de Meiringen", "src_type": "carta_recibida", "class": "P", "font": "imprenta", "paper": "telegrama", "paper_mm": [200, 130]},
+      "rastro": [
+        {"tpl": "texto", "texto": "MEIRINGEN. {{#cornisa a:cornisa_existe e:cornisa e:reichenbach|[[cornisa|CORNISA]] ALTA EN LA [[pared|PARED]] SOBRE EL [[sendero|SENDERO]].}} NO SE VE DESDE ABAJO. {{#nideros e:nidero|SOLO [[nidero|NIDEROS]] TEMERARIOS.}} {{#nota a:refuta_posadero e:nota_de_meiringen h:F.steiler_niega|PADRE NO ESCRIBIO NOTA ALGUNA.}} STEILER"}
+      ],
+      "corta": [], "agrega": ["C3.R4"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "D28", "tipo": "respuesta", "lado": "respuesta", "voz": "R", "nivel": 0, "canal": "carta",
+      "actor": ["coronel_moriarty"],
+      "_nota": "Carta a Bath: contesta a los dos días. El coronel existe y no es el profesor; firma sus cartas, pero un amigo del Anglo-Indian, cazador (Moran), se las pulió (C5.R3, con la portada de D10). No da su nombre. Huevo de pascua 9: la terquedad de su padre con los nombres (los dos hermanos James).",
+      "disparador": {"evento": "letter", "match": {"to": ["bath", "coronel_moriarty"]}, "una_vez_por": ["*"]},
+      "condiciones": {},
+      "ancla": ["day"],
+      "latencia": {"tipo": "dias", "n": 2},
+      "efecto": [{"op": "carta", "entrega": "correo"}],
+      "doc": {"entity": "carta_de_bath", "title": "Carta de Bath, sobre lacrado", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 230]},
+      "rastro": [
+        {"tpl": "texto", "texto": "[[bath|Bath]].\nSeñor: Contesto a la suya del ${act_day}. {{#pell e:pell|No conozco a ningún [[pell|Pell]] ni he encargado a nadie una fe de erratas.}} Las dos cartas de octubre en la [[pall_mall_gazette|Pall Mall Gazette]] son mías en la firma y en el agravio. {{#anglo a:estilo_cartas_coronel e:cazador e:anglo_indian e:cartas_del_coronel h:F.moran_pulio_cartas|Un amigo del [[anglo_indian|Anglo-Indian]], [[cazador|cazador]], me pulió las cartas; yo sólo firmé.}} No le daré su nombre, que él no me ha autorizado a dar. {{#padre x:EE09|Mi hermano y yo debemos nuestro nombre de pila a la terquedad de nuestro padre con los nombres, y no he de pedir perdón por ello.}} Le ruego que no vuelva a escribirme.\nJames Moriarty, coronel retirado"}
+      ],
+      "corta": [], "agrega": ["C5.R3"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "D37", "tipo": "respuesta", "lado": "respuesta", "voz": "R", "nivel": 0, "canal": "mostrador",
+      "actor": ["librero", "crane"],
+      "_nota": "Jueves 5, después de HC07: en un libro que el librero no se llevó queda un precio escrito de su puño (la letra de Holmes: con la dedicatoria «S. H.» de D12, C12.R4). Crane se lo deja a Lisle en el mostrador.",
+      "disparador": {"evento": "tiempo", "tk": "10.M"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "10.M"},
+      "efecto": [{"op": "carta", "entrega": "mostrador_crane"}],
+      "doc": {"entity": "precio_a_lapiz", "title": "Guarda de un libro, con un precio a lápiz", "src_type": "lugar", "class": "P", "font": "imprenta", "paper": "registro", "paper_mm": [110, 175]},
+      "rastro": [
+        {"tpl": "precio", "texto": "{{#precio a:rasgo_holmes e:letra e:librero h:F.librero_en_crane|En la guarda de un tomo de sermones que no se llevó, el [[librero|librero viejo]] dejó escrito el precio de su puño: <f=manuscrito><ink=lapiz>2s\\. 6d\\.</ink></f>}}"}
+      ],
+      "corta": [], "agrega": ["C12.R4"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "L6copia", "tipo": "respuesta", "lado": "respuesta", "voz": "R", "nivel": 0, "canal": "correo",
+      "actor": ["somerset_house"],
+      "_nota": "Copia oficial pedida en Somerset House (order_copy, un chelín): llega por correo a los dos días. Effects agrega al sobre una copia P del documento pedido (copia_de = ev.doc); el rastro es sólo la portada del registro.",
+      "disparador": {"evento": "order_copy", "match": {}},
+      "condiciones": {},
+      "ancla": ["doc"],
+      "latencia": {"tipo": "dias", "n": 2},
+      "efecto": [{"op": "carta", "entrega": "correo", "copia_de": "doc"}],
+      "doc": {"entity": "copia_oficial", "title": "Copia oficial, Somerset House", "src_type": "registro", "class": "P", "font": "imprenta", "paper": "registro", "paper_mm": [210, 330]},
+      "rastro": [
+        {"tpl": "portada", "texto": "Copia fiel, expedida a pedido de E. L., Holywell Street, por el registro de [[somerset_house|Somerset House]]. Derechos percibidos: un chelín."}
+      ],
+      "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+ "id": "D23",
+ "entity": "encargo",
+ "title": "Encargo de Pell, 26 de marzo de 1894",
+ "src_type": "papel_privado",
+ "class": "P",
+ "date": "1894-03-26",
+ "font": "maquina",
+ "paper": "carta",
+ "copies": [
+  {
+   "id": "D23@L1",
+   "holder": "L1",
+   "area": "buhardilla",
+   "via": "desk",
+   "from": "P.N",
+   "to": "10.N"
+  }
+ ],
+ "parts": [
+  {
+   "id": "p1",
+   "text": "{{#aviso e:suceso_reichenbach|Un aviso de testigos de [[suceso_reichenbach|lo de Reichenbach]] para el Times.}} {{#seis a:contrato_seis|No menos de seis asientos pasados en limpio para el jueves.}} {{#memoria e:harris|Una memoria cruel, cruel, dicta el [[harris|mayor]].}} Informes los miércoles, sábados y martes, a las diez de la noche."
+  }
+ ],
+ "words": 44
+}

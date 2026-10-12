@@ -1,0 +1,4 @@
+{"_nota": "W2-PLACES-C: entidades nombradas en los textos de examen de L4, L5, L6 y la lámina RB que no estaban en core.json. Ruido de época: no sostienen ninguna ruta.",
+"entities": [
+  {"id": "estetoscopio", "kind": "objeto", "name": "un estetoscopio", "index": "estetoscopio", "noun": "estetoscopio", "_ruido": true}
+]}

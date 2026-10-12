@@ -1,0 +1,10 @@
+{
+  "id": "D29b", "entity": "notas_de_watson", "title": "Hoja suelta del bloc del doctor Watson",
+  "src_type": "papel_privado", "class": "C", "date": "1891-05-04", "font": "manuscrito", "paper": "carta",
+  "paper_mm": [127, 203],
+  "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]},
+  "visible_cats": ["watson_privado"],
+  "copies": [{"id": "D29b@L4", "holder": "L4", "area": "estudio", "class": "C", "via": "place", "from": "6.T", "to": "6.T"}],
+  "parts": [{"id": "p1", "text": "{{#surcos a:dispuso_bienes e:mycroft|<rasante>Mi querido [[mycroft|Mycroft]]: como quedó acordado.</rasante>}}"}],
+  "words": 7
+}

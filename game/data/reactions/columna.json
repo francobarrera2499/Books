@@ -1,0 +1,172 @@
+{
+  "_nota": "W2-STRUCT. Reacciones de columna del bando de Holmes (GDD §9.6: HC01–HC10 y HA0): ocurren aunque el jugador no haga nada (schedule.column). Gramática operativa de W2-REACT (core/react/reaction_db.gd): disparador {evento, match, una_vez_por, contador, n_in, n_gte, tk, acumula}; filtros de efecto si_canal/si_n/si_cond; rastro elegido por when → tpl. Los rastros con «nodo» declaran fragmentos que viven en archivos de otros dueños (escenas, lugares, diálogos) con las etiquetas que el contrato §4.8 les exige; los rastros con «texto» son los documentos que esta reacción crea. doc = metadatos del documento runtime (§4.4 sin parts); firma: el lector la pone al pie (la voz A no la repite en el texto; la voz B termina su texto en «—S.»). h:F.x = hecho de canon_bible (T7: quien lo dice debe conocerlo en esa fecha; quien = lado: mycroft/holmes/moran o el primer actor de una respuesta).",
+  "reactions": [
+    {
+      "id": "HC01", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 0, "canal": "K-T",
+      "actor": ["cotter"],
+      "_nota": "Orden permanente: «si un caballero visita al corrector, eche al correo este sobre»; Cotter lo echó el lunes 26 de noche al ver a Parker escoltar a Harris. Letra de Holmes, escrita en enero (h:F.no_lo_es).",
+      "disparador": {"evento": "tiempo", "tk": "1.dawn"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "1.dawn"},
+      "efecto": [{"op": "carta", "entrega": "correo"}],
+      "doc": {"entity": "carta_de_enero", "title": "Sobre sin remitente, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "imprenta", "paper": "diario_hueso", "paper_mm": [95, 150]},
+      "rastro": [
+        {"tpl": "texto", "texto": "Sobre sin remitente. {{#sobre a:me_vigila_de_cerca e:matasellos_sw|Matasellos de [[pall_mall|Pall Mall]], S.W., lunes 26 de marzo, 11.45 de la noche.}}\nDentro, un recorte del [[st_james_gazette|St James's Gazette]] del jueves 18 de enero: «La aritmética del doctor Watson», por E. L., Holywell Street. «Si el doctor no sabe en qué miembro lleva la bala, ¿cómo creerle que la [[pared|pared]] era a pique?» {{#no_lo_es a:actividad_posterior_a_mayo_1891 e:letra h:F.no_lo_es|Al margen, a lápiz blando y con buena letra: <f=manuscrito><ink=lapiz>No lo es.</ink></f>}}"}
+      ],
+      "corta": [], "agrega": ["C3", "C7.R6", "C8.R4"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC02", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-S",
+      "actor": ["wiggins", "cotter"],
+      "_nota": "Desde el día 3 Wiggins sigue a Lisle: silueta con gorra larga al fondo de cada lugar visitado (≥1 encuadre por franja, sin tapar; también en la lámina archivada). El nodo sil_wiggins lo genera el mundo con a:ancla_ks y la entidad del acto go de esa visita (§4.11).",
+      "disparador": {"evento": "tiempo", "tk": "3.dawn"},
+      "condiciones": {},
+      "ancla": ["streets"],
+      "latencia": {"tipo": "fija", "tk": "3.dawn"},
+      "efecto": [{"op": "silueta", "who": "wiggins", "desde": "3.dawn"}],
+      "rastro": [
+        {"tpl": "silueta", "nodo": "N:*.sil_wiggins", "tags": ["a:ancla_ks", "e:muchacho_de_gorra"]}
+      ],
+      "corta": [], "agrega": ["C6"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC03", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 0, "canal": "correo",
+      "actor": ["cotter"],
+      "_nota": "Domingo 1 de abril: sin correo ni Times. Si la voz A tiene algo que entregar al amanecer del día 6 (actos observados el día 5), llega en mano, sin sello: lo resuelven Latency.how_for (entrega en_mano el domingo, schedule.voice_a.sunday) y Effects.doc_tpl (título «Carta a máquina, sin sello, en mano»). HC03 sólo registra el evento_mundo: su rastro «en_mano» NO se instancia (no hay op documental); queda como descripción de autor de ese sobre, no como fragmento obtenible. La voz B no publica (sin Times).",
+      "disparador": {"evento": "tiempo", "tk": "6.dawn"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "6.dawn"},
+      "efecto": [{"op": "evento_mundo", "id": "domingo_sin_correo"}],
+      "rastro": [
+        {"tpl": "en_mano", "texto": "{{#en_mano a:me_vigila_de_cerca a:latencia_s|Sobre sin sello ni matasellos, deslizado por debajo de la puerta antes del alba.}}"}
+      ],
+      "corta": [], "agrega": ["C7", "C9.R3"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC04", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 4, "canal": "invitacion",
+      "actor": ["cotter", "mycroft"],
+      "_nota": "Por decisión de Mycroft. Tecleada con la misma Remington (s alzada, t pálida): la máquina da la entidad remington_s_alzada a todo recorte (C7.R1b). Es una invitación, no la llave: el portero admite a Lisle por su nombre aunque la tarjeta falte (M1).",
+      "disparador": {"evento": "tiempo", "tk": "8.dawn"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "8.dawn"},
+      "efecto": [{"op": "carta", "entrega": "correo"}],
+      "doc": {"entity": "tarjeta_de_mycroft", "title": "Tarjeta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [89, 57]},
+      "rastro": [
+        {"tpl": "tarjeta", "texto": "{{#tarjeta a:vinculo_mycroft e:sala_de_forasteros|[[mycroft|Mr. Mycroft Holmes]] estará en la [[sala_de_forasteros|Sala de Forasteros]] de 16:45 a 19:40, martes y miércoles.}}"}
+      ],
+      "corta": [], "agrega": ["C7.R1"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC05", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-H",
+      "actor": ["cotter", "transportista", "mrs_hudson"],
+      "_nota": "Mar. 3: el empleado de Mycroft hace airear el primer piso y deja una libra de shag; Mrs. Hudson lo dice en dos tramos separados (scenes/HC05.json, auto_lines días 8–9). Mié. 4, tarde: cajón de Grenoble en el vestíbulo (nodo con when día 9 T). HB6 NO corta estas líneas. Los nodos de L3 (ventanas, shag, cajón) aparecen por su when; las líneas, por la escena auto_lines HC05 al visitar el interior: este registro es documental. Las etiquetas de los nodos y líneas son las que exige el contrato a W2-PLACES-B y W3-CT-DLG-A.",
+      "disparador": {"evento": "tiempo", "tk": "8.dawn"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "8.dawn"},
+      "efecto": [{"op": "evento_mundo", "id": "cuartos_aireados"}],
+      "rastro": [
+        {"tpl": "ventanas", "nodo": "N:L3.ventanas_abiertas", "tags": ["a:preparativos_221b", "e:ventanas_abiertas", "e:221b"]},
+        {"tpl": "shag", "nodo": "N:L3.shag", "tags": ["a:preparativos_221b", "e:shag", "e:221b"]},
+        {"tpl": "cajon", "nodo": "N:L3.cajon", "tags": ["a:preparativos_221b", "e:cajon_de_grenoble", "e:oscar_meunier", "e:mycroft", "e:221b"]},
+        {"tpl": "jueves_a", "nodo": "S:HC05.jueves_a", "tags": ["a:dia_jueves", "e:jueves", "e:mycroft", "e:221b"]},
+        {"tpl": "jueves_b", "nodo": "S:HC05.jueves_b", "tags": ["a:preparativos_221b", "e:shag"]}
+      ],
+      "corta": [], "agrega": ["C9.R1", "C9.R2", "C9.R5"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC06", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 4, "canal": "L5",
+      "actor": ["mycroft"],
+      "_nota": "Diógenes, Sala de Forasteros, días 8–9 (dos visitas como máximo; la segunda sólo para presentar). Las líneas (a)–(f) se dicen SIEMPRE antes de admitir presentaciones (scenes/HC06.json, W3-CT-DLG-B); (b) cita un acto por canal usado (Sensors.acts_by_channel), y si no usó ninguno, la carta de enero y la visita del lunes; (g) es el desafío que abre HB12. La medida del papel del club (M:HC06.papel) debe usar measure.entity = papel_corto (mide lo mismo que las cartas: C7.R1). Registro documental: la escena la abre la visita.",
+      "disparador": {"evento": "go", "match": {"place": "L5", "area": "forasteros"}},
+      "condiciones": {"day": {"gte": 8, "lte": 9}},
+      "ancla": ["seat", "phrase", "streets", "hour", "text"],
+      "latencia": {"tipo": "inmediata"},
+      "efecto": [{"op": "escena", "scene": "HC06"}],
+      "rastro": [
+        {"tpl": "a", "nodo": "S:HC06.a", "tags": ["a:vinculo_mycroft", "e:giro_ahorrare", "e:fotofobia"]},
+        {"tpl": "b", "nodo": "S:HC06.b_*", "tags": ["a:me_vigila_de_cerca", "a:ancla_${ch}", "e:mycroft"]},
+        {"tpl": "c", "nodo": "S:HC06.c", "tags": ["a:identidad_holmes", "e:mycroft", "e:holmes"]},
+        {"tpl": "d", "nodo": "S:HC06.d", "tags": ["e:holmes"]},
+        {"tpl": "e", "nodo": "S:HC06.e", "tags": ["a:dia_jueves", "e:jueves", "e:mycroft"]},
+        {"tpl": "f", "nodo": "M:HC06.papel", "tags": ["a:vinculo_mycroft", "e:papel_corto"]},
+        {"tpl": "g", "nodo": "S:HC06.g", "tags": []}
+      ],
+      "corta": [], "agrega": ["C6", "C7.R2", "C7.R8", "C8.R3", "C9.R2"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC07", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 5, "canal": "en_persona",
+      "actor": ["holmes", "crane"],
+      "_nota": "Jueves 5, 9:30, tienda de Crane: el librero viejo (Holmes) compra los cuatro libros, escribe su dirección de gremio (D33, parts[].when), hojea los tomos y ve las notas de Mary («Éstos tienen dueño, señor»); deja un precio a lápiz (D37). Nodos recortables por separado en L1 (día 10). Después, la confrontación (§8.8, W2-SCENES).",
+      "disparador": {"evento": "tiempo", "tk": "10.M"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "10.M"},
+      "efecto": [{"op": "escena", "scene": "HC07"}],
+      "rastro": [
+        {"tpl": "dedos", "nodo": "N:L1.librero_dedos", "tags": ["a:rasgo_holmes", "e:amarillo", "e:librero"]},
+        {"tpl": "sombra", "nodo": "N:L1.librero_sombra", "tags": ["a:librero_falso", "e:sombra", "e:librero"]}
+      ],
+      "corta": [], "agrega": ["C12.R1", "C12.R3", "C12.R4"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC08", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 5, "canal": "en_persona",
+      "actor": ["holmes", "watson"],
+      "_nota": "Jueves 5, 18 h, Park Lane (lámina PARK, luz dorada; la única animación): Watson choca con el librero, caen los libros (The Origin of Tree Worship), el librero gruñe y se va encorvado. C12.R2 sólo vale para el epílogo (llega después de las 12 h).",
+      "disparador": {"evento": "tiempo", "tk": "10.T"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "10.T"},
+      "efecto": [{"op": "escena", "scene": "HC08"}],
+      "rastro": [
+        {"tpl": "libros", "nodo": "N:PARK.libros", "tags": ["e:tree_worship", "e:librero"]}
+      ],
+      "corta": [], "agrega": ["C12.R2"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC09", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 5, "canal": "en_persona",
+      "actor": ["holmes", "moran", "lestrade", "parker", "watson"],
+      "_nota": "Noche del 5 (fría y ventosa): si Lisle está en Baker Street, los cuartos de hora, el arpa que se calla, el silbido, el vidrio, el silbato, Lestrade; si está en casa, el Times del viernes en el epílogo. Confirma; no valida asientos. noche_final lo escribe Clock.",
+      "disparador": {"evento": "tiempo", "tk": "10.N"},
+      "condiciones": {},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "10.N"},
+      "efecto": [{"op": "escena", "scene": "HC09"}],
+      "rastro": [],
+      "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HC10", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 1, "canal": "K-T",
+      "actor": ["holmes", "cotter"],
+      "_nota": "Viernes 30: «—S.» contesta en la columna el aviso de testigos del prólogo (publicado el día 1, latencia de tres días). El ancla es el texto exacto del aviso. Se inserta en D15.0330 (columna).",
+      "disparador": {"evento": "tiempo", "tk": "4.dawn"},
+      "condiciones": {},
+      "ancla": ["text"], "ancla_de": {"evento": "ad", "match": {"ad": "AD:prologo"}},
+      "latencia": {"tipo": "fija", "tk": "4.dawn"},
+      "efecto": [{"op": "columna"}],
+      "doc": {"entity": "columna_de_anuncios", "title": "The Times, columna de anuncios", "src_type": "prensa_londres", "class": "I", "font": "imprenta", "paper": "diario_hueso"},
+      "rastro": [
+        {"tpl": "texto", "texto": "AL LECTOR DE HOLYWELL STREET. — {{#ancla a:ancla_kt a:latencia_s|[[@act|Busca usted testigos del 4 de mayo.]]}} {{#fuente a:remite_journal e:journal_de_geneve|Hubo tres [[guias|guías]], un [[pastor|pastor]] y un médico; los cuatro primeros hablaron en francés, y lo dijeron en [[ginebra|Ginebra]].}} —S."}
+      ],
+      "corta": [], "agrega": ["C6", "C9.R3"], "variante_blanda": null, "exento_d2": true
+    },
+    {
+      "id": "HA0", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 0, "canal": "prologo",
+      "actor": ["cotter", "mycroft"],
+      "_nota": "Respaldo de columna de la voz A: sólo si HA1 no se disparó el día 1 (ninguna papeleta de tema «holmes» ese día). Cotter vio desde enfrente la visita del lunes. Lleva el giro de la voz A (C7.R8b).",
+      "disparador": {"evento": "tiempo", "tk": "2.dawn"},
+      "condiciones": {"not": {"event_count": {"type": "slip", "where": {"day": 1, "topic": ["holmes_cronicas", "holmes_prensa_1891", "holmes_monografia", "sigerson"]}, "gte": 1}}},
+      "ancla": [],
+      "latencia": {"tipo": "fija", "tk": "2.dawn"},
+      "efecto": [{"op": "carta", "entrega": "correo"}],
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "rastro": [
+        {"tpl": "texto", "texto": "{{#visitas a:me_vigila_de_cerca|Lunes, nueve y cuarto de la noche: tuvo usted visitas.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: lea lo que quiera; no publique lo que no sabe.}}"}
+      ],
+      "corta": [], "agrega": ["C7.R1", "C7.R3", "C7.R8"], "variante_blanda": null, "exento_d2": true
+    }
+  ]
+}

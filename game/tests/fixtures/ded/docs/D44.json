@@ -1,0 +1,9 @@
+{
+  "id": "D44", "entity": "signo_de_los_cuatro", "title": "«El signo de los cuatro», Lippincott's, 1890",
+  "src_type": "cronica", "class": "I", "date": "1890-02-01", "font": "imprenta", "paper": "strand",
+  "copies": [{"id": "D44@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}],
+  "parts": [
+    {"id": "p1", "text": "{{#pierna a:inc01 e:herida e:pierna|Tenía la bala de Jezail en la [[pierna|pierna]], y me dolía con el tiempo húmedo.}}"}
+  ],
+  "words": 18
+}

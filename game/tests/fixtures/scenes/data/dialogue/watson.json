@@ -1,0 +1,20 @@
+{
+  "char": "watson", "label": "el doctor Watson", "intro": "Dr. J. H. Watson", "addr": "doctor", "sensor": "K-W",
+  "max_questions": 3, "trait": "bombin_crespon",
+  "closing": "Tengo pacientes, señor Lisle.",
+  "ask_phrase": {"default": "¿Qué sabe usted de ${topic}, ${addr}?"},
+  "lines": [
+    {"id": "af.pared", "layer": "afirmacion", "match": {"assertion": ["as.pared"]}, "text": "Palidece. —Era un sendero estrecho, señor Lisle. Lo escribí como lo vi."},
+    {"id": "pared", "layer": "tema", "match": {"topic": ["pared", "reichenbach"]}, "text": "Era un sendero de tres pies, señor Lisle; no tengo más que decir."},
+    {"id": "escribi_mycroft", "layer": "tema", "match": {"topic": ["mycroft", "fina"]}, "when": {"event_count": {"type": "say", "where": {"char": "watson", "topic_group": "roca"}, "gte": 1}}, "text": "{{#escribi a:vinculo_mycroft e:mycroft|Le escribí al señor [[mycroft|Mycroft]], como cuando lo de las pruebas.}}"},
+    {"id": "baston", "layer": "tema", "match": {"topic": ["baston"]}, "effects": [{"op": "flag", "name": "fixture_baston", "value": true}], "text": "El bastón quedó contra la roca. Lo vi con mis ojos."},
+    {"id": "doc.journal", "layer": "documento", "match": {"doc": ["D05"]}, "text": "Lee el recorte dos veces. —No leo el francés de corrido, señor Lisle."},
+    {"id": "ent.cornisa", "layer": "entidad", "match": {"ent": ["cornisa"]}, "text": "¿Una cornisa? Yo no vi ninguna cornisa."},
+    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "No lo conozco lo bastante para opinar, señor Lisle."},
+    {"id": "tipo.lugar", "layer": "tipo", "match": {"kind": ["lugar"]}, "text": "Nunca estuve allí, que yo recuerde."},
+    {"id": "hb4.1", "layer": "tema", "reaction": "HB4", "text": "Se toca el crespón del sombrero. —Prefiero no hablar de eso, señor Lisle."},
+    {"id": "gen.1", "layer": "generica", "text": "Un hombre puede ser herido más de una vez, señor Lisle."},
+    {"id": "gen.2", "layer": "generica", "text": "Lo que imprimí, lo imprimí de buena fe."},
+    {"id": "gen.3", "layer": "generica", "text": "Se mira las manos. —No sabría decirle."}
+  ]
+}

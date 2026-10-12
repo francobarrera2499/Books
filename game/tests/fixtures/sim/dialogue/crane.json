@@ -1,0 +1,20 @@
+{
+ "char": "crane",
+ "label": "Crane",
+ "intro": "Abel Crane, librero",
+ "addr": "señor Crane",
+ "sensor": null,
+ "max_questions": 99,
+ "trait": "mangas_ligas",
+ "closing": "Si no compra, señor, por lo menos no me tape la vidriera.",
+ "ask_phrase": {
+  "default": "¿Qué me dice de ${topic}, ${addr}?"
+ },
+ "lines": [
+  {
+   "id": "gen.1",
+   "layer": "generica",
+   "text": "Todo libro tiene precio, señor; algunos, dos."
+  }
+ ]
+}

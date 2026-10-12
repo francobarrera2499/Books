@@ -1,0 +1,34 @@
+{
+ "id": "D08",
+ "entity": "guia_suiza",
+ "title": "Guía de viajeros por Suiza, 1891",
+ "src_type": "libro",
+ "class": "I",
+ "date": "1891-01-01",
+ "font": "imprenta",
+ "paper": "registro",
+ "slip_topic": "otros",
+ "catalog": {
+  "label": "Guía de viajeros por Suiza (1891)",
+  "entities": [
+   "reichenbach",
+   "meiringen"
+  ]
+ },
+ "copies": [
+  {
+   "id": "D08@BM",
+   "holder": "BM",
+   "via": "slip",
+   "from": "1.M",
+   "to": "9.N"
+  }
+ ],
+ "parts": [
+  {
+   "id": "p1",
+   "text": "{{#kanzel a:cornisa_existe e:cornisa|Más arriba del sendero, una [[cornisa|cornisa]] invisible desde abajo.}}"
+  }
+ ],
+ "words": 12
+}

@@ -1,0 +1,688 @@
+{
+ "_nota": "W2-PLACES-B. Lámina fija PARK (GDD§3.2, HC08; EMPT): jueves 5 de abril, 18 h, frente al 427 de Park Lane, luz baja dorada. Lisle (la cámara) expone su teoría; los curiosos se juntan a escucharlo; detrás, un caballero de luto choca con un librero viejo y caen los libros (l7.libros_caidos: la única animación del juego). Mismo escenario que L7 (mismas coordenadas). N:PARK.libros (C12.R2, sólo epílogo).",
+ "id": "PARK",
+ "name": "Park Lane, jueves 5 de abril, a las seis",
+ "fixed": true,
+ "origin": "PL.PARK",
+ "place": "L7",
+ "day": 10,
+ "slot": "T",
+ "streets": [
+  "Park Lane"
+ ],
+ "areas": {
+  "exterior": {
+   "desc": "la vereda frente al 427 de Park Lane, a las seis de la tarde"
+  }
+ },
+ "epigraph": "—Le ruego me disculpe, señor; no lo vi.",
+ "frames": [
+  {
+   "id": "teoria",
+   "area": "*",
+   "pos": [
+    -3.3,
+    1.85,
+    -0.5
+   ],
+   "look": [
+    -9.0,
+    1.2,
+    -2.3
+   ],
+   "fov": 58,
+   "orbit": {
+    "pivot": [
+     -6.5,
+     1.2,
+     -1.5
+    ],
+    "yaw": 20,
+    "pitch": 8
+   }
+  },
+  {
+   "id": "choque",
+   "area": "*",
+   "pos": [
+    -3.25,
+    1.6,
+    -5.5
+   ],
+   "look": [
+    -5.6,
+    0.55,
+    -2.9
+   ],
+   "fov": 50,
+   "orbit": {
+    "pivot": [
+     -5.55,
+     0.6,
+     -3.0
+    ],
+    "yaw": 25,
+    "pitch": 10
+   }
+  },
+  {
+   "id": "ventana",
+   "area": "*",
+   "pos": [
+    -15.5,
+    1.7,
+    3.0
+   ],
+   "look": [
+    0.1,
+    7.4,
+    0.0
+   ],
+   "fov": 50,
+   "orbit": {
+    "pivot": [
+     -7.0,
+     4.0,
+     1.0
+    ],
+    "yaw": 15,
+    "pitch": 8
+   }
+  }
+ ],
+ "light": {
+  "M": "dorada_parklane",
+  "T": "dorada_parklane",
+  "N": "dorada_parklane"
+ },
+ "props": [
+  {
+   "id": "calzada",
+   "type": "street.pavement",
+   "pos": [
+    -12.0,
+    0,
+    -30.0
+   ],
+   "rot": 90,
+   "p": {
+    "w": 150,
+    "d": 12.0,
+    "kind": "madera"
+   }
+  },
+  {
+   "id": "vereda_casas",
+   "type": "street.pavement",
+   "pos": [
+    -4.4,
+    0,
+    -30.0
+   ],
+   "rot": 90,
+   "p": {
+    "w": 150,
+    "d": 3.2,
+    "kind": "losas",
+    "kerb": "-z"
+   }
+  },
+  {
+   "id": "vereda_parque",
+   "type": "street.pavement",
+   "pos": [
+    -19.5,
+    0,
+    -30.0
+   ],
+   "rot": 90,
+   "p": {
+    "w": 150,
+    "d": 3.0,
+    "kind": "losas",
+    "kerb": "+z"
+   }
+  },
+  {
+   "id": "casa_427",
+   "type": "l3.casa",
+   "pos": [
+    0,
+    0.12,
+    0
+   ],
+   "rot": -90,
+   "p": {
+    "w": 7.2,
+    "h": 13.4,
+    "levels": [
+     0.5,
+     3.7,
+     6.6,
+     9.3,
+     11.7
+    ],
+    "bays": 3,
+    "door_bay": 2,
+    "style": "estuco",
+    "area": false,
+    "number": "427",
+    "door_paint": "madera_negra",
+    "seed": 427,
+    "win": {
+     "0:0": {
+      "blind": 0.9,
+      "curtains": true,
+      "blind_mat": "tela_media"
+     },
+     "0:1": {
+      "blind": 0.9,
+      "curtains": true,
+      "blind_mat": "tela_media"
+     },
+     "1:0": {
+      "blind": 0.92,
+      "curtains": true,
+      "blind_mat": "tela_media"
+     },
+     "1:1": {
+      "blind": 0.92,
+      "curtains": true,
+      "blind_mat": "tela_media"
+     },
+     "1:2": {
+      "blind": 0.92,
+      "curtains": true,
+      "blind_mat": "tela_media"
+     },
+     "2:0": {
+      "blind": 0.95,
+      "blind_mat": "tela_media"
+     },
+     "2:1": {
+      "blind": 0.95,
+      "curtains": true,
+      "blind_mat": "tela_media"
+     },
+     "2:2": {
+      "blind": 0.95,
+      "blind_mat": "tela_media"
+     },
+     "3:0": {
+      "blind": 0.95,
+      "blind_mat": "tela_media"
+     },
+     "3:1": {
+      "blind": 0.95,
+      "blind_mat": "tela_media"
+     },
+     "3:2": {
+      "blind": 0.95,
+      "blind_mat": "tela_media"
+     },
+     "4:0": {
+      "blind": 0.95,
+      "blind_mat": "tela_media"
+     },
+     "4:1": {
+      "blind": 0.95,
+      "blind_mat": "tela_media"
+     },
+     "4:2": {
+      "blind": 0.95,
+      "blind_mat": "tela_media"
+     }
+    }
+   }
+  },
+  {
+   "id": "luto_427",
+   "type": "l7.lazo_luto",
+   "pos": [
+    -0.03,
+    0.62,
+    2.4
+   ],
+   "rot": -90,
+   "p": {
+    "y": 1.3
+   }
+  },
+  {
+   "id": "vecinas_norte",
+   "type": "l3.hilera",
+   "pos": [
+    0,
+    0.12,
+    14.4
+   ],
+   "rot": -90,
+   "p": {
+    "n": 3,
+    "w": 7.2,
+    "h": 13.4,
+    "levels": [
+     0.5,
+     3.7,
+     6.6,
+     9.3,
+     11.7
+    ],
+    "styles": [
+     "estuco",
+     "estuco",
+     "stock_brick"
+    ],
+    "seed": 61
+   }
+  },
+  {
+   "id": "vecinas_sur",
+   "type": "l3.hilera",
+   "pos": [
+    0,
+    0.12,
+    -18.0
+   ],
+   "rot": -90,
+   "p": {
+    "n": 4,
+    "w": 7.2,
+    "h": 13.4,
+    "levels": [
+     0.5,
+     3.7,
+     6.6,
+     9.3,
+     11.7
+    ],
+    "styles": [
+     "stock_brick",
+     "estuco"
+    ],
+    "seed": 67
+   }
+  },
+  {
+   "id": "jardin",
+   "type": "l7.jardin",
+   "pos": [
+    -1.4,
+    0.12,
+    0
+   ],
+   "rot": -90,
+   "p": {
+    "w": 7.2,
+    "d": 2.8,
+    "path_x": 2.4,
+    "path_w": 1.2
+   }
+  },
+  {
+   "id": "azafranes",
+   "type": "l7.macizo_azafranes",
+   "pos": [
+    -0.65,
+    0.17,
+    -0.1
+   ],
+   "rot": -90,
+   "p": {
+    "w": 2.8,
+    "d": 1.0,
+    "seed": 31
+   }
+  },
+  {
+   "id": "cesped",
+   "type": "street.lawn_strip",
+   "pos": [
+    -1.95,
+    0.18,
+    -0.6
+   ],
+   "rot": -90,
+   "p": {
+    "w": 6.0,
+    "d": 1.15
+   }
+  },
+  {
+   "id": "murete",
+   "type": "l7.murete_reja",
+   "pos": [
+    -2.85,
+    0.12,
+    0
+   ],
+   "rot": -90,
+   "p": {
+    "len": 7.2,
+    "wall_h": 0.6,
+    "rail_h": 0.86,
+    "gate_x": 2.4,
+    "gate_w": 1.3
+   }
+  },
+  {
+   "id": "parque",
+   "type": "l7.borde_parque",
+   "pos": [
+    -21.1,
+    0.12,
+    -30.0
+   ],
+   "rot": 90,
+   "p": {
+    "len": 150,
+    "trees": 22,
+    "depth": 30,
+    "seed": 5
+   }
+  },
+  {
+   "id": "farol_n",
+   "type": "street.gas_lamp",
+   "pos": [
+    -5.7,
+    0.12,
+    8.0
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.5
+   }
+  },
+  {
+   "id": "farol_s",
+   "type": "street.gas_lamp",
+   "pos": [
+    -5.7,
+    0.12,
+    -12.0
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.5
+   }
+  },
+  {
+   "id": "farol_p1",
+   "type": "street.gas_lamp",
+   "pos": [
+    -18.3,
+    0.12,
+    10.0
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.5
+   }
+  },
+  {
+   "id": "farol_p2",
+   "type": "street.gas_lamp",
+   "pos": [
+    -18.3,
+    0.12,
+    -10.0
+   ],
+   "rot": 0,
+   "p": {
+    "h": 3.5
+   }
+  },
+  {
+   "id": "parada",
+   "type": "l7.parada",
+   "pos": [
+    -16.5,
+    0.0,
+    -88.0
+   ],
+   "rot": 90,
+   "p": {
+    "n_cabs": 3,
+    "seed": 3
+   }
+  },
+  {
+   "id": "curiosos",
+   "type": "crowd.make",
+   "pos": [
+    -5.7,
+    0.12,
+    -0.2
+   ],
+   "rot": 0,
+   "p": {
+    "n": 11,
+    "seed": 405,
+    "w": 2.0,
+    "d": 2.4,
+    "face": [
+     2.4,
+     -0.3
+    ]
+   }
+  },
+  {
+   "id": "caballero_p",
+   "type": "figure.bombin_crespon",
+   "pos": [
+    -5.3,
+    0.12,
+    -2.5
+   ],
+   "rot": -158,
+   "p": {
+    "pose": "encorvado"
+   }
+  },
+  {
+   "id": "anciano_p",
+   "type": "figure.joroba_libros",
+   "pos": [
+    -5.95,
+    0.12,
+    -3.45
+   ],
+   "rot": -146,
+   "p": {
+    "pose": "encorvado"
+   }
+  },
+  {
+   "id": "libros_p",
+   "type": "l7.libros_caidos",
+   "pos": [
+    -5.5,
+    0.12,
+    -3.0
+   ],
+   "rot": 0,
+   "p": {
+    "seed": 5,
+    "from": [
+     -0.4,
+     1.0,
+     -0.4
+    ],
+    "delay": 0.8,
+    "dur": 0.95
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "libros",
+   "prop": "libros_p",
+   "noun": "libros",
+   "anchor": {
+    "c": [
+     -5.5,
+     0.08,
+     -3.0
+    ],
+    "s": [
+     1.1,
+     0.16,
+     0.9
+    ]
+   },
+   "examine": "En la vereda quedaron varios libros caídos, y en la tapa de uno se lee «[[tree_worship|The Origin of Tree Worship]]».",
+   "tags": [
+    "e:tree_worship",
+    "e:librero"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "anciano",
+   "prop": "anciano_p",
+   "noun": "anciano encorvado",
+   "anchor": {
+    "c": [
+     -5.95,
+     0.8,
+     -3.45
+    ],
+    "s": [
+     0.7,
+     1.6,
+     0.7
+    ]
+   },
+   "examine": "Un [[anciano|anciano]] encorvado, de patillas blancas, aprieta contra el pecho los libros que le quedan y da media vuelta entre la gente.",
+   "tags": [
+    "e:anciano"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "caballero_luto",
+   "prop": "caballero_p",
+   "noun": "caballero de luto",
+   "anchor": {
+    "c": [
+     -5.3,
+     1.12,
+     -2.5
+    ],
+    "s": [
+     0.7,
+     0.75,
+     0.75
+    ]
+   },
+   "examine": "Un caballero con [[crespon|crespón]] en el [[bombin|bombín]] se agacha, contrito, a recoger los libros que hizo caer.",
+   "tags": [
+    "e:bombin"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "multitud",
+   "prop": "curiosos",
+   "noun": "gente",
+   "anchor": {
+    "c": [
+     -5.7,
+     1.0,
+     0.4
+    ],
+    "s": [
+     2.0,
+     1.95,
+     1.3
+    ]
+   },
+   "examine": "Una docena de [[curiosos|curiosos]] se junta a escuchar, con los ojos en la ventana del segundo piso.",
+   "tags": [
+    "e:curiosos",
+    "e:park_lane_427"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "ventana",
+   "prop": "casa_427",
+   "noun": "ventana",
+   "anchor": {
+    "c": [
+     0.12,
+     8.0,
+     0.0
+    ],
+    "s": [
+     0.35,
+     1.85,
+     1.25
+    ]
+   },
+   "examine": "La luz baja de la tarde da de frente en la ventana del segundo piso del [[park_lane_427|427]], con la persiana baja.",
+   "tags": [
+    "e:park_lane_427"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "casa_427",
+   "prop": "casa_427",
+   "noun": "casa",
+   "anchor": {
+    "c": [
+     0.05,
+     1.95,
+     2.4
+    ],
+    "s": [
+     0.4,
+     2.7,
+     1.4
+    ]
+   },
+   "examine": "El [[park_lane_427|427]]: todas las [[persianas|persianas]] bajas y, en el llamador, un lazo de crespón negro.",
+   "tags": [
+    "e:park_lane_427",
+    "e:persianas"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "teoria",
+   "pos": [
+    -17.5,
+    0.12,
+    -6.5
+   ],
+   "rot": 70
+  },
+  "cochero": {
+   "frame": "ventana",
+   "pos": [
+    -12.0,
+    0.12,
+    -6.5
+   ],
+   "rot": 60
+  }
+ },
+ "variants": {}
+}

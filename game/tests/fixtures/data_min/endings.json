@@ -1,0 +1,16 @@
+{
+  "rank_note": "1 = mejor. §12.1.2: F1=1, F3a=2, F3b=3, F2=4, F4=5.",
+  "endings": [
+    {"id": "F1", "order": 1, "rank": 1, "name": "Al menos un lector",
+     "cond": {"all": [{"sealed_all": ["C6", "C10"]}, {"sealed_count": {"of": "mandatory", "gte": 3}}, {"flag_eq": {"informe_final": "errata"}}, {"not": {"flag": "watson_expuesto"}}, {"flag": "moran_credito"}, {"not": {"flag": "moran_credito_perdido"}}, {"not": {"flag": "holmes_entregado"}}]},
+     "card": "Lisle, Edmund. Lector. Sabe dónde se esconde la gente en una errata.", "scene": "END.F1"},
+    {"id": "F4", "order": 2, "rank": 5, "name": "Ve, pero no observa", "cond": {"sealed_count": {"of": "mandatory", "lt": 2}}, "card": "Ve, pero no observa.", "scene": "END.F4"},
+    {"id": "F2", "order": 3, "rank": 4, "name": "El informe fiel", "cond": {"report_final_cats_any": ["holmes_vive", "regreso_jueves", "baker_street", "camden"]}, "card": "Útil al bando equivocado. Vigilar.", "scene": "END.F2"},
+    {"id": "F3a", "order": 4, "rank": 2, "name": "El silencio", "cond": {"any": [{"flag_eq": {"informe_final": "nada"}}, {"flag_eq": {"informe_final": "quemar"}}]}, "card": "Supo cuándo callar.", "scene": "END.F3"},
+    {"id": "F3b", "order": 5, "rank": 3, "name": "El silencio (mentira)", "cond": {"always": true}, "card": "Mintió bien, y solo. Imprudente.", "scene": "END.F3"}
+  ],
+  "variants": [
+    {"id": "V.confront_completa", "cond": {"flag_eq": {"confront_estado": "completa"}}, "card_add": "Cuatro de cuatro."},
+    {"id": "V.expuesto", "cond": {"flag": "watson_expuesto"}, "epilogue": "subraya_first_and_last"}
+  ]
+}

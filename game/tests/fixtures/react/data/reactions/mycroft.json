@@ -1,0 +1,593 @@
+{
+ "reactions": [
+  {
+   "id": "HA1",
+   "tipo": "garantizada_por_acto",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "K-BM",
+   "actor": [
+    "cotter",
+    "mycroft"
+   ],
+   "disparador": {
+    "evento": "slip",
+    "match": {
+     "topic_group": "holmes"
+    },
+    "una_vez_por": [
+     "topic"
+    ]
+   },
+   "condiciones": {
+    "all": [
+     {
+      "day": {
+       "gte": 1,
+       "lte": 9
+      }
+     },
+     {
+      "not": {
+       "weekday": "dom"
+      }
+     }
+    ]
+   },
+   "ancla": [
+    "seat",
+    "title",
+    "hour"
+   ],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "carta",
+     "plantilla_por": "topic"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "holmes_prensa_1891",
+     "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: los guías hablaron al Journal, el Journal a Reuter y el doctor no habló con nadie.}} Tres fuentes que son una. {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: lea a Reuter.}}"
+    },
+    {
+     "tpl": "holmes_cronicas",
+     "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: el doctor se equivoca dos veces por página; no pierda la vista con la tercera.}}"
+    },
+    {
+     "tpl": "holmes_monografia",
+     "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: la ceniza no es su ramo, señor.}}"
+    },
+    {
+     "tpl": "sigerson",
+     "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: los noruegos escriben de montañas, no de usted.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C6",
+    "C7.R1",
+    "C7.R3"
+   ],
+   "variante_blanda": null,
+   "exento_d2": false
+  },
+  {
+   "id": "HA2",
+   "tipo": "opcional",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "K-BM",
+   "actor": [
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "slip",
+    "match": {
+     "topic_group": "holmes"
+    },
+    "contador": "ha2:topic",
+    "n_in": [
+     2
+    ],
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "inmediata"
+   },
+   "efecto": [],
+   "rastro": [
+    {
+     "tpl": "senalador",
+     "nodo": "N:L2.senalador",
+     "tags": [
+      "a:vinculo_mycroft",
+      "e:membrete_recortado",
+      "e:pall_mall"
+     ]
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C7.R4"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HA3",
+   "tipo": "garantizada_por_acto",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "K-S",
+   "actor": [
+    "cotter",
+    "wiggins"
+   ],
+   "disparador": {
+    "evento": "go",
+    "match": {},
+    "una_vez_por": [
+     "*"
+    ],
+    "acumula": "dia"
+   },
+   "condiciones": {
+    "day": {
+     "gte": 3,
+     "lte": 9
+    }
+   },
+   "ancla": [
+    "streets",
+    "hour"
+   ],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#itinerario a:ancla_ks a:me_vigila_de_cerca|[[@act|${itinerario}]].}} {{#vista a:me_vigila_de_cerca e:fotofobia|Un hombre de su vista no debería caminar tanto.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C6",
+    "C7.R3"
+   ],
+   "variante_blanda": null,
+   "exento_d2": false
+  },
+  {
+   "id": "HA4",
+   "tipo": "opcional",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "*",
+   "actor": [
+    "cotter"
+   ],
+   "disparador": {
+    "evento": [
+     "say",
+     "ad"
+    ],
+    "match": {
+     "canary": true,
+     "channel": [
+      "K-T",
+      "K-W",
+      "K-H"
+     ]
+    },
+    "contador": "canario:channel",
+    "n_in": [
+     1
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "lisle_mudanza",
+     "texto": "{{#canario a:ancla_${ch} a:me_vigila_de_cerca e:chelsea|[[@act|Chelsea]] es húmeda para sus ojos, señor.}}"
+    },
+    {
+     "tpl": "lisle_ojos",
+     "texto": "{{#canario a:ancla_${ch} a:me_vigila_de_cerca e:fotofobia|Su oculista tiene razón: [[@act|de noche]], no lea.}}"
+    },
+    {
+     "tpl": "lisle_viaje",
+     "texto": "{{#canario a:ancla_${ch} a:me_vigila_de_cerca e:edimburgo|[[@act|Edimburgo]] queda lejos de sus papeles, señor.}}"
+    },
+    {
+     "tpl": "lisle_boda",
+     "texto": "{{#canario a:ancla_${ch} a:me_vigila_de_cerca|Mis felicitaciones [[@act|a la hija del impresor]], señor.}}"
+    },
+    {
+     "tpl": "kt",
+     "texto": "{{#canario a:ancla_kt a:me_vigila_de_cerca|Lo que usted [[@act|perdió]] no lo encontrará en la columna, señor.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C6"
+   ],
+   "variante_blanda": null,
+   "exento_d2": false
+  },
+  {
+   "id": "HB4",
+   "tipo": "opcional",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 3,
+   "canal": "K-W",
+   "actor": [
+    "watson",
+    "cotter"
+   ],
+   "disparador": {
+    "evento": [
+     "say",
+     "show"
+    ],
+    "match": {
+     "char": "watson",
+     "topic_group": [
+      "mary",
+      "vive"
+     ]
+    },
+    "contador": "hb4:char",
+    "n_in": [
+     1,
+     2
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "carta",
+     "si_n": [
+      1
+     ]
+    },
+    {
+     "op": "cerrar",
+     "target": "L4.consulta",
+     "dias": 2,
+     "si_n": [
+      2
+     ]
+    },
+    {
+     "op": "linea",
+     "char": "watson",
+     "line": "vuelva_usted",
+     "si_n": [
+      2
+     ]
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "1",
+     "texto": "{{#duelo a:ancla_kw a:me_vigila_de_cerca e:duelo|Deje al doctor [[@act|su duelo]].}}"
+    },
+    {
+     "tpl": "2",
+     "texto": "{{#duelo2 a:ancla_kw e:duelo|[[@act|Mi amigo está muerto]], señor Lisle, y yo tengo pacientes.}}"
+    }
+   ],
+   "corta": [
+    {
+     "acceso": "L4.consulta",
+     "ventana": {
+      "dias": 2
+     }
+    }
+   ],
+   "agrega": [
+    "C6",
+    "C7"
+   ],
+   "variante_blanda": {
+    "efecto": [
+     {
+      "op": "carta",
+      "si_n": [
+       1
+      ]
+     },
+     {
+      "op": "linea",
+      "char": "watson",
+      "line": "vuelva_usted",
+      "si_n": [
+       2
+      ]
+     }
+    ],
+    "corta": []
+   },
+   "exento_d2": false
+  },
+  {
+   "id": "HB5",
+   "tipo": "opcional",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 2,
+   "canal": "K-W",
+   "actor": [
+    "cotter"
+   ],
+   "disparador": {
+    "evento": [
+     "say",
+     "show"
+    ],
+    "match": {
+     "char": "watson",
+     "any": [
+      {
+       "topic": [
+        "galerada",
+        "pruebas_americanas",
+        "pruebas_de_watson",
+        "fina",
+        "pedido_del_fo"
+       ]
+      },
+      {
+       "doc": [
+        "D02",
+        "D04"
+       ]
+      }
+     ]
+    },
+    "contador": "hb5:char",
+    "n_in": [
+     2
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "retirar",
+     "copy": "D29a@L4",
+     "dias": null
+    },
+    {
+     "op": "linea",
+     "char": "watson",
+     "line": "se_las_llevaron"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "recibo",
+     "nodo": "N:L4.recibo_pp",
+     "tags": [
+      "a:vinculo_mycroft",
+      "e:recibo_pp_mh",
+      "e:mycroft"
+     ]
+    }
+   ],
+   "corta": [
+    {
+     "copy": "D29a@L4",
+     "ventana": {
+      "permanente": true
+     }
+    }
+   ],
+   "agrega": [
+    "C7.R5"
+   ],
+   "variante_blanda": {
+    "efecto": [
+     {
+      "op": "linea",
+      "char": "watson",
+      "line": "asuntos_de_estado"
+     }
+    ],
+    "corta": []
+   },
+   "exento_d2": false
+  },
+  {
+   "id": "HB6",
+   "tipo": "opcional",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 2,
+   "canal": "K-H",
+   "actor": [
+    "cotter",
+    "mrs_hudson"
+   ],
+   "disparador": {
+    "evento": "go",
+    "match": {
+     "place": "L3"
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "flag",
+     "name": "hudson_cerrada",
+     "value": true
+    },
+    {
+     "op": "linea",
+     "char": "mrs_hudson",
+     "line": "ordenes_del_empleado"
+    },
+    {
+     "op": "cerrar",
+     "target": "L3.recibos",
+     "dias": null
+    }
+   ],
+   "rastro": [],
+   "corta": [
+    {
+     "acceso": "L3.recibos",
+     "ventana": {
+      "permanente": true
+     }
+    }
+   ],
+   "agrega": [
+    "C6"
+   ],
+   "variante_blanda": {
+    "efecto": [
+     {
+      "op": "linea",
+      "char": "mrs_hudson",
+      "line": "ordenes_del_empleado"
+     }
+    ],
+    "corta": []
+   },
+   "exento_d2": false
+  },
+  {
+   "id": "HB10",
+   "tipo": "opcional",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 1,
+   "canal": "K-S",
+   "actor": [
+    "wiggins",
+    "cotter"
+   ],
+   "disparador": {
+    "evento": "reaccion",
+    "match": {
+     "rid": "M1",
+     "soft": false
+    }
+   },
+   "condiciones": {
+    "day": {
+     "gte": 3
+    }
+   },
+   "ancla": [],
+   "latencia": {
+    "tipo": "voz_a"
+   },
+   "efecto": [
+    {
+     "op": "devolver"
+    },
+    {
+     "op": "carta",
+     "entrega": "mostrador_crane",
+     "firma": ""
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "aliado",
+     "texto": "{{#devuelto a:me_vigila_de_cerca e:paquete|Devuelto.}} Ponga cerrojo. {{#conduit a:tirador e:conduit_street|Estaban en una casa de Conduit Street.}}",
+     "when": {
+      "flag": "wiggins_aliado"
+     }
+    },
+    {
+     "tpl": "texto",
+     "texto": "{{#devuelto a:me_vigila_de_cerca e:paquete|Devuelto.}} Ponga cerrojo.",
+     "when": {
+      "not": {
+       "flag": "wiggins_aliado"
+      }
+     }
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C10"
+   ],
+   "variante_blanda": null,
+   "exento_d2": true
+  },
+  {
+   "id": "HB12",
+   "tipo": "opcional",
+   "lado": "mycroft",
+   "voz": "A",
+   "nivel": 2,
+   "canal": "*",
+   "actor": [
+    "mycroft"
+   ],
+   "disparador": {
+    "evento": "show",
+    "match": {
+     "char": "mycroft"
+    }
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "inmediata"
+   },
+   "efecto": [],
+   "rastro": [],
+   "corta": [],
+   "agrega": [],
+   "variante_blanda": null,
+   "_nota": "Documental: lo resuelve Dialogue (W2-SCENES); ningún sensor ve la Sala de Forasteros."
+  }
+ ]
+}

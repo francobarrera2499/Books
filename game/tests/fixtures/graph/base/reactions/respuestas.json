@@ -1,0 +1,20 @@
+{"reactions": [
+  {
+    "id": "D27", "tipo": "respuesta", "lado": "respuesta", "voz": "R", "nivel": 0, "canal": "telegrama", "actor": ["steiler"],
+    "disparador": {"evento": "telegram", "match": {"to": "meiringen"}}, "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "dias", "n": 1},
+    "efecto": [{"op": "carta"}],
+    "doc": {"title": "Telegrama de Meiringen", "src_type": "carta_recibida", "class": "P", "font": "maquina", "paper": "telegrama"},
+    "rastro": [{"tpl": "texto", "texto": "{{#texto a:cornisa_existe a:refuta_nota_posadero e:reichenbach e:cornisa|CORNISA EXISTE ENCIMA SENDERO STOP PADRE NO ESCRIBIO NOTA ALGUNA STOP STEILER}}"}],
+    "corta": [], "agrega": ["C3"], "variante_blanda": null, "exento_d2": true
+  },
+  {
+    "id": "D28", "tipo": "respuesta", "lado": "respuesta", "voz": "R", "nivel": 0, "canal": "carta", "actor": ["moriarty_coronel"],
+    "disparador": {"evento": "letter", "match": {"to": "bath"}}, "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "dias", "n": 2},
+    "efecto": [{"op": "carta"}],
+    "doc": {"title": "Carta de Bath", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta"},
+    "rastro": [{"tpl": "anglo", "texto": "{{#anglo a:estilo_cartas_coronel e:cazador e:moran|Un amigo cazador del Anglo-Indian me pulió las cartas.}}"}],
+    "corta": [], "agrega": ["C5"], "variante_blanda": null, "exento_d2": true
+  }
+]}

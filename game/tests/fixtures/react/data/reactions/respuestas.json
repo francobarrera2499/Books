@@ -1,0 +1,116 @@
+{
+ "reactions": [
+  {
+   "id": "D27",
+   "tipo": "respuesta",
+   "lado": "respuesta",
+   "voz": "R",
+   "nivel": 0,
+   "canal": "telegrama",
+   "actor": [
+    "steiler_joven"
+   ],
+   "disparador": {
+    "evento": "telegram",
+    "match": {
+     "to": "meiringen"
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "dias",
+    "n": 1
+   },
+   "efecto": [
+    {
+     "op": "carta",
+     "firma": ""
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "{{#cornisa a:cornisa_existe e:cornisa|CORNISA ALTA EN LA PARED SOBRE EL SENDERO.}} {{#no_se_ve a:cornisa_existe e:sendero|NO SE VE DESDE ABAJO.}} SOLO NIDEROS TEMERARIOS. {{#padre a:refuta_nota e:nota_de_meiringen|PADRE NO ESCRIBIO NOTA ALGUNA.}} STEILER"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C3"
+   ],
+   "variante_blanda": null,
+   "doc": {
+    "title": "Telegrama de Meiringen",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "maquina",
+    "paper": "telegrama",
+    "paper_mm": [
+     200,
+     130
+    ],
+    "entity": "telegrama_steiler"
+   },
+   "exento_d2": true
+  },
+  {
+   "id": "D28",
+   "tipo": "respuesta",
+   "lado": "respuesta",
+   "voz": "R",
+   "nivel": 0,
+   "canal": "carta",
+   "actor": [
+    "coronel_moriarty"
+   ],
+   "disparador": {
+    "evento": "letter",
+    "match": {
+     "to": "bath"
+    },
+    "una_vez_por": [
+     "*"
+    ]
+   },
+   "condiciones": {},
+   "ancla": [],
+   "latencia": {
+    "tipo": "dias",
+    "n": 2
+   },
+   "efecto": [
+    {
+     "op": "carta"
+    }
+   ],
+   "rastro": [
+    {
+     "tpl": "texto",
+     "texto": "No conozco a ningún Pell. {{#anglo a:moran_pulio e:anglo_indian e:cazador|Un amigo del Anglo-Indian, cazador, me pulió las cartas; yo sólo firmé.}} {{#padre x:EE09 e:coronel_moriarty|Disculpe la terquedad de nuestro padre con los nombres.}}"
+    }
+   ],
+   "corta": [],
+   "agrega": [
+    "C5"
+   ],
+   "variante_blanda": null,
+   "doc": {
+    "title": "Carta de Bath",
+    "src_type": "carta_recibida",
+    "class": "P",
+    "font": "manuscrito",
+    "paper": "carta",
+    "paper_mm": [
+     180,
+     225
+    ],
+    "entity": "carta_de_bath",
+    "firma": "Cnel. James Moriarty"
+   },
+   "exento_d2": true
+  }
+ ]
+}

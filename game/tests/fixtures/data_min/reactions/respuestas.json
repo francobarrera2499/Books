@@ -1,0 +1,14 @@
+{"reactions": [
+  {
+    "id": "D27", "tipo": "respuesta", "lado": "respuesta", "voz": "R", "nivel": 0, "canal": "telegrama",
+    "actor": ["steiler"],
+    "disparador": {"evento": "telegram", "match": {"to": "meiringen"}},
+    "condiciones": {},
+    "ancla": [],
+    "latencia": {"tipo": "dias", "n": 1},
+    "efecto": [{"op": "carta"}],
+    "doc": {"title": "Telegrama de Meiringen", "src_type": "carta_recibida", "class": "P", "font": "maquina", "paper": "telegrama", "paper_mm": [200, 130]},
+    "rastro": [{"tpl": "texto", "texto": "{{#texto a:cornisa_existe e:reichenbach|CORNISA EXISTE ENCIMA SENDERO STOP NADIE SUBE STOP STEILER}}"}],
+    "corta": [], "agrega": ["C3"], "variante_blanda": null, "exento_d2": true
+  }
+]}

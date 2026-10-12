@@ -1,0 +1,13 @@
+{
+  "id": "D02", "entity": "galerada", "title": "Galerada 14 de «El problema final», con correcciones",
+  "src_type": "papel_privado", "class": "P", "date": "1893-10-20", "chron_date": "1891-05-04", "font": "imprenta", "paper": "registro",
+  "paper_mm": [160, 480],
+  "clip_entities": ["fina"],
+  "copies": [
+    {"id": "D02@L1", "holder": "L1", "area": "buhardilla", "via": "desk", "from": "P.N", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "GALERADA 14 — <sc>El problema final</sc>, pliego tercero.\n{{#sheer_g e:sendero|Era [[sendero|un sendero]] de tres pies, con [[pared|una pared]] a pique a un lado y un precipicio a pique al otro.}} {{#clausula a:raspadura_registrada e:raspadura|<del>En la roca, a la altura del hombro, [[raspadura|una raspadura]] reciente, como de una bota que hubiera resbalado hacia arriba.</del>}}\n<f=manuscrito><ink=azul>Dele.</ink></f> <f=manuscrito><ink=roja>Vale lo tachado\\. Repóngase en la segunda.</ink></f>"}
+  ],
+  "words": 56
+}

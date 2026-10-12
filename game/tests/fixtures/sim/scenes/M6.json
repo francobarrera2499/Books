@@ -1,0 +1,14 @@
+{
+ "id": "M6",
+ "place": "L1",
+ "area": "buhardilla",
+ "tk": "5.dawn",
+ "origin": "S.M6",
+ "lines": [
+  {
+   "id": "donde",
+   "who": "pell",
+   "text": "{{#donde a:busca_a_holmes e:donde|El mayor no pregunta si vive, señor Lisle.}} Pregunta dónde."
+  }
+ ]
+}

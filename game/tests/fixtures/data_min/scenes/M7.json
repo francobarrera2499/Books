@@ -1,0 +1,12 @@
+{
+  "id": "M7", "place": "L1", "area": "buhardilla", "tk": "7.night", "plate": "PL.M7", "origin": "S.M7",
+  "lines": [
+    {"id": "inteligente", "who": "harris", "text": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}}"},
+    {"id": "donde_duerme", "who": "harris", "text": "No me diga que vive, señor Lisle. {{#donde a:busca_a_holmes e:tigre e:donde|Dígame dónde duerme el tigre.}}"},
+    {"id": "trichinopolis", "who": "harris", "text": "¿Le molesta el humo? {{#tri a:tirador e:cheroot e:trichinopolis f:secreto_camden|Es de Trichinópolis.}}"}
+  ],
+  "variants": [
+    {"when": {"flag": "pell_despedido"}, "replace": {"inteligente": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}} Su procurador ya no nos sirve."}},
+    {"when": {"flag_gte": {"informes_vacios": 2}}, "append": [{"id": "mudo", "who": "harris", "text": "Un cabrito mudo no me sirve, señor."}]}
+  ]
+}

@@ -1,0 +1,27 @@
+{"reactions": [
+  {
+    "id": "HC10", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 1, "canal": "K-T",
+    "actor": ["holmes", "cotter"],
+    "disparador": {"evento": "tiempo", "tk": "4.dawn"},
+    "condiciones": {},
+    "ancla": ["text"], "ancla_de": {"evento": "ad", "match": {"ad": "AD:prologo"}},
+    "latencia": {"tipo": "fija", "tk": "4.dawn"},
+    "efecto": [{"op": "columna"}],
+    "rastro": [{"tpl": "texto", "texto": "AL LECTOR DE HOLYWELL STREET. — {{#ancla a:ancla_kt a:corresponsal_s|[[@act|Busca usted testigos del 4 de mayo.]]}} {{#fuente a:remite_journal e:journal_de_geneve|Hubo tres guías, un pastor y un médico; los cuatro primeros hablaron en francés, y lo dijeron en Ginebra.}} —S."}],
+    "corta": [], "agrega": ["C6", "C9.R3"], "variante_blanda": null, "exento_d2": true
+  },
+  {
+    "id": "HB1", "tipo": "opcional", "garantizada_si": {"canal": "K-T", "n": 1}, "lado": "holmes", "voz": "B", "nivel": 1, "canal": "*",
+    "actor": ["holmes", "cotter"],
+    "disparador": {"evento": ["ad", "say"], "match": {"bait": true}, "contador": "bait_topic", "n_in": [1, 2]},
+    "condiciones": {"not": {"flag": "watson_expuesto"}},
+    "ancla": ["phrase"],
+    "latencia": {"tipo": "voz_b"},
+    "efecto": [{"op": "columna", "si_canal": "K-T"}, {"op": "carta", "si_canal": ["K-W", "K-H"], "firma": "—S."}],
+    "rastro": [
+      {"tpl": "pared.1", "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|«A pique»]]: dele.}} {{#fuente a:remite_journal e:journal_de_geneve|Véase el Journal de Genève del 6 de mayo de 1891.}} —S."},
+      {"tpl": "pared.2", "texto": "{{#ancla a:ancla_${ch} a:corresponsal_s|[[@act|Quien fotografía la cascada desde la otra orilla]] ve lo que no ve quien camina el sendero.}} —S."}
+    ],
+    "corta": [], "agrega": ["C6", "C9.R3"], "variante_blanda": null, "exento_d2": true
+  }
+]}

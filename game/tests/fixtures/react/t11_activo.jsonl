@@ -1,0 +1,32 @@
+# Guion fijo de un jugador activo (W2-REACT, T11 y determinismo). Una línea = un evento público (§3.6) con su tk.
+{"tk": "1.dawn", "type": "ad", "ad": "AD.1", "form": "testigo", "text": "Se busca testigo de la cascada del Reichenbach. Escribir a E. L., Holywell Street.", "pub_day": 1, "prologue": true}
+{"tk": "1.M", "type": "go", "place": "L2", "area": "sala", "streets": ["Great Russell Street"], "hour": "10:00"}
+{"tk": "1.M", "type": "slip", "seat": 214, "doc": "D05", "title": "el Journal de Genève del 6 de mayo de 1891", "topic": "holmes_prensa_1891", "hour": "10:15"}
+{"tk": "1.T", "type": "go", "place": "L4", "area": "consulta", "streets": ["Kensington High Street", "Church Street"], "hour": "15:00"}
+{"tk": "1.T", "type": "say", "char": "watson", "kind": "assert", "assertion": "as.pared", "topic": "pared", "bait_topic": "pared", "phrase": "La pared era a pique, ¿no, doctor?", "ents": ["pared", "reichenbach"]}
+{"tk": "1.N", "type": "telegram", "to": "meiringen", "text": "¿Hay una cornisa sobre el sendero del Reichenbach?"}
+{"tk": "2.M", "type": "go", "place": "L3", "area": "vestibulo", "streets": ["Baker Street"], "hour": "10:00"}
+{"tk": "2.M", "type": "say", "char": "mrs_hudson", "kind": "assert", "assertion": "cn.chelsea", "topic": "lisle_mudanza", "canary": "lisle_mudanza", "phrase": "Me mudo a Chelsea la semana que viene, sir."}
+{"tk": "2.T", "type": "go", "place": "L6", "area": "", "streets": ["el Strand"], "hour": "14:00"}
+{"tk": "2.N", "type": "letter", "to": "bath", "text": "¿Conoce usted a un procurador llamado Pell?"}
+{"tk": "2.night", "type": "report", "n": 1, "mode": "items", "items": [{"kind": "clip", "id": "RC0003", "cats": ["original_p", "verdadero"], "copies": ["D02@L1"], "cls": ["P"]}]}
+{"tk": "3.dawn", "type": "ad", "ad": "AD.2", "form": "a_proposito", "text": "A propósito de El problema final: la pared era a pique. —E. L.", "assertion": "as.pared", "bait_topic": "pared", "pub_day": 3}
+{"tk": "3.M", "type": "go", "place": "L2", "area": "sala", "streets": ["Great Russell Street"], "hour": "10:00"}
+{"tk": "3.M", "type": "slip", "seat": 118, "doc": "D03", "title": "«El problema final»", "topic": "holmes_cronicas", "hour": "10:20"}
+{"tk": "3.T", "type": "go", "place": "L4", "area": "consulta", "streets": ["Kensington High Street"], "hour": "15:00"}
+{"tk": "3.T", "type": "say", "char": "watson", "kind": "ask", "topic": "mary_watson", "phrase": "¿Y la señora Watson, doctor?", "ents": ["mary_watson"]}
+{"tk": "4.M", "type": "go", "place": "L5", "area": "porteria", "streets": ["Pall Mall"], "hour": "11:00"}
+{"tk": "4.T", "type": "go", "place": "L1", "area": "tienda", "streets": ["Holywell Street"], "hour": "16:00"}
+{"tk": "5.M", "type": "go", "place": "L2", "area": "sala", "streets": ["Great Russell Street"], "hour": "10:00"}
+{"tk": "5.M", "type": "slip", "seat": 31, "doc": "D13", "title": "los despachos de S. Sigerson", "topic": "sigerson", "hour": "10:30"}
+{"tk": "5.T", "type": "go", "place": "L7", "area": "", "streets": ["Park Lane"], "hour": "16:00"}
+{"tk": "5.night", "type": "report", "n": 2, "mode": "items", "items": [{"kind": "clip", "id": "RC0010", "cats": ["watson_privado"], "copies": ["D01N@tomo"], "cls": ["P"]}]}
+{"tk": "6.T", "type": "go", "place": "L4", "area": "estudio", "streets": ["Kensington High Street"], "hour": "16:00"}
+{"tk": "7.dawn", "type": "ad", "ad": "AD.3", "form": "a_proposito", "text": "A propósito de El problema final: cayeron los dos. —E. L.", "assertion": "as.cayeron", "bait_topic": "cayeron", "pub_day": 7}
+{"tk": "7.M", "type": "go", "place": "L3", "area": "calle", "streets": ["Baker Street"], "hour": "10:00"}
+{"tk": "7.T", "type": "go", "place": "L8", "area": "interior", "streets": ["Baker Street"], "hour": "15:00"}
+{"tk": "8.T", "type": "go", "place": "L5", "area": "forasteros", "streets": ["Pall Mall"], "hour": "17:00"}
+{"tk": "8.night", "type": "report", "n": 3, "mode": "nada", "items": []}
+{"tk": "9.M", "type": "go", "place": "L3", "area": "vestibulo", "streets": ["Baker Street"], "hour": "10:00"}
+{"tk": "9.M", "type": "say", "char": "mrs_hudson", "kind": "ask", "topic": "cuartos", "phrase": "¿Para quién airean los cuartos, señora?", "ents": ["cuartos"]}
+{"tk": "10.M", "type": "report", "n": 4, "mode": "errata", "items": []}

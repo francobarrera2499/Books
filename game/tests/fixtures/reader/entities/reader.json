@@ -1,0 +1,14 @@
+{"_nota": "W2-READER. Entidades mínimas del fixture del lector (no son contenido del juego).",
+"entities": [
+  {"id": "carta_voz_a", "kind": "documento", "name": "la carta a máquina", "index": "carta a máquina", "noun": "carta"},
+  {"id": "telegrama_steiler", "kind": "documento", "name": "el telegrama de Meiringen", "index": "telegrama de Meiringen", "noun": "telegrama"},
+  {"id": "times", "kind": "documento", "name": "el Times", "index": "Times, The", "noun": "diario"},
+  {"id": "journal_de_geneve", "kind": "documento", "name": "el Journal de Genève", "index": "Journal de Genève", "noun": "diario"},
+  {"id": "reuter", "kind": "documento", "name": "el despacho de Reuter", "index": "Reuter, despacho de", "noun": "despacho"},
+  {"id": "reichenbach", "kind": "lugar", "name": "el Reichenbach", "index": "Reichenbach, cascada del", "noun": "cascada"},
+  {"id": "cornisa", "kind": "concepto", "name": "la cornisa", "index": "cornisa", "noun": "cornisa"},
+  {"id": "papel_corto", "kind": "concepto", "name": "el papel corto", "index": "papel corto", "noun": "papel"},
+  {"id": "perro_perdido", "kind": "objeto", "name": "un perro perdido", "index": "perro perdido", "noun": "perro"},
+  {"id": "reloj_de_oro", "kind": "objeto", "name": "un reloj de oro", "index": "reloj de oro", "noun": "reloj"},
+  {"id": "holywell_street", "kind": "lugar", "name": "Holywell Street", "index": "Holywell Street", "noun": "calle"}
+]}

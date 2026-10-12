@@ -1,0 +1,27 @@
+{
+ "id": "D19",
+ "entity": "london_gazette",
+ "title": "London Gazette, avisos a acreedores",
+ "src_type": "registro",
+ "class": "I",
+ "date": "1892-06-01",
+ "font": "imprenta",
+ "paper": "registro",
+ "slip_topic": "gazette",
+ "copies": [
+  {
+   "id": "D19@BM",
+   "holder": "BM",
+   "via": "slip",
+   "from": "1.M",
+   "to": "9.N"
+  }
+ ],
+ "parts": [
+  {
+   "id": "p1",
+   "text": "Avisos a acreedores por los bienes del profesor Moriarty."
+  }
+ ],
+ "words": 9
+}

@@ -1,0 +1,1365 @@
+{
+ "_nota": "W2-PLACES-A. L2: Sala de Lectura del Museo Británico (centro = origen; entrada al sur, +Z; 16 mesas radiales en 11,25° + 22,5°·k) y Sala de Periódicos al este (+X), por una puerta del anillo de estanterías. Una sola visita recorre las dos salas (nodos y encuadres en área *). Escrito con un generador de trabajo no versionado (.work/w2placesa/): este JSON es la fuente de verdad.",
+ "id": "L2",
+ "name": "Sala de Lectura del Museo Británico y Sala de Periódicos",
+ "streets": [
+  "Great Russell Street"
+ ],
+ "areas": {
+  "sala": {
+   "desc": "Sala de Lectura (cúpula, mesas radiales, catálogo, mostrador) y, por una puerta del anillo, la Sala de Periódicos: una sola visita"
+  }
+ },
+ "observers": [
+  "cotter"
+ ],
+ "epigraph": "—¿El Journal de Genève, señor?",
+ "frames": [
+  {
+   "id": "mostrador",
+   "area": "*",
+   "pos": [
+    0.42,
+    1.66,
+    4.55
+   ],
+   "look": [
+    -0.05,
+    1.08,
+    2.0
+   ],
+   "fov": 54,
+   "orbit": {
+    "pivot": [
+     0.1,
+     1.0,
+     2.4
+    ],
+    "yaw": 22,
+    "pitch": 8
+   }
+  },
+  {
+   "id": "mesas",
+   "area": "*",
+   "pos": [
+    0.35,
+    1.62,
+    12.9
+   ],
+   "look": [
+    -0.3,
+    0.85,
+    8.6
+   ],
+   "fov": 56,
+   "orbit": {
+    "pivot": [
+     -0.6,
+     0.9,
+     9.4
+    ],
+    "yaw": 25,
+    "pitch": 10
+   }
+  },
+  {
+   "id": "puerta",
+   "area": "*",
+   "pos": [
+    0.9,
+    1.65,
+    11.4
+   ],
+   "look": [
+    0.0,
+    4.4,
+    21.3
+   ],
+   "fov": 64,
+   "orbit": {
+    "pivot": [
+     0.0,
+     2.5,
+     18.0
+    ],
+    "yaw": 20,
+    "pitch": 8
+   }
+  },
+  {
+   "id": "periodicos",
+   "area": "*",
+   "pos": [
+    23.6,
+    1.65,
+    0.35
+   ],
+   "look": [
+    37.0,
+    1.3,
+    -0.25
+   ],
+   "fov": 58,
+   "orbit": {
+    "pivot": [
+     31.0,
+     1.2,
+     0.0
+    ],
+    "yaw": 20,
+    "pitch": 8
+   }
+  }
+ ],
+ "light": {
+  "dawn": "electrica_fria",
+  "M": "electrica_fria",
+  "T": "electrica_fria",
+  "N": "electrica_fria",
+  "night": "electrica_fria"
+ },
+ "props": [
+  {
+   "id": "sala",
+   "type": "l2.reading_room",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "r": 21.3,
+    "tier_h": 2.9,
+    "tiers": 3,
+    "segs": 48,
+    "ribs": 20,
+    "drum": 6.4,
+    "seed": 5,
+    "doors": [
+     {
+      "a": 90.0,
+      "w": 2.4,
+      "h": 3.4,
+      "clock": true,
+      "vestibule": 6.0
+     },
+     {
+      "a": 0.0,
+      "w": 2.2,
+      "h": 3.2,
+      "vestibule": 1.25,
+      "open_end": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "centro",
+   "type": "l2.center",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "gaps": [
+     0.0,
+     90.0,
+     180.0,
+     270.0
+    ],
+    "gap_w": 1.2,
+    "gate": 270.0,
+    "slips": [
+     70.0
+    ],
+    "slips_r": 3.62,
+    "seed": 9
+   }
+  },
+  {
+   "id": "mesas",
+   "type": "l2.radial_desks",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "n": 16,
+    "a0": 11.25,
+    "r0": 6.6,
+    "r1": 18.6,
+    "spacing": 1.1,
+    "seed": 14
+   }
+  },
+  {
+   "id": "lamparas",
+   "type": "l2.arc_lamps",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "n": 16,
+    "a0": 11.25,
+    "r": 19.7,
+    "y": 5.2,
+    "wall": 20.45,
+    "energy": 1.3,
+    "range": 12.0
+   }
+  },
+  {
+   "id": "lectores",
+   "type": "l2.readers",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "seats": [
+     [
+      78.75,
+      7.2,
+      1
+     ],
+     [
+      78.75,
+      8.3,
+      1
+     ],
+     [
+      78.75,
+      10.5,
+      1
+     ],
+     [
+      78.75,
+      11.6,
+      1
+     ],
+     [
+      78.75,
+      13.8,
+      1
+     ],
+     [
+      78.75,
+      16.0,
+      1
+     ],
+     [
+      101.25,
+      7.2,
+      -1
+     ],
+     [
+      101.25,
+      9.4,
+      -1
+     ],
+     [
+      101.25,
+      11.6,
+      -1
+     ],
+     [
+      101.25,
+      13.8,
+      -1
+     ],
+     [
+      101.25,
+      17.1,
+      -1
+     ],
+     [
+      101.25,
+      8.3,
+      1
+     ],
+     [
+      101.25,
+      12.7,
+      1
+     ],
+     [
+      56.25,
+      9.4,
+      1
+     ],
+     [
+      56.25,
+      12.7,
+      1
+     ],
+     [
+      56.25,
+      14.9,
+      1
+     ],
+     [
+      123.75,
+      8.3,
+      -1
+     ],
+     [
+      123.75,
+      11.6,
+      -1
+     ],
+     [
+      123.75,
+      14.9,
+      -1
+     ],
+     [
+      258.75,
+      7.2,
+      1
+     ],
+     [
+      258.75,
+      9.4,
+      1
+     ],
+     [
+      281.25,
+      8.3,
+      -1
+     ],
+     [
+      281.25,
+      10.5,
+      -1
+     ],
+     [
+      236.25,
+      8.3,
+      1
+     ],
+     [
+      303.75,
+      7.2,
+      -1
+     ]
+    ],
+    "seed": 21
+   }
+  },
+  {
+   "id": "canastilla",
+   "type": "l2.slip_basket",
+   "pos": [
+    0.0,
+    1.08,
+    2.05
+   ],
+   "rot": 0.0
+  },
+  {
+   "id": "cotter",
+   "type": "figure.fajo_bajo_brazo",
+   "pos": [
+    -0.58,
+    0.0,
+    2.62
+   ],
+   "rot": 128.0
+  },
+  {
+   "id": "puesto",
+   "type": "l2.seat_items",
+   "pos": [
+    -1.656,
+    0.768,
+    10.376
+   ],
+   "rot": 78.75
+  },
+  {
+   "id": "puesto_cotter",
+   "type": "l2.cotter_desk",
+   "pos": [
+    -1.227,
+    0.768,
+    8.219
+   ],
+   "rot": 78.75
+  },
+  {
+   "id": "cesto",
+   "type": "l2.strip_basket",
+   "pos": [
+    -0.197,
+    0.0,
+    8.933
+   ],
+   "rot": 0.0,
+   "p": {
+    "n": 30,
+    "seed": 4
+   }
+  },
+  {
+   "id": "mozo",
+   "type": "l2.attendant",
+   "pos": [
+    -1.75,
+    0.0,
+    16.4
+   ],
+   "rot": 180.0
+  },
+  {
+   "id": "sala_periodicos",
+   "type": "architecture.room",
+   "pos": [
+    30.0,
+    0.0,
+    0.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 14.0,
+    "d": 10.0,
+    "h": 6.2,
+    "wall": "estuco",
+    "floor": "suelo_tablas",
+    "ceiling": "yeso",
+    "dado": 1.2,
+    "openings": [
+     {
+      "wall": "w",
+      "kind": "void",
+      "x": 0.0,
+      "w": 2.2,
+      "h": 3.2,
+      "sill": 0.0
+     },
+     {
+      "wall": "n",
+      "kind": "window",
+      "x": -1.0,
+      "w": 1.5,
+      "h": 2.0,
+      "sill": 3.6,
+      "panes": 6
+     },
+     {
+      "wall": "n",
+      "kind": "window",
+      "x": 3.2,
+      "w": 1.5,
+      "h": 2.0,
+      "sill": 3.6,
+      "panes": 6
+     },
+     {
+      "wall": "e",
+      "kind": "window",
+      "x": -2.6,
+      "w": 1.5,
+      "h": 3.0,
+      "sill": 2.2,
+      "panes": 6
+     },
+     {
+      "wall": "e",
+      "kind": "window",
+      "x": 2.6,
+      "w": 1.5,
+      "h": 3.0,
+      "sill": 2.2,
+      "panes": 6
+     },
+     {
+      "wall": "s",
+      "kind": "window",
+      "x": 3.5,
+      "w": 1.5,
+      "h": 2.2,
+      "sill": 3.5,
+      "panes": 6
+     }
+    ]
+   }
+  },
+  {
+   "id": "folios_n",
+   "type": "l2.folio_shelves",
+   "pos": [
+    31.5,
+    0.0,
+    -4.73
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 6.6,
+    "h": 3.2,
+    "rows": 5,
+    "seed": 2
+   }
+  },
+  {
+   "id": "folios_s",
+   "type": "l2.folio_shelves",
+   "pos": [
+    30.0,
+    0.0,
+    4.73
+   ],
+   "rot": 180.0,
+   "p": {
+    "w": 11.0,
+    "h": 3.2,
+    "rows": 5,
+    "seed": 3
+   }
+  },
+  {
+   "id": "folios_o1",
+   "type": "l2.folio_shelves",
+   "pos": [
+    23.27,
+    0.0,
+    -3.15
+   ],
+   "rot": 90.0,
+   "p": {
+    "w": 3.2,
+    "h": 3.2,
+    "rows": 5,
+    "seed": 4
+   }
+  },
+  {
+   "id": "folios_o2",
+   "type": "l2.folio_shelves",
+   "pos": [
+    23.27,
+    0.0,
+    3.15
+   ],
+   "rot": 90.0,
+   "p": {
+    "w": 3.2,
+    "h": 3.2,
+    "rows": 5,
+    "seed": 5
+   }
+  },
+  {
+   "id": "atril_p1",
+   "type": "l2.newspaper_lectern",
+   "pos": [
+    30.3,
+    0.0,
+    -1.7
+   ],
+   "rot": 0.0,
+   "p": {
+    "l": 8.5,
+    "n": 5,
+    "seed": 6
+   }
+  },
+  {
+   "id": "atril_p2",
+   "type": "l2.newspaper_lectern",
+   "pos": [
+    30.3,
+    0.0,
+    1.7
+   ],
+   "rot": 0.0,
+   "p": {
+    "l": 8.5,
+    "n": 5,
+    "seed": 7
+   }
+  },
+  {
+   "id": "lamparas_p1",
+   "type": "l2.pendant_lamps",
+   "pos": [
+    30.3,
+    0.0,
+    -1.7
+   ],
+   "rot": 0.0,
+   "p": {
+    "n": 4,
+    "l": 8.5,
+    "y": 3.2,
+    "drop": 3.0
+   }
+  },
+  {
+   "id": "lamparas_p2",
+   "type": "l2.pendant_lamps",
+   "pos": [
+    30.3,
+    0.0,
+    1.7
+   ],
+   "rot": 0.0,
+   "p": {
+    "n": 4,
+    "l": 8.5,
+    "y": 3.2,
+    "drop": 3.0
+   }
+  },
+  {
+   "id": "empleado",
+   "type": "l2.clerk",
+   "pos": [
+    35.75,
+    0.0,
+    0.0
+   ],
+   "rot": -90.0
+  },
+  {
+   "id": "lectores_p",
+   "type": "l2.standing_readers",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rot": 0.0,
+   "p": {
+    "at": [
+     [
+      28.0,
+      -0.75,
+      180
+     ],
+     [
+      31.2,
+      0.75,
+      0
+     ],
+     [
+      33.0,
+      -2.65,
+      0
+     ]
+    ]
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "cotter_canastilla",
+   "prop": "canastilla",
+   "noun": "escribiente",
+   "anchor": {
+    "c": [
+     -0.36,
+     1.2,
+     2.36
+    ],
+    "s": [
+     0.78,
+     0.95,
+     0.8
+    ]
+   },
+   "examine": "Junto a la canastilla de las papeletas, en el mostrador, un hombre delgado con un [[fajo_de_papel|fajo de papel]] bajo el brazo lee cada [[papeleta|papeleta]] (título y número de [[asiento|asiento]]) antes de pasársela al mozo.",
+   "tags": [
+    "a:me_vigila_de_cerca",
+    "e:hombre_de_la_canastilla",
+    "e:canastilla",
+    "e:papeleta",
+    "e:asiento",
+    "e:fajo_de_papel"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "cesto_tiras",
+   "prop": "cesto",
+   "noun": "cesto",
+   "anchor": {
+    "c": [
+     -0.197,
+     0.22,
+     8.933
+    ],
+    "s": [
+     0.42,
+     0.46,
+     0.42
+    ]
+   },
+   "examine": "Al lado de un puesto vacío, un [[cesto|cesto]] lleno de [[tiras_de_papel|tiras]] cortadas del borde de arriba de pliegos de carta; en una se lee, impreso: «…GENES CLUB · [[pall_mall|PALL MALL]]…».",
+   "tags": [
+    "a:vinculo_mycroft",
+    "e:cesto",
+    "e:tiras_de_papel",
+    "e:membrete_recortado",
+    "e:pall_mall"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "puesto_cotter",
+   "prop": "puesto_cotter",
+   "noun": "puesto",
+   "anchor": {
+    "c": [
+     -1.227,
+     0.808,
+     8.219
+    ],
+    "s": [
+     0.62,
+     0.1,
+     0.62
+    ]
+   },
+   "examine": "Un puesto ocupado sin nadie: una resma de papel de cartas a la que le falta el borde de arriba, tiras sueltas, una tijera abierta y un tintero.",
+   "tags": [
+    "e:membrete_recortado",
+    "e:tijera"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "asiento",
+   "prop": "puesto",
+   "noun": "puesto",
+   "anchor": {
+    "c": [
+     -1.656,
+     0.908,
+     10.376
+    ],
+    "s": [
+     0.56,
+     0.32,
+     0.56
+    ]
+   },
+   "examine": "Un puesto de lectura: silla, atril plegable, tintero, secante y un gancho para el sombrero; en la mampara, una chapa con el número del [[asiento|asiento]].",
+   "tags": [
+    "e:asiento"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "mostrador",
+   "prop": "centro",
+   "noun": "mostrador",
+   "anchor": {
+    "c": [
+     0.0,
+     0.55,
+     1.75
+    ],
+    "s": [
+     3.0,
+     1.1,
+     1.25
+    ]
+   },
+   "examine": "El mostrador circular del centro: ahí se dejan las papeletas y se devuelven los libros.",
+   "tags": [
+    "e:canastilla"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "tarima",
+   "prop": "centro",
+   "noun": "tarima",
+   "anchor": {
+    "c": [
+     0.0,
+     1.15,
+     -0.2
+    ],
+    "s": [
+     1.5,
+     0.7,
+     0.9
+    ]
+   },
+   "examine": "En el centro, sobre una tarima con baranda de latón, el escritorio del [[superintendente_bm|superintendente]].",
+   "tags": [
+    "e:superintendente_bm"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "catalogo",
+   "prop": "centro",
+   "noun": "catálogo",
+   "anchor": {
+    "c": [
+     -1.297,
+     0.56,
+     3.38
+    ],
+    "s": [
+     1.0,
+     1.12,
+     1.0
+    ]
+   },
+   "examine": "El [[catalogo_general|catálogo general]]: tomos iguales en anillo alrededor del centro, con atriles para consultarlos de pie; uno está abierto.",
+   "tags": [
+    "e:catalogo_general"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "papeletas",
+   "prop": "centro",
+   "noun": "papeletas",
+   "anchor": {
+    "c": [
+     1.197,
+     1.1,
+     3.289
+    ],
+    "s": [
+     0.42,
+     0.14,
+     0.42
+    ]
+   },
+   "examine": "Formularios en blanco sobre el atril del catálogo: blancos para libros impresos, verdes para manuscritos. En cada uno se anota la signatura y el número de [[asiento|asiento]].",
+   "tags": [
+    "e:papeleta",
+    "e:asiento"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "mesas",
+   "prop": "mesas",
+   "noun": "mesa",
+   "anchor": {
+    "c": [
+     1.853,
+     0.395,
+     9.317
+    ],
+    "s": [
+     3.682,
+     0.79,
+     6.196
+    ]
+   },
+   "examine": "Las [[mesas_radiales|mesas]] salen del centro como los rayos de una rueda; cada una tiene una mampara en el medio y puestos numerados a los dos lados.",
+   "tags": [
+    "e:mesas_radiales"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "mesa_del_puesto",
+   "prop": "mesas",
+   "noun": "mesa",
+   "anchor": {
+    "c": [
+     -1.853,
+     0.395,
+     9.317
+    ],
+    "s": [
+     3.682,
+     0.79,
+     6.196
+    ]
+   },
+   "examine": "Una mesa radial con tapa de cuero; los puestos se distinguen por la chapa con el número, atornillada a la mampara.",
+   "tags": [
+    "e:mesas_radiales",
+    "e:asiento"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "mesa_este",
+   "prop": "mesas",
+   "noun": "mesa",
+   "anchor": {
+    "c": [
+     3.0,
+     0.6,
+     15.3
+    ],
+    "s": [
+     2.6,
+     1.2,
+     6.0
+    ]
+   },
+   "examine": "El tramo de afuera de una mesa radial, junto al anillo de estanterías: puestos numerados a los dos lados, sillas de respaldo curvo y un gancho para el sombrero en cada puesto.",
+   "tags": [
+    "e:mesas_radiales"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "mesa_oeste",
+   "prop": "mesas",
+   "noun": "mesa",
+   "anchor": {
+    "c": [
+     -3.0,
+     0.6,
+     15.3
+    ],
+    "s": [
+     2.6,
+     1.2,
+     6.0
+    ]
+   },
+   "examine": "El tramo de afuera de una mesa radial, junto al anillo de estanterías: puestos numerados a los dos lados, sillas de respaldo curvo y un gancho para el sombrero en cada puesto.",
+   "tags": [
+    "e:mesas_radiales"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "lectores",
+   "prop": "lectores",
+   "noun": "lectores",
+   "anchor": {
+    "c": [
+     1.116,
+     0.75,
+     11.044
+    ],
+    "s": [
+     1.7,
+     1.5,
+     1.7
+    ]
+   },
+   "examine": "[[lectores_bm|Lectores]] inclinados sobre sus libros; nadie levanta la vista. Sólo se oye una pluma.",
+   "tags": [
+    "e:lectores_bm"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "mozo",
+   "prop": "mozo",
+   "noun": "mozo",
+   "anchor": {
+    "c": [
+     -1.75,
+     0.88,
+     16.0
+    ],
+    "s": [
+     1.0,
+     1.76,
+     1.3
+    ]
+   },
+   "examine": "Un [[mozo|mozo]] empuja un carrito de libros por el pasillo, de puesto en puesto.",
+   "tags": [
+    "e:mozo"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "lamparas",
+   "prop": "lamparas",
+   "noun": "lámpara",
+   "anchor": {
+    "c": [
+     3.843,
+     5.15,
+     19.321
+    ],
+    "s": [
+     0.75,
+     0.95,
+     0.75
+    ]
+   },
+   "examine": "[[lamparas_electricas|Lámparas eléctricas]] en brazos de hierro, bajo la galería: luz blanca y fría, que no parpadea.",
+   "tags": [
+    "e:lamparas_electricas"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "cupula",
+   "prop": "sala",
+   "noun": "cúpula",
+   "anchor": {
+    "c": [
+     0.0,
+     10.6,
+     20.8
+    ],
+    "s": [
+     8.0,
+     2.6,
+     0.8
+    ]
+   },
+   "examine": "Arriba, el tambor de la [[cupula_bm|cúpula]], con ventanas entre los nervios; más arriba, el casquete y un óculo de vidrio.",
+   "tags": [
+    "e:cupula_bm"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "estanterias",
+   "prop": "sala",
+   "noun": "estantería",
+   "anchor": {
+    "c": [
+     -6.4,
+     4.4,
+     19.4
+    ],
+    "s": [
+     8.8,
+     8.8,
+     3.6
+    ]
+   },
+   "examine": "Estanterías de tres pisos cubren el muro curvo; a las de arriba se llega por galerías de hierro.",
+   "tags": [],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "puerta_sala",
+   "prop": "sala",
+   "noun": "puerta",
+   "anchor": {
+    "c": [
+     0.0,
+     1.7,
+     21.3
+    ],
+    "s": [
+     2.5,
+     3.4,
+     0.7
+    ]
+   },
+   "examine": "La puerta de la [[sala_de_lectura|Sala de Lectura]], de dos hojas forradas de cuero; los visitantes sin billete sólo pueden mirar desde ahí.",
+   "tags": [
+    "e:sala_de_lectura"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "reloj",
+   "prop": "sala",
+   "noun": "reloj",
+   "anchor": {
+    "c": [
+     0.0,
+     4.5,
+     20.95
+    ],
+    "s": [
+     1.1,
+     1.1,
+     0.2
+    ]
+   },
+   "examine": "Un reloj grande sobre la puerta de entrada.",
+   "tags": [],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "atril_periodicos",
+   "prop": "atril_p1",
+   "noun": "atril",
+   "anchor": {
+    "c": [
+     30.3,
+     0.68,
+     -1.7
+    ],
+    "s": [
+     8.6,
+     1.36,
+     1.62
+    ]
+   },
+   "examine": "Un atril largo e inclinado; sobre él, abiertas, colecciones encuadernadas de diarios: se leen de pie.",
+   "tags": [
+    "e:colecciones_de_diarios"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "atril_periodicos_2",
+   "prop": "atril_p2",
+   "noun": "atril",
+   "anchor": {
+    "c": [
+     30.3,
+     0.68,
+     1.7
+    ],
+    "s": [
+     8.6,
+     1.36,
+     1.62
+    ]
+   },
+   "examine": "Otro atril igual, con tomos del año pasado abiertos por la mitad; abajo, en la repisa, más tomos acostados.",
+   "tags": [
+    "e:colecciones_de_diarios"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "colecciones_sur",
+   "prop": "folios_s",
+   "noun": "colecciones",
+   "anchor": {
+    "c": [
+     30.0,
+     1.65,
+     4.73
+    ],
+    "s": [
+     11.0,
+     3.3,
+     0.55
+    ]
+   },
+   "examine": "Más colecciones encuadernadas, con el año en el lomo: diarios de provincia, de Francia y de Suiza.",
+   "tags": [
+    "e:colecciones_de_diarios"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "colecciones",
+   "prop": "folios_n",
+   "noun": "colecciones",
+   "anchor": {
+    "c": [
+     31.5,
+     1.65,
+     -4.73
+    ],
+    "s": [
+     6.6,
+     3.3,
+     0.55
+    ]
+   },
+   "examine": "Colecciones encuadernadas del [[times|Times]] y de diarios extranjeros, una por año, con el año en el lomo.",
+   "tags": [
+    "e:colecciones_de_diarios",
+    "e:times"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "ventanas_periodicos",
+   "prop": "sala_periodicos",
+   "noun": "ventana",
+   "anchor": {
+    "c": [
+     36.95,
+     3.7,
+     2.6
+    ],
+    "s": [
+     0.3,
+     3.0,
+     1.55
+    ]
+   },
+   "examine": "Ventanas altas, de vidrios pequeños, sobre un patio interior; por la tarde entra el sol de costado.",
+   "tags": [],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "sala_periodicos",
+   "prop": "sala_periodicos",
+   "noun": "sala",
+   "anchor": {
+    "c": [
+     30.3,
+     5.0,
+     0.0
+    ],
+    "s": [
+     6.0,
+     1.0,
+     1.2
+    ]
+   },
+   "examine": "La [[sala_de_periodicos|Sala de Periódicos]]: techo alto, atriles largos y colecciones encuadernadas en las cuatro paredes.",
+   "tags": [
+    "e:sala_de_periodicos"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "empleado",
+   "prop": "empleado",
+   "noun": "empleado",
+   "anchor": {
+    "c": [
+     35.45,
+     0.85,
+     0.0
+    ],
+    "s": [
+     1.35,
+     1.7,
+     1.3
+    ]
+   },
+   "examine": "El empleado de la sala anota cada pedido en un registro de renglones azules.",
+   "tags": [],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  },
+  {
+   "id": "lectores_periodicos",
+   "prop": "lectores_p",
+   "noun": "lector",
+   "anchor": {
+    "c": [
+     31.2,
+     0.9,
+     0.75
+    ],
+    "s": [
+     0.8,
+     1.8,
+     0.8
+    ]
+   },
+   "examine": "Un caballero lee de pie, con las manos a la espalda, un tomo del año pasado.",
+   "tags": [
+    "e:lectores_bm"
+   ],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [
+  {
+   "id": "ujier",
+   "area": "*",
+   "pos": [
+    1.271,
+    0.0,
+    2.607
+   ],
+   "rot": -23.7,
+   "pose": "de_pie",
+   "trait": "",
+   "when": {}
+  }
+ ],
+ "silhouettes": {
+  "wiggins": {
+   "frame": "puerta",
+   "pos": [
+    -0.45,
+    0,
+    21.75
+   ],
+   "rot": 180
+  },
+  "cochero": {
+   "frame": "puerta",
+   "pos": [
+    0.85,
+    0,
+    23.6
+   ],
+   "rot": 195
+  },
+  "muchacho_sin_gorra": {
+   "frame": "puerta",
+   "pos": [
+    0.2,
+    0,
+    22.7
+   ],
+   "rot": 185,
+   "_nota": "HB8b: reemplaza a Wiggins (op silueta, place *); el canal K-S sigue."
+  }
+ },
+ "variants": {}
+}

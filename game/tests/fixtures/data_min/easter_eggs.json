@@ -1,0 +1,4 @@
+{"eggs": [
+  {"id": "EE01", "name": "«Mi James»", "trigger": {"clip_tag": "x:EE01"}, "note": "Mary llamaba «James» a su marido. Sic, con ternura."},
+  {"id": "EE02", "name": "La bala", "trigger": {"clip_tag": "x:EE02"}, "note": "Hombro en una crónica, pierna en otra. La bala no leyó ninguna."}
+]}

@@ -1,0 +1,83 @@
+{
+ "id": "RB",
+ "name": "La cascada del Reichenbach",
+ "fixed": true,
+ "origin": "PL.reichenbach",
+ "frames": [
+  {
+   "id": "fija",
+   "area": "*",
+   "pos": [
+    0.0,
+    1.5,
+    3.2
+   ],
+   "look": [
+    0.0,
+    1.2,
+    0.0
+   ],
+   "fov": 45
+  }
+ ],
+ "light": {
+  "M": "dia_ventana"
+ },
+ "props": [],
+ "nodes": [
+  {
+   "id": "pared",
+   "noun": "pared",
+   "anchor": {
+    "c": [
+     0.0,
+     1.0,
+     -1.0
+    ],
+    "s": [
+     1.0,
+     1.0,
+     0.5
+    ]
+   },
+   "examine": "Una [[pared|pared]] de roca negra, mojada.",
+   "tags": [],
+   "cls": "I",
+   "area": "*",
+   "when": {}
+  }
+ ],
+ "characters": [],
+ "variants": {
+  "foto": {
+   "add_nodes": [
+    {
+     "id": "linea",
+     "noun": "línea oscura",
+     "anchor": {
+      "c": [
+       0.0,
+       1.0,
+       -1.0
+      ],
+      "s": [
+       1.0,
+       1.0,
+       0.5
+      ]
+     },
+     "examine": "Una línea oscura en la pared, sobre el final del sendero.",
+     "tags": [
+      "a:cornisa_existe"
+     ],
+     "cls": "I",
+     "area": "*",
+     "when": {}
+    }
+   ]
+  }
+ },
+ "doc_variant": {
+  "D07": "foto"
+ }
+}

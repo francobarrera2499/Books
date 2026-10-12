@@ -1,0 +1,7 @@
+{"char": "mrs_hudson", "label": "Mrs. Hudson", "addr": "señora", "sensor": "K-H", "max_questions": 3,
+ "lines": [
+  {"id": "mycroft_paga", "layer": "tema", "match": {"topic": ["mycroft", "alquiler"]}, "when": {"not": {"flag": "hudson_cerrada"}}, "text": "{{#paga a:en_vida e:mycroft|El señor Mycroft paga el alquiler y manda no tocar nada, sir.}}"},
+  {"id": "ordenes", "layer": "tema", "match": {"topic": ["221b"]}, "text": "{{#ordenes a:ancla_kh e:mycroft|Órdenes del empleado del señor Mycroft, sir.}}"},
+  {"id": "gen.1", "layer": "generica", "text": "Los cuartos están como él los dejó, sir."}
+ ]
+}

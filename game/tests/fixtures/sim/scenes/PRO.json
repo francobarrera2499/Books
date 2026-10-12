@@ -1,0 +1,55 @@
+{
+ "id": "PRO",
+ "place": "L1",
+ "area": "buhardilla",
+ "tk": "P.N",
+ "plate": "PL.prologo",
+ "origin": "S.PRO",
+ "lines": [
+  {
+   "id": "encargo",
+   "who": "pell",
+   "text": "Una fe de erratas de las crónicas, señor Lisle, en debida forma."
+  },
+  {
+   "id": "cace_india",
+   "who": "harris",
+   "text": "{{#cace_india a:cazador e:india|Cacé en la India, señor.}} Allí se aprende a esperar arriba."
+  },
+  {
+   "id": "t_clip",
+   "who": "pell",
+   "text": "Recorte usted una línea del encargo, si es tan amable."
+  },
+  {
+   "id": "t_link",
+   "who": "pell",
+   "text": "Ahora junte dos recortes que se contradigan."
+  },
+  {
+   "id": "t_folio",
+   "who": "pell",
+   "text": "Abra un folio con el recorte que más le inquiete."
+  },
+  {
+   "id": "t_entry",
+   "who": "pell",
+   "text": "Asiente la errata, con su según en cada línea."
+  },
+  {
+   "id": "t_practice",
+   "who": "pell",
+   "text": "Páselo en limpio; es sólo práctica."
+  },
+  {
+   "id": "t_ad",
+   "who": "harris",
+   "text": "Redacte el aviso para el Times, señor; lo quiero el martes."
+  },
+  {
+   "id": "t_sleep",
+   "who": "pell",
+   "text": "Buenas noches, señor Lisle."
+  }
+ ]
+}

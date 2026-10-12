@@ -1,0 +1,27 @@
+{
+ "_nota": "W2-PLACES-A. Entidades de los objetos de L1 (buhardilla y tienda de Crane), L2 (Sala de Lectura y Sala de Periódicos) y de las láminas PRO y M7 que no estaban en core.json. Ids con sufijo para no chocar con otros lugares.",
+ "entities": [
+  {"id": "escritorio_de_lisle", "kind": "objeto", "name": "el escritorio", "index": "escritorio (buhardilla)", "noun": "escritorio"},
+  {"id": "cajon_del_escritorio", "kind": "objeto", "name": "el cajón del escritorio", "index": "cajón del escritorio", "noun": "cajón"},
+  {"id": "tintero_de_lisle", "kind": "objeto", "name": "el tintero", "index": "tintero", "noun": "tintero"},
+  {"id": "atril_de_lisle", "kind": "objeto", "name": "el atril", "index": "atril de lectura", "noun": "atril"},
+  {"id": "libro_mayor", "kind": "objeto", "name": "el libro mayor", "index": "libro mayor («Fe de erratas»)", "noun": "libro mayor"},
+  {"id": "cuaderno_de_recortes", "kind": "objeto", "name": "el cuaderno", "index": "cuaderno de recortes", "noun": "cuaderno"},
+  {"id": "mechero_de_pie", "kind": "objeto", "name": "el mechero de pie", "index": "mechero de gas de pie (tienda de Crane)", "noun": "mechero"},
+  {"id": "mostrador_de_crane", "kind": "objeto", "name": "el mostrador de Crane", "index": "mostrador (tienda de Crane)", "noun": "mostrador"},
+  {"id": "escaparate_de_crane", "kind": "objeto", "name": "el escaparate", "index": "escaparate (tienda de Crane)", "noun": "escaparate"},
+  {"id": "papel_al_peso", "kind": "objeto", "name": "el papel al peso", "index": "papel de imprenta al peso", "noun": "papel"},
+  {"id": "fotografias_recuerdo", "kind": "objeto", "name": "las fotografías-recuerdo", "index": "fotografías-recuerdo", "noun": "fotografías"},
+  {"id": "diarios_atrasados", "kind": "objeto", "name": "los diarios atrasados", "index": "diarios atrasados", "noun": "diarios"},
+  {"id": "media_luna", "kind": "objeto", "name": "la media luna", "index": "media luna, letrero de la", "noun": "letrero"},
+  {"id": "puesto_de_libros", "kind": "objeto", "name": "el puesto de libros", "index": "puesto de libros de a penique", "noun": "caballete"},
+  {"id": "reflejo_en_el_vidrio", "kind": "concepto", "name": "el reflejo en el vidrio", "index": "reflejo en el vidrio", "noun": "reflejo"},
+  {"id": "catalogo_general", "kind": "documento", "name": "el catálogo general", "index": "catálogo general (Museo Británico)", "noun": "catálogo"},
+  {"id": "superintendente_bm", "kind": "persona", "name": "el superintendente", "index": "superintendente de la Sala de Lectura", "noun": "superintendente"},
+  {"id": "cupula_bm", "kind": "lugar", "name": "la cúpula", "index": "cúpula de la Sala de Lectura", "noun": "cúpula"},
+  {"id": "lamparas_electricas", "kind": "objeto", "name": "las lámparas eléctricas", "index": "lámparas eléctricas", "noun": "lámpara"},
+  {"id": "lectores_bm", "kind": "persona", "name": "los lectores", "index": "lectores de la Sala de Lectura", "noun": "lector"},
+  {"id": "colecciones_de_diarios", "kind": "documento", "name": "las colecciones encuadernadas", "index": "colecciones encuadernadas de diarios", "noun": "colección"},
+  {"id": "mesas_radiales", "kind": "objeto", "name": "las mesas radiales", "index": "mesas radiales", "noun": "mesa"}
+ ]
+}

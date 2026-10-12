@@ -1,0 +1,9 @@
+{"id": "L5", "name": "Club Diógenes, Pall Mall",
+ "areas": {"porteria": {"desc": "portería"}, "forasteros": {"desc": "Sala de Forasteros"}},
+ "frames": [{"id": "porteria", "area": "porteria", "pos": [0.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0], "fov": 45}],
+ "props": [],
+ "nodes": [],
+ "characters": [{"id": "portero", "area": "porteria", "pos": [0.0, 0.0, 0.0]}, {"id": "mycroft", "area": "forasteros", "pos": [0.0, 0.0, 0.0]}],
+ "silhouettes": {"wiggins": {"frame": "porteria", "pos": [3.0, 0.0, 4.5], "rot": 180}},
+ "variants": {}
+}

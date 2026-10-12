@@ -1,0 +1,31 @@
+{"reactions": [
+  {
+    "id": "HC01", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 0, "canal": "K-T", "actor": ["cotter"],
+    "disparador": {"evento": "tiempo", "tk": "1.dawn"}, "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "fija", "tk": "1.dawn"},
+    "efecto": [{"op": "carta"}],
+    "doc": {"title": "Sobre sin remitente", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "recorte"},
+    "rastro": [
+      {"tpl": "sobre", "texto": "{{#sobre a:me_vigila_de_cerca e:pall_mall|Sobre sin remitente, matasellado en Pall Mall.}}"},
+      {"tpl": "no_lo_es", "texto": "{{#no_lo_es a:actividad_posterior_a_mayo_1891 e:letra|No lo es, a lápiz blando y de puño firme.}}"}
+    ],
+    "corta": [], "agrega": ["C7.R6", "C8.R4"], "variante_blanda": null, "exento_d2": true
+  },
+  {
+    "id": "HC02", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 0, "canal": "K-S", "actor": ["wiggins"],
+    "disparador": {"evento": "tiempo", "tk": "3.dawn"}, "condiciones": {}, "ancla": [],
+    "latencia": {"tipo": "fija", "tk": "3.dawn"},
+    "efecto": [{"op": "silueta", "who": "wiggins", "desde": "3.M"}],
+    "rastro": [{"tpl": "sil", "nodo": "N:*.sil_wiggins", "tags": ["a:ancla_ks"]}],
+    "corta": [], "agrega": ["C6"], "variante_blanda": null, "exento_d2": true
+  },
+  {
+    "id": "HC10", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 1, "canal": "K-T", "actor": ["holmes", "cotter"],
+    "disparador": {"evento": "tiempo", "tk": "4.dawn"}, "condiciones": {},
+    "ancla": ["text"], "ancla_de": {"evento": "ad", "match": {"ad": "AD:prologo"}},
+    "latencia": {"tipo": "fija", "tk": "4.dawn"},
+    "efecto": [{"op": "columna"}],
+    "rastro": [{"tpl": "texto", "texto": "AL LECTOR DE HOLYWELL STREET. {{#ancla a:ancla_kt a:corresponsal_s|[[@act|Busca usted testigos del 4 de mayo.]]}} {{#fuente a:remite_journal e:journal_de_geneve|Hubo tres guías, un pastor y un médico; los cuatro primeros hablaron en francés.}}"}],
+    "corta": [], "agrega": ["C6", "C9.R3"], "variante_blanda": null, "exento_d2": true
+  }
+]}

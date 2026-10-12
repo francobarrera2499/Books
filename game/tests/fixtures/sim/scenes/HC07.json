@@ -1,0 +1,14 @@
+{
+ "id": "HC07",
+ "place": "L1",
+ "area": "tienda",
+ "tk": "10.M",
+ "origin": "S.HC07",
+ "lines": [
+  {
+   "id": "duenos",
+   "who": "librero",
+   "text": "{{#duenos a:librero_falso e:tomos|Éstos tienen dueño, señor.}}"
+  }
+ ]
+}

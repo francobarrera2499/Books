@@ -1,0 +1,27 @@
+{
+ "id": "D10",
+ "entity": "heavy_game",
+ "title": "Heavy Game of the Western Himalayas, 1881",
+ "src_type": "libro",
+ "class": "I",
+ "date": "1881-01-01",
+ "font": "imprenta",
+ "paper": "registro",
+ "slip_topic": "moran",
+ "copies": [
+  {
+   "id": "D10@BM",
+   "holder": "BM",
+   "via": "slip",
+   "from": "1.M",
+   "to": "9.N"
+  }
+ ],
+ "parts": [
+  {
+   "id": "p1",
+   "text": "{{#cabrito a:cebo e:cabrito|Del cabrito atado: el cebo se ata bajo el árbol.}}"
+  }
+ ],
+ "words": 10
+}

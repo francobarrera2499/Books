@@ -1,0 +1,19 @@
+{"id": "L3", "name": "Baker Street",
+ "areas": {"calle": {"desc": "la calle"}, "vestibulo": {"desc": "vestíbulo de 221B"}, "agente": {"desc": "oficina del agente de fincas"}},
+ "frames": [
+  {"id": "calle", "area": "calle", "pos": [0.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0], "fov": 45},
+  {"id": "vestibulo", "area": "vestibulo", "pos": [0.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0], "fov": 45}
+ ],
+ "props": [],
+ "nodes": [
+  {"id": "ventanas_abiertas", "noun": "ventanas", "anchor": {"c": [0.0, 4.0, 0.0], "s": [2.0, 1.0, 0.2]}, "examine": "Las ventanas del primer piso de 221B están abiertas.", "tags": ["a:preparativos_221b", "e:221b"], "cls": "I", "area": "calle", "when": {"day": {"gte": 8}}},
+  {"id": "cajon", "noun": "cajón", "anchor": {"c": [0.0, 0.5, 0.0], "s": [1.0, 1.0, 1.0]}, "examine": "Un cajón para el señor Mycroft Holmes, 221B, que llega para el jueves: O. Meunier, moldeador, Grenoble.", "tags": ["a:preparativos_221b", "a:refuta_meunier_anarquista", "e:221b", "e:mycroft", "e:jueves"], "cls": "I", "area": "vestibulo", "when": {"tk": {"gte": "9.T"}}}
+ ],
+ "characters": [
+  {"id": "mrs_hudson", "area": "vestibulo", "pos": [0.0, 0.0, 0.0]},
+  {"id": "wiggins", "area": "calle", "pos": [2.0, 0.0, 3.0], "when": {"day": {"gte": 3}}},
+  {"id": "chico_agente", "area": "agente", "pos": [0.0, 0.0, 0.0], "when": {"day": {"gte": 7}}}
+ ],
+ "silhouettes": {"wiggins": {"frame": "calle", "pos": [3.0, 0.0, 4.5], "rot": 180}},
+ "variants": {}
+}

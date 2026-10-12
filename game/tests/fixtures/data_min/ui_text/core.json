@@ -1,0 +1,7 @@
+{"text": {
+  "save.otra_version": "La partida se guardó con otra versión del texto.",
+  "clip.cruza_oracion": "La tira no cruza un punto.",
+  "clip.mas_de_40": "La tira no da para tanto.",
+  "formal.falta_segun": "Falta un <i>según</i>.",
+  "saludo": "Buenos días, ${addr}."
+}}

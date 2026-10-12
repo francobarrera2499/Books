@@ -1,0 +1,848 @@
+{
+ "_nota": "Fixture de W2-SCENES (diálogo, compositores, confrontación, finales).",
+ "verbos": [
+  "ceder",
+  "vender",
+  "comprar",
+  "matar",
+  "disparar",
+  "ocultar",
+  "suprimir",
+  "vigilar",
+  "pagar",
+  "escribir",
+  "dictar",
+  "volver",
+  "preparar",
+  "separarse_de",
+  "seguir",
+  "hallar"
+ ],
+ "relaciones": [
+  "lee_a",
+  "paga_a",
+  "vigila_a",
+  "obedece_a",
+  "usa_a",
+  "busca_a"
+ ],
+ "medios": [
+  {
+   "id": "sala_lectura",
+   "label": "la Sala de Lectura",
+   "ch": "kbm",
+   "entities": [
+    "hombre_de_la_canastilla"
+   ]
+  },
+  {
+   "id": "consultorio",
+   "label": "el consultorio de Watson",
+   "ch": "kw",
+   "entities": [
+    "watson"
+   ]
+  },
+  {
+   "id": "221b",
+   "label": "221B",
+   "ch": "kh",
+   "entities": [
+    "mrs_hudson"
+   ]
+  },
+  {
+   "id": "la_calle",
+   "label": "la calle",
+   "ch": "ks",
+   "entities": [
+    "muchacho_de_gorra"
+   ]
+  },
+  {
+   "id": "columna",
+   "label": "la columna del Times",
+   "ch": "kt",
+   "entities": [
+    "times"
+   ]
+  }
+ ],
+ "estados": [
+  "vivo",
+  "muerto",
+  "desconocido"
+ ],
+ "templates": {
+  "T1": {
+   "name": "Errata",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "fuente_a",
+       "label": "Fuente A: ___",
+       "accept": {
+        "kinds": [
+         "documento"
+        ]
+       }
+      },
+      {
+       "id": "dice_a",
+       "label": "Dice: ___",
+       "accept": {
+        "kinds": [
+         "concepto",
+         "objeto",
+         "lugar",
+         "fecha",
+         "suceso"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "fuente_b",
+       "label": "Fuente B: ___",
+       "accept": {
+        "kinds": [
+         "documento"
+        ]
+       }
+      },
+      {
+       "id": "dice_b",
+       "label": "Dice: ___",
+       "accept": {
+        "kinds": [
+         "concepto",
+         "objeto",
+         "lugar",
+         "fecha",
+         "suceso"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T2": {
+   "name": "Omisión",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "fuente",
+       "label": "Fuente: ___",
+       "accept": {
+        "kinds": [
+         "documento"
+        ]
+       }
+      },
+      {
+       "id": "calla",
+       "label": "Calla: ___",
+       "accept": {
+        "kinds": [
+         "concepto",
+         "objeto",
+         "lugar",
+         "suceso"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "consta_en",
+       "label": "Consta en: ___",
+       "accept": {
+        "kinds": [
+         "documento"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T3": {
+   "name": "Identidad",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "es",
+       "label": "Es, en verdad: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T4": {
+   "name": "Autoría",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "documento",
+       "label": "Documento: ___",
+       "accept": {
+        "kinds": [
+         "documento"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "redacto",
+       "label": "Lo redactó: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T5": {
+   "name": "Hecho",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "hizo",
+       "label": "Hizo: ___",
+       "accept": {
+        "list": "verbos"
+       }
+      },
+      {
+       "id": "que",
+       "label": "Qué o a quién: ___",
+       "accept": {
+        "kinds": [
+         "persona",
+         "objeto",
+         "documento",
+         "concepto",
+         "lugar"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "a",
+       "label": "A o contra: ___",
+       "accept": {
+        "kinds": [
+         "persona",
+         "lugar",
+         "objeto"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "con",
+       "label": "Con: ___",
+       "accept": {
+        "kinds": [
+         "objeto",
+         "concepto"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "donde",
+       "label": "Dónde: ___",
+       "accept": {
+        "kinds": [
+         "lugar",
+         "concepto",
+         "suceso"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "cuando",
+       "label": "Cuándo: ___",
+       "accept": {
+        "kinds": [
+         "fecha",
+         "suceso",
+         "concepto"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T6": {
+   "name": "Relación",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "relacion",
+       "label": "Relación: ___",
+       "accept": {
+        "list": "relaciones"
+       }
+      },
+      {
+       "id": "a_quien",
+       "label": "A quién: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "por_medio",
+       "label": "Por medio de: ___",
+       "accept": {
+        "list": "medios"
+       }
+      }
+     ]
+    },
+    {
+     "optional": true,
+     "fields": [
+      {
+       "id": "y_de",
+       "label": "Y de: ___",
+       "accept": {
+        "list": "medios"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T7": {
+   "name": "Estado",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "estado",
+       "label": "En marzo de 1894: ___",
+       "accept": {
+        "list": "estados"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T8": {
+   "name": "Paradero",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "lugar",
+       "label": "Lugar: ___",
+       "accept": {
+        "kinds": [
+         "lugar"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "dia",
+       "label": "Día: ___",
+       "accept": {
+        "kinds": [
+         "fecha",
+         "suceso"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "T9": {
+   "name": "Propósito",
+   "lines": [
+    {
+     "fields": [
+      {
+       "id": "persona",
+       "label": "Persona: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "usa_a",
+       "label": "Usa a: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      },
+      {
+       "id": "como",
+       "label": "Como: ___",
+       "accept": {
+        "kinds": [
+         "concepto",
+         "objeto"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "fields": [
+      {
+       "id": "para",
+       "label": "Para: ___",
+       "accept": {
+        "list": "verbos"
+       }
+      },
+      {
+       "id": "a_quien",
+       "label": "A quién: ___",
+       "accept": {
+        "kinds": [
+         "persona"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "assertions": [
+  {
+   "id": "as.pared",
+   "kind": "cebo",
+   "topic": "pared",
+   "requires": [
+    "reichenbach",
+    "pared"
+   ],
+   "ad_text": "la pared era a pique",
+   "phrase": "La pared era a pique, ¿no, ${addr}?",
+   "about_holmes": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "as.testamento",
+   "kind": "cebo",
+   "topic": "testamento",
+   "requires": [
+    "holmes",
+    "testamento"
+   ],
+   "ad_text": "el señor Holmes murió sin testamento",
+   "phrase": "El señor Holmes murió sin testamento, ${addr}.",
+   "about_holmes": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "as.vive",
+   "kind": "vive",
+   "topic": "vive",
+   "requires": [
+    "holmes"
+   ],
+   "ad_text": "Holmes vive",
+   "phrase": "Holmes vive, ${addr}.",
+   "about_holmes": true,
+   "says_alive": true,
+   "channels": [
+    "kw",
+    "kh",
+    "kt"
+   ]
+  },
+  {
+   "id": "cn.chelsea",
+   "kind": "canario",
+   "topic": "lisle_mudanza",
+   "requires": [],
+   "ad_text": "",
+   "phrase": "Me mudo a Chelsea la semana que viene, ${addr}.",
+   "channels": [
+    "kh",
+    "kw"
+   ]
+  }
+ ],
+ "ad_forms": [
+  {
+   "id": "testigo",
+   "label": "Se busca testigo",
+   "text": "Se busca testigo de ${suceso}. Escribir a E. L., Holywell Street.",
+   "slots": {
+    "suceso": {
+     "options": [
+      "suceso_reichenbach",
+      "suceso_park_lane",
+      "suceso_vere_street"
+     ]
+    }
+   },
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  },
+  {
+   "id": "a_proposito",
+   "label": "A propósito de…",
+   "text": "A propósito de ${fuente}: ${afirmacion}. —E. L.",
+   "slots": {
+    "fuente": {
+     "kinds": [
+      "documento"
+     ]
+    },
+    "afirmacion": {
+     "assertions": [
+      "cebo",
+      "vive"
+     ]
+    }
+   },
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  },
+  {
+   "id": "al_corresponsal",
+   "label": "Al corresponsal S.",
+   "text": "Al corresponsal S.: ${frase}. —E. L.",
+   "slots": {
+    "frase": {
+     "assertions": [
+      "cebo",
+      "vive"
+     ]
+    }
+   },
+   "when": {
+    "day": {
+     "gte": 4
+    }
+   },
+   "to_s": true,
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  },
+  {
+   "id": "perdido",
+   "label": "Perdido",
+   "text": "Perdido: ${objeto}. Se gratificará a quien lo devuelva a E. L., Holywell Street.",
+   "slots": {
+    "objeto": {
+     "kinds": [
+      "objeto"
+     ]
+    }
+   },
+   "canary": true,
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  },
+  {
+   "id": "prueba_lugar",
+   "label": "Prueba (fixture)",
+   "text": "Noticias de ${lugar}, por favor. —E. L.",
+   "slots": {
+    "lugar": {
+     "kinds": [
+      "lugar",
+      "objeto"
+     ]
+    }
+   },
+   "forbid_tags": [
+    "secreto_camden"
+   ],
+   "forbid_kinds_lugar_londres": true
+  }
+ ],
+ "contracciones": [
+  [
+   "de el ",
+   "del "
+  ],
+  [
+   "De el ",
+   "Del "
+  ],
+  [
+   "a el ",
+   "al "
+  ],
+  [
+   "A el ",
+   "Al "
+  ],
+  [
+   "..",
+   "."
+  ]
+ ],
+ "london_places": [
+  "londres",
+  "holywell_street",
+  "baker_street",
+  "221b",
+  "camden_house",
+  "park_lane",
+  "kensington"
+ ],
+ "camden_entities": [
+  "camden_house",
+  "guillotina"
+ ],
+ "src_types": {
+  "cronica": "crónica",
+  "prensa_extranjera": "prensa extranjera",
+  "prensa_londres": "prensa de Londres",
+  "registro": "registro",
+  "libro": "libro",
+  "papel_privado": "papel privado",
+  "carta_recibida": "carta recibida",
+  "escena": "dicho en ${lugar}",
+  "lugar": "lugar u objeto",
+  "diario": "diario"
+ },
+ "slip_topics": {
+  "holmes_cronicas": "holmes",
+  "holmes_prensa_1891": "holmes",
+  "holmes_monografia": "holmes",
+  "sigerson": "holmes",
+  "coronel": "silencio",
+  "moran": "silencio",
+  "otros": "silencio"
+ },
+ "topic_groups": {
+  "roca": [
+   "pared",
+   "a_pique",
+   "raspadura",
+   "cornisa",
+   "roca",
+   "reichenbach",
+   "fina",
+   "journal_de_geneve"
+  ],
+  "mary": [
+   "mary_watson",
+   "duelo",
+   "crespon"
+  ],
+  "vive": [
+   "vive",
+   "vivo"
+  ],
+  "221b": [
+   "221b",
+   "mycroft",
+   "alquiler"
+  ]
+ },
+ "sensors": {
+  "K-W": {
+   "topics": [
+    "roca",
+    "mary"
+   ],
+   "to_holmes_exclude": [
+    "mary"
+   ]
+  },
+  "K-H": {
+   "topics": [
+    "221b"
+   ]
+  },
+  "K-S": {
+   "fields": [
+    "streets",
+    "hour"
+   ]
+  },
+  "K-BM": {
+   "fields": [
+    "seat",
+    "title",
+    "hour"
+   ]
+  },
+  "K-T": {
+   "fields": [
+    "text"
+   ]
+  },
+  "strip_tags": [
+   "secreto_camden"
+  ]
+ },
+ "abbrev": [
+  "Mr.",
+  "Mrs.",
+  "Dr.",
+  "St.",
+  "Sr.",
+  "Sra.",
+  "Cnel.",
+  "Col.",
+  "vol.",
+  "vols.",
+  "cap.",
+  "pág.",
+  "n.º",
+  "a.",
+  "p.",
+  "m.",
+  "etc."
+ ],
+ "report_cats": [
+  {
+   "cat": "holmes_vive",
+   "entry_conclusions": [
+    "C8"
+   ],
+   "clip_tags": [
+    "c:holmes_vive"
+   ]
+  },
+  {
+   "cat": "moran_autor",
+   "entry_conclusions": [
+    "C10"
+   ]
+  }
+ ]
+}

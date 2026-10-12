@@ -1,0 +1,15 @@
+{
+  "id": "D03", "entity": "fina", "title": "«El problema final», The Strand Magazine, diciembre de 1893",
+  "src_type": "cronica", "class": "I", "date": "1893-12-01", "chron_date": "1891-05-04", "font": "imprenta", "paper": "strand",
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "The Strand Magazine, vol. VI", "entities": ["fina", "reichenbach"]},
+  "copies": [
+    {"id": "D03@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D03@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"},
+    {"id": "D03@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p7", "text": "{{#sheer a:fina_impreso_sin_raspadura e:reichenbach|Era [[sendero|un sendero]] de tres pies, con [[pared|una pared]] a pique a un lado y un precipicio al otro.}}"}
+  ],
+  "words": 22
+}
