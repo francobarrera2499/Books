@@ -440,8 +440,10 @@ static func enter_day(st, repo, nd: int) -> void:
 	if is_fixed_day(repo, nd):
 		c.slot = first
 		c.phase = "confront"
-		Confrontation.start(st, repo)
+		# primero la escena (Crane llama a Lisle, entra el anciano), después la primera afirmación: así se leen en la
+		# transcripción (W4: la afirmación I quedaba antes de que el anciano entrara)
 		_say_column(st, repo, TimeKey.tk(nd, first))
+		Confrontation.start(st, repo)
 	else:
 		var sid := fixed_scene(st, repo, TimeKey.tk(nd, "dawn"))
 		if sid != "":

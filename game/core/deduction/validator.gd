@@ -12,6 +12,8 @@
 # Pasada (pass_clean): passes_left > 0 · len == lot_size · formal (no gasta) · gasta; todo o nada; cids distintos y no
 #   sellados; ventana conclusions[].validate {from, until}. Devuelve spent:true: el sim (W2-SIM) cuenta la pasada usada
 #   (st.clock.passes_used) — este módulo no escribe st.clock. Registro propio: st.ded.passes [{tk, entries, inked}].
+# lot_size = min(schedule.lot.default (2) | day10 (1), lot_counts sin sellar cuya ventana validate está abierta ahora):
+#   sólo calendario y sellados (GDD §8.5); C12 (10.M) no cuenta antes del día 10.
 # Práctica (C1, kind "practica"): de a uno, sin pasada, no sella ni cuenta; el asiento queda en tinta con su cid.
 # Extensiones: evaluate(st, repo, entry, opts) (opts: practice, sealed, cid, exclude_origins:[prefijos de origen o de
 #   escena, p. ej. "S.HC06" — HB12]),
@@ -324,9 +326,13 @@ static func lot_size(st, repo) -> int:
 		lot = {}
 	var c = st.clock if typeof(st.clock) == TYPE_DICTIONARY else {}
 	var n := int(lot.get("day10", 1)) if int(c.get("day", 0)) == 10 else int(lot.get("default", 2))
+	# sólo cuentan las conclusiones sin sellar que AHORA se pueden validar (ventana validate abierta): C12 (10.M) no
+	# puede ser compañera de lote antes del día 10, así que no obliga a esperarla (GDD §8.5: calendario y sellados,
+	# nunca el inventario del jugador).
+	var now := Clipper.now_tk(st)
 	var unsealed := 0
 	for cid in repo.conclusions_meta().get("lot_counts", []):
-		if not d.sealed.has(String(cid)):
+		if not d.sealed.has(String(cid)) and _in_window(repo, String(cid), now):
 			unsealed += 1
 	return mini(n, unsealed)
 

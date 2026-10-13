@@ -340,6 +340,10 @@ static func _slot_ok(st, repo, f: Dictionary, spec, val: String) -> bool:
 		return spec.kinds.has(String(repo.entity(val).get("kind", "")))
 	return false
 
+# Cómo se imprime en un anuncio el valor de un hueco (entidad o afirmación). Pública para la UI (ad_composer).
+static func piece_text(repo, val: String) -> String:
+	return _piece_text(repo, val)
+
 static func _piece_text(repo, val: String) -> String:
 	var asr := _assertion(repo, val)
 	if not asr.is_empty():

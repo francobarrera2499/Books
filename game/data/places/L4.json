@@ -6,6 +6,7 @@
   "areas": {"consulta": {"desc": "sala de espera y consultorio"}, "estudio": {"desc": "estudio de la casa (domingo)"}},
   "observers": ["watson"],
   "epigraph": "—¿Sus ojos, señor Lisle?",
+  "epigraph_by_area": {"estudio": "—Hoy no es día de consulta, señor Lisle."},
   "frames": [
     {"id": "estudio", "area": "estudio", "pos": [-0.6, 1.7, 2.45], "look": [0.5, 1.0, 6.0], "fov": 66, "orbit": {"pivot": [0.2, 1.0, 4.5], "yaw": 18, "pitch": 8}},
     {"id": "consultorio", "area": "consulta", "pos": [1.5, 1.65, 1.85], "look": [-1.0, 1.0, -1.3], "fov": 55, "orbit": {"pivot": [0.2, 1.0, -0.6], "yaw": 20, "pitch": 8}},
@@ -52,7 +53,7 @@
     {"id": "acera_enfrente", "type": "street.pavement", "pos": [-6.0, -0.72, -12.5], "rot": 0, "p": {"w": 19, "d": 2.1, "kind": "losas", "kerb": "+z"}},
     {"id": "calzada_lateral", "type": "street.pavement", "pos": [7.0, -0.76, -20.0], "rot": 0, "p": {"w": 7.0, "d": 13.0, "kind": "madera"}},
     {"id": "sastreria", "type": "architecture.facade", "pos": [-6.5, -0.6, -13.55], "rot": 0, "p": {"w": 7.0, "h": 12.0, "floors": 4, "bays": 3, "door_bay": 1, "shop_front": true, "sign": "SASTRE", "seed": 3}},
-    {"id": "lecheria", "type": "architecture.facade", "pos": [0.5, -0.6, -13.55], "rot": 0, "p": {"w": 6.0, "h": 12.0, "floors": 4, "bays": 3, "door_bay": 2, "shop_front": true, "sign": "LECHERÍA", "seed": 8}},
+    {"id": "lecheria", "type": "architecture.facade", "pos": [0.5, -0.6, -13.55], "rot": 0, "p": {"w": 6.0, "h": 12.0, "floors": 4, "bays": 3, "door_bay": 2, "shop_front": true, "sign": "PRATT Y CÍA. · FARMACIA", "seed": 8}},
     {"id": "esquina_lado", "type": "architecture.facade", "pos": [3.5, -0.6, -18.0], "rot": 90, "p": {"w": 9.0, "h": 12.0, "floors": 4, "bays": 3, "door_bay": 1, "seed": 13}},
     {"id": "fondo", "type": "architecture.facade", "pos": [7.0, -0.6, -26.5], "rot": 0, "p": {"w": 8.0, "h": 14.0, "floors": 5, "bays": 3, "door_bay": 1, "seed": 17, "style": "estuco"}},
     {"id": "farol_esquina", "type": "street.gas_lamp", "pos": [3.9, -0.6, -11.8], "rot": 0, "p": {"h": 3.4, "light": true}},
@@ -77,7 +78,7 @@
     {"id": "arana_c", "prop": "arana_c", "noun": "araña", "anchor": {"c": [0.2, 2.62, 0.0], "s": [0.75, 0.75, 0.75]}, "examine": "Una araña de gas de tres brazos.", "tags": [], "cls": "C", "area": "consulta", "when": {}},
     {"id": "ventana", "prop": "consultorio", "noun": "ventana", "anchor": {"c": [-0.4, 0.82, -1.95], "s": [1.42, 0.2, 0.2]}, "examine": "Una ventana de guillotina sobre [[church_street|Church Street]].", "tags": [], "cls": "C", "area": "consulta", "when": {}},
     {"id": "ventana_escritorio", "prop": "consultorio", "noun": "ventana", "anchor": {"c": [1.45, 2.66, -1.95], "s": [1.1, 0.26, 0.2]}, "examine": "Otra ventana a la calle, detrás del escritorio.", "tags": [], "cls": "C", "area": "consulta", "when": {}},
-    {"id": "esquina", "prop": "lecheria", "noun": "lechería", "anchor": {"c": [0.5, 1.05, -13.3], "s": [6.0, 3.3, 0.5]}, "examine": "En la esquina de enfrente, sobre [[church_street|Church Street]], una lechería con el toldo bajo. Ningún escaparate con libros.", "tags": ["a:librero_falso"], "cls": "C", "area": "*", "when": {}},
+    {"id": "esquina", "prop": "lecheria", "noun": "farmacia", "anchor": {"c": [0.5, 1.05, -13.3], "s": [6.0, 3.3, 0.5]}, "examine": "En la esquina de enfrente, sobre [[church_street|Church Street]], la farmacia de Pratt, con dos redomas de colores en el escaparate, y al lado la taberna del Prince of Wales.", "tags": ["a:librero_falso"], "cls": "C", "area": "*", "when": {}},
     {"id": "sastreria", "prop": "sastreria", "noun": "sastrería", "anchor": {"c": [-6.5, 1.05, -13.3], "s": [7.0, 3.3, 0.5]}, "examine": "Una sastrería; en el escaparate, una levita sobre un busto de mimbre.", "tags": [], "cls": "C", "area": "*", "when": {}},
     {"id": "casas", "prop": "lecheria", "noun": "casas", "anchor": {"c": [-2.5, 6.6, -13.4], "s": [13.0, 6.2, 0.4]}, "examine": "Casas de ladrillo de cuatro pisos, con persianas a medio bajar.", "tags": [], "cls": "C", "area": "*", "when": {}},
     {"id": "calle_lateral", "prop": "esquina_lado", "noun": "calle", "anchor": {"c": [7.0, 3.5, -20.0], "s": [6.6, 8.0, 12.6]}, "examine": "Por la calle de la esquina, una fila de casas y, al fondo, una fachada de estuco.", "tags": [], "cls": "C", "area": "*", "when": {}},
@@ -98,7 +99,7 @@
     {"id": "reloj_e", "prop": "reloj_e", "noun": "reloj", "anchor": {"c": [1.95, 1.32, 4.25], "s": [0.22, 0.34, 0.3]}, "examine": "Un reloj de repisa de caja negra.", "tags": [], "cls": "C", "area": "*", "when": {}},
     {"id": "retrato", "prop": "retrato_p", "noun": "retrato", "anchor": {"c": [1.95, 1.27, 4.95], "s": [0.12, 0.26, 0.2]}, "examine": "Sobre la repisa, el retrato de una mujer joven; una cinta negra cruza una esquina del marco.", "tags": ["a:duelo", "c:watson_privado"], "cls": "C", "area": "*", "when": {}},
     {"id": "comoda", "prop": "comoda", "noun": "cómoda", "anchor": {"c": [-2.03, 0.48, 5.55], "s": [0.56, 0.98, 1.16]}, "examine": "Una cómoda de cajones de nogal.", "tags": [], "cls": "C", "area": "*", "when": {}},
-    {"id": "cajon_manuscrito", "prop": "comoda", "noun": "cajón", "anchor": {"c": [-1.62, 0.84, 5.55], "s": [0.36, 0.18, 1.0]}, "examine": "Un cajón entreabierto; adentro, un manuscrito atado con una cinta, de letra cuidada.", "tags": ["x:EE04"], "cls": "C", "area": "*", "when": {}, "_doc": "D29c@L4"},
+    {"id": "cajon_manuscrito", "prop": "comoda", "noun": "cajón", "anchor": {"c": [-1.62, 0.84, 5.55], "s": [0.36, 0.18, 1.0]}, "examine": "Un cajón entreabierto; dentro, un manuscrito atado con una cinta, de letra cuidada.", "tags": ["x:EE04"], "cls": "C", "area": "*", "when": {}, "_doc": "D29c@L4"},
     {"id": "arana_e", "prop": "arana_e", "noun": "araña", "anchor": {"c": [0.2, 2.62, 4.32], "s": [0.75, 0.75, 0.75]}, "examine": "Una araña de gas de tres brazos.", "tags": [], "cls": "C", "area": "*", "when": {}}
   ],
   "characters": [
@@ -106,7 +107,7 @@
     {"id": "watson", "area": "estudio", "pos": [1.35, 0, 4.0], "rot": -115, "pose": "sentado", "trait": "bombin_crespon", "when": {"day": 6}}
   ],
   "silhouettes": {
-    "wiggins": {"frame": "ventana", "pos": [5.4, -0.6, -12.9], "rot": -15},
+    "wiggins": {"talk": [], "frame": "ventana", "pos": [5.4, -0.6, -12.9], "rot": -15},
     "m3_hombres": {"frame": "ventana", "pos": [-3.2, -0.6, -12.95], "rot": 0},
     "cochero": {"frame": "ventana", "pos": [6.9, -0.6, -11.9], "rot": -25},
     "muchacho_sin_gorra": {"frame": "ventana", "pos": [6.4, -0.6, -13.0], "rot": -20, "_nota": "HB8b: reemplaza a Wiggins (el canal K-S sigue, GDD C6)."}

@@ -11,7 +11,7 @@
   "ask_phrase": {"default": "¿Qué me dice de ${topic}, ${addr}?"},
   "lines": [
     {"id": "af.todas", "layer": "afirmacion", "match": {"assertion": ["cebo", "vive", "canario"]}, "text": "Deja escapar un pequeño suspiro de satisfacción. —Eso, señor, póngalo por escrito, en la forma debida."},
-    {"id": "tigre", "layer": "tema", "match": {"topic": ["tigre", "india", "cazador", "heavy_game", "shikari"]}, "text": "—Al tigre no se lo busca, señor: se lo espera. Lo demás es literatura."},
+    {"id": "tigre", "layer": "tema", "match": {"topic": ["tigre", "india", "cazador", "heavy_game", "shikari"]}, "text": "—Al tigre no se lo busca, señor: se lo espera. Lo demás es paseo."},
     {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes", "watson", "fina", "suceso_reichenbach"]}, "text": "—Para eso le pagamos, señor: para que me diga lo que el doctor no supo ver."},
     {"id": "gen.1", "layer": "generica", "text": "Se retuerce el bigote. —La forma debida, señor; siempre la forma debida."},
     {"id": "gen.2", "layer": "generica", "text": "—Hay que mover el monte, señor. Mueva usted el suyo."}

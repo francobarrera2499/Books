@@ -672,9 +672,20 @@ class Marker extends Control:
 		var k: float = 1.0 if ti == null else float(ti.text_scale)
 		return int(round(clampf(6.2 * _scale, 13.0, 26.0) * k))
 
-	func _has_point(p: Vector2) -> bool:
+	func _own_point(p: Vector2) -> bool:
 		var o: Vector2 = get_meta("origin", Vector2.ZERO)
 		return Rect2(o + Vector2(-12, -12), Vector2(24, 24)).has_point(p) or _label_rect.has_point(p - o)
+
+	func _has_point(p: Vector2) -> bool:
+		if not _own_point(p):
+			return false
+		# si dos marcadores se pisan, el abierto gana el clic y el aviso (W4: la persiana de Camden House tapaba Baker
+		# Street y el jugador leía «Cerrado a esta hora.» sobre el lugar abierto)
+		if not is_open() and get_parent() != null:
+			for s in get_parent().get_children():
+				if s != self and s is Marker and (s as Marker).is_open() and (s as Marker)._own_point(position + p - (s as Marker).position):
+					return false
+		return true
 
 	func _gui_input(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:

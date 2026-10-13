@@ -56,6 +56,12 @@ func test_merge_capacities():
 	eq(u2[0].mask, 0b110, "alternativas: cualquier franja de cualquiera")
 	var u3 := Fe.merge([{"place": "L3", "area": "calle", "mask": 0b100, "bm": [], "q": {}, "refs": []}], any)
 	eq(u3.size(), 1, "se funde con una visita existente")
+	# varias fuentes en el MISMO lugar y área (S:HC06.b_*: una línea por canal en la Sala de Forasteros): una visita a ese
+	# lugar en cualquiera de sus franjas, no «una salida cualquiera» (el bot iba a otro lado y perdía la línea)
+	var same := [{"opts": [{"place": "L5", "area": "forasteros", "mask": 0b10, "cap": "", "capk": ""}, {"place": "L5", "area": "forasteros", "mask": 0b100, "cap": "", "capk": ""}], "ref": "S:HC06.b_*"}]
+	var u4 := Fe.merge([], same)
+	eq(u4.size(), 1)
+	eq([u4[0].place, u4[0].area, u4[0].mask], ["L5", "forasteros", 0b110])
 
 func test_match_units():
 	var m = Fe.match_units([{"mask": 0b11}, {"mask": 0b01}], 0b11)
@@ -64,3 +70,19 @@ func test_match_units():
 	eq(m[1], 0)
 	eq(Fe.match_units([{"mask": 1}, {"mask": 1}], 1), null)
 	eq(Fe.match_units([{"mask": 0b10}], 0b01), null, "franja fuera de la ventana")
+
+# W4-BALANCE D1b: a igual número de salidas, el plan prefiere rutas que no dependen de un acto del jugador
+# (fija < columna < garantizada < opcional).
+func test_plan_prefers_routes_without_player_acts():
+	var F = load("res://core/graph/feasibility.gd")
+	eq(F.DEPS_RANK, {"fija": 0, "columna": 1, "garantizada": 2, "opcional": 3})
+	var r = repo()
+	var RouteDB = load("res://core/graph/route_db.gd")
+	var p: Dictionary = F.plan(r, load("res://core/util/timekey.gd").idx(1, "M"), [], RouteDB.mandatory(r))
+	ok(bool(p.get("ok", false)), "plan de las obligatorias desde 1.M")
+	var deps := {}
+	for cid in p.get("routes", {}):
+		for rt in RouteDB.routes(r, String(cid)):
+			if String(rt.id) == String(p.routes[cid]):
+				deps[String(cid)] = String(rt.get("deps", ""))
+	eq(String(deps.get("C6", "")) in ["fija", "columna"], true, "C6 sin anuncio-cebo ni HB1: %s" % str(deps))

@@ -56,7 +56,7 @@ C:\Dev\books\
       menus/     title.gd options.gd                                             W3-SHELL
       notebook/  notebook.gd tab_clips.gd tab_index.gd tab_pairs.gd tab_diary.gd
                  tab_marginalia.gd clip_card.gd                                  W3-NOTEBOOK
-      ledger/    ledger.gd rules_page.gd folio_page.gd entry_view.gd seal.gd     W3-LEDGER
+      ledger/    ledger.gd ledger_model.gd picker.gd rules_page.gd folio_page.gd entry_view.gd seal.gd     W3-LEDGER
       scene/     scene_panel.gd ask_panel.gd present_bar.gd confrontation_view.gd W3-SCENEUI
       compose/   ad_composer.gd telegram_composer.gd report_composer.gd          W3-SCENEUI
       epilogue/  epilogue_screen.gd credits.gd blue_pencil.gd                    W4-EPILOGUE
@@ -347,7 +347,7 @@ No son públicos: recortes, pares, folios, asientos, pasadas, práctica, confron
 | `q_places()` | `[{id, area, name, open, reason, streets}]` (cerrado → persiana, no elegible; T26) |
 | `q_tray(day := -1)` | `[{view, title, stamp:"Recibido: 30-mar, amanecer", how}]` |
 | `q_accessible()` | `[{view, doc, title, holder, via}]` legible ahora |
-| `q_view(view)` | `{view, title, src_line, paper, paper_mm, font, machine, pages:[[{doc, origin, copy, parsed}]]}` |
+| `q_view(view)` | `{view, title, src_line, paper, paper_mm, font, machine, pages:[[{doc, origin, copy, parsed}]]}`. Un número del Times con inserciones (§4.4) trae **un bloque por parte**, con `segs:[{from, to, doc}]` (`WorldModel._merge_inserts`): cada inserción va en una posición `Det.h32(seed, número, iid)` entre la unidad 3 y la penúltima de la columna (en noticias, entre la primera y «El tiempo»); `Clipper.seg_block` atribuye el recorte al documento runtime del tramo |
 | `q_catalog(entity)` | `[{doc, label}]` ≤5, mezclado con ruido de época |
 | `q_clips()` / `q_clip(id)` | `{id, text, ents:[{id,label}], caption, src_line, origin, chron_date, thumb?}` (**sin etiquetas ocultas**) |
 | `q_index()` | `[{id, label, kind}]` ordenado |
@@ -360,6 +360,7 @@ No son públicos: recortes, pares, folios, asientos, pasadas, práctica, confron
 | `q_preview(action)` | frase exacta de Lisle o texto final (anuncio, telegrama, informe) |
 | `q_visit_plate()` / `q_plate(id)` | `{id, place, area, day, slot, variant, nodes:[ids], chars:[{id,pose,trait}], silhouettes:[ids], frame}` |
 | `q_report_status()` | `{due, n, offered_erratum}` |
+| `q_slips_used()` (W4) | papeletas gastadas en la visita en curso (con o sin ejemplar servido) |
 | `q_confront()` | `{step, statement, errors, done, patience:["paquete","sombrero"]}` |
 | `q_ending()` / `q_epilogue()` / `q_blue_pencil()` | sólo después del informe final |
 | extensiones (ola 2) | `q_act(id)` (entidad runtime `act.<n>`), `q_line(uid)` (línea dicha con `parsed`), `q_hub_plate()` (buhardilla ahora: siluetas, variante «registrada»), `q_tutorial()` `{step, taught, complete}`; `q_clock()` además trae `tk, slot_label, scene, coins_d, report_n, tutorial` y `q_places()` trae `area_name, free, can_go, needs_seat` |
@@ -612,6 +613,7 @@ aceptan parámetros opcionales y varios módulos exponen funciones extra. Las fi
 | `noche_final` | `""`, `"baker_street"`, `"casa"` | Clock | HC09 |
 | `publica_errata` | bool | Clock | epílogo |
 | `informe_final` | `""`, `"items"`, `"nada"`, `"quemar"`, `"errata"` | Composers | finales |
+| `vio_libros_park` | bool | Clipper (`on_clip_flag` del nodo `PARK.libros`) | V.C12: vio los libros caídos en Park Lane (§12.2 del GDD) |
 
 Un flag nuevo se propone (fila completa) en la respuesta final del WP; no se inventa en silencio.
 
@@ -847,18 +849,19 @@ Documentos generados en runtime (cartas, columna, notas de Pell, telegramas de r
     "arrival": {"text": "${fecha}, ${franja}: Recibido: ${que}.", "tags": []}
   },
   "report_cats": [
-    {"cat": "holmes_vive", "entry_conclusions": ["C8"], "clip_tags": ["c:holmes_vive"]},
-    {"cat": "regreso_jueves", "entry_conclusions": ["C9"], "clip_tags": ["c:regreso_jueves"]},
-    {"cat": "camden", "entry_conclusions": ["C13"], "clip_tags": ["c:camden"]},
+    {"cat": "holmes_vive", "entry_match": [{"tpl": "T7", "all": {"persona": ["holmes"], "estado": ["vivo"]}}], "clip_tags": ["c:holmes_vive"]},
+    {"cat": "regreso_jueves", "entry_match": [{"tpl": "T8", "all": {"persona": ["holmes"], "dia": ["jueves", "jueves_5_abril"]}}, {"tpl": "T5", "all": {"persona": ["holmes"], "hizo": ["volver"]}}], "clip_tags": ["c:regreso_jueves"]},
+    {"cat": "camden", "entry_match": [{"tpl": "*", "all": {"*": ["camden_house", "casa_vacia"]}}], "clip_tags": ["c:camden"]},
     {"cat": "watson_privado", "clip_doc_cats": ["watson_privado"]},
     {"cat": "original_p", "clip_copy_class": ["P"]},
-    {"cat": "moran_autor", "entry_conclusions": ["C5", "C10", "C10a", "C11", "C13"]},
+    {"cat": "moran_autor", "entry_match": [{"tpl": "T4", "all": {"redacto": ["moran", "autor_heavy_game", "harris"]}}, {"tpl": "T5", "all": {"persona": ["moran", "autor_heavy_game", "harris"], "hizo": ["matar", "disparar"]}}, {"tpl": "T9", "all": {"persona": ["moran", "autor_heavy_game", "harris"]}}, {"tpl": "T3", "all": {"es": ["moran", "autor_heavy_game", "harris"]}}]},
     {"cat": "paradero_extranjero", "clip_tags": ["c:paradero_extranjero"], "entry_template_values": {"T8": {"lugar": ["montpellier", "grenoble", "paris"]}}},
-    {"cat": "verdadero", "entry_conclusions": ["C2", "C3", "C4", "C5", "C14"], "clip_tags": ["c:verdadero"]},
+    {"cat": "verdadero", "entry_conclusions": ["C2", "C3", "C4", "C5", "C14"], "entry_ink": true, "clip_tags": ["c:verdadero"]},
     {"cat": "falso_verificable", "entry_template_values": {"T8": {"lugar": ["@londres_falso"]}}}
   ]
 }
 ```
+W4 (`report_cats`): `entry_match: [{tpl: "T#"|"*", all: {campo|"*": [valores]}}]` = el asiento cae en la categoría si **lo que afirman sus campos visibles** casa con alguna regla (todas las claves de `all`; `"*"` = cualquier plantilla o cualquier campo), sin mirar si es correcto; `entry_ink: true` = la categoría (sólo `verdadero`, el crédito) exige el asiento en tinta.
 
 Plantillas T1–T9 completas según GDD§8.4 (lint T6: el artículo va dentro del rótulo «Campo: ___»; ningún rótulo presupone un hecho).
 
@@ -964,7 +967,7 @@ Plantillas T1–T9 completas según GDD§8.4 (lint T6: el artículo va dentro de
 | `R:HC10.texto` | rastro de una reacción (`R:HA1.*` = cualquier plantilla) | `reactions/` |
 | `J:go`, `J:slip`, `J:say.watson`, `J:go.L3`, `J:ad` | línea del diario (D36) de ese tipo de acto | `lists.diary` |
 | `AD:prologo` | el aviso de testigos del prólogo, impreso en `D15.0327` | composers |
-| `M:D25`, `M:HC06.papel` | recorte de medida con la regla | `measure` del doc / escena |
+| `M:D46`, `M:HA1.carta` | recorte de medida con la regla | `measure` + `paper_mm` del doc (`M:D46`), del doc de la reacción (`M:HA1.carta`: la carta entregada) o de la escena (`M:<escena>.<x>`) |
 
 **Contrato de fragmentos por ruta (GDD§10.4; los dueños de cada fuente DEBEN crear estos ids con estas etiquetas):**
 
@@ -976,7 +979,7 @@ Plantillas T1–T9 completas según GDD§8.4 (lint T6: el artículo va dentro de
 | C4.R1–R5 | `D03#a_mycroft` (@Crane/@BM) con: `D18#calendars`→D18@L6 · `D19#indice`→D19@BM · `D30#recibo`→D30@L3 · `D29b#surcos`→D29b@L4 · `L:hudson.mycroft_paga` |
 | C5.R1–R4 | `D09#desague`@BM + `D11#desague`@BM · `D09#cruel`@Crane + `D10#cruel`@Crane · `R:D28.anglo` + `D10#portada`@BM · `D09#nota_redactor`@BM + `D10#frontispicio`@BM |
 | C6 | subrutas K-S (`J:go` + `N:*.sil_wiggins`), K-T (`AD:prologo` + `R:HC10.texto`), K-T' (`AD:<n>` + `R:HB1.col`), K-BM/K-W/K-H vía `S:HC06.b_k*` (columna) o `R:HA1.*` / `R:HB1.carta` / `R:HB4.carta` / `L:hudson.ordenes` (garantizada u opcional) |
-| C7.R1–R8 | `M:D25` + `M:HC06.papel` o `R:HC04.tarjeta` · `S:HC06.b_*` + `D31#para_mholmes`@L5 · `R:HA0.*`/`R:HA1.*` + `D30#recibo` · `N:L2.cotter_canastilla` + `N:L2.cesto_tiras` + `D01.GREE#founders`@BM · `L:watson.escribi_mycroft`/`R:HB5.recibo` + `R:HB1.carta` · `R:HC01.sobre` + `D01.GREE#pall_mall` · `L:wiggins.vieja_tarifa` + `D01.GREE#whitehall` · `R:HA1.giro` + `S:HC06.a` |
+| C7.R1–R8 | `M:HA1.carta`/`M:HA0.carta` + `M:D46` (el pliego del club de HC06 (f), D46@L5) o `R:HC04.tarjeta` · `S:HC06.b_*` + `D31#para_mholmes`@L5 · `R:HA0.*`/`R:HA1.*` + `D30#recibo` · `N:L2.cotter_canastilla` + `N:L2.cesto_tiras` + `D01.GREE#founders`@BM · `L:watson.escribi_mycroft`/`R:HB5.recibo` + `R:HB1.carta` · `R:HC01.sobre` + `D01.GREE#pall_mall` · `L:wiggins.vieja_tarifa` + `D01.GREE#whitehall` · `R:HA1.giro` + `S:HC06.a` |
 | C8.R1–R4 | `D13#muestra97`+`D12#n97` · `D14#opusculo`+`D44#oficios_mano`@Crane · `S:HC06.c`+`D31#telegramas` · `R:HC01.no_lo_es`+`D12#dedicatoria` · apoyo `D13#jartum`+`D34#ruinas`/`D35#califa` |
 | C9.R1–R5 | `S:HC05.jueves_a`+`N:L3.ventanas_abiertas`/`N:L3.shag` · `S:HC06.e`+`N:L3.cajon` · (R3: sellos y `R:HB*.col`, no cuenta) · `S:HC05.jueves_a`+`D31#ruta` (apoyo) |
 | C10 | Ia `N:PRO.harris`+`D16#moran` · Ib `S:M7.inteligente`+`D10#adjetivos`@Crane · Ic `D23#cruel`+`D10#adjetivos` · Id `L:wiggins.conduit`+`D17#moran_conduit` · Ca `D10#cabrito_atado`@BM+`S:M6.donde` · Cb `D11#no_bala`+`S:M7.donde_duerme` · Cc `R:HB7.col`+`D10#cabrito_atado` · Cd `R:M2.nota`/`R:HB9.carta`+`D11#hacerlo_balar` |
@@ -1138,6 +1141,9 @@ Ventanas: `{"days": [..]|"all", "slots": [..]|"all", "from": "d.S", "to": "d.S"}
 
 - Unidades: metros, Y arriba, origen = centro del piso; `rot` en grados (eje Y). `type` = `"<módulo>.<función>"` → `res://world/props/<módulo>.gd`, `static func build_<función>(p: Dictionary) -> Node3D` (§7.2).
 - `nodes[]`: `anchor` = AABB explícita (`c` centro, `s` tamaño) usada para recorte y oclusión; `examine` = hecho observable en marcado (sin colores como única pista, T29); `tags` misma gramática que los tramos; `cls` I/P/C; `area`; `when` DSL (día, franja, flags: p. ej. `{"day": {"gte": 8}}` para las ventanas abiertas de L3).
+- `nodes[].on_clip_flag` (W4, opcional): recortar el nodo escribe ese flag (escritor: Clipper; hoy `PARK.libros` → `vio_libros_park`).
+- `epigraph_by_area` (W4, opcional): `{área: epígrafe}` gana sobre `epigraph` en esa área (L4 estudio el domingo).
+- `silhouettes.<who>.talk` (W4, opcional): áreas donde a la silueta se le habla (Wiggins: sólo exteriores — L1 tienda, L3 calle, L5 portería, L7 exterior; `[]` en L2, L4, L6, L8). En las demás se ve por la ventana, sin panel: `WorldModel.start_visit` no la suma a los personajes y `Availability._sil_char_srcs` recorre sólo esas áreas. Sin `talk`: toda área.
 - `silhouettes`: posición garantizada **sin tapar** en el encuadre `frame` (T29: Wiggins visible en ≥1 encuadre de cada lugar desde el día 3). El nodo de silueta se llama `sil_<who>` y lleva `a:ancla_ks` + entidad del acto `go` de esa visita; su examen neutro es `ui_text` `sim.sil.<who>` (§12.2 D15).
 - `characters[].trait`: rasgo de silueta (§7.4).
 - `variants`: `{"registrada": {"add_nodes": [...], "move": {"prop_id": {"pos": [...]}}}}` (M1).
@@ -1250,13 +1256,13 @@ Reglas: ≤1 por visita (los demás esperan a otra visita), sin contador, nunca 
 `"file": "embedded"` = copia de `ThemeDB.fallback_font.data`. Las cuatro fuentes ya están aprobadas y en `assets/fonts/` (según `CLAUDE.md`); cambiar de fuente = cambiar sólo esta tabla.
 
 `audio.json`: `{"captions": {"bells.st_clement": "campanas de St Clement Danes", …}, "ambience": {"L2": {"*": "amb.reading_room"}, "L1": {"M": "amb.street", "N": "amb.gas"}, …}, "events": {"dawn": ["bells.st_clement", "evt.milk_cart", "evt.crane_shutter"]}}`.
-`map.json`: `{"size_mm": [600, 420], "places": {"L1": {"xy": [412, 238], "label": "Holywell Street"}, …}, "streets": [[[x,y], …], …], "booth_zones": [{"poly": […], "class": "C"}, …]}` (mapa dibujado por código; sin imágenes).
+`map.json`: `{"size_mm": [600, 420], "places": {"L1": {"xy": [412, 238], "label": "Holywell Street"}, …}, "streets": [[[x,y], …], …], "booth_zones": [{"poly": […], "class": "C"}, …]}` (mapa dibujado por código; sin imágenes). W4: `"world_events": {<id de evento_mundo>: {"on": "salida"|"amanecer", "sound": <id de audio.json>, "veil": bool}}` — la forma en pantalla de un evento del mundo (M2: el ladrillo al salir, sonido y polvo), una sola vez.
 `ui_text/<wp>.json`: `{"text": {"formal.falta_segun": "Falta un <i>según</i>.", "formal.una_fuente": "Una sola fuente no es prueba.", "formal.demasiado_papel": "Demasiado papel.", "pass.fail": "Alguno no se sostiene.", "clip.cruza_oracion": "La tira no cruza un punto."}}`.
 
 ### 4.18 DSL de condiciones (`core/util/cond.gd`)
 
 `{}` = verdadero. Combinadores: `all:[…]`, `any:[…]`, `not:{…}`, `always:true`.
-Átomos: `day:{gte,lte,eq}|int` · `slot:[…]` · `weekday:"dom"|[…]` (códigos ASCII) · `tk:{gte,lte}` · `flag:"x"` · `flag_eq:{x:v}` · `flag_gte:{x:n}` · `sealed:"C6"` · `sealed_all:[…]` · `sealed_count:{of:"mandatory"|[…], gte|lt}` · `counter:{name, gte|lte|eq}` · `event_count:{type, where:{campo:valor|topic_group}, gte}` · `visited:"L3"` · `channel_closed:"K-H"` · `report_final_cats_any:[…]` · `anchor:{campo:valor}` (selección de plantilla de rastro) · `char_present:"wiggins"`.
+Átomos: `day:{gte,lte,eq}|int` · `slot:[…]` · `weekday:"dom"|[…]` (códigos ASCII) · `tk:{gte,lte}` · `flag:"x"` · `flag_eq:{x:v}` · `flag_gte:{x:n}` · `sealed:"C6"` · `sealed_all:[…]` · `sealed_count:{of:"mandatory"|[…], gte|lt}` · `counter:{name, gte|lte|eq}` · `event_count:{type, where:{campo:valor|topic_group}, gte}` · `visited:"L3"` · `channel_closed:"K-H"` · `report_final_cats_any:[…]` · `anchor:{campo:valor}` (selección de plantilla de rastro) · `char_present:"wiggins"` · `pencil_wrong:bool` (W4; átomo del jugador, `PLAYER_ATOMS`: hay o no algún asiento a lápiz que el lápiz azul marca; END.F1).
 Un átomo desconocido es error de esquema (Schema), nunca `false` silencioso.
 
 ---
@@ -1274,6 +1280,8 @@ Recorte de texto (`clip_text`):
 Recorte de lámina (`clip_plate`; la geometría la resuelve `world/rect_clip.gd`, §7.6): el sim valida `area_frac ≤ 1/8`, `hits` ⊆ nodos de la instantánea (`q_plate`), toma ≤2 hits con `cover ≥ 0.5` no ocluidos; etiquetas sólo del hit de mayor `cover` y sólo si `tight`; entidades: las de los nodos capturados; epígrafe: `noun` de **todos** los `touched` («mesa, cesto, mozo con gorra»). Rectángulo vacío = recorte legal sin etiquetas.
 Recorte de medida (`clip_measure`): texto «Mide ${h} por ${w} milímetros.» con `measure.entity` y `measure.tags` del doc/escena.
 Pares (`link`): `{id, a, b, note}`; valen por sus dos recortes; no se anidan (`anidado`). Los recortes sobreviven a robos y retiros del original (son copias); Holmes no los ve.
+
+- **W4 · Índice desde el instructor (única excepción).** Al decir la línea del paso «ad» del tutorial (Harris, `PRO.t_ad`: «se busca testigo de [[suceso_reichenbach|lo de Suiza]]»), `GameSim._say_tutorial_line` agrega al índice las entidades que nombra (`Index.add_entities`), para que la forma «testigo» nunca tenga el blanco vacío (`Composers.options` y `_slot_ok` leen el índice). Es la única entrada del índice que no viene de un recorte (test `test_u_tutorial::test_w4_prologue_never_blocks_real_data`).
 
 ### 5.2 Libro mayor y validador (`ledger.gd`, `validator.gd`; W2-DED)
 
@@ -1341,6 +1349,7 @@ Latencias (`latency.gd`): `voz_a` → `dawn` de D+1 (D = día del acto; anuncio:
 - Escritura: `J.write_atomic` (`.tmp` → renombrar el viejo a `.bak` → renombrar `.tmp`). `Game.act` escribe **antes** de devolver el resultado de toda acción C (Holmes no olvida, T25). Acciones libres: debounce 2 s y al cerrar.
 - Carga: `EventLog.read` → `GameSim.replay(repo, seed, actions)`. Una última línea truncada se descarta (sólo puede ser una acción cuyo resultado no se mostró). `content` distinto → aviso «La partida se guardó con otra versión del texto» y se intenta igual.
 - T9: `replay` dos veces → `state_hash` igual; `write → read → write` → bytes idénticos.
+- W4: `GameSim.replay` aplica el registro **sin** la copia de reversión por acción (el registro ya fue aceptado; 1.500 acciones en < 3 s, T25); si alguna se rechaza, rehace todo con reversión (`_replay_safe`) y cuenta `replay_errors`. `Game.continue_session` guarda `partida.<hash12>.jsonl` (el registro tal como se leyó) antes de reescribir uno de otra versión o con rechazos. `WorldModel.check_eggs` es incremental (caché transitoria de etiquetas).
 
 ### 5.6 Invariante acotada (`core/graph/*`; W2-GRAPH; T1, T3, D1)
 
@@ -1392,7 +1401,7 @@ D1 en runtime = paso 3 con el estado real (cortes ya aplicados + candidato; reco
 ### 6.3 Shell, entrada y arrastre (W3-SHELL)
 
 - `ui/shell.gd`: crea capas (§2.3), `WorldRoot`, pila de pantallas (`push(panel)`, `pop()`, `top()`), escucha `Game.sim_changed`.
-- `ui/input_router.gd`: `_input` → `fe_cuaderno` (Tab) salvo foco en `LineEdit/TextEdit` (se marca manejado antes del foco de la GUI); `_unhandled_input` → `fe_tijera`, `fe_libro_mayor`, `fe_mapa`, `fe_volver` (= `pop()`).
+- `ui/input_router.gd`: `_input` → `fe_cuaderno` (Tab) salvo foco en `LineEdit/TextEdit` (se marca manejado antes del foco de la GUI); `_unhandled_input` → `fe_tijera`, `fe_libro_mayor`, `fe_mapa`, `fe_volver` (= `pop()`). W4: el **clic derecho** se toma en `_input` (antes que la GUI) y equivale a Esc; `GameScreen.front_back()` va antes de la pila (confirmación, tijera 3D, tarjeta de examen).
 - Arrastrar y soltar = DnD nativo de Godot. Datos: `{"kind":"clip"|"pair"|"entry"|"ent", "id":…}`; vista previa = `Chip`. Destinos: tarjeta de recorte (→ `link`), libro mayor cerrado o pestaña «Nuevo folio» (→ `folio_open`), ranura «según» (→ `entry_support_add`), campo de plantilla (→ `entry_set`, sólo `ent`), sobre del informe, presentar.
 - `DropCatcher3D` (capa 5: sobre el 3D y debajo de todo panel): `mouse_filter = IGNORE`; en `NOTIFICATION_DRAG_BEGIN` y fase `visit`/`scene`/`confront` pasa a `STOP`; `_can_drop_data` = `WorldRoot.pick_character(pos) != ""`; `_drop_data` abre la confirmación de presentar; en `NOTIFICATION_DRAG_END` vuelve a `IGNORE`.
 
@@ -1408,7 +1417,7 @@ D1 en runtime = paso 3 con el estado real (cortes ya aplicados + candidato; reco
 
 ### 6.5 Cuaderno (`ui/notebook/*`; W3-NOTEBOOK)
 
-Pestañas: **Recortes** (búsqueda por texto; filtros por persona, lugar y fecha **de la crónica** con chips del índice; agrupado por calendario de la crónica; tarjeta = texto o miniatura, epígrafe de entidades, línea de fuente), **Índice** (alfabético por `index`; clic filtra recortes; los chips se arrastran a campos y a preguntar), **Pares** (tarjetas con nota libre), **Diario** (D36, recortable con tijera), **Marginalia** (notas de huevos de pascua, sin contador). Abre con Tab.
+Pestañas: **Recortes** (búsqueda por texto; filtros por persona, lugar y fecha **de la crónica** con chips del índice; agrupado por calendario de la crónica; tarjeta = texto o miniatura, epígrafe de entidades, línea de fuente), **Índice** (alfabético por `index`; clic filtra recortes; los chips se arrastran a campos y a preguntar), **Cotejos** (pares de recortes: tarjetas con nota libre), **Diario** (D36, recortable con tijera), **Marginalia** (notas de huevos de pascua, sin contador). Abre con Tab.
 
 ### 6.6 Libro mayor (`ui/ledger/*`; W3-LEDGER)
 
@@ -1420,6 +1429,7 @@ Páginas: «Reglas del asiento» (texto fijo de GDD§8.0), «Varios», folios (e
 - **Escritorio** (`ui/desk/*`): tres encuadres (escritorio, ventana, pared); objetos clicables: bandeja, tomos (D01), cajón (D02), concordancia (D21), mapa, calendario (cerrar la franja = `end_slot`, con confirmación), tijera, lupa, regla, sello, estufa, ventana (Wiggins, el chico de Pell), escalera a la tienda de Crane (estantes → lector).
 - **Escena** (`ui/scene/*`): personajes presentes (nombre sólo si se presentó); «Preguntar» (temas del índice), «Afirmar» (cebos/canarios disponibles); antes de hablar se ve la frase exacta de Lisle y se confirma; las líneas aparecen como texto recortable. «Presentar»: soltar sobre el personaje → frase → «Mostrar» / «Guardar». Mycroft: (a)–(f) automáticas, luego el desafío (g). Confrontación: afirmación del librero, ranura, «Callar», paciencia visible (paquete, sombrero).
 - **Compositores** (`ui/compose/*`): formas cerradas con selectores (listas o chips) y el texto final completo antes de «Enviar»; informe: sobre con 3 ranuras, «Sin novedad»; final: «Quemar» y «Errata a medida» sólo si corresponde.
+- **W4 (playtest):** nota del instructor en una capa propia (25) con *dock* junto a los libros y menciones clicables (espera a que termine la presentación); bandeja una vez por día con papeles (el día 10, antes de la confrontación); «Tijera sobre la tienda» en la confrontación (`confront` cuenta como banda); copia certificada desde la tarjeta de examen del documento de L6 («Pedir copia certificada (un chelín)», en dos pasos); catálogo: «Pedir» en toda ficha y **toda papeleta se gasta** (ficha de ruido o fuera de ventana: `{t:slip, doc:"", noise}` / view `""`, «No está en los estantes hoy, señor»); marcadores del mapa con prioridad del abierto; título sin «Continuar» cuando el registro termina en `<save>.fin`; `Shell.go_epilogue`; epígrafe por área (`places.epigraph_by_area`, p. ej. L4 estudio el domingo).
 
 ---
 
@@ -1498,7 +1508,7 @@ Encuadres fijos con transición 0,5 s (ease in-out). En lugares: órbita corta (
 
 ### 7.7 Iluminación por franja (`world/lighting.gd`; W1-POST)
 
-Presets `manana_perla`, `dia_ventana`, `tarde`, `gas`, `farol_calle`, `electrica_fria`, `dorada_parklane`, `noche_viento`: `DirectionalLight3D` (color, energía, ángulo), ambiente (`Environment`), `OmniLight3D` en props con `light:true`; sombras sólo donde son pista (tienda de Crane). `noche_viento`: parpadeo de faroles (animación visual; puede usar tiempo real porque no es lógica). Tonemap lineal, sin glow ni SSAO (el grabado manda).
+Presets `manana_perla`, `dia_ventana`, `tarde`, `gas`, `farol_calle`, `electrica_fria`, `dorada_parklane`, `noche_viento`: `DirectionalLight3D` (color, energía, ángulo), ambiente (`Environment`), `OmniLight3D` en props con `light:true`; sombras sólo donde son pista (tienda de Crane). `noche_viento`: parpadeo de faroles (animación visual; puede usar tiempo real porque no es lógica). Tonemap lineal, sin glow ni SSAO (el grabado manda). W4-STYLE: `Lighting.preset_for(place, slot, snap)` recibe la instantánea (DioramaBuilder ya la pasa): `place.light["<día>.<franja>"]` gana sobre la franja (luz por día; noche del 5) y sin `snap` no hay excepciones por día.
 
 ### 7.8 Post-proceso de grabado (`world/post/*`; W1-POST; GDD§14.5)
 
@@ -1613,6 +1623,7 @@ func read(view: String) -> void          # cuenta palabras leídas (q_view)
 func clip_ref(ref: String) -> String     # sólo oráculo (deductor): recorta el fragmento de contrato §4.8 desde su ejemplar
 ```
 Bots: `bot_deductor` (oráculo de rutas ★; mínimo de franjas; crédito ante Moran; errata a medida), `bot_novato` (sólo verbos ya enseñados; lee todo; minutos = palabras/180 × 1,3), `bot_pasivo`, `bot_pesca` (fundamentos correctos, valores al azar), `bot_fuerza_bruta`, `bot_recorta_todo` (recortes legales máximos de todo lo accesible), `bot_cebo` (cebo diario), `bot_informa_todo`, `bot_solo_bm`, `bot_confront_azar`, `bot_mycroft_azar`. Azar = `Det` con la semilla del bot.
+W4: `idle_until_day`; `play_minutes` / `play_minutes_act` (minutos de juego = lectura + `T_ACT` por acto aceptado + `T_THINK_PER_SEAL` por asiento sellado); papeletas **sólo por el catálogo** (una entidad del índice cuya búsqueda lista el documento); `bot_guion` (juega un guion de `devtools/scripts/`).
 CLI: `./godot.sh --headless -s devtools/bots/run_bots.gd -- <bot> <n_partidas> [semilla]` → JSON de estadísticas. `devtools/play_cli.gd -- --script res://… | --doc D05 | --state` para que los agentes jueguen el sim por texto.
 
 ### 9.4 Capturas
@@ -1828,7 +1839,7 @@ Aceptación común de contenido: `test_u_schema` y `Markup.lint` sin errores en 
 - **R2 · Menciones y superficies.** `[[id]]` sin superficie se lee con `entities[id].name`, que **ya trae su artículo** («la roca», «una cornisa» no: «la cornisa»). Si el texto ya pone artículo o determinante delante, o la frase pide otra forma, use superficie explícita: `contra [[roca|la roca]]` o `contra la [[roca|roca]]`, nunca `contra la [[roca]]` (lint «artículo duplicado»). Recomendación: **escribir siempre `[[id|texto tal como se lee]]`**. Toda entidad debe existir: buscar en `data/entities/*.json` antes de crear; las nuevas van en `data/entities/<su_wp>.json` (`id`, `kind`, `name` con artículo, `index`, `noun`), sin duplicar ids.
 - **R3 · Etiquetas.** `a:` grupo de conclusión con el nombre exacto de `groups[].tags` (tabla de grupos abajo) · `e:` entidad implícita (el recorte la gana aunque no esté mencionada) · `c:` lo que el texto dice para Moran (`holmes_vive`, `regreso_jueves`, `baker_street`, `camden`, `watson_privado`, `paradero_extranjero`, `verdadero`, `moran_autor`) · `f:` marcas (`refutado`, `secreto_camden`, `afirma_que_vive`, `privado_kw`, `ruido`) · `d:AAAA-MM-DD` · `p:<entidad lugar>` · `q:<id>` con su inglés exacto en `src_en` (copiado de `tests/fixtures/canon/*.txt`) · `h:F.<hecho>` · `w:` (⚠, nunca en rutas) · `x:EEnn`. **Pistas falsas:** el origen lleva `f:refutado a:falsa_<x>`; cada refutación lleva `a:refuta_<x>` (x = id de `_pistas_falsas` sin `falsa_`: `D05#corniche` → `a:refuta_reuter`, `D05#baton` → `a:refuta_baston`, `D19#presume` → `a:refuta_rio_cuerpo`). Todo fragmento de C13 lleva `f:secreto_camden`.
 - **R4 · Lo que el asiento pide tiene que poder indexarse.** El validador sólo acepta en un campo de plantilla un valor que esté en el índice del jugador, y al índice entra lo que se recorta (menciones, `e:`, la `entity` del documento, `clip_entities`). Por eso: (a) cada valor de `answers` que su texto prueba debe aparecer **en el tramo que lo prueba** como mención o `e:` (`D03#sheer` menciona `[[a_pique|a pique]]` porque C3 pide `dice_a: a_pique`; `D05#marque` lleva `e:raspadura` porque C2 pide `calla: raspadura`); (b) las entidades de `keys.entities` de la conclusión aparecen en el texto del tramo (condición 5: enlace por claves). Faltan hoy (los cubren sus dueños): C1.01–C1.10 (fuentes y fechas de cada par INC), C4 `que: bienes` y `cuando: en_vida|antes_de_partir|antes_del_cuatro_de_mayo`, C10a `es: moran|autor_heavy_game`, C11 `persona: moran|autor_heavy_game`, `que: ronald_adair`, `con: fusil_de_aire|arma_de_aire_comprimido`, C14 `donde: subasta_de_paddington|paddington` y `cuando: tras_la_muerte_de_mary|enero_1894|muerte_de_mary` (`test_answers_indexable` lista lo que falte).
-- **R5 · Ids del contrato §4.8.** El `ref` `D05#marque` exige en `docs/D05.json` un tramo `{{#marque …}}`; `S:M7.donde_duerme` una línea `"id": "donde_duerme"` en `scenes/M7.json`; `L:mrs_hudson.ordenes` una línea `"id": "ordenes"` en `dialogue/mrs_hudson.json` (el personaje es el nombre del archivo: el §4.8 escribe «hudson» = `mrs_hudson`); `M:D25` un `measure` en D25; `M:HC06.papel` `measure` y `paper_mm` en `scenes/HC06.json`. Ids de tramo y de línea: ASCII `snake_case`, únicos dentro del documento/escena/diálogo. Archivos: `docs/D05.json` (id `D05`), corpus `docs/D01/REDH.json` (id `D01.REDH`, ref `D01.REDH#abril`), notas `docs/D01N.json`, Times `docs/D15/0327.json` (id `D15.0327`). Cada `ref` de documento es **un** tramo; si el mismo tramo sirve a dos conclusiones lleva los grupos de ambas (`D03#sheer`: `a:fina_impreso_sin_raspadura a:fina_a_pique`, de C2 y C3), nunca dos grupos de la misma. Ejemplares: `"<doc>@<holder>"` con holder `L1` · `tomo` · `Crane` · `BM` · `L3`…`L8` (`D03@tomo`, `D03@Crane`, `D03@BM`, `D15.0327@L1`), exactamente los que cita `conclusions.json`. **Si su documento existe, DataRepo exige TODOS los tramos y ejemplares que el contrato le asigna** (error «el documento no tiene el tramo #x»): use el índice por documento de abajo.
+- **R5 · Ids del contrato §4.8.** El `ref` `D05#marque` exige en `docs/D05.json` un tramo `{{#marque …}}`; `S:M7.donde_duerme` una línea `"id": "donde_duerme"` en `scenes/M7.json`; `L:mrs_hudson.ordenes` una línea `"id": "ordenes"` en `dialogue/mrs_hudson.json` (el personaje es el nombre del archivo: el §4.8 escribe «hudson» = `mrs_hudson`); `M:D46` un `measure` y `paper_mm` en D46; `M:HA1.carta` `measure` y `paper_mm` en el `doc` de la reacción HA1 (también admitidos en escenas, `M:<escena>.<x>`). Ids de tramo y de línea: ASCII `snake_case`, únicos dentro del documento/escena/diálogo. Archivos: `docs/D05.json` (id `D05`), corpus `docs/D01/REDH.json` (id `D01.REDH`, ref `D01.REDH#abril`), notas `docs/D01N.json`, Times `docs/D15/0327.json` (id `D15.0327`). Cada `ref` de documento es **un** tramo; si el mismo tramo sirve a dos conclusiones lleva los grupos de ambas (`D03#sheer`: `a:fina_impreso_sin_raspadura a:fina_a_pique`, de C2 y C3), nunca dos grupos de la misma. Ejemplares: `"<doc>@<holder>"` con holder `L1` · `tomo` · `Crane` · `BM` · `L3`…`L8` (`D03@tomo`, `D03@Crane`, `D03@BM`, `D15.0327@L1`), exactamente los que cita `conclusions.json`. **Si su documento existe, DataRepo exige TODOS los tramos y ejemplares que el contrato le asigna** (error «el documento no tiene el tramo #x»): use el índice por documento de abajo.
 - **R6 · El Times (W3-CT-TIMES).** `docs/D15/<MMDD>.json`: `entity` `times_<MMDD>` (existen), `src_type` `prensa_londres`, `origin` `D15.<MMDD>`, ejemplar `D15.<MMDD>@L1` (holder `L1`, `area` `buhardilla`, `via` `desk`, `from` `<día>.dawn`: llega a la bandeja al amanecer), `inserts` a nivel de documento con las partes de columna y de noticias. Los avisos de Lisle y las columnas «—S.» se agregan solos a la parte `columna`; no los escriba.
 - **R7 · Escenas** (W3-CT-DLG-A/B). `place` sólo si la escena ocurre en un lugar del mapa (omitir en `END.*` y `EPI`). Escena fija de columna (M6, M7, HC07…): `place` `L1` y su `tk`. Escena automática de lugar: `auto: true` + `place` + `area` + `when`. `variants[].replace` conserva los tramos de la línea base (mismo `#id`, mismas etiquetas); `append` sólo ids nuevos. Ids `conf.*` reservados a la confrontación (HC07).
 - **R8 · Prólogo** (W3-CT-DLG-B, W3-CT-LISLE, W3-CT-CORPUS-A). `scenes/PRO.json` lleva las líneas del instructor del tutorial con estos ids exactos: `t_clip`, `t_link`, `t_folio`, `t_entry`, `t_practice`, `t_sleep` (Pell) y `t_ad` (Harris); el motor las dice una por paso (no las repita en otras líneas). Lo que el jugador debe poder hacer la noche del prólogo con lo legible en L1: recortar (D23, el encargo), juntar dos recortes, abrir un folio, asentar y practicar un par INC (C1.10: `D01.REDH#abril` y `#octubre` en `D01.REDH@tomo` desde `P.N`) y redactar el aviso de testigos: **D23 debe mencionar `[[suceso_reichenbach|…]]`**, porque la forma `testigo` sólo ofrece sucesos indexados.
@@ -1902,6 +1913,7 @@ Aceptación común de contenido: `test_u_schema` y `Markup.lint` sin errores en 
 | `D43` | `#hombro` (C1.01) · `#john_h` (C1.02) · `#cuatro_mayo` (huevo EE03) | `D43@BM`, `D43@Crane` |
 | `D44` | `#pierna` (C1.01) · `#conoce_mary` (C1.06) · `#madre_muerta` (C1.07) · `#july7` (C1.09) · `#septiembre` (C1.09) · `#oficios_mano` (C8) · `#perlas` (huevo EE03) | `D44@BM`, `D44@Crane` |
 | `D45` | `#duelo` (C14) | `D45@BM` |
+| `D46` | — (se mide entero: `M:D46`, C7) | `D46@L5` |
 
 **S:** `S:HC06.b_kbm` (C6) · `S:HC06.b_kw` (C6) · `S:HC06.b_kh` (C6) · `S:HC06.b_*` (C7) · `S:HC06.a` (C7) · `S:HC06.c` (C8) · `S:HC05.jueves_a` (C9) · `S:HC06.e` (C9) · `S:M7.inteligente` (C10, C10a) · `S:M6.donde` (C10) · `S:M7.donde_duerme` (C10) · `S:M7.trichinopolis` (C13) · `S:AGENTE.militar` (C13) · `S:PRO.cace_india` (C13)
 
@@ -1909,7 +1921,7 @@ Aceptación común de contenido: `test_u_schema` y `Markup.lint` sin errores en 
 
 **N:** `N:RB.foto.linea` (C3, refuta falsa_reuter → `a:refuta_reuter`) · `N:*.sil_wiggins` (C6) · `N:L2.cotter_canastilla` (C7) · `N:L2.cesto_tiras` (C7) · `N:L3.ventanas_abiertas` (C9) · `N:L3.shag` (C9) · `N:L3.cajon` (C9, refuta falsa_meunier → `a:refuta_meunier`) · `N:PRO.harris` (C10, C10a, C13) · `N:L7.linea_de_tiro` (C11) · `N:L1.librero_dedos` (C12) · `N:L1.librero_sombra` (C12) · `N:L8.guillotina` (C13) · `N:L8.ceniza` (C13) · `N:L4.hueco_estante` (C14) · `N:L4.crespon` (C14) · `N:L7.azafranes` (refuta falsa_anarquistas → `a:refuta_anarquistas`)
 
-**M:** `M:D25` (C7) · `M:HC06.papel` (C7)
+**M:** `M:HA1.carta` (C7) · `M:HA0.carta` (C7) · `M:D46` (C7)
 
 **R:** `R:D27.texto` (C3, refuta falsa_posadero → `a:refuta_posadero`) · `R:D28.anglo` (C5) · `R:HA3.*` (C6) · `R:HC10.texto` (C6) · `R:HB1.pared.1.col` (C6) · `R:HA1.*` (C6, C7) · `R:HB1.pared.1.kw` (C6, C7) · `R:HB4.carta` (C6) · `R:HA4.lisle_mudanza.kh` (C6) · `R:HC04.tarjeta` (C7) · `R:HA0.*` (C7) · `R:HB5.recibo` (C7) · `R:HC01.sobre` (C7) · `R:HA1.giro` (C7) · `R:HA0.giro` (C7) · `R:HC01.no_lo_es` (C8) · `R:HB7.col` (C10) · `R:M2.nota` (C10) · `R:HB9.carta` (C10) · `R:D37.precio` (C12)
 
@@ -1935,3 +1947,27 @@ Aceptación común de contenido: `test_u_schema` y `Markup.lint` sin errores en 
 | C12 | T3 | l0 `librero_falso` · l1 `rasgo_holmes` | librero, anciano, church_street, letra, amarillo, sombra |
 | C13 | T5 | l0 `tirador` · l3 `escondite_preparado` | camden_house, casa_vacia, harris, moran, cheroot, 221b |
 | C14 | T5 | l0 `tomos_de_watson` · l3 `tomos_de_watson` · l4 `duelo` | watson, paddington, tomos, mary_watson, subasta_de_paddington, notas_de_los_tomos |
+
+### 12.3 Cierre de la ola 3 (integración) — vinculante
+
+- **D16 · Recortar en casa.** El escritorio muestra el hub (`"hub"`: `GameSim.q_hub_plate`). `WorldModel.plate_snapshot(st, repo, "hub")` es la buhardilla de ahora (área `buhardilla` y nodos `*`, siluetas, variante; `{}` fuera de casa); `Clipper.accessible("plate", "hub")` vale con Lisle en casa. Recortarla (`clip_plate {plate:"hub"}` o `clip_text {src:{kind:"node", ref:"hub/<nodo>"}}`) archiva esa instantánea como lámina de visita `PL.L1.<día>.<franja>[.k]` (origen igual; RouteDB: `PL.L1`) y el recorte la nombra; una igual en la misma franja se reutiliza y un recorte rechazado no deja lámina (`PlayerActions._clip`).
+- **D17 · Láminas de escena en un lugar del mapa.** Una escena con `plate` que no es una lámina fija de `plates/` y con `place` del mapa archiva, al empezar, la instantánea de ese lugar y área con ese id (origen `PL.<lugar>.<día>.<franja>`). HC07 lleva `"plate": "PL.HC07"`: la confrontación muestra la tienda del día 10 y sus nodos (`N:L1.librero_dedos`, `N:L1.librero_sombra`: C12.R1) se recortan.
+- **D18 · Siluetas con diálogo = personajes.** Como `WorldModel.start_visit` suma a los personajes de la visita la silueta que tiene diálogo, el modelo de rutas también (`Availability._sil_char_srcs`, `all_chars`): Wiggins se interroga desde que HC02 lo pone (3.dawn) en todo lugar que declara su silueta, en cualquier área visitable (en el hub sólo la tienda). Resuelve `L:wiggins.vieja_tarifa` (C7.R7) y `L:wiggins.conduit` (C10.R4, C10a.R4).
+- **D19 · Medidas de C7.R1.** `M:D25` no tenía documento (D25 son las cartas runtime de la voz A) y HC06 no podía declarar su medida. Ahora: `M:HA1.carta` (C7.R1, garantizada) / `M:HA0.carta` (C7.R1c, columna) — la carta entregada, que se mide en el lector — con `M:D46`, el pliego del club de HC06 (f): documento D46, ejemplar `D46@L5` (área `*`: Sala de Forasteros y portería, días 8–9; HB12 cierra sólo la Sala, D9) que se abre desde los nodos `papel_mesa`/`papel_club` (e:papel_del_club) y se mide con la regla del lector. Schema admite `measure`/`paper_mm` también en escenas (`M:<escena>.<x>`), aunque la UI sólo mide documentos.
+- **D20 · T1 de las opcionales.** `RouteDB.lint` exige ≥2 rutas ★ sin ejemplar común sólo a las obligatorias; en las opcionales (C10a, C14) cada ruta debe valer igual (`test_t01_optional_real_data`). C14.R3 lleva el crespón (`N:L4.crespon`): sin él no cubría el grupo `duelo`.
+- **D21 · Voces de la «siguiente comunicación» (M10–M12).** Cada rastro `linea` tiene su `linea_h` (mismas etiquetas, más `e:harris`): Pell transmite en tercera persona («El mayor…»); Harris en persona (M7, canal `en_persona`) o firmando «H.» (tras M4) habla en primera persona. `Effects._take_next_lines` elige al adjuntarla.
+- **D22 · Contracciones con borde de palabra.** `Markup.contract` (lo usan `WorldModel.contract` y `Diary.compose`): «de el »/«a el » se contraen sólo como palabras sueltas («para el», «puede el» quedan intactos); `Deps.fill` ya lo hacía en las junturas.
+- **D24 · Plan y bots.** `Feasibility.merge`: un fragmento con varias fuentes en el MISMO lugar y área (p. ej. `S:HC06.b_*`, una línea por canal en la Sala de Forasteros) pide una visita a ese lugar en cualquiera de sus franjas, no «una salida cualquiera» (el deductor iba a otro lado y perdía la línea). Bot deductor: los lotes son exactos, así que una opcional (C10a, C14) acompaña a una obligatoria sólo si hace falta por paridad (las demás obligatorias por sellar antes de la pasada final son pares) o si no queda otra pasada doble; la pasada final de 1 queda para C12, que sólo vale ahí. Driver de verificación con ventana: `devtools/drivers/w3cierre_flujo.gd` (hub, D46, HC07).
+- **D23 · Pequeños de UI.** Epígrafe de recorte de texto con «; » entre etiquetas de índice (`Clipper._caption`); `Composers.piece_text` público (lo usa `ad_composer`); el foley del propio clic (`sfx.papel`, `sfx.pagina`, `sfx.plumin`) suena sin subtítulo (`audio.json` `quiet_captions`, `Audio.quiet`); la pestaña del cuaderno se llama «Cotejos».
+
+### 12.4 Cierre de la ola 4 (integrador final) — vinculante
+
+- **D25 · Una sola fuente por id.** `ui_text/scenes.json` ya no copia líneas que tienen fuente propia: HB4 → `dialogue/watson` (`hb4.1`, `hb4.2`), HB12 → `dialogue/mycroft` (`hb12_exito`, `hb12_error_1/2`, por `efecto.resultado`), confrontación → `scenes/HC07`. Sólo quedan en ui_text `scenes.conf.3.si` y `scenes.conf.acto_def`. Los fixtures (`tests/fixtures/scenes`, `w3sceneui/data/scenes/HC07.json`) siguen la misma regla.
+- **D26 · Pedir siempre cuesta.** `act_slip` gasta la papeleta también si la ficha es de ruido (`{t:"slip", doc:"", noise:<rótulo>}`) o si el ejemplar BM no se sirve hoy (fuera de su ventana): `{ok:true, view:""}`, evento `slip` con `topic` «otros» (o el del documento) y el título; `st.world.slips[visita]` guarda `"~<doc o rótulo>"`. Un documento sin ejemplar BM sigue siendo `no_esta`. `GameSim.q_slips_used()`. Así el costo no distingue lo que importa.
+- **D27 · Wiggins sólo en exteriores** (`silhouettes.<who>.talk`, §4.11): L1 tienda, L3 calle, L5 portería, L7 exterior; en L2, L4, L6 y L8 se ve por la ventana sin panel. `WorldModel.start_visit` y `Availability._sil_char_srcs` usan la misma regla (T1/T3 verdes).
+- **D28 · El prólogo no se bloquea** (§5.1, «Índice desde el instructor»).
+- **D29 · Lo conocido de antemano.** `dialogue.<char>.known: true` (Crane, el casero de Lisle): su nombre se muestra aunque no esté en el índice (`q_scene`, `SimLink.char_label`, cuaderno).
+- **D30 · Día 10.** `Clock.enter_day` dice primero la escena HC07 (Crane llama, entra el anciano) y después la afirmación I de la confrontación; el anciano cita el acto en voz alta («asiento 214, el martes 27», `Confrontation._spoken`).
+- **D31 · UI.** Los avisos de la Shell se corren al margen izquierdo con un compositor abierto (informe, anuncio, telegrama, carta) para no tapar el título; la tarjeta de diálogo se reajusta cuando cambia el alto del texto; las pestañas del libro mayor terminan sobre el alto real del papel del sello; la papeleta no duplica comillas; el título pregunta «Seguir / Volver al título» antes de continuar un guardado de otra versión (`Game.save_other_version`). Letra manuscrita: `ThemeInstaller.HAND_SPACE_PX` (la «S» de Homemade Apple dibuja 18 px a la izquierda de su origen a 32 px).
+- **D32 · 3D.** Maniquíes con ojos (dos puntos de tinta): una figura de frente ya no se lee de espaldas. Pell «se seca la frente» con el codo doblado (IK de dos huesos, `Mannequin._elbow`) y un pañuelo chico; Harris tres cuartos hacia la cámara en la lámina del prólogo; Mycroft y su sillón miran al encuadre de la Sala de Forasteros; L4 esquina = farmacia de Pratt (como el Kelly's, D17); L8 «vista» por la rendija de la hoja levantada.
+- **Guiones.** `devtools/scripts/slice_*.jsonl` regrabados (`slice_record.gd -- all`) con el contenido final; `slice_ui_runner` pide la copia certificada por la tarjeta de examen y lee la presentación del prólogo antes de trabajar. El runner de tests admite varios filtros separados por coma.

@@ -16,6 +16,9 @@ const RouteDB = preload("res://core/graph/route_db.gd")
 const CutModel = preload("res://core/graph/cut_model.gd")
 
 const BM_SLIPS := 3
+# A igual número de salidas, plan() prefiere rutas que no dependen de un acto del jugador (W4-BALANCE D1b): fija <
+# columna < garantizada < opcional. Sólo cambia QUÉ plan se devuelve, no si existe (T3 no cambia).
+const DEPS_RANK := {"fija": 0, "columna": 1, "garantizada": 2, "opcional": 3}
 const QUESTIONS := 3
 
 static func _src_mask(repo, sk: String, cuts: Array) -> int:
@@ -94,8 +97,17 @@ static func merge(units: Array, req: Array) -> Array:
 				break
 		if done:
 			continue
-		if rq.opts.size() == 1:
-			var nu := _new_unit(rq.opts[0])
+		var one_place := true
+		for o in rq.opts:
+			if o.place != rq.opts[0].place or o.area != rq.opts[0].area or o.cap != rq.opts[0].cap or o.capk != rq.opts[0].capk:
+				one_place = false
+		if one_place:
+			# una o varias fuentes en el mismo lugar y área (p. ej. S:HC06.b_*: una línea por canal, todas en la Sala de
+			# Forasteros): una visita a ESE lugar en cualquiera de sus franjas (antes, «una salida cualquiera»)
+			var o1: Dictionary = rq.opts[0].duplicate()
+			for o in rq.opts:
+				o1.mask = int(o1.mask) | int(o.mask)
+			var nu := _new_unit(o1)
 			nu.refs.append(rq.ref)
 			out.append(nu)
 		else:
@@ -167,8 +179,8 @@ static func plan(repo, from_idx: int, cuts: Array, need: Array) -> Dictionary:
 			var us = route_units(repo, r, cuts, from_idx, lc)
 			if us == null:
 				continue
-			o.append({"rid": String(r.id), "units": us, "n": us.size()})
-		o.sort_custom(func(a, b): return a.n < b.n or (a.n == b.n and a.rid < b.rid))
+			o.append({"rid": String(r.id), "units": us, "n": us.size(), "dr": int(DEPS_RANK.get(String(r.get("deps", "")), 9))})
+		o.sort_custom(func(a, b): return a.n < b.n or (a.n == b.n and (a.dr < b.dr or (a.dr == b.dr and a.rid < b.rid))))
 		if o.is_empty():
 			unmet.append(String(cid))
 		else:

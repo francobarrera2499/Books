@@ -90,3 +90,23 @@ func test_t01_real_data():
 		pend.append_array(l.pending)
 	if nerr == 0 and not pend.is_empty():
 		pending_content("T1: %d fragmentos/rutas sin contenido; p. ej. %s" % [pend.size(), str(pend.slice(0, 5))])
+
+# Conclusiones opcionales (C10a, C14): toda ruta resuelta y sin errores de ruta (orígenes, claves, grupos, etiquetas,
+# ventana); la exigencia de ≥2 rutas ★ es sólo de las obligatorias.
+func test_t01_optional_real_data():
+	var r = repo()
+	var n := 0
+	for c in r.conclusions():
+		if String(c.get("kind", "")) != "opcional":
+			continue
+		n += 1
+		var l := RouteDB.lint(r, String(c.id))
+		eq(l.errors, [], "%s: errores de ruta" % c.id)
+		eq(l.pending, [], "%s: fragmentos sin contenido" % c.id)
+	ok(n >= 2, "C10a y C14")
+	var c14: Dictionary = r.conclusion("C14").duplicate(true)
+	for rt in c14.routes:
+		if String(rt.id) == "C14.R3":
+			rt.frags = rt.frags.filter(func(f): return String(f.ref) != "N:L4.crespon")
+	var p = PatchRepo.new(r, {"conclusions": {"C14": c14}})
+	ok(str(RouteDB.lint(p, "C14").errors).contains("C14.R3: no cubre los grupos"), "sin el crespón, C14.R3 no cubre el duelo")

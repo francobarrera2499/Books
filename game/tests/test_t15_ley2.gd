@@ -138,3 +138,37 @@ func test_optional_hb1_is_blockable():
 	_ads(h, "pared", [1, 2])
 	h.advance_to("10.night")
 	eq(_all(h, "HB1").size(), 1, "sólo la garantizada")
+
+# Hallazgo del playtest (sistemas, M4): sobre data/ real, un asiento T4 a lápiz sin «según» que nombra a Moran como
+# redactor despide a Pell en el informe 1 sea cual sea el documento (El problema final o las cartas del coronel), y
+# ninguno de los dos da crédito ante Moran (un lápiz sin fundamento no es un dato comprobable).
+func test_m4_by_visible_fields_not_oracle():
+	var r = repo()
+	if r.reactions().is_empty():
+		skip("sin reacciones en data/")
+		return
+	var outcome := {}
+	for doc in ["fina", "cartas_del_coronel"]:
+		var sim = load("res://core/sim/game_sim.gd").new(r, 3)
+		var b = load("res://devtools/bots/bot_pasivo.gd").new()
+		b.setup(sim, 3)
+		for _i in 400:
+			var c: Dictionary = sim.q_clock()
+			if String(c.phase) == "night" and bool(sim.q_report_status().due):
+				break
+			b.step()
+		ok(bool(sim.q_report_status().due), "informe 1 pendiente")
+		load("res://core/deduction/index.gd").add_entities(sim.st, r, [doc, "moran"])
+		var e: Dictionary = sim.apply({"t": "entry_new", "folio": "varios", "template": "T4"})
+		ok(e.ok, str(e))
+		ok(sim.apply({"t": "entry_set", "entry": e.entry, "line": 0, "field": "documento", "value": doc}).ok)
+		ok(sim.apply({"t": "entry_set", "entry": e.entry, "line": 1, "field": "redacto", "value": "moran"}).ok)
+		var rep: Dictionary = sim.apply({"t": "report_submit", "mode": "items", "items": [{"kind": "entry", "id": e.entry}]})
+		ok(rep.ok, str(rep))
+		for _i in 40:
+			if int(sim.q_clock().day) >= 4:
+				break
+			b.step()
+		outcome[doc] = [bool(sim.st.flags.get("pell_despedido", false)), bool(sim.st.flags.get("moran_credito", false))]
+	eq(outcome["fina"], [true, false], "El problema final · Moran: M4, sin crédito")
+	eq(outcome["cartas_del_coronel"], [true, false], "las cartas del coronel · Moran: lo mismo (Moran no confirma valores)")

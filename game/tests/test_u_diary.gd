@@ -107,6 +107,15 @@ func test_contraction_and_generic_say():
 	ok(String(last.parsed.plain).contains("le dije al portero:"), last.parsed.plain)
 	ok(String(last.parsed.plain).contains("Club Diógenes, Pall Mall;"), last.parsed.plain)
 
+# Contracciones con borde de palabra (bug: «para el» -> «paral» con un replace ciego de «a el »).
+func test_contraction_word_boundary():
+	var r = Kit.repo()
+	var txt := Diary.compose(r, "say", {"fecha": "Mar. 27", "franja": "M", "lugar": "Club Diógenes", "quien": "el portero",
+		"frase": "Es para el doctor; nadie puede el domingo"})
+	ok(txt.contains("le dije al portero"), txt)
+	ok(txt.contains("Es para el doctor; nadie puede el domingo"), txt)
+	no(txt.contains("paral") or txt.contains("pudel"), txt)
+
 func test_stay_home_line():
 	var s = _at(1, "M")
 	ok(s.apply({"t": "end_slot"}).ok)

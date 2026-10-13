@@ -128,10 +128,7 @@ static func compose(repo, key: String, vars: Dictionary) -> String:
 	var tpl: Dictionary = repo.lists().get("diary", {}).get(key, {})
 	if tpl.is_empty():
 		return ""
-	var text := Markup.fill(String(tpl.get("text", "")), vars)
-	for pair in repo.lists().get("contracciones", []):
-		if typeof(pair) == TYPE_ARRAY and pair.size() == 2:
-			text = text.replace(String(pair[0]), String(pair[1]))
+	var text := Markup.contract(Markup.fill(String(tpl.get("text", "")), vars), repo.lists().get("contracciones", []))
 	var tags: Array = tpl.get("tags", [])
 	if tags.is_empty():
 		return text

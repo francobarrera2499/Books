@@ -64,7 +64,19 @@ func _init(p_repo, p_seed: int, handlers := {}) -> void:
 	st.pending_events.clear()
 	st.notes.clear()
 
+# Reanudar: el registro ya fue aceptado una vez, así que se aplica SIN la copia de reversión por acción (la copia
+# profunda del estado en cada acción libre hacía la carga cuadrática: 1.600 acciones, 24 s). Si alguna se rechaza
+# (registro corrupto o de otra versión), una acción rechazada sin copia pudo dejar el estado a medias: se rehace todo
+# con reversión (el camino lento sólo en ese caso) y se cuentan las rechazadas en replay_errors.
 static func replay(p_repo, p_seed: int, actions: Array, handlers := {}):
+	var s = load(SELF).new(p_repo, p_seed, handlers)
+	for a in actions:
+		var r: Dictionary = s._apply(a, true, false)
+		if not r.get("ok", false):
+			return _replay_safe(p_repo, p_seed, actions, handlers)
+	return s
+
+static func _replay_safe(p_repo, p_seed: int, actions: Array, handlers := {}):
 	var s = load(SELF).new(p_repo, p_seed, handlers)
 	for a in actions:
 		var r: Dictionary = s.apply(a)
@@ -92,7 +104,7 @@ func canon() -> Dictionary:
 func state_hash() -> String:
 	return J.stringify_canon(canon()).md5_text()
 
-func _apply(a: Dictionary, live: bool) -> Dictionary:
+func _apply(a: Dictionary, live: bool, rollback := true) -> Dictionary:
 	var na := Actions.normalize(a)
 	var e := Actions.shape_error(na)
 	if e != "":
@@ -105,7 +117,7 @@ func _apply(a: Dictionary, live: bool) -> Dictionary:
 		return {"ok": false, "err": "fase"}
 	if not Tutorial.allowed(st, na):
 		return {"ok": false, "err": "tutorial"}
-	var snap: Dictionary = {} if VALIDATE_FIRST.has(t) else st.snapshot()
+	var snap: Dictionary = {} if (VALIDATE_FIRST.has(t) or not rollback) else st.snapshot()
 	var clock_before: Dictionary = st.clock.duplicate(true)
 	var step_before := String(Tutorial.step(st).get("id", ""))
 	var tray_before := (st.world.get("tray", []) as Array).size()
@@ -206,7 +218,17 @@ func _say_tutorial_line() -> void:
 	if s.is_empty():
 		return
 	var lid := String(s.line_id)
-	WorldModel.say_scene_line(st, repo, lid.get_slice(".", 0), lid.get_slice(".", 1))
+	var uid := WorldModel.say_scene_line(st, repo, lid.get_slice(".", 0), lid.get_slice(".", 1))
+	# W4 (bloqueo del novato): lo que nombra el instructor del paso «ad» (Harris, PRO.t_ad: «se busca testigo de
+	# [[suceso_reichenbach|lo de Suiza]]») entra al índice, para que la forma «testigo» nunca tenga el blanco vacío
+	# (Composers.options y _slot_ok leen el índice). Única entrada del índice que no viene de un recorte (ARCH §8.2).
+	if String(s.get("id", "")) == "ad" and uid != "":
+		var ents: Array = []
+		for m in WorldModel.line(st, repo, uid).get("parsed", {}).get("mentions", []):
+			var eid := String(m.get("ent", "")) if typeof(m) == TYPE_DICTIONARY else ""
+			if eid != "" and not ents.has(eid):
+				ents.append(eid)
+		Index.add_entities(st, repo, ents)
 
 # ---------------- azúcar 1:1 sobre apply (§3.4) ----------------
 func clip_text(src: Dictionary, from: int, length: int) -> Dictionary:
@@ -239,8 +261,12 @@ func pass_clean(entries: Array) -> Dictionary:
 func go(place: String, area := "", seat := 0) -> Dictionary:
 	return apply({"t": "go", "place": place, "area": area, "seat": seat})
 
-func slip(doc: String) -> Dictionary:
-	return apply({"t": "slip", "doc": doc})
+func slip(doc: String, noise := "") -> Dictionary:
+	return apply({"t": "slip", "doc": doc, "noise": noise})
+
+# Papeletas gastadas en la visita en curso (con o sin ejemplar servido).
+func q_slips_used() -> int:
+	return (st.world.get("slips", {}).get(String(st.world.get("visit", {}).get("id", "")), []) as Array).size()
 
 func ask(char_id: String, topic: String) -> Dictionary:
 	return apply({"t": "ask", "char": char_id, "topic": topic})
@@ -343,8 +369,14 @@ func q_catalog(entity: String) -> Array:
 	var all: Array = repo.catalog().get(entity, [])
 	var docs: Array = []
 	var noise: Array = []
+	var now := Clipper.now_tk(st)
 	for x in all:
 		if String(x.get("doc", "")) != "":
+			# una ficha cuyo ejemplar de la Biblioteca todavía no existe (o ya no) no está en el catálogo: el Daily Graphic
+			# del 3 de abril no se lista el martes 27 ni une a Moran con Adair antes del día 8 (GDD §15.5 T7). Sólo la
+			# ventana del ejemplar: un retiro (reacción) se percibe al pedirlo, no borrando la ficha.
+			if not WorldModel.catalog_listed(repo, String(x.doc), now):
+				continue
 			docs.append({"doc": String(x.doc), "label": String(x.get("label", ""))})
 		else:
 			noise.append({"doc": "", "label": String(x.get("label", ""))})
@@ -486,8 +518,9 @@ func q_scene() -> Dictionary:
 	var chars: Array = []
 	for c in v.get("chars", []):
 		var cid := String(c.get("id", "")) if typeof(c) == TYPE_DICTIONARY else String(c)
-		var known := Index.has(st, cid)
 		var dl: Dictionary = repo.dialogue(cid)
+		# known: Lisle lo conoce de antes (Crane, su casero: el nombre está en la muestra), aunque no esté en el índice
+		var known := Index.has(st, cid) or bool(dl.get("known", false))
 		var en: Dictionary = repo.entity(cid)
 		var label := Diary.char_label(repo, cid) if known else String(en.get("noun", dl.get("trait", cid)))
 		chars.append({"id": cid, "label": label, "trait": String(c.get("trait", dl.get("trait", ""))) if typeof(c) == TYPE_DICTIONARY else String(dl.get("trait", "")),

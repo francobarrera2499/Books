@@ -50,7 +50,7 @@ const CONTRACT := {
 	"C4": ["D03#a_mycroft", "D18#calendars", "D19#indice", "D30#recibo", "D29b#surcos", "L:mrs_hudson.mycroft_paga"],
 	"C5": ["D09#desague", "D11#desague", "D09#cruel", "D10#cruel", "R:D28.anglo", "D10#portada", "D09#nota_redactor", "D10#frontispicio"],
 	"C6": ["J:go", "N:*.sil_wiggins", "AD:prologo", "R:HC10.texto", "AD:*", "R:HB1.col", "S:HC06.b_kbm", "S:HC06.b_kw", "S:HC06.b_kh", "R:HA1.*", "R:HB1.carta", "R:HB4.carta", "L:mrs_hudson.ordenes"],
-	"C7": ["M:D25", "M:HC06.papel", "R:HC04.tarjeta", "S:HC06.b_*", "D31#para_mholmes", "R:HA0.*", "R:HA1.*", "D30#recibo", "N:L2.cotter_canastilla", "N:L2.cesto_tiras", "D01.GREE#founders", "L:watson.escribi_mycroft", "R:HB5.recibo", "R:HB1.carta", "R:HC01.sobre", "D01.GREE#pall_mall", "L:wiggins.vieja_tarifa", "D01.GREE#whitehall", "R:HA1.giro", "S:HC06.a"],
+	"C7": ["M:HA1.carta", "M:HA0.carta", "M:D46", "R:HC04.tarjeta", "S:HC06.b_*", "D31#para_mholmes", "R:HA0.*", "R:HA1.*", "D30#recibo", "N:L2.cotter_canastilla", "N:L2.cesto_tiras", "D01.GREE#founders", "L:watson.escribi_mycroft", "R:HB5.recibo", "R:HB1.carta", "R:HC01.sobre", "D01.GREE#pall_mall", "L:wiggins.vieja_tarifa", "D01.GREE#whitehall", "R:HA1.giro", "S:HC06.a"],
 	"C8": ["D13#muestra97", "D12#n97", "D14#opusculo", "D44#oficios_mano", "S:HC06.c", "D31#telegramas", "R:HC01.no_lo_es", "D12#dedicatoria", "D13#jartum", "D34#ruinas", "D35#califa"],
 	"C9": ["S:HC05.jueves_a", "N:L3.ventanas_abiertas", "N:L3.shag", "S:HC06.e", "N:L3.cajon", "R:HB*.col", "D31#ruta"],
 	"C10": ["N:PRO.harris", "D16#moran", "S:M7.inteligente", "D10#adjetivos", "D23#cruel", "L:wiggins.conduit", "D17#moran_conduit", "D10#cabrito_atado", "S:M6.donde", "D11#no_bala", "S:M7.donde_duerme", "R:HB7.col", "R:M2.nota", "R:HB9.carta", "D11#hacerlo_balar"],
@@ -265,6 +265,22 @@ func _units() -> Array:
 				var day3 := maxi(base, _cond_min_day(nd.get("when", {})))
 				out.append({"kind": "node", "ref": "N:%s.%s" % [pid, nd.id], "who": "", "place": pid, "day": day3, "date": _day_date(day3),
 					"public": false, "parsed": Markup.parse(String(nd.get("examine", "")), ctx), "tags_decl": nd.get("tags", [])})
+			# nodos de variantes (RB.foto/journal/fina, L1 registrada…): ref N:<lugar>.<variante>.<nodo> (RouteDB._node)
+			var vs = pl.get("variants", {})
+			if typeof(vs) == TYPE_DICTIONARY:
+				var vids: Array = vs.keys()
+				vids.sort()
+				for vid in vids:
+					if typeof(vs[vid]) != TYPE_DICTIONARY:
+						continue
+					for lst in ["add_nodes", "nodes"]:
+						for nd2 in vs[vid].get(lst, []):
+							if typeof(nd2) != TYPE_DICTIONARY:
+								continue
+							var day5 := maxi(base, _cond_min_day(nd2.get("when", {})))
+							out.append({"kind": "node", "ref": "N:%s.%s.%s" % [pid, vid, nd2.id], "who": "", "place": pid, "day": day5,
+								"date": _day_date(day5), "public": false, "parsed": Markup.parse(String(nd2.get("examine", "")), ctx),
+								"tags_decl": nd2.get("tags", [])})
 	for r in _rp.reactions():
 		var rid := String(r.id)
 		var day4 := _earliest_day(r)
@@ -438,6 +454,42 @@ func _bad_knowable() -> Dictionary:
 # ---------------- Moran–Adair, paradero, Mycroft ----------------
 func test_moran_adair_not_before_day8() -> void:
 	eq(_bad_moran_adair(), [], "nadie relaciona a Moran con Adair antes del 3 de abril")
+
+# El catálogo de la Sala de Lectura tampoco: la ficha del Daily Graphic del 3 de abril (D16, Moran y Adair) no se lista
+# antes de que exista su ejemplar en la Biblioteca (8.M), y nunca se lista un documento cuyo ejemplar BM no está.
+func test_catalog_moran_adair_not_before_day8() -> void:
+	var r = repo()
+	var sim = load("res://core/sim/game_sim.gd").new(r, 1)
+	for day in [1, 7]:
+		sim.st.clock.day = day
+		sim.st.clock.slot = "M"
+		for ent in ["moran", "ronald_adair", "park_lane", "asesinato_de_adair", "daily_graphic"]:
+			for x in sim.q_catalog(ent):
+				ok(String(x.get("doc", "")) != "D16", "día %d: q_catalog(%s) no lista D16" % [day, ent])
+	sim.st.clock.day = 8
+	var found := false
+	for x in sim.q_catalog("moran"):
+		if String(x.get("doc", "")) == "D16":
+			found = true
+	ok(found, "desde el 8.M, D16 aparece buscando a Moran")
+	# ninguna ficha de documento el día 1 con su ejemplar BM fuera de ventana
+	sim.st.clock.day = 1
+	var WM = load("res://core/sim/world_model.gd")
+	var tk1: int = load("res://core/util/timekey.gd").tk(1, "M")
+	var bad: Array = []
+	for ent in r.catalog().keys():
+		for x in sim.q_catalog(String(ent)):
+			var did := String(x.get("doc", ""))
+			if did != "" and not WM.catalog_listed(r, did, tk1) and not bad.has(did):
+				bad.append(did)
+	eq(bad, [], "fichas del día 1 sin ejemplar en la Biblioteca")
+	# todo ejemplar de la Biblioteca que se pide con papeleta tiene ficha de catálogo (la UI sólo pide por el catálogo)
+	var sin_ficha: Array = []
+	for did in r.docs().keys():
+		for c in r.doc(String(did)).get("copies", []):
+			if String(c.get("holder", "")) == "BM" and String(c.get("via", "slip")) == "slip" and typeof(r.doc(String(did)).get("catalog")) != TYPE_DICTIONARY and not sin_ficha.has(did):
+				sin_ficha.append(did)
+	eq(sin_ficha, [], "ejemplares BM sin ficha de catálogo (no se pueden pedir)")
 
 func _bad_moran_adair() -> Array:
 	var bad: Array = []

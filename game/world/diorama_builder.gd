@@ -236,7 +236,7 @@ static func build(place: Dictionary, snap: Dictionary) -> Node3D:
 	var preset := ""
 	var LT: Script = load("res://world/lighting.gd") if ResourceLoader.exists("res://world/lighting.gd") else null
 	if LT != null and LT.has_method("preset_for"):
-		preset = str(LT.preset_for(place, slot))
+		preset = str(LT.preset_for(place, slot, snap))   # snap.day: luz por día (place.light["<día>.<franja>"]) y clima (noche del 5)
 	elif lmap is Dictionary:
 		preset = str(lmap.get(slot, ""))
 		if preset == "" and slot == "dawn": preset = str(lmap.get("M", ""))

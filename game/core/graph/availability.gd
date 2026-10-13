@@ -25,7 +25,7 @@ const T_F := 0
 const T_T := 1
 const T_U := 2
 const PLAYER_ATOMS := ["sealed", "sealed_all", "sealed_count", "counter", "event_count", "visited",
-	"report_final_cats_any", "anchor", "char_present"]
+	"report_final_cats_any", "anchor", "char_present", "pencil_wrong"]
 # flags = {ANY_FLAG: true} → todo átomo de flag vale "posible" (T_U). Lo usan las condiciones de DISPARO de las
 # reacciones: un flag que pone otra reacción o el jugador (p. ej. wiggins_aliado de HB8 para HB8b) no impide que la
 # reacción ocurra en el peor caso; con flags base {} esas reacciones no se dispararían nunca y sus cortes no se verían.
@@ -624,6 +624,8 @@ static func sil_srcs(repo, who: String, only_place := "") -> Array:
 	if from < 0:
 		return out
 	for pid in sorted_keys(repo.places()):
+		if String(pid) == HUB:
+			continue   # la silueta vista desde el escritorio no tiene acto «go» que citar (Clipper._visit_act; archive_hub deja act vacío): no ancla K-S (W4-BALANCE D1; GDD §10.4 K-S: «en la lámina de ese lugar y franja»)
 		var p: Dictionary = repo.place(String(pid))
 		var sil = p.get("silhouettes", {})
 		if typeof(sil) != TYPE_DICTIONARY or not sil.has(who):
@@ -682,14 +684,54 @@ static func char_srcs(repo, char_id: String, conds := [], kind := "line", tag :=
 					var cc2 := _conds(conds + [ch.get("when", {})])
 					out.append(reg(repo, {"key": "%s:%s%s@plate.%s%s" % [kind, char_id, tag, pid, _suffix(cc2)], "kind": kind,
 						"char": char_id, "plate": String(pid), "tb": plate_tb(repo, String(pid)), "conds": cc2, "cls": cls}))
+	out.append_array(_sil_char_srcs(repo, char_id, conds, kind, tag, cls))
+	return out
+
+# Silueta con diálogo (HC02: Wiggins desde el día 3): WorldModel.start_visit la suma a los personajes de la visita en
+# todo lugar que declara silhouettes[who], en las áreas de silhouettes[who].talk si lo declara (W4: sólo exteriores;
+# en un interior se ve por la ventana, sin panel), si no en cualquier área (en el hub, sólo las áreas libres: la tienda), desde
+# que una reacción la pone (sil_from). Igual que en el juego: se le puede hablar ahí.
+static func _sil_char_srcs(repo, char_id: String, conds: Array, kind: String, tag: String, cls: String) -> Array:
+	var out: Array = []
+	if not repo.has_method("dialogue") or repo.dialogue(char_id).is_empty():
+		return out
+	var pids: Array = []
+	for pid in sorted_keys(repo.places()):
+		var sil = repo.place(String(pid)).get("silhouettes", {})
+		if typeof(sil) == TYPE_DICTIONARY and sil.has(char_id):
+			pids.append(String(pid))
+	if pids.is_empty():
+		return out
+	var from := sil_from(repo, char_id)
+	if from < 0:
+		return out
+	var cc := _conds(conds)
+	for pid in pids:
+		var sd = repo.place(String(pid)).get("silhouettes", {}).get(char_id, {})
+		var talk = sd.get("talk") if typeof(sd) == TYPE_DICTIONARY and sd.has("talk") else null
+		for a in fit_areas(repo, pid, "*"):
+			if pid == HUB and not is_free(repo, HUB, String(a)):
+				continue
+			if typeof(talk) == TYPE_ARRAY and not talk.has(String(a)):
+				continue   # W4: sólo en las áreas donde se le habla (silhouettes.<who>.talk; en un interior se ve por la ventana)
+			out.append(reg(repo, {"key": "%s:%s%s@sil.%s.%s%s" % [kind, char_id, tag, pid, a, _suffix(cc)], "kind": kind,
+				"char": char_id, "place": pid, "area": String(a), "tb": from_mask(from), "conds": cc, "cls": cls,
+				"unit": _unit(pid, String(a), "q" if kind == "line" else "", char_id)}))
 	return out
 
 static func all_chars(repo) -> Array:
 	var seen := {}
 	for pid in sorted_keys(repo.places()):
-		for ch in repo.place(String(pid)).get("characters", []):
+		var pl: Dictionary = repo.place(String(pid))
+		for ch in pl.get("characters", []):
 			if typeof(ch) == TYPE_DICTIONARY:
 				seen[String(ch.get("id", ""))] = true
+		# siluetas con diálogo (Wiggins): también son personajes de la visita (_sil_char_srcs)
+		var sil = pl.get("silhouettes", {})
+		if typeof(sil) == TYPE_DICTIONARY and repo.has_method("dialogue"):
+			for who in sil:
+				if not repo.dialogue(String(who)).is_empty():
+					seen[String(who)] = true
 	return sorted_keys(seen)
 
 # ---------------- reacciones: disparo y latencia (estático) ----------------

@@ -30,6 +30,9 @@ const STAGGER_S := 0.14
 var link
 var tijera := false
 var animate := true
+var narration := false         # set_narration(on): todo como voz de Lisle (Park Lane)
+var _row_target: Control = null
+var _row_frames := 0
 var scroll: ScrollContainer
 var _list: VBoxContainer
 var _caption: Label
@@ -107,6 +110,21 @@ func add_echo(who: String, text: String) -> void:
 func rows() -> Array:
 	return _rows.duplicate()
 
+# Narración (Park Lane, HC08): lo que Lisle ve en la calle lo cuenta Lisle; las acotaciones de otros (el caballero de
+# luto, el anciano que tropieza) van como su voz, sin rótulo con el nombre (W4: «El doctor Watson» y «El librero viejo»
+# resolvían lo que el texto deja en suspenso).
+func set_narration(on: bool) -> void:
+	if narration == on:
+		return
+	narration = on
+	for r in _rows:
+		r.who_label.text = link.who_label(disp_who(String(r.who)), _chars)
+		_build_rtl(r)
+	_relabel()
+
+func disp_who(who: String) -> String:
+	return "lisle" if narration and who != "" else who
+
 func rtl_of(uid: String) -> RichTextLabel:
 	for r in _rows:
 		if r.uid == uid:
@@ -130,6 +148,7 @@ func set_lines(p_uids: Array, chars: Array = []) -> void:
 	for r in _rows:
 		have[r.uid] = true
 	var added := 0
+	var first_new: Control = null
 	for u in want:
 		if have.has(u):
 			continue
@@ -139,6 +158,8 @@ func set_lines(p_uids: Array, chars: Array = []) -> void:
 		var r := _make_row(u, String(ln.get("who", "")), ln.parsed)
 		_rows.append(r)
 		_list.add_child(r.row)
+		if first_new == null:
+			first_new = r.row
 		if animate:
 			r.row.modulate.a = 0.0
 			var tw: Tween = r.row.create_tween()
@@ -148,15 +169,18 @@ func set_lines(p_uids: Array, chars: Array = []) -> void:
 	_relabel()
 	_caption.visible = _caption.text != "" and _rows.is_empty()
 	if added > 0:
-		_scroll_to_end.call_deferred()
+		# a la PRIMERA línea nueva, no al final (W4: los nueve renglones de Mycroft llegaban juntos y sólo se veían los
+		# cuatro últimos; el principio, su deducción sobre Lisle, quedaba arriba sin leer). Se lee hacia abajo con la rueda.
+		_scroll_to_row.call_deferred(first_new)
 
 # Los rótulos de quien habla pueden haber cambiado (alguien se presentó); como en un libreto, no se repite el rótulo de
 # quien sigue hablando.
 func _relabel() -> void:
 	var prev := "<nadie>"
 	for r in _rows:
-		r.who_label.text = link.who_label(r.who, _chars) if r.who != prev else ""
-		prev = r.who
+		var dw := disp_who(String(r.who))
+		r.who_label.text = link.who_label(dw, _chars) if dw != prev else ""
+		prev = dw
 
 func set_tijera(on: bool) -> void:
 	if tijera == on:
@@ -182,7 +206,7 @@ func _make_row(uid: String, who: String, parsed: Dictionary, local := false) -> 
 	wl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	wl.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	wl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	wl.text = link.who_label(who, _chars)
+	wl.text = link.who_label(disp_who(who), _chars)
 	row.add_child(wl)
 	var rtl := TextBuilder.make_rtl("imprenta")
 	rtl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -203,7 +227,7 @@ func _build_rtl(r: Dictionary) -> void:
 	rtl.add_theme_color_override("font_selected_color", Color(0, 0, 0, 0))
 	var wl: Label = r.who_label
 	wl.add_theme_font_size_override("font_size", SimLink.px("small"))
-	if r.who == "lisle":
+	if disp_who(String(r.who)) == "lisle":
 		rtl.add_theme_font_override("normal_font", SimLink.font("imprenta", true))
 		rtl.add_theme_color_override("default_color", Paper.ink("lapiz"))
 		wl.add_theme_color_override("font_color", Paper.ink("tenue"))
@@ -231,6 +255,40 @@ func _scroll_to_end() -> void:
 	if is_inside_tree():
 		var sb := scroll.get_v_scroll_bar()
 		scroll.scroll_vertical = int(sb.max_value)
+
+# La fila queda arriba de la ventana del rollo, con su renglón entero (nada cortado bajo el encabezado). Si todo lo
+# nuevo cabe debajo de lo que ya se veía, se baja sólo lo necesario para mostrarlo entero.
+func _scroll_to_row(row: Control) -> void:
+	# dos cuadros después (alto real de las filas); por _process y no con await: la transcripción puede liberarse antes
+	_row_target = row
+	_row_frames = 2
+	set_process(true)
+
+func _process(_dt: float) -> void:
+	if _row_frames <= 0:
+		set_process(false)
+		return
+	_row_frames -= 1
+	if _row_frames == 0:
+		set_process(false)
+		_do_scroll_to_row(_row_target)
+
+func _do_scroll_to_row(row: Control) -> void:
+	if not is_inside_tree() or row == null or not is_instance_valid(row):
+		return
+	var view_h := scroll.size.y
+	var top := row.position.y
+	var bottom := _list.get_combined_minimum_size().y
+	var cur := float(scroll.scroll_vertical)
+	var target := cur
+	if bottom - cur > view_h:
+		target = top if bottom - top > view_h else bottom - view_h
+	if top < cur:
+		target = top
+	scroll.scroll_vertical = int(maxf(0.0, target))   # ScrollContainer acota al máximo
+
+func scroll_pos() -> int:
+	return scroll.scroll_vertical
 
 # ------------------------------------------------------------------ tijera
 func _on_rtl_input(ev: InputEvent, uid: String) -> void:

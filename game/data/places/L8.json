@@ -1,5 +1,5 @@
 {
- "_nota": "W2-PLACES-B. Camden House, interior (GDD§5 L8; EMPT): el cuarto delantero vacío de la planta baja. Las ventanas miran a -X (la luz del preset farol_calle entra por ahí); enfrente, al otro lado de Baker Street, el 221B (fachada en x=-18,7 mirando a +X) con una ventana del primer piso alineada con la de Moran (z=+1,25). La calle está un piso más abajo (vereda en y=-0,88). Ventana de Moran: postigos abiertos, polvo barrido en el alféizar, aceite en las poleas; la otra: postigos cerrados, polvo intacto. Días 8-9: enfrente, las ventanas del 221B abiertas (nodo ventanas_enfrente → casa.alts).",
+ "_nota": "W2-PLACES-B. Camden House, interior (GDD§5 L8; EMPT): el cuarto delantero vacío de la planta baja. Las ventanas miran a -X (la luz del preset farol_calle entra por ahí); enfrente, al otro lado de Baker Street, el 221B (fachada en x=-18,7 mirando a +X) con una ventana del primer piso alineada con la de Moran (z=+1,25). La calle está un piso más abajo (vereda en y=-0,88). Ventana de Moran: postigos abiertos, polvo barrido en el alféizar, aceite en las poleas; la otra: postigos cerrados, polvo intacto. Días 8-9: enfrente, las ventanas del 221B abiertas (nodo ventanas_enfrente → casa.alts). W4: el cuarto delantero está en la planta baja (EMPT: «down a long hall… turned to the right»), así que la ventana de enfrente, en el primer piso del 221B, queda un poco más alta: el examen de «vista» lo dice así (no «a la misma altura») y el encuadre «vista» mira por la rendija bajo la hoja levantada, sin que el travesaño tape el primer piso.",
  "id": "L8",
  "name": "Camden House",
  "streets": [
@@ -65,8 +65,8 @@
    "id": "vista",
    "area": "*",
    "pos": [
-    -2.72,
-    0.87,
+    -2.8,
+    0.83,
     1.25
    ],
    "look": [
@@ -77,8 +77,8 @@
    "fov": 52,
    "orbit": {
     "pivot": [
-     -2.78,
-     0.88,
+     -2.86,
+     0.84,
      1.25
     ],
     "yaw": 8,
@@ -692,7 +692,7 @@
      1.2
     ]
    },
-   "examine": "Por la hoja de arriba, sucia, se ve que esta ventana domina, al otro lado de la calle, la ventana del primer piso del [[221b|221B]], un poco más alta.",
+   "examine": "Por la hoja de arriba, sucia, se ve de frente, al otro lado de la calle, la ventana del primer piso del [[221b|221B]], un poco más alta, sin nada en medio.",
    "tags": [
     "a:escondite_preparado",
     "e:ventana_de_holmes",
@@ -862,7 +862,7 @@
   }
  ],
  "silhouettes": {
-  "wiggins": {
+  "wiggins": {"talk": [], 
    "frame": "vista",
    "pos": [
     -15.6,

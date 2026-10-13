@@ -12,9 +12,14 @@
 #   post.set_high_contrast(on) · post.set_enabled(on) · post.reanchor() · post.set_param(n, v) / post.param(n)
 #   EngravingPost.find(camera) -> nodo o null · EngravingPost.detach(camera)
 # Capa de render 20 (LAYER): una cámara que no deba grabar (miniaturas) la excluye de su cull_mask.
-# Trama: umbral Bayer 8x8 procedural. hatch=1 (por defecto, «talla»): el umbral Bayer modula un rayado por cara
-# (pisos/cielo horizontal, caras X a 45°, caras Z a -45°; cruzado bajo hatch_below) -> lee como grabado de época.
-# hatch=0: Bayer 8x8 puro (Obra Dinn). Ambos conservan la cobertura media (calibración T27: gris 0,5 -> 0,5 ± 0,06).
+# Trama: umbral Bayer 8x8 procedural. hatch=1 (por defecto, «talla»): rayado por cara (pisos/cielo horizontal, caras X
+# a 45°, caras Z a -45°; cruzado bajo hatch_below) cuyas filas se reparten con los 64 umbrales Bayer -> lee como
+# grabado de época. hatch=0: Bayer 8x8 puro (Obra Dinn). Ambos reproducen el tono en toda la escala (T27 con ventana:
+# gris 0,5 -> 0,5 ± 0,06; rampa 0,1…0,9 ± 0,03; cada preset ± 0,03).
+# W4-STYLE: el look de cada preset trae además gamma (< 1 aclara los medios tonos de día; el negro macizo se conserva),
+# tone_floor (disponible, 0 en todos los presets), vignette (noche de gas) y el halo de siluetas (halo, halo_rel,
+# halo_abs, halo_thick: filete de papel del lado lejano de un borde de oclusión, sólo tras algo de ≥ halo_thick px).
+# debug_view: 0 grabado · 1 tono continuo · 2 contornos · 3 color 3D · 4 profundidad (máscaras de figura en drivers).
 # Contornos tallados en blanco bajo `white_line` (noches legibles). Lo transparente (vidrio alfa, Label3D sin
 # alpha_cut) NO entra a la textura de pantalla: los rótulos 3D deben usar alpha_cut = ALPHA_CUT_DISCARD.
 # Trama anclada: en cada cambio de pose (NOTIFICATION_TRANSFORM_CHANGED, también si la mueve un Tween) acumula el giro incremental de la cámara (yaw, pitch en su propio espacio) en
@@ -36,11 +41,13 @@ const PALETTES := {
 # valores por defecto del shader (los presets de Lighting.look pisan algunos)
 const DEFAULTS := {
 	"edge_depth": 0.08, "edge_normal": 0.35, "cell_px": 2.0, "grain": 0.05,
-	"exposure": 1.0, "contrast": 1.5, "hatch": 1.0, "hatch_below": 0.4, "hatch_period": 3.0, "hatch_jitter": 0.2, "white_line": 0.16,
+	"exposure": 1.0, "contrast": 1.5, "hatch": 1.0, "hatch_below": 0.4, "hatch_period": 3.0, "white_line": 0.16,
 	"haze": 0.0, "haze_range": Vector2(14.0, 70.0), "edge_far": 90.0,
+	"gamma": 1.0, "tone_floor": 0.0, "vignette": 0.0, "halo": 1.0, "halo_rel": 0.06, "halo_abs": 0.12, "halo_thick": 3.0,
 }
-const LOOK_KEYS := ["edge_depth", "edge_normal", "cell_px", "grain", "exposure", "contrast", "hatch", "hatch_period", "hatch_jitter",
-	"hatch_below", "white_line", "haze", "haze_range", "edge_far"]
+const LOOK_KEYS := ["edge_depth", "edge_normal", "cell_px", "grain", "exposure", "contrast", "hatch", "hatch_period",
+	"hatch_below", "white_line", "haze", "haze_range", "edge_far", "gamma", "tone_floor", "vignette", "halo", "halo_rel", "halo_abs",
+	"halo_thick"]
 
 var mat: ShaderMaterial
 var anchor_rad := Vector2.ZERO

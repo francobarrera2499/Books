@@ -9,14 +9,16 @@
 #   plates: {"PL.L4.3.M": snapshot, "PL.prologo": snapshot}   snapshot = q_plate (§3.7) + act, hour, fixed
 #   docs: {"R.HA1.1": {id, rid, tpl, blocks:[{text, act, rid}], meta:{title, src_type, class, font, machine, paper,
 #          paper_mm, measure, firma, ...}, origin, created_tk, delivered, how, where:"tray"|"insert", in_doc, day}}
-#   inserts: {"D15.0330": {"p2": ["R.HC10.1", ...]}}  bloques runtime agregados a un número del Times
+#   inserts: {"D15.0330": {"p2": ["R.HC10.1", ...]}}  bloques runtime agregados a un número del Times. q_view los compone
+#            DENTRO del bloque de esa parte (sin renglón en blanco), entre los avisos y nunca al pie (_merge_inserts); el
+#            bloque lleva segs [{from, to, doc}] con el documento runtime de cada tramo insertado (Clipper.seg_block).
 #   tray: [{view, tk, day, slot, how}]           how: correo | en_mano | mostrador_crane | diario | columna | noticias
 #   copies: {copy_id: {state:"retirada"|"arrancada", from_tk, until_tk (-1 = permanente)}}
 #   closures: [{target:"L4.consulta"|"L5"|"canal:K-H", from_tk, until_tk}]
 #   silhouettes: {who: {from_day, until_day}}    place_variants: {place: variant}
 #   lines: {uid: {uid, id, who, text, scene, origin, place, tk, act}}   (líneas dichas; clip src kind "line")
 #   acts: {"act.12": {id, kind:"act_ref", label, type, tk, seq}}        (entidad runtime del acto, §3.6)
-#   slips: {visit_id: [copy ids]}  questions: {visit_id: {char: n}}  mem_clips: {visit_id: n}  orders: {doc: {tk, arrives_tk}}
+#   slips: {visit_id: [copy ids | "~<doc o rótulo>" (papeleta gastada sin ejemplar)]}  questions: {visit_id: {char: n}}  mem_clips: {visit_id: n}  orders: {doc: {tk, arrives_tk}}
 #   eggs: {EEid: {tk, visit}}  outbox: [eventos telegram/letter pendientes]  diary: [...] (Diary)  tutorial: {} (Tutorial)
 #   seat: int  coins_d: int  lines_seen: {uid: true} (líneas de st.scenes.lines ya pasadas al diario)  eggs_sig: String
 # API para Effects (W2-REACT; vía load() si su capa no puede precargar sim): instantiate_doc, deliver, withdraw_copy,
@@ -161,6 +163,27 @@ static func copy_available(st, repo, copy_id: String, t: int) -> bool:
 		return false
 	return not copy_withdrawn(st, copy_id, t)
 
+static func copy_in_window(repo, copy_id: String, t: int) -> bool:
+	var cp: Dictionary = repo.copy(copy_id)
+	if cp.is_empty():
+		return false
+	var c: Dictionary = cp.copy
+	return not ((c.has("from") and t < TimeKey.of(c.from)) or (c.has("to") and t > TimeKey.of(c.to)))
+
+# ¿La ficha del catálogo de la Sala de Lectura lista este documento en t? Sí si no tiene ejemplar en la Biblioteca
+# (se lista «No se presta») o si alguno de sus ejemplares BM está dentro de su ventana from/to.
+static func catalog_listed(repo, did: String, t: int) -> bool:
+	var bm: Array = []
+	for c in repo.doc(did).get("copies", []):
+		if String(c.get("holder", "")) == "BM":
+			bm.append(String(c.get("id", "")))
+	if bm.is_empty():
+		return true
+	for cid in bm:
+		if copy_in_window(repo, cid, t):
+			return true
+	return false
+
 static func copy_accessible(st, repo, copy_id: String) -> bool:
 	var t := _now(st)
 	if not copy_available(st, repo, copy_id, t):
@@ -242,12 +265,16 @@ static func view_any(st, repo, p_view: String) -> Dictionary:
 		if p.has("when") and not Cond.eval(p.when, {"st": st, "repo": repo, "tk": t}):
 			continue
 		var pid := String(p.get("id", ""))
-		var blocks: Array = [{"doc": did, "origin": origin, "copy": p_view, "part": pid, "parsed": repo.parsed(did, pid)}]
-		for iid in ins.get(pid, []):
-			var inst: Dictionary = st.world.docs.get(iid, {})
-			for b in inst.get("blocks", []):
-				blocks.append({"doc": iid, "origin": origin, "copy": p_view, "part": pid, "parsed": _parse_block(repo, b)})
-		pages.append(blocks)
+		var base: Dictionary = repo.parsed(did, pid)
+		var iids: Array = ins.get(pid, [])
+		if iids.is_empty():
+			pages.append([{"doc": did, "origin": origin, "copy": p_view, "part": pid, "parsed": base}])
+			continue
+		# Lo que el mundo agrega a la columna o a las noticias se compone DENTRO de la parte (un solo bloque, sin
+		# renglón en blanco), en un lugar determinista entre los avisos del día (nunca al pie): segs dice de qué
+		# documento runtime es cada tramo insertado (Clipper lo usa para el recorte).
+		var mg := _merge_inserts(st, repo, d, pid, base, iids)
+		pages.append([{"doc": did, "origin": origin, "copy": p_view, "part": pid, "parsed": mg.parsed, "segs": mg.segs}])
 	var cls := String(cp.copy.get("class", d.get("class", "I")))
 	var out := {"view": p_view, "doc": did, "title": String(d.get("title", "")), "src_line": src_line(repo, d, {}),
 		"paper": d.get("paper", ""), "paper_mm": d.get("paper_mm", null), "font": d.get("font", "imprenta"),
@@ -288,6 +315,157 @@ static func _instance_view(st, repo, iid: String) -> Dictionary:
 
 static func _parse_block(repo, b: Dictionary) -> Dictionary:
 	return repo.parse_text(String(b.get("text", "")), {}, String(b.get("act", "")))
+
+# ---------------- inserciones en un número del Times (§12.2, GDD §9.9 «nada brilla») ----------------
+# Lugar de cada inserción: unidades = renglones con tramo (columna: cada aviso; noticias: cada renglón que abre con
+# versalitas). Se inserta ANTES de la unidad k, k en [lo, hi]: columna = después del tercer aviso y antes del
+# penúltimo (nunca junto a DINERO, que cierra todos los días); noticias = después de la primera y nunca después de
+# «El tiempo.». k sale de Det.h32(semilla, número, id): fijo para la partida, distinto entre partidas y avisos.
+const INSERT_SKIP := {"columna": 3, "noticias": 1}
+const INSERT_TAIL := {"columna": 2, "noticias": 1}
+
+static func _insert_how(d: Dictionary, pid: String) -> String:
+	var im = d.get("inserts", {})
+	if typeof(im) == TYPE_DICTIONARY:
+		for k in im:
+			if String(im[k]) == pid:
+				return String(k)
+	for p in d.get("parts", []):
+		if typeof(p) == TYPE_DICTIONARY and typeof(p.get("inserts")) == TYPE_DICTIONARY:
+			for k in p.inserts:
+				if String(p.inserts[k]) == pid:
+					return String(k)
+	return "columna"
+
+# Inicio (índice en plain) de cada unidad de la parte.
+static func insert_units(parsed: Dictionary, how: String) -> Array:
+	var plain := String(parsed.get("plain", ""))
+	var starts: Array = [0]
+	for i in plain.length():
+		if plain[i] == "\n":
+			starts.append(i + 1)
+	var out: Array = []
+	for li in starts.size():
+		var a: int = starts[li]
+		var b: int = (starts[li + 1] - 1) if li + 1 < starts.size() else plain.length()
+		if b <= a:
+			continue
+		var has_tramo := false
+		for tr in parsed.get("tramos", []):
+			if int(tr.from) < b and int(tr.to) > a:
+				has_tramo = true
+				break
+		if not has_tramo:
+			continue   # encabezado («Anuncios personales») o renglón sin contenido propio
+		if how == "noticias":
+			var opens_sc := false
+			for s in parsed.get("styles", []):
+				if String(s.get("kind", "")) == "sc" and int(s.from) == a:
+					opens_sc = true
+					break
+			if not opens_sc:
+				continue   # continuación de una noticia (la indagatoria del 3 de abril)
+		out.append(a)
+	return out
+
+static func insert_pos(st, units: Array, how: String, did: String, iid: String, plain_len: int) -> int:
+	var m := units.size()
+	if m == 0:
+		return plain_len
+	var lo := mini(int(INSERT_SKIP.get(how, 3)), m - 1)
+	var hi := maxi(lo, m - int(INSERT_TAIL.get(how, 2)))
+	var k := lo + Det.h32([int(st.seed), "inserto", did, iid]) % (hi - lo + 1)
+	return int(units[k])
+
+static func _merge_inserts(st, repo, d: Dictionary, pid: String, base: Dictionary, iids: Array) -> Dictionary:
+	var how := _insert_how(d, pid)
+	var did := String(d.get("id", ""))
+	var units := insert_units(base, how)
+	var plain_len := String(base.get("plain", "")).length()
+	# [pos en base, orden de entrega, iid, bloque parseado]
+	var items: Array = []
+	var order := 0
+	for iid in iids:
+		var inst: Dictionary = st.world.docs.get(String(iid), {})
+		var pos := insert_pos(st, units, how, did, String(iid), plain_len)
+		for b in inst.get("blocks", []):
+			var bb: Dictionary = b.duplicate()
+			var tx := String(bb.get("text", "")).strip_edges()
+			while tx.contains("\n\n"):
+				tx = tx.replace("\n\n", "\n")
+			bb["text"] = tx
+			if tx == "":
+				continue
+			items.append({"pos": pos, "n": order, "iid": String(iid), "parsed": _parse_block(repo, bb)})
+			order += 1
+	# de atrás hacia adelante: cada inserción sólo corre lo que queda después de ella; a igual lugar, el orden de entrega
+	# (al final, sin corrimiento, va en orden directo)
+	items.sort_custom(func(x, y): return x.pos > y.pos or (x.pos == y.pos and ((x.n > y.n) if x.pos < plain_len else (x.n < y.n))))
+	var cur: Dictionary = base
+	var segs: Array = []
+	for it in items:
+		# al final (parte sin unidades): siempre al final del texto ya armado, en orden de entrega
+		var at: int = int(it.pos) if int(it.pos) < plain_len else String(cur.get("plain", "")).length()
+		var sp := splice_parsed(cur, at, it.parsed)
+		cur = sp.parsed
+		for sg in segs:
+			if int(sg.from) >= at:
+				sg.from = int(sg.from) + int(sp.shift)
+				sg.to = int(sg.to) + int(sp.shift)
+		segs.append({"from": int(sp.from), "to": int(sp.to), "doc": String(it.iid)})
+	segs.sort_custom(func(x, y): return int(x.from) < int(y.from))
+	return {"parsed": cur, "segs": segs}
+
+# Inserta el texto parseado `ins` en `base` al comienzo del renglón `at` (o al final, en renglón propio).
+# -> {parsed, from, to (lo insertado en el nuevo plain), shift (cuánto se corrió lo que seguía)}
+static func splice_parsed(base: Dictionary, at: int, ins: Dictionary) -> Dictionary:
+	var bp := String(base.get("plain", ""))
+	var ip := String(ins.get("plain", ""))
+	var plain := ""
+	var off := 0
+	var shift := 0
+	if at >= bp.length():
+		at = bp.length()
+		var lead := "\n" if bp != "" and not bp.ends_with("\n") else ""
+		plain = bp + lead + ip
+		off = at + lead.length()
+	else:
+		plain = bp.substr(0, at) + ip + "\n" + bp.substr(at)
+		off = at
+		shift = ip.length() + 1
+	var out := {"plain": plain}
+	for key in ["mentions", "tramos", "styles"]:
+		var arr: Array = []
+		for x in base.get(key, []):
+			var y: Dictionary = x.duplicate(true)
+			if int(y.from) >= at:
+				y.from = int(y.from) + shift
+				y.to = int(y.to) + shift
+			elif int(y.to) > at:
+				y.to = int(y.to) + shift
+			arr.append(y)
+		for x in ins.get(key, []):
+			var y: Dictionary = x.duplicate(true)
+			y.from = int(y.from) + off
+			y.to = int(y.to) + off
+			arr.append(y)
+		arr.sort_custom(func(p, q): return int(p.from) < int(q.from) or (int(p.from) == int(q.from) and int(p.to) > int(q.to)))
+		out[key] = arr
+	for key in ["sentences", "words"]:
+		var arr2: Array = []
+		for x in base.get(key, []):
+			if int(x[0]) >= at:
+				arr2.append([int(x[0]) + shift, int(x[1]) + shift])
+			else:
+				arr2.append([int(x[0]), int(x[1])])
+		for x in ins.get(key, []):
+			arr2.append([int(x[0]) + off, int(x[1]) + off])
+		arr2.sort_custom(func(p, q): return int(p[0]) < int(q[0]))
+		out[key] = arr2
+	var errs: Array = (base.get("errors", []) as Array).duplicate()
+	errs.append_array(ins.get("errors", []))
+	out["errors"] = errs
+	return {"parsed": out, "from": off, "to": off + ip.length(), "shift": shift}
 
 # Bloque de una vista (lo usa el recorte): part = índice de página (int) o id de parte; block = índice en la página.
 static func block(st, repo, p_view: String, part, blk: int) -> Dictionary:
@@ -460,13 +638,10 @@ static func arrivals_at(st, repo, t: int) -> int:
 		add_coins(st, int(repo.schedule().get("money_d", {}).get("guinea", 252)))
 	return n
 
-# Texto armado con ${…}: lists.contracciones en orden («a el» -> «al», «..» -> «.»).
+# Texto armado con ${…}: lists.contracciones en orden («a el» -> «al», «..» -> «.»), con borde de palabra
+# (Markup.contract: «para el» no se vuelve «paral»).
 static func contract(repo, s: String) -> String:
-	var out := s
-	for pair in repo.lists().get("contracciones", []):
-		if typeof(pair) == TYPE_ARRAY and pair.size() == 2:
-			out = out.replace(String(pair[0]), String(pair[1]))
-	return out
+	return Markup.contract(s, repo.lists().get("contracciones", []))
 
 # ---------------- visitas, escenas y láminas ----------------
 static func start_visit(st, repo, place: String, area: String, opts := {}) -> Dictionary:
@@ -487,8 +662,11 @@ static func start_visit(st, repo, place: String, area: String, opts := {}) -> Di
 	snap["hour"] = String(opts.get("hour", ""))
 	st.world.plates[pid] = snap
 	var chars: Array = (snap.chars as Array).duplicate(true)
+	var psil = repo.place(place).get("silhouettes", {})
 	for sil in snap.silhouettes:
 		var who := String(sil).substr(4)
+		if not sil_talks(psil, who, area):
+			continue   # W4: en un interior la silueta se ve por la ventana, sin panel (silhouettes.<who>.talk)
 		if not repo.dialogue(who).is_empty():
 			chars.append({"id": who, "pose": "de_pie", "trait": String(repo.dialogue(who).get("trait", "")), "sil": true})
 	var auto: Array = []
@@ -511,6 +689,13 @@ static func start_visit(st, repo, place: String, area: String, opts := {}) -> Di
 	st.world.visits.append(vid)
 	st.note("visit", {"id": vid})
 	return visit
+
+# ¿Se le habla a la silueta <who> en esta área? silhouettes.<who>.talk = [áreas] (sin talk: en toda área).
+static func sil_talks(psil, who: String, area: String) -> bool:
+	if typeof(psil) != TYPE_DICTIONARY or typeof(psil.get(who)) != TYPE_DICTIONARY or not psil[who].has("talk"):
+		return true
+	var talk = psil[who].talk
+	return typeof(talk) == TYPE_ARRAY and talk.has(area)
 
 static func end_visit(st) -> void:
 	if not st.world.get("visit", {}).is_empty():
@@ -538,6 +723,16 @@ static func start_scene(st, repo, sid: String, opts := {}) -> Dictionary:
 		var fp := _fixed_plate_for_origin(repo, plate)
 		if fp != "" and not st.world.plates.has(plate):
 			archive_fixed_plate(st, repo, fp, plate)
+		elif fp == "" and not st.world.plates.has(plate) and not repo.place(String(sc.get("place", ""))).is_empty():
+			# lámina de un lugar del mapa en el momento de la escena (HC07: la tienda de Crane del día 10, con los nodos
+			# del librero): instantánea del lugar y área, archivada con el id de la escena; su origen es el de una visita
+			# (PL.<lugar>.<día>.<franja>, como RouteDB: PL.<lugar>).
+			var place := String(sc.place)
+			var snap := snapshot(st, repo, place, String(sc.get("area", "")), place_variant(st, place))
+			snap["id"] = plate
+			snap["origin"] = "PL.%s.%d.%s" % [place, int(st.clock.day), String(st.clock.slot)]
+			snap["act"] = ""
+			st.world.plates[plate] = snap
 	var visit := {"id": origin, "scene": sid, "place": String(sc.get("place", HOME)), "area": String(sc.get("area", "")),
 		"day": int(st.clock.day), "slot": String(st.clock.slot), "tk": _now(st), "act": "", "hour": "", "seat": 0,
 		"free": true, "plate": plate if st.world.plates.has(plate) else "", "chars": _scene_chars(repo, sc), "lines": [], "auto_pending": [],
@@ -547,6 +742,11 @@ static func start_scene(st, repo, sid: String, opts := {}) -> Dictionary:
 		st.world.visits.append(origin)
 	st.note("scene", {"id": sid})
 	say_scene_lines(st, repo, sid, origin)
+	# última línea propia de la escena (la despedida; las extras ya dichas van antes de ella, scene_lines): las líneas
+	# que un efecto agregue después también van antes que ella (sync_scene_extra)
+	var said: Array = visit.lines
+	if said.size() - int(visit.extra_n) >= 2:
+		visit["tail_uid"] = String(said[said.size() - 1])
 	return visit
 
 static func _scene_chars(repo, sc: Dictionary) -> Array:
@@ -571,7 +771,9 @@ static func say_scene_lines(st, repo, sid: String, origin := "") -> void:
 
 # Líneas que un efecto agregó a la escena en curso DESPUÉS de empezarla (Effects.scene_extra): la «siguiente
 # comunicación» de Moran (M10–M12) que el director resuelve en el mismo tk de M6 (amanecer) o M7 (22 h), cuando la
-# escena ya se abrió. Se dicen al final, una vez cada una (visit.extra_n = cuántas ya se dijeron).
+# escena ya se abrió. Se dicen una vez cada una (visit.extra_n = cuántas ya se dijeron) y se ubican antes de la última
+# línea propia de la escena (visit.tail_uid: la despedida de Pell o de Harris), en la visita y en el diario: no
+# llegan como un recado olvidado después del «bona fide».
 static func sync_scene_extra(st, repo) -> void:
 	var v: Dictionary = st.world.get("visit", {})
 	if v.is_empty():
@@ -587,9 +789,32 @@ static func sync_scene_extra(st, repo) -> void:
 	for ln in repo.scene(sid).get("lines", []):
 		if who == "" and typeof(ln) == TYPE_DICTIONARY and String(ln.get("who", "")) != "" and not String(ln.get("id", "")).begins_with("conf."):
 			who = String(ln.who)
+	var tail := String(v.get("tail_uid", ""))
 	for i in range(n, extra.size()):
-		say_line(st, repo, {"id": "extra.%d" % i, "who": who, "text": String(extra[i]), "scene": sid, "origin": String(v.get("id", ""))})
+		var uid := say_line(st, repo, {"id": "extra.%d" % i, "who": who, "text": String(extra[i]), "scene": sid, "origin": String(v.get("id", ""))})
+		if tail != "":
+			_move_line_before(st, v, uid, tail)
 	v["extra_n"] = extra.size()
+
+static func _move_line_before(st, v: Dictionary, uid: String, tail: String) -> void:
+	var said: Array = v.get("lines", [])
+	if said.has(uid) and said.has(tail):
+		said.erase(uid)
+		said.insert(said.find(tail), uid)
+	var dy: Array = st.world.get("diary", [])
+	var iu := -1
+	for i in dy.size():
+		if String(dy[i].get("line", "")) == uid:
+			iu = i
+	if iu < 0:
+		return
+	var e = dy[iu]
+	dy.remove_at(iu)
+	for j in dy.size():
+		if String(dy[j].get("line", "")) == tail:
+			dy.insert(j, e)
+			return
+	dy.insert(iu, e)
 
 # Una sola línea de una escena (líneas del tutorial "PRO.t_*"). "" si no existe.
 static func say_scene_line(st, repo, sid: String, line_id: String) -> String:
@@ -627,11 +852,21 @@ static func scene_lines(st, repo, sid: String) -> Array:
 			if ln.has("when") and not Cond.eval(ln.when, ctx):
 				continue
 			out.append({"id": String(ln.id), "who": String(ln.get("who", "")), "text": String(ln.get("text", "")), "scene": sid, "origin": origin})
-	# líneas que agregó un efecto (siguiente comunicación de Moran: M10, M11, M12 en M7/M8)
+	# líneas que agregó un efecto (siguiente comunicación de Moran: M10, M11, M12 en M6/M7/M8): antes de la última línea
+	# de la escena (la despedida), no después
 	var extra := Effects.scene_extra(st, sid)
 	var who := String(out[0].who) if out.size() > 0 else ""
+	var ex: Array = []
 	for i in extra.size():
-		out.append({"id": "extra.%d" % i, "who": who, "text": String(extra[i]), "scene": sid, "origin": origin})
+		ex.append({"id": "extra.%d" % i, "who": who, "text": String(extra[i]), "scene": sid, "origin": origin})
+	if ex.is_empty():
+		return out
+	if out.size() >= 2:
+		var last = out.pop_back()
+		out.append_array(ex)
+		out.append(last)
+	else:
+		out.append_array(ex)
 	return out
 
 # Canal (código de lists.medios.ch) de un evento público: slip -> kbm; ad -> kt; say/show al personaje sensor -> su canal;
@@ -862,10 +1097,49 @@ static func archive_fixed_plate(st, repo, plate_id: String, archive_id: String) 
 	st.world.plates[archive_id] = snap
 	return archive_id
 
-# Lámina por id: archivada (visitas, prólogo, M7) o fija de documento ("RB.foto" -> lámina RB con variante foto).
+# ---------------- hub (la buhardilla que se ve desde el escritorio) ----------------
+const HUB_PLATE := "hub"
+
+# Instantánea de la buhardilla ahora (lo que se ve desde el escritorio y la ventana: área buhardilla y nodos «*», con
+# siluetas y variante). {} si Lisle no está en casa (visita, escena o prólogo, que tienen su propia lámina).
+static func hub_snapshot(st, repo) -> Dictionary:
+	if not st.world.get("visit", {}).is_empty() or String(location(st).place) != HOME:
+		return {}
+	var snap := snapshot(st, repo, HOME, "buhardilla", place_variant(st, HOME))
+	snap["id"] = HUB_PLATE
+	snap["hub"] = true
+	return snap
+
+# Recortar el hub archiva la instantánea de ahora como una lámina de visita (PL.L1.<día>.<franja>[.k], origen igual al
+# id: RouteDB da PL.L1); si en esta franja ya se archivó una igual, se reutiliza. {} si no está en casa.
+# Devuelve {id, created}; quien la crea la borra si el recorte falla (nada cambia en una acción rechazada).
+static func archive_hub(st, repo) -> Dictionary:
+	var snap := hub_snapshot(st, repo)
+	if snap.is_empty():
+		return {}
+	var t := _now(st)
+	var base := "PL.%s.%d.%s" % [HOME, TimeKey.day_of(t), TimeKey.slot_of(t)]
+	var pid := base
+	var k := 2
+	while st.world.plates.has(pid):
+		var old: Dictionary = st.world.plates[pid]
+		if bool(old.get("hub", false)) and old.get("nodes", []) == snap.nodes and old.get("silhouettes", []) == snap.silhouettes \
+				and String(old.get("variant", "")) == String(snap.variant):
+			return {"id": pid, "created": false}
+		pid = "%s.%d" % [base, k]
+		k += 1
+	snap["id"] = pid
+	snap["act"] = ""
+	st.world.plates[pid] = snap
+	return {"id": pid, "created": true}
+
+# Lámina por id: archivada (visitas, prólogo, M7) o fija de documento ("RB.foto" -> lámina RB con variante foto);
+# "hub" = la buhardilla de ahora (hub_snapshot).
 static func plate_snapshot(st, repo, id: String) -> Dictionary:
 	if st.world.get("plates", {}).has(id):
 		return st.world.plates[id].duplicate(true)
+	if id == HUB_PLATE:
+		return hub_snapshot(st, repo)
 	var pid := _fixed_plate_for_origin(repo, id)
 	var variant := ""
 	if pid == "" and id.contains("."):
@@ -886,30 +1160,42 @@ static func plate_snapshot(st, repo, id: String) -> Dictionary:
 	return snap
 
 # ---------------- acciones de visita ----------------
+# Papeleta. {doc} pide el ejemplar BM del documento; si no se sirve hoy (fuera de su ventana) o es una ficha de ruido
+# del catálogo ({doc: "", noise: <rótulo>}), la papeleta se gasta igual y el ujier vuelve sin nada ({ok, view: ""}):
+# pedir nunca es gratis, para que el costo no distinga lo que importa de lo que no (W4).
 static func act_slip(st, repo, a) -> Dictionary:
 	var v: Dictionary = st.world.get("visit", {})
 	var did := String(a.get("doc", ""))
+	var noise := String(a.get("noise", "")).strip_edges()
 	if v.is_empty() or not place_needs_seat(repo, String(v.get("place", ""))):
 		return {"ok": false, "err": "no_esta"}
-	var d: Dictionary = repo.doc(did)
+	var d: Dictionary = repo.doc(did) if did != "" else {}
+	if did != "" and d.is_empty():
+		return {"ok": false, "err": "no_esta"}
+	if did == "" and noise == "":
+		return {"ok": false, "err": "forma"}
 	var copy_id := ""
+	var bm := false
 	for c in d.get("copies", []):
-		if String(c.get("holder", "")) == "BM" and String(c.get("via", "slip")) == "slip" and copy_available(st, repo, String(c.id), _now(st)):
-			copy_id = String(c.id)
-			break
-	if copy_id == "":
+		if String(c.get("holder", "")) == "BM" and String(c.get("via", "slip")) == "slip":
+			bm = true
+			if copy_available(st, repo, String(c.id), _now(st)):
+				copy_id = String(c.id)
+				break
+	if did != "" and not bm:
 		return {"ok": false, "err": "no_esta"}
 	var vid := String(v.id)
 	var used: Array = st.world.slips.get(vid, [])
-	if used.has(copy_id):
+	var token := copy_id if copy_id != "" else "~" + (did if did != "" else noise)
+	if used.has(token):
 		return {"ok": false, "err": "ya_pedido"}
 	if used.size() >= SLIPS_PER_VISIT:
 		return {"ok": false, "err": "sin_papeletas"}
 	if not st.world.slips.has(vid):
 		st.world.slips[vid] = []
-	st.world.slips[vid].append(copy_id)
+	st.world.slips[vid].append(token)
 	var hour := _plus_minutes(String(v.get("hour", "")), 10 * st.world.slips[vid].size())
-	st.push_event({"type": "slip", "seat": int(st.world.get("seat", 0)), "doc": did, "title": String(d.get("title", "")),
+	st.push_event({"type": "slip", "seat": int(st.world.get("seat", 0)), "doc": did, "title": String(d.get("title", noise)),
 		"hour": hour, "topic": String(d.get("slip_topic", "otros"))})
 	st.note("visit", {"slip": copy_id})
 	return {"ok": true, "view": copy_id}
@@ -1010,13 +1296,31 @@ static func _clip(st, id: String) -> Dictionary:
 		return raw
 	return Clipper.get_clip(st, id)
 
+# Etiquetas de todos los recortes, incremental (los recortes nunca se borran): antes, cada recorte nuevo volvía a
+# recorrer todos los anteriores por cada huevo (carga cuadrática al reanudar una partida larga). Caché transitoria por
+# estado (no es canon): se rehace si el diccionario de recortes cambió de identidad (restauración) o se achicó.
+static var _tag_cache := {}
+
+static func _all_clip_tags(st) -> Dictionary:
+	var clips := _clips(st)
+	var key: int = st.get_instance_id() if st is Object else 0
+	var c = _tag_cache.get(key)
+	if typeof(c) != TYPE_DICTIONARY or not is_same(c.clips, clips) or int(c.n) > clips.size():
+		if _tag_cache.size() > 64:
+			_tag_cache.clear()
+		c = {"clips": clips, "n": 0, "tags": {}}
+		_tag_cache[key] = c
+	if int(c.n) < clips.size():
+		var ids: Array = clips.keys()
+		for i in range(int(c.n), ids.size()):
+			for t in _clip_tags(_clip(st, String(ids[i]))):
+				c.tags[t] = true
+		c.n = ids.size()
+	return c.tags
+
 static func _egg_triggered(st, trig: Dictionary) -> bool:
 	if trig.has("clip_tag"):
-		var want := String(trig.clip_tag)
-		for id in _sorted_keys(_clips(st)):
-			if _clip_tags(_clip(st, id)).has(want):
-				return true
-		return false
+		return _all_clip_tags(st).has(String(trig.clip_tag))
 	if trig.has("pair_tags"):
 		for pid in _sorted_keys(_pairs(st)):
 			var p = _pairs(st)[pid]

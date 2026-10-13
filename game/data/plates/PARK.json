@@ -12,10 +12,10 @@
  ],
  "areas": {
   "exterior": {
-   "desc": "la vereda frente al 427 de Park Lane, a las seis de la tarde"
+   "desc": "la acera frente al 427 de Park Lane, a las seis de la tarde"
   }
  },
- "epigraph": "—Le ruego me disculpe, señor; no lo vi.",
+ "epigraph": "—Le ruego que me perdone, señor.",
  "frames": [
   {
    "id": "teoria",
@@ -517,6 +517,7 @@
  "nodes": [
   {
    "id": "libros",
+   "on_clip_flag": "vio_libros_park",
    "prop": "libros_p",
    "noun": "libros",
    "anchor": {
@@ -531,7 +532,7 @@
      0.9
     ]
    },
-   "examine": "En la vereda quedaron varios libros caídos, y en la tapa de uno se lee «[[tree_worship|The Origin of Tree Worship]]».",
+   "examine": "En la acera quedaron varios libros caídos, y en la tapa de uno se lee «[[tree_worship|The Origin of Tree Worship]]».",
    "tags": [
     "e:tree_worship",
     "e:librero"

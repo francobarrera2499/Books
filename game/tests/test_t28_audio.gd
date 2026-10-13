@@ -15,7 +15,8 @@ const SPEC_IDS := ["sfx.tijera", "sfx.papel", "sfx.pagina", "sfx.plumin", "sfx.s
 	"sfx.sobre", "evt.persiana_crane", "evt.lechero", "bells.st_clement", "clock.cuartos", "clock.tic", "hooves.madera",
 	"hooves.granito", "harp.parker", "whistle.policia", "shot.silbido", "glass.tintineo", "evt.ladrillo",
 	"evt.golpe_puerta", "amb.calle", "amb.gas", "amb.sala_lectura", "amb.diogenes", "amb.tienda", "amb.viento", "amb.parque"]
-const LOOP_IDS := ["clock.tic", "amb.calle", "amb.gas", "amb.sala_lectura", "amb.diogenes", "amb.tienda", "amb.viento", "amb.parque"]
+const LOOP_IDS := ["clock.tic", "amb.calle", "amb.gas", "amb.sala_lectura", "amb.diogenes", "amb.tienda", "amb.viento", "amb.parque",
+	"amb.calle_parker", "amb.gas_parker", "amb.casa_vacia"]
 
 static var _warm_inst = null       # instancia de audio.gd calentada (compartida entre tests del archivo)
 static var _floats := {}           # id -> PackedFloat32Array decodificado del WAV
@@ -325,6 +326,14 @@ func test_play_emits_subtitle() -> void:
 	eq(r.streams_count, 3, "Randomizer con las 3 variantes")
 	ok(r.random_pitch > 1.0, "Randomizer varía el tono")
 	eq(got.size(), 2, "segundo subtítulo")
+	# foley del propio clic (quiet_captions): suena sin subtítulo; lo que el jugador no ve hacer, sí
+	for q in ["sfx.papel", "sfx.pagina", "sfx.plumin"]:
+		ok(a.quiet(q), q + " es foley del clic")
+		a.play(q)
+	eq(got.size(), 2, "hojear, papel y plumín no se subtitulan")
+	no(a.quiet("sfx.sello"))
+	a.play("sfx.sello")
+	eq(got.size(), 3, "el golpe del sello sí")
 	a.queue_free()
 
 func test_place_ambience_and_config() -> void:
@@ -333,7 +342,7 @@ func test_place_ambience_and_config() -> void:
 	var got: Array = []
 	a.subtitle.connect(func(t: String, s: float) -> void: got.append(t))
 	var cases := [["L2", "M", "amb.sala_lectura"], ["L1.tienda", "T", "amb.tienda"], ["L1", "N", "amb.gas"],
-		["L1", "M", "amb.calle"], ["L3", "N", "amb.calle"], ["L3", "10.N", "amb.viento"], ["L3", "9.N", "amb.calle"],
+		["L1", "M", "amb.calle"], ["L3", "N", "amb.calle_parker"], ["L3", "10.N", "amb.viento"], ["L3", "9.N", "amb.calle_parker"],
 		["L5", "T", "amb.diogenes"], ["L7", "10.T", "amb.parque"], ["L1", "10.night", "amb.viento"], ["L1", "9.night", "amb.gas"],
 		["L1", "P.N", "amb.gas"]]
 	for c in cases:

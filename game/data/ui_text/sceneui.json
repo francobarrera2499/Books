@@ -9,6 +9,7 @@
     "sceneui.verb.task": "Encargar",
     "sceneui.back": "Volver",
     "sceneui.tijera": "Tijera",
+    "sceneui.conf.lamina": "Tijera sobre la tienda",
     "sceneui.continue": "Continuar",
     "sceneui.leave": "Salir",
     "sceneui.leave.free": "Subir a la buhardilla",
@@ -56,7 +57,7 @@
 
     "sceneui.final": "Texto final",
     "sceneui.final.incompleto": "Faltan palabras.",
-    "sceneui.blank.none": "Nada en el índice que sirva aquí.",
+    "sceneui.blank.none": "Nada en el índice que sirva aquí: recorte antes lo que quiera citar.",
 
     "sceneui.ad.title": "Aviso para el Times",
     "sceneui.ad.sub": "Columna de avisos personales. La oficina los recibe hasta las seis de la tarde; sale en el número siguiente.",

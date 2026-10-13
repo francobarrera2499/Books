@@ -137,3 +137,36 @@ func test_no_data_is_neutral():
 	var st = Fakes.state(rp)
 	eq(Endings.evaluate(st, empty).ending, "")
 	eq(Endings.blue_pencil(st, empty), [])
+
+# Hallazgos del playtest sobre data/ real:
+#  - V.C12 (GDD §12.2): «C12 sellado, o C12.R2 vista en Park Lane». Recortar N:PARK.libros escribe vio_libros_park
+#    (on_clip_flag del nodo) y la variante aparece sin C12 sellado.
+#  - pencil_wrong (Cond): END.F1 dice «Una de sus entradas no es literalmente cierta» sólo si el lápiz azul marca alguna.
+func test_real_vc12_by_park_clip_and_pencil_wrong():
+	Fakes.uninstall()   # módulos reales (Deps.validator): este caso usa data/ real
+	var r = repo()
+	var Cond = load("res://core/util/cond.gd")
+	var Clipper = load("res://core/deduction/clipper.gd")
+	var st = load("res://core/sim/game_state.gd").new()
+	st.clock = {"day": 10, "slot": "T", "phase": "parklane"}
+	Clipper.init_state(st, r)
+	load("res://core/deduction/ledger.gd").init_state(st, r)
+	var vids := func() -> Array:
+		var out: Array = []
+		for v in Endings.evaluate(st, r).variants:
+			out.append(String(v.id))
+		return out
+	no(vids.call().has("V.C12"))
+	Clipper.test_access = func(_s, _r, _k, _ref): return true
+	var res: Dictionary = Clipper.act_clip_plate(st, r, {"plate": "PARK", "hits": [{"node": "libros", "cover": 0.9, "tight": true}], "area_frac": 0.05})
+	Clipper.test_access = Callable()
+	ok(res.get("ok", false), str(res))
+	ok(bool(st.flags.get("vio_libros_park", false)), "recortar los libros caídos escribe el flag")
+	has(vids.call(), "V.C12", "Lisle reconoce los libros caídos sin C12 sellado")
+	var ctx := {"st": st, "repo": r}
+	no(Cond.eval({"pencil_wrong": true}, ctx), "sin asientos, nada que corregir")
+	ok(Cond.eval({"pencil_wrong": false}, ctx))
+	st.ded.entries["AS001"] = {"id": "AS001", "folio": "varios", "template": "T7", "ink": "lapiz", "practice": false, "cid": "",
+		"lines": [{"fields": {"persona": "holmes"}, "support": []}, {"fields": {"estado": "vivo"}, "support": []}]}
+	ok(Cond.eval({"pencil_wrong": true}, ctx), "un lápiz con los valores de C8 sin fundamento: el lápiz azul lo marca")
+	eq(Cond.validate({"pencil_wrong": 1}), ["cond.pencil_wrong: debe ser bool"])

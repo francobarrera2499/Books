@@ -176,16 +176,18 @@ func test_present_hb4_first_and_second():
 	eq(r.phrase, "Mire esto, doctor: «Mary llamaba James a su marido.»")
 	var r2: Dictionary = Dialogue.act_present(st, rp, {"char": "watson", "item": {"kind": "clip", "id": "RC1"}})
 	eq(r2.outcome, "HB4")
-	eq(r2.line.id, "hb4.2", "2.ª vez: ui_text scenes.hb4.2")
-	eq(r2.line.text, "Mi amigo está muerto, señor Lisle, y yo tengo pacientes. Vuelva usted el lunes.", "cerrada hasta el 5; el 6 es domingo")
+	eq(r2.line.id, "hb4.2", "2.ª vez: dialogue/watson hb4.2 (una sola fuente por id)")
+	eq(r2.line.text, "Mi amigo está muerto, señor Lisle, y yo tengo pacientes. Vuelva usted otro día.")
+	eq(String(Dialogue._line_vars(st, rp, "watson").reabre), "lunes", "${reabre}: cerrada hasta el 5; el 6 es domingo")
 	# Director real: HB4 es voz A, el cierre (consulta_cerrada_hasta) recién se escribe al amanecer -> hoy + 2, sin domingo
 	Deps.Director = NoDirector
-	for dc in [[2, "Vuelva usted el sábado."], [3, "Vuelva usted el lunes."], [4, "Vuelva usted el lunes."]]:
+	for dc in [[2, "sábado"], [3, "lunes"], [4, "lunes"]]:
 		var sx = _st({"chars": ["watson"], "day": dc[0]})
 		sx.flags["hb4_veces"] = 1
 		Fakes.clip(sx, "RC1", "Mary.", ["mary_watson"], [], "D01N")
 		var rx: Dictionary = Dialogue.act_present(sx, rp, {"char": "watson", "item": {"kind": "clip", "id": "RC1"}})
-		ok(String(rx.line.text).ends_with(dc[1]), "día %d: %s" % [dc[0], rx.line.text])
+		eq(rx.line.id, "hb4.2")
+		eq(String(Dialogue._line_vars(sx, rp, "watson").reabre), dc[1], "día %d: reabre" % dc[0])
 	Fakes.install()
 	# asiento que afirma que vive (T7 holmes/vivo)
 	var st2 = _st({"chars": ["watson"]})
@@ -365,8 +367,8 @@ func test_special_line_ids_follow_reaction_data():
 	var st = _st()
 	# sin la regla: el éxito puede salir por la línea genérica de la reacción; los errores, NUNCA por la del éxito
 	eq(Dialogue._special_line(st, R, "mycroft", "HB12", "hb12.ok").id, "hb12_exito")
-	eq(Dialogue._special_line(st, R, "mycroft", "HB12", "hb12.err1").id, "hb12.err1", "error sin regla: ui_text, no la del éxito")
-	eq(Dialogue._special_line(st, R, "mycroft", "HB12", "hb12.err2").id, "hb12.err2")
+	eq(Dialogue._special_line(st, R, "mycroft", "HB12", "hb12.err1"), {}, "error sin regla (y sin copia en ui_text): nada, nunca la del éxito")
+	eq(Dialogue._special_line(st, R, "mycroft", "HB12", "hb12.err2"), {})
 	R.rx["HB12"] = {"id": "HB12", "efecto": [
 		{"op": "linea", "char": "mycroft", "line": "hb12_exito", "resultado": "exito"},
 		{"op": "flag", "name": "errata_ofrecida", "value": "mycroft", "resultado": "exito"},
@@ -380,7 +382,7 @@ func test_special_line_ids_follow_reaction_data():
 	# HB4: una línea genérica de la reacción sirve para la 1.ª, nunca para la 2.ª
 	R.dl["watson"] = {"char": "watson", "lines": [{"id": "crespon", "layer": "tema", "reaction": "HB4", "text": "Se toca el crespón."}]}
 	eq(Dialogue._special_line(st, R, "watson", "HB4", "hb4.1").id, "crespon")
-	eq(Dialogue._special_line(st, R, "watson", "HB4", "hb4.2").id, "hb4.2")
+	eq(Dialogue._special_line(st, R, "watson", "HB4", "hb4.2"), {}, "la 2.ª nunca por la genérica (sin línea hb4.2 ni copia en ui_text: nada)")
 
 # ---------------- evento visible, efectos, temas ----------------
 func test_show_event_carries_only_visible():

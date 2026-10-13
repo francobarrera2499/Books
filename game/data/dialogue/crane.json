@@ -2,6 +2,7 @@
   "_nota": "W3-CT-DLG-B. Abel Crane (GDD §4), librero de viejo de Holywell Street, debajo de la buhardilla de Lisle: chismoso, mercachifle, se rasca la oreja con el lápiz. NO es canal (sensor null): interlocutor gratuito para practicar preguntar y presentar (preguntas sin límite). Comenta como librero (precios, ediciones, rumores de la calle); nunca da una deducción. Lisle le debe 3s. 6d. (eco de HC06 (a) y de EPI). Huevos: L:crane.hewitt (x:EE05) y L:crane.segunda_mancha (x:EE07); esos tramos no llevan etiquetas de conclusión (T13). Dentro de cada capa gana la primera línea cuyo match y when se cumplen.",
   "char": "crane",
   "label": "Crane",
+  "known": true,
   "intro": "Abel Crane, librero de viejo",
   "addr": "señor Crane",
   "sensor": null,

@@ -1332,7 +1332,7 @@
   }
  ],
  "silhouettes": {
-  "wiggins": {
+  "wiggins": {"talk": [], 
    "frame": "puerta",
    "pos": [
     -0.45,

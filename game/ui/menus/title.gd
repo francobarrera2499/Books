@@ -62,6 +62,9 @@ func _place() -> void:
 	sheet.position = Vector2(maxf(30.0, vs.x * 0.08), maxf(20.0, (vs.y - sheet.size.y) * 0.5)).floor()
 
 func _has_save() -> bool:
+	# una partida ya terminada (epílogo cerrado) no se ofrece para continuar (W4)
+	if shell != null and shell.has_method("can_continue"):
+		return bool(shell.can_continue())
 	var g = get_tree().root.get_node_or_null("Game")
 	return g != null and bool(g.has_save())
 
@@ -80,8 +83,26 @@ func _item(text: String, cb: Callable) -> Button:
 	return b
 
 func _continue() -> void:
-	if shell != null:
-		shell.continue_game()
+	if shell == null:
+		return
+	# guardado de otra versión del texto: se dice antes y se elige (el registro original queda aparte, partida.<hash>.jsonl)
+	var g = get_tree().root.get_node_or_null("Game")
+	if g != null and g.has_method("save_other_version") and bool(g.save_other_version()):
+		if _confirm != null and is_instance_valid(_confirm):
+			_confirm.queue_free()
+		var c := Widgets.confirm(Widgets.t("shell.title.otra_version"), Widgets.t("shell.title.seguir"), Widgets.t("shell.title.volver"), Widgets.t("shell.title.continuar"))
+		_confirm = c
+		add_child(c)
+		c.reset_size()
+		var vs := get_viewport().get_visible_rect().size
+		c.position = ((vs - c.size) * 0.5).floor()
+		c.decided.connect(func(ok):
+			c.queue_free()
+			_confirm = null
+			if ok and shell != null:
+				shell.continue_game())
+		return
+	shell.continue_game()
 
 func _new() -> void:
 	if not _has_save():

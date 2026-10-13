@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-MORAN. D16, The Daily Graphic del martes 3 de abril de 1894 [H el diario; INV la página] (GDD §2.1 día 8, §6 D16, §10.4 C10 Ia, C10a, C11.R2). Grabados de los testigos de la indagatoria abierta el lunes 2 y aplazada al miércoles: Mr. Murray, sir John Hardy y el coronel Moran (EMPT: los compañeros de whist de Adair en el Bagatelle; nadie relaciona a Moran con Adair antes de este día, T7). El «coronel Moran» del grabado tiene el bigote de Harris (lámina del prólogo: «alto, ancho de hombros, de bigote canoso enorme») y la frente calva de EMPT («a high, bald forehead, and a huge grizzled moustache»). Contrato §4.8: #moran = harris_es_moran (C10 Ia y C10a.R1, clave bigote con N:PRO.harris) + autor_moran (C11.R2, clave moran con D11#mejor_tiro; menciona al difunto) + estilo_o_rostro_moran (C5: el rostro del hombre de bigote canoso de D09#nota_redactor). Ejemplares: llega a la bandeja con el Times al amanecer del día 8 (L1, comprado en el quiosco) y está en la Sala de Periódicos desde la mañana del 8 (BM). Romanos con \\. para que no corten la oración.",
+  "_nota": "W3-CT-MORAN. D16, The Daily Graphic del martes 3 de abril de 1894 [H el diario; INV la página] (GDD §2.1 día 8, §6 D16, §10.4 C10 Ia, C10a, C11.R2). Grabados de los testigos de la indagatoria abierta el lunes 2 y aplazada al miércoles: Mr. Murray, sir John Hardy y el coronel Moran (EMPT: los compañeros de whist de Adair en el Bagatelle; nadie relaciona a Moran con Adair antes de este día, T7). El «coronel Moran» del grabado tiene el bigote de Harris (lámina del prólogo: «alto, ancho de hombros, de bigote canoso enorme») y la frente calva de EMPT («a high, bald forehead, and a huge grizzled moustache»). Contrato §4.8: #moran = harris_es_moran (C10 Ia y C10a.R1, clave bigote con N:PRO.harris) + autor_moran (C11.R2, clave moran con D11#mejor_tiro; menciona al difunto) + estilo_o_rostro_moran (C5: el rostro del hombre de bigote canoso de D09#nota_redactor). Ejemplares: en el estante de números atrasados de Crane desde el día 8 (I) y en la Sala de Periódicos desde la mañana del 8 (BM). W4: ya no llega a la bandeja (el único día que llegaba era el día en que importa: la bandeja lo señalaba). Romanos con \\. para que no corten la oración.",
   "id": "D16",
   "entity": "daily_graphic",
   "title": "The Daily Graphic, martes 3 de abril de 1894",
@@ -13,7 +13,7 @@
   "slip_topic": "prensa_1894",
   "catalog": {"label": "The Daily Graphic, abril de 1894", "entities": ["daily_graphic", "indagatoria", "ronald_adair", "asesinato_de_adair", "park_lane", "moran"]},
   "copies": [
-    {"id": "D16@L1", "holder": "L1", "area": "buhardilla", "class": "I", "via": "desk", "from": "8.dawn", "to": "10.N"},
+    {"id": "D16@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "8.M", "to": "10.M"},
     {"id": "D16@BM", "holder": "BM", "class": "I", "via": "slip", "from": "8.M", "to": "9.N"}
   ],
   "parts": [

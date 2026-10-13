@@ -155,6 +155,7 @@ func _start_session(cont: bool, seed: int) -> bool:
 		return false
 	if cont:
 		return bool(g.continue_session())
+	mark_finished(false)
 	return bool(g.new_session(seed))
 
 # Aplica un JSONL de acciones (una por línea; «#» comenta) con Game.act. Devuelve cuántas se aceptaron.
@@ -207,7 +208,39 @@ func show_title() -> void:
 	world.show_hub("escritorio", "N")
 	await fade_in()
 
+# Marca «partida terminada» junto al archivo de guardado (<save>.fin). on=false la borra.
+func finished_mark_path() -> String:
+	var g := _autoload("Game")
+	if g == null:
+		return ""
+	var p := String(g.save_path)
+	if p.begins_with("user://") or p.begins_with("res://"):
+		p = ProjectSettings.globalize_path(p)
+	return p + ".fin"
+
+func mark_finished(on: bool) -> void:
+	var p := finished_mark_path()
+	if p == "":
+		return
+	if on:
+		DirAccess.make_dir_recursive_absolute(p.get_base_dir())
+		var f := FileAccess.open(p, FileAccess.WRITE)
+		if f != null:
+			f.store_string("fin\n")
+			f.close()
+	elif FileAccess.file_exists(p):
+		DirAccess.remove_absolute(p)
+
+# Hay una partida que se puede continuar: un guardado que no terminó.
+func can_continue() -> bool:
+	var g := _autoload("Game")
+	if g == null or not bool(g.has_save()):
+		return false
+	var p := finished_mark_path()
+	return p == "" or not FileAccess.file_exists(p)
+
 func new_game(seed := 0) -> void:
+	mark_finished(false)
 	await fade_out()
 	if _start_session(false, seed):
 		await enter_game(false)
@@ -229,6 +262,16 @@ func enter_game(instant := false) -> void:
 	world.set_input_enabled(true)
 	await gs.start(instant)
 
+# Fundido al epílogo desde la pantalla de juego (la corrutina vive en la Shell, no en la pantalla que se libera).
+func go_epilogue() -> void:
+	if screen_id == "epilogue":
+		return
+	busy(true)
+	await fade_out()
+	show_epilogue()
+	busy(false)
+	await fade_in()
+
 func show_epilogue() -> void:
 	if not ResourceLoader.exists(PANELS.epilogue.path):
 		var fb = Fallback.Epilogue.new()
@@ -248,6 +291,10 @@ func show_epilogue() -> void:
 func quit_to_title() -> void:
 	var g := _autoload("Game")
 	if g != null and g.sim != null:
+		# partida terminada (epílogo cerrado): el título ya no ofrece «Continuar» (W4: cargaba la partida en fase done y
+		# volvía al título sin decir nada, en bucle). Marca junto al guardado; una partida nueva la borra.
+		if String(g.sim.q_clock().get("phase", "")) == "done":
+			mark_finished(true)
 		g.end_session()
 	await fade_out()
 	show_title()
@@ -270,6 +317,8 @@ func push(n: Node, kind := "") -> void:
 	if n.has_signal("closed") and not n.closed.is_connected(_on_panel_closed):
 		n.closed.connect(_on_panel_closed.bind(n))
 	panel_opened.emit(kind)
+	if _note_box != null and _note_box.get_child_count() > 0:
+		_place_notes.call_deferred()
 
 func top() -> Node:
 	_prune()
@@ -321,6 +370,8 @@ func close_all() -> void:
 
 func _close_entry(e: Dictionary) -> void:
 	stack.erase(e)
+	if _note_box != null and _note_box.get_child_count() > 0:
+		_place_notes.call_deferred()
 	var n: Node = e.node
 	if not is_instance_valid(n):
 		return
@@ -342,6 +393,8 @@ func _on_panel_closed(n: Node) -> void:
 			stack.erase(e)
 			panel_closed.emit(String(e.kind))
 			_free_owned(n, String(e.kind))
+	if _note_box != null and _note_box.get_child_count() > 0:
+		_place_notes.call_deferred()
 
 # Un panel que se cierra con fundido sigue visible unos cuadros: mientras tanto no recibe el mouse (un clic apurado no
 # debe caer en un panel que se va). Se restituye a los 0,45 s (todo fundido dura ≤0,4 s) o al volver a la pila.
@@ -674,6 +727,30 @@ func note(text: String, seconds := NOTE_S) -> void:
 	_note_box.add_child(p)
 	_trim(_note_box, 2)
 	_expire(p, seconds)
+	_place_notes.call_deferred()
+
+# Los avisos van arriba al centro; con un compositor abierto (el informe, el anuncio, el telegrama, la carta: hojas
+# centradas que empiezan arriba) se corren al margen izquierdo, bajo el calendario, para no tapar el título de la hoja.
+const NOTES_SIDE_KINDS := ["report", "ad", "telegram", "letter"]
+
+func _place_notes() -> void:
+	if _note_box == null or not is_instance_valid(_note_box):
+		return
+	var side := NOTES_SIDE_KINDS.has(top_kind())
+	if side:
+		_note_box.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		_note_box.grow_horizontal = Control.GROW_DIRECTION_END
+		_note_box.position = Vector2(22, 240)
+		for c in _note_box.get_children():
+			for l in c.get_children():
+				if l is Label:
+					(l as Label).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+					(l as Label).custom_minimum_size.x = 300.0
+	else:
+		_note_box.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+		_note_box.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_note_box.offset_top = 22
+	_note_box.reset_size()
 
 # Deja a lo sumo n hijos (los más nuevos). Saca del árbol antes de liberar: queue_free no baja la cuenta en el cuadro.
 static func _trim(box: Control, n: int) -> void:

@@ -7,7 +7,7 @@
  ],
  "areas": {
   "exterior": {
-   "desc": "la vereda frente al 427 de Park Lane, con el parque enfrente"
+   "desc": "la acera frente al 427 de Park Lane, con el parque enfrente"
   }
  },
  "observers": [],
@@ -610,7 +610,7 @@
      1.9
     ]
    },
-   "examine": "Un [[murete|murete]] con [[reja|reja]] y un portillo separa el jardín de la vereda; el conjunto no pasa de cinco pies.",
+   "examine": "Un [[murete|murete]] con [[reja|reja]] y un portillo separa el jardín de la acera; el conjunto no pasa de cinco pies.",
    "tags": [
     "e:murete",
     "e:reja",
@@ -622,7 +622,7 @@
   },
   {
    "id": "linea_de_tiro",
-   "noun": "línea de tiro",
+   "noun": "ventana vista desde el parque",
    "anchor": {
     "c": [
      -6.5,
@@ -635,7 +635,7 @@
      0.3
     ]
    },
-   "examine": "Desde la vereda del parque, la ventana del segundo piso del 427 queda a tiro limpio por encima de la reja, sin una rama ni una cornisa en medio.",
+   "examine": "Desde la acera del parque se ve entera la ventana del segundo piso del 427, por encima de la reja; entre una y otra no hay rama ni cornisa.",
    "tags": [
     "a:disparo_desde_fuera",
     "e:linea_de_tiro",
@@ -688,7 +688,7 @@
      3.2
     ]
    },
-   "examine": "Una docena de [[curiosos|curiosos]] en la vereda, con la cabeza levantada hacia la misma ventana.",
+   "examine": "Una docena de [[curiosos|curiosos]] en la acera, con la cabeza levantada hacia la misma ventana.",
    "tags": [
     "e:curiosos",
     "e:park_lane_427"
@@ -752,7 +752,7 @@
  ],
  "characters": [],
  "silhouettes": {
-  "wiggins": {
+  "wiggins": {"talk": ["exterior"], 
    "frame": "acera",
    "pos": [
     -4.4,

@@ -1157,6 +1157,12 @@ static func lint(repo, cid: String) -> Dictionary:
 			stars.append(r)
 	if not res.pending.is_empty():
 		return res
+	if not mandatory(repo).has(cid):
+		# conclusiones opcionales (C10a, C14): cada ruta debe valer (arriba), pero la invariante de ≥2 rutas ★ sin
+		# ejemplar común es sólo de las obligatorias (GDD §10.3, T1); C14 tiene una sola ★ a propósito (C14.R1 usa ⚠).
+		if stars.is_empty():
+			res.notes.append("%s: opcional sin ruta ★" % cid)
+		return res
 	if stars.size() < 2:
 		res.errors.append("%s: %d ruta(s) ★ (sólo-I, deps fija/columna/garantizada); se exigen ≥2" % [cid, stars.size()])
 	else:

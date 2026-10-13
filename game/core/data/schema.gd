@@ -181,8 +181,11 @@ static func _line() -> Dictionary:
 # place es opcional (§12.2): los finales y el epílogo (END.F1–F4, EPI) no ocurren en un lugar del mapa. Sin place, el
 # motor la trata como escena de la buhardilla (WorldModel.start_scene) y nunca como escena fija de columna.
 static func _scene() -> Dictionary:
+	# measure/paper_mm: medida de la escena (M:<escena>.<x>; Clipper.act_clip_measure src scene, RouteDB._measure)
 	return _obj({"id": "id", "place": "id", "area": "str", "tk": "tk", "plate": "str", "origin": "str", "when": "cond",
 		"auto": "bool", "lines": _list(_line(), 1),
+		"measure": {"t": "?obj", "f": {"entity": "id", "tags": STRS}, "req": ["entity"], "open": false},
+		"paper_mm": {"t": "?list", "of": "num", "min": 2, "max": 2},
 		"variants": _list(_obj({"when": "cond", "replace": _map("markup"), "append": _list(_line())}, ["when"]))},
 		["id", "lines"])
 
@@ -191,18 +194,18 @@ static func _dialogue() -> Dictionary:
 		"match": {"t": "dict"}, "when": "cond", "text": "markup", "effects": _list({"t": "dict"}), "reaction": "str"},
 		["id", "layer", "text"])
 	return _obj({"char": "id", "label": "str", "intro": "str", "addr": "str", "sensor": "?str", "max_questions": "int",
-		"trait": "str", "closing": "markup", "ask_phrase": _map("tpl"), "lines": _list(dl, 1)}, ["char", "label", "lines"])
+		"trait": "str", "closing": "markup", "ask_phrase": _map("tpl"), "lines": _list(dl, 1), "known": "bool"}, ["char", "label", "lines"])
 
 static func _place() -> Dictionary:
 	var frame := _obj({"id": "id", "area": "str", "pos": VEC3, "look": VEC3, "fov": "num",
 		"orbit": _obj({"pivot": VEC3, "yaw": "num", "pitch": "num"})}, ["id", "pos", "look"])
 	var prop := _obj({"id": "id", "type": "str", "pos": VEC3, "rot": "num", "p": {"t": "dict"}}, ["id", "type", "pos"])
 	var node := _obj({"id": "id", "prop": "str", "noun": "str", "anchor": _obj({"c": VEC3, "s": VEC3}, ["c", "s"]),
-		"examine": "markup", "tags": "tags", "cls": CLS, "area": "str", "when": "cond"}, ["id", "anchor", "examine"])
+		"examine": "markup", "tags": "tags", "cls": CLS, "area": "str", "when": "cond", "on_clip_flag": "str"}, ["id", "anchor", "examine"])
 	var chr := _obj({"id": "id", "area": "str", "pos": VEC3, "rot": "num", "pose": "str", "trait": "str", "when": "cond"}, ["id", "pos"])
 	return _obj({"id": "id", "name": "str", "streets": STRS, "areas": _map(_obj({"desc": "str"}, [], true)), "observers": STRS,
-		"epigraph": "str", "frames": _list(frame, 1), "light": _map("str"), "props": _list(prop), "nodes": _list(node),
-		"characters": _list(chr), "silhouettes": _map(_obj({"frame": "str", "pos": VEC3, "rot": "num"}, ["frame", "pos"])),
+		"epigraph": "str", "epigraph_by_area": _map("str"), "frames": _list(frame, 1), "light": _map("str"), "props": _list(prop), "nodes": _list(node),
+		"characters": _list(chr), "silhouettes": _map(_obj({"frame": "str", "pos": VEC3, "rot": "num", "talk": STRS}, ["frame", "pos"])),
 		"variants": {"t": "dict"}, "fixed": "bool", "origin": "str", "doc_variant": _map("str"), "place": "str", "day": "int",
 		"slot": "str"}, ["id", "name", "frames", "props", "nodes"])
 

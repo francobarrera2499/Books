@@ -298,7 +298,7 @@ static func speaker_label(repo, known: Dictionary, who: String, text_fn := Calla
 		return who
 	var en: Dictionary = repo.entity(who)
 	var dl: Dictionary = repo.dialogue(who) if repo.has_method("dialogue") else {}
-	if known.has(who):
+	if known.has(who) or bool(dl.get("known", false)):
 		if dl.has("label"):
 			return String(dl.label)
 		return String(en.get("name", who))

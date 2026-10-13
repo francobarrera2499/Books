@@ -684,10 +684,12 @@ func _apply_geom() -> void:
 	var c := COL_C if compact else COL
 	var sr := SEAL_C if compact else SEAL_R
 	_col.position = c.position
-	var col_h := (_seal_bottom - sr.size.y - c.position.y - 38.0) if _seal_shown else (_hd - c.position.y - 30.0)
+	# el papel del sello puede crecer con lo que va «Al sello» (su mínimo): las pestañas terminan sobre su alto real
+	var seal_h := maxf(sr.size.y, _seal.get_combined_minimum_size().y)
+	var col_h := (_seal_bottom - seal_h - c.position.y - 38.0) if _seal_shown else (_hd - c.position.y - 30.0)
 	_col.size = Vector2(c.size.x, maxf(160.0, col_h))
 	_seal.size = sr.size
-	_seal.position = Vector2(sr.position.x, _seal_bottom - sr.size.y)
+	_seal.position = Vector2(sr.position.x, _seal_bottom - _seal.size.y)
 	_size_tabs()
 
 # El papel del sello tiene medida fija: si un contenido nuevo lo estiró un momento, vuelve a su medida y a su lugar.
@@ -697,6 +699,12 @@ func _fit_seal() -> void:
 	var sr := SEAL_C if compact else SEAL_R
 	_seal.size = sr.size
 	_seal.position = Vector2(sr.position.x, _seal_bottom - _seal.size.y)
+	if _col != null and _seal_shown:
+		var c := COL_C if compact else COL
+		var col_h := _seal_bottom - _seal.size.y - c.position.y - 38.0
+		if absf(_col.size.y - maxf(160.0, col_h)) > 0.5:
+			_col.size = Vector2(c.size.x, maxf(160.0, col_h))
+			_size_tabs()
 
 func _place_note() -> void:
 	if _note == null:

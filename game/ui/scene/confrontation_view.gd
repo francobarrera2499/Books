@@ -122,6 +122,7 @@ var _b_silence: Button
 var _b_follow: Button
 var _title: Label
 var _tijera_btn: Button
+var _plate_btn: Button
 var _fly: Control
 var _refresh_queued := false
 var _connected := false
@@ -255,6 +256,11 @@ func _build() -> void:
 	_tijera_btn = Widgets.ink_button(link.t("sceneui.tijera"))
 	_tijera_btn.toggle_mode = true
 	_tijera_btn.toggled.connect(func(on): transcript.set_tijera(on))
+	# la tienda del día 10 también se recorta (sus dedos y su sombra, GDD §8.8 IV): rectángulo sobre la lámina, como en
+	# cualquier visita (W4: sólo se podía después, desde «Láminas de lo visto»)
+	_plate_btn = Widgets.ink_button(link.t("sceneui.conf.lamina"), _plate_scissors)
+	_plate_btn.name = "TijeraLamina"
+	head.add_child(_plate_btn)
 	head.add_child(_tijera_btn)
 	bv.add_child(head)
 	transcript = Transcript.new(link)
@@ -334,6 +340,15 @@ func back() -> bool:
 func toggle_tijera() -> void:
 	transcript.set_tijera(not transcript.tijera)
 
+# Tijera de rectángulo sobre la lámina de la tienda (la de la pantalla de juego); sin pantalla de juego no hace nada.
+func _plate_scissors() -> void:
+	var gs = shell.game_screen if shell != null and is_instance_valid(shell) and "game_screen" in shell else null
+	if gs == null or not gs.has_method("set_scissors"):
+		return
+	transcript.set_tijera(false)
+	picker.close()
+	gs.set_scissors(not bool(gs.scissors_on))
+
 func refresh() -> void:
 	status = link.qd("q_confront")
 	var done := bool(status.get("done", false))
@@ -341,6 +356,13 @@ func refresh() -> void:
 	var stmt = status.get("statement", {})
 	var sc: Dictionary = link.qd("q_scene")
 	var chars: Array = sc.get("chars", [])
+	# el librero no se presenta: «Anciano encorvado» toda la escena (W4: el rótulo pasaba a «El librero viejo» a mitad de
+	# la confrontación, en cuanto algo lo ponía en el índice)
+	var r = link.repo()
+	if r != null and not link.who_override.has(WHO):
+		var noun := String(r.entity(WHO).get("noun", ""))
+		if noun != "":
+			link.who_override[WHO] = noun
 	_who.text = link.who_label(WHO, chars)
 	var raw := ""
 	if typeof(stmt) == TYPE_DICTIONARY and not stmt.is_empty():

@@ -13,6 +13,7 @@
     {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "No lo conozco lo bastante para opinar, señor Lisle."},
     {"id": "tipo.lugar", "layer": "tipo", "match": {"kind": ["lugar"]}, "text": "Nunca estuve allí, que yo recuerde."},
     {"id": "hb4.1", "layer": "tema", "reaction": "HB4", "text": "Se toca el crespón del sombrero. —Prefiero no hablar de eso, señor Lisle."},
+    {"id": "hb4.2", "layer": "tema", "reaction": "HB4", "text": "Mi amigo está muerto, señor Lisle, y yo tengo pacientes. Vuelva usted otro día."},
     {"id": "gen.1", "layer": "generica", "text": "Un hombre puede ser herido más de una vez, señor Lisle."},
     {"id": "gen.2", "layer": "generica", "text": "Lo que imprimí, lo imprimí de buena fe."},
     {"id": "gen.3", "layer": "generica", "text": "Se mira las manos. —No sabría decirle."}

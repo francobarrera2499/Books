@@ -125,7 +125,7 @@ func test_four_hits_complete_and_offer():
 		r = _go(st, s, BY_STEP[s - 1])
 		ok(r.hit, "acierto %d" % s)
 		if s == 3:
-			eq(r.line.text, "Asiento 214, mar. 27. Sí, sí.", "cita el acto real del ítem")
+			eq(r.line.text, "Asiento 214, el martes 27. Bien leído, señor.", "cita el acto real del ítem, dicho en voz alta")
 		if s == 2:
 			eq(r.lines[-1].text, "Nadie lo lee a usted, señor. Usted lee demasiado.", "ui_text")
 	ok(r.done)

@@ -69,7 +69,7 @@ static func apply(st, repo, inst: Dictionary, soft: bool) -> void:
 	if not de.is_empty() and not overflow:
 		if String(inst.get("merged_into", "")) == "":
 			if is_moran:
-				_take_next_lines(st, inst)
+				_take_next_lines(st, repo, inst)
 			var how := Latency.how_for(st, repo, rule, inst, de)
 			var text := instance_text(st, repo, inst)
 			var tpl := doc_tpl(st, repo, rule, inst, de, how, text)
@@ -93,7 +93,7 @@ static func apply(st, repo, inst: Dictionary, soft: bool) -> void:
 			inst["how"] = "fusionada"
 			applied.append("fusionada")
 	elif is_moran and has_scene and not overflow:
-		_take_next_lines(st, inst)
+		_take_next_lines(st, repo, inst)
 	# efectos de mundo
 	for e in effs:
 		var op := String(e.get("op", ""))
@@ -157,15 +157,31 @@ static func _node_in_effects(ref: String, effs: Array) -> bool:
 static func _blank(text: String) -> bool:
 	return text.strip_edges() == ""
 
-static func _take_next_lines(st, inst: Dictionary) -> void:
+# Líneas pendientes de M10–M12 que se adjuntan a esta comunicación de Moran. Cada una puede traer dos voces
+# ({pell, h}: «El mayor celebra…» / «Celebro…»): habla Harris si Pell ya no está (M4: notas «H.») o si la comunicación
+# es Harris en persona (canal en_persona: M7); si no, Pell transmite.
+static func _take_next_lines(st, repo, inst: Dictionary) -> void:
 	var m = st.react.get("moran", {})
 	if typeof(m) != TYPE_DICTIONARY:
 		return
 	var nl: Array = m.get("next_lines", [])
 	if nl.is_empty():
 		return
-	inst["extra_lines"] = nl.duplicate()
+	var harris := harris_voice(st, repo, inst)
+	var out: Array = []
+	for x in nl:
+		if typeof(x) == TYPE_DICTIONARY:
+			out.append(String(x.get("h", x.get("pell", ""))) if harris else String(x.get("pell", x.get("h", ""))))
+		else:
+			out.append(String(x))
+	inst["extra_lines"] = out
 	m["next_lines"] = []
+
+static func harris_voice(st, repo, inst: Dictionary) -> bool:
+	if bool(st.flags.get("pell_despedido", false)):
+		return true
+	var rule := rule_of(repo, inst)
+	return RDB.lado(rule) == "moran" and String(rule.get("canal", "")) == "en_persona"
 
 static func _apply_op(st, repo, rule: Dictionary, inst: Dictionary, e: Dictionary) -> bool:
 	var w: Dictionary = st.react.world
@@ -236,7 +252,13 @@ static func _apply_op(st, repo, rule: Dictionary, inst: Dictionary, e: Dictionar
 				var r := RDB.select_rastro(st, repo, rule, inst)
 				src = String(r.get("texto", ""))
 			if src != "":
-				st.react.moran.next_lines.append(Markup.fill(src, inst.get("vars", {})))
+				# voz de Harris (`<tpl>_h`, primera persona) para cuando la comunicación sea suya (M7, notas «H.»)
+				var txt := Markup.fill(src, inst.get("vars", {}))
+				var rh := RDB.rastro_by_tpl(rule, String(e.get("tpl", "")) + "_h") if e.has("tpl") else {}
+				if rh.has("texto"):
+					st.react.moran.next_lines.append({"pell": txt, "h": Markup.fill(String(rh.texto), inst.get("vars", {}))})
+				else:
+					st.react.moran.next_lines.append(txt)
 		"evento_mundo":
 			w.events.append({"id": String(e.get("id", "")), "tk": tk, "rid": rid})
 		_:

@@ -163,7 +163,7 @@ func _build_galley() -> void:
 # Hueco lleno = lo que saldrá impreso («El problema final»), no el rótulo del índice («Problema final, El (Strand…)»).
 func _printed(val: String) -> String:
 	var r = link.repo()
-	return Composers._piece_text(r, val) if r != null else ""
+	return Composers.piece_text(r, val) if r != null else ""
 
 func _add_words(seg: String) -> void:
 	var words := seg.split(" ", false)

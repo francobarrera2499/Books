@@ -184,3 +184,12 @@ func test_doc_inserts():
 	eq(S.check("docs", v), [], "inserts válido")
 	_bad("docs", func(x): x["inserts"] = {"columna": "p9"}, "parte inexistente")
 	_bad("docs", func(x): x["inserts"] = {"avisos": "p1"}, "inserts.avisos desconocido")
+
+# Escenas con medida (M:<escena>.<x>: Clipper.act_clip_measure src scene y RouteDB._measure la leen).
+func test_scene_measure():
+	var v = _load("scenes").duplicate(true)
+	v["measure"] = {"entity": "papel_corto", "tags": ["vinculo_mycroft"]}
+	v["paper_mm"] = [203, 244]
+	eq(S.check("scenes", v), [], "measure y paper_mm en una escena")
+	_bad("scenes", func(x): x["measure"] = {"tags": ["x"]}, "entity")
+	_bad("scenes", func(x): x["paper_mm"] = [203], "paper_mm")

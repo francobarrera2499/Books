@@ -195,13 +195,17 @@ func test_fixed_scene_gets_lines_added_by_director():
 	for l in s.q_scene().lines:
 		texts.append(l.parsed.plain)
 	eq(texts.count(line), 1, str(texts))
-	eq(texts[-1], line, "al final de la escena")
+	eq(texts[-2], line, "antes de la despedida de la escena (hallazgo del lector: no como un recado olvidado)")
 	var n := 0
+	var dl: Array = []
 	for d in s.q_diary():
+		if d.kind == "line":
+			dl.append(d.parsed.plain)
 		if d.kind == "line" and d.parsed.plain == line:
 			n += 1
 			eq(d.origin, "S.M7")
 	eq(n, 1)
+	eq(dl.find(line), dl.find(texts[-1]) - 1, "también en el diario, antes de la despedida")
 	ok(s.leave().ok)
 	eq(s.q_clock().phase, "night")
 

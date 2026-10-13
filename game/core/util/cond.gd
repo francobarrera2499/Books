@@ -9,13 +9,15 @@
 #   char_present   -> ctx.chars_present | st.world.visit.chars ([id | {id}])
 #   report_final_cats_any -> eventos públicos "report" con n == schedule.reports[final].n (def. 4): unión de items[].cats
 #   sealed*        -> st.ded.sealed (dict cid -> entry)
+#   pencil_wrong   -> bool: hay (true) / no hay (false) algún asiento a lápiz erróneo que el lápiz azul marca
+#                     (Endings.blue_pencil kind "wrong"; END.F1: «Una de sus entradas no es literalmente cierta»)
 extends RefCounted
 
 const TimeKey = preload("res://core/util/timekey.gd")
 const L = preload("res://core/util/log.gd")
 
 const ATOMS := ["day", "slot", "weekday", "tk", "flag", "flag_eq", "flag_gte", "sealed", "sealed_all", "sealed_count",
-	"counter", "event_count", "visited", "channel_closed", "report_final_cats_any", "anchor", "char_present"]
+	"counter", "event_count", "visited", "channel_closed", "report_final_cats_any", "anchor", "char_present", "pencil_wrong"]
 const COMBI := ["all", "any", "not", "always"]
 # Datos (validate): sólo códigos ASCII (§12.2). eval tolera «mié»/«sáb» (wd_norm).
 const WEEKDAYS_ASCII := ["lun", "mar", "mie", "jue", "vie", "sab", "dom"]
@@ -139,6 +141,8 @@ static func _atom(k: String, v, ctx: Dictionary) -> bool:
 			return true
 		"char_present":
 			return _chars_present(ctx).has(String(v))
+		"pencil_wrong":
+			return _pencil_wrong(ctx) == bool(v)
 	L.bug("cond", "átomo desconocido: " + k)
 	return false
 
@@ -201,6 +205,9 @@ static func _val(cond, path: String, errs: Array) -> void:
 			"flag_eq", "flag_gte", "anchor":
 				if typeof(v) != TYPE_DICTIONARY or v.is_empty():
 					errs.append("%s: debe ser objeto no vacío" % p)
+			"pencil_wrong":
+				if typeof(v) != TYPE_BOOL:
+					errs.append("%s: debe ser bool" % p)
 			"sealed_all", "report_final_cats_any":
 				if typeof(v) != TYPE_ARRAY:
 					errs.append("%s: debe ser lista" % p)
@@ -241,6 +248,17 @@ static func _val_cmp(v: Dictionary, p: String, errs: Array, extra: Array) -> voi
 		errs.append("%s: falta comparador (gte/lte/eq/lt/gt)" % p)
 
 # --- helpers ---
+# endings.gd se carga en tiempo de ejecución (sim/ -> util/ sin precarga: evita el ciclo Cond <- Endings).
+static func _pencil_wrong(ctx: Dictionary) -> bool:
+	var st = ctx.get("st")
+	var repo = ctx.get("repo")
+	if st == null or repo == null:
+		return false
+	for it in load("res://core/sim/endings.gd").blue_pencil(st, repo):
+		if String(it.get("kind", "")) == "wrong":
+			return true
+	return false
+
 static func _cmp(x, v) -> bool:
 	if typeof(v) != TYPE_DICTIONARY:
 		return _num(x) == _num(v)

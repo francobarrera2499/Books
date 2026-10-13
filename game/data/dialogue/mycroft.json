@@ -1,18 +1,18 @@
 {
-  "_nota": "W3-CT-DLG-B. Mycroft Holmes (GDD §4; GREE, EMPT): afable, suave, irónico; ahorra esfuerzo físico, no palabras; rapé y pañuelo de seda roja. Sala de Forasteros del Diógenes, días 8–9 (T, N). Sus líneas (a)–(g) son la escena automática scenes/HC06.json; aquí, lo que contesta si Lisle le pregunta o le presenta algo. Nunca afirma que su hermano vive: habla de él en pasado salvo el lapsus deliberado de HC06 (c). No lee lo que toca Camden House (§2.4, T22): finge no haber oído. Respuestas de HB12 (Dialogue: ids del efecto linea de la reacción): hb12_exito, hb12_error_1, hb12_error_2; sus tramos llevan a:vinculo_mycroft e:mycroft como declara el rastro de HB12 (C7, ley de la huella). «Mi hermano no necesitaba más motivos para volver antes de tiempo» = GDD HC06 (si pregunta por Watson o su duelo).",
+  "_nota": "W3-CT-DLG-B. Mycroft Holmes (GDD §4; GREE, EMPT): afable, suave, irónico; ahorra esfuerzo físico, no palabras; rapé y pañuelo de seda roja. Sala de Forasteros del Diógenes, días 8–9 (T, N). Sus líneas (a)–(g) son la escena automática scenes/HC06.json; aquí, lo que contesta si Lisle le pregunta o le presenta algo. Nunca afirma que su hermano vive: habla de él en pasado salvo el lapsus deliberado de HC06 (c). No lee lo que toca Camden House (§2.4, T22): finge no haber oído. Respuestas de HB12 (Dialogue: ids del efecto linea de la reacción): hb12_exito, hb12_error_1, hb12_error_2; sus tramos llevan a:vinculo_mycroft e:mycroft como declara el rastro de HB12 (C7, ley de la huella). «Mi hermano no necesitaba más motivos para volver antes de tiempo» = GDD HC06 (si pregunta por Watson o su duelo). W4 (playtest «novato»): addr y ask_phrase dicen «señor», sin el apellido: el panel lo rotula «caballero corpulento» hasta que Dialogue lo presenta, y la pregunta no debe darle el nombre antes que la interfaz.",
   "char": "mycroft",
   "label": "el señor Mycroft Holmes",
   "intro": "Mycroft Holmes",
-  "addr": "señor Holmes",
+  "addr": "señor",
   "sensor": null,
   "max_questions": 3,
   "trait": "esfera_panuelo",
   "closing": "Le ahorraré el trabajo de preguntar más, señor Lisle: por hoy he dicho lo que pensaba decir.",
   "ask_phrase": {
     "default": "¿Qué me puede decir de ${topic}, ${addr}?",
-    "holmes": "¿Cómo es su hermano, señor Holmes?",
-    "watson": "¿Sabe usted que el doctor Watson está de luto, señor Holmes?",
-    "lisle": "¿Qué más sabe usted de mí, señor Holmes?"
+    "holmes": "¿Cómo es su hermano, señor?",
+    "watson": "¿Sabe usted que el doctor Watson está de luto, señor?",
+    "lisle": "¿Qué más sabe usted de mí, señor?"
   },
   "lines": [
     {"id": "af.vive", "layer": "afirmacion", "match": {"assertion": ["vive"]}, "text": "Toma rapé sin prisa. —Eso, señor Lisle, no se dice en este club, ni en ningún otro que yo frecuente."},

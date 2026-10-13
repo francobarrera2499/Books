@@ -167,6 +167,9 @@ static func _body(root: Node3D, s: Dictionary, pose: String, seed: int) -> void:
 	if pose == "encorvado": head.rotation_degrees = Vector3(-stoop * 0.6, 0, 0)
 	M.sphere(head, head_r, Vector3.ZERO, skin, Vector3(0.92, 1.08, 0.98))
 	M.box(head, Vector3(head_r * 0.25, head_r * 0.35, head_r * 0.3), Vector3(0, -head_r * 0.05, head_r * 0.95), skin)
+	# ojos: dos puntos de tinta (W4: sin rasgos, una figura de frente se leía de espaldas en el grabado)
+	for ex: float in [-1.0, 1.0]:
+		M.sphere(head, head_r * 0.12, Vector3(ex * head_r * 0.33, head_r * 0.14, head_r * 0.9), "madera_negra", Vector3(1.0, 0.75, 0.55), 8)
 	match str(s.get("mustache", "")):
 		"small":
 			M.capsule(head, head_r * 0.12, head_r * 0.7, Vector3(0, -head_r * 0.38, head_r * 0.9), "madera_media", Vector3(0, 0, 90))
@@ -200,7 +203,11 @@ static func _body(root: Node3D, s: Dictionary, pose: String, seed: int) -> void:
 			"hip": el = shp + Vector3(x * 0.22, -ua * 0.72, -0.05); hd = Vector3(x * shw * 0.33, torso * 0.3, 0.04)
 			"pocket": el = shp + Vector3(x * 0.07, -ua * 0.95, -0.03); hd = Vector3(x * shw * 0.38, -0.02, 0.07)
 			"cane": el = shp + Vector3(x * 0.03, -ua * 0.97, 0.06); hd = shp + Vector3(x * 0.06, -ua - fa * 0.72, fa * 0.55)
-			"forehead": el = shp + Vector3(x * 0.12, -ua * 0.35, 0.22); hd = hc + Vector3(x * 0.04, head_r * 0.35, head_r * 1.05) - Vector3(0, 0, 0)
+			"forehead":
+				# se seca la frente: mano en la frente y el codo doblado, adelante y afuera (IK de dos huesos con los largos
+				# reales del brazo; antes el codo caía casi en la recta hombro-frente y el brazo se veía como un palo)
+				hd = hc + Vector3(x * 0.05, head_r * 0.3, head_r * 1.0)
+				el = _elbow(shp, hd, ua, fa, Vector3(x * 1.0, -0.35, 0.55))
 			"carry": el = shp + Vector3(x * 0.05, -ua, 0.02); hd = shp + Vector3(x * 0.09, -ua - fa, 0.05)
 			"behind": el = shp + Vector3(x * 0.07, -ua * 0.92, -0.13); hd = Vector3(x * 0.05, torso * 0.2, -g - 0.07)
 			"front": el = shp + Vector3(x * 0.04, -ua * 0.95, 0.08); hd = Vector3(x * 0.04, torso * 0.22, g + 0.12)
@@ -232,7 +239,8 @@ static func _body(root: Node3D, s: Dictionary, pose: String, seed: int) -> void:
 		elif kind == "mouth":
 			pass
 		if kind == "forehead":
-			M.box(up, Vector3(0.12, 0.08, 0.02), hd + Vector3(0, -0.04, 0.03), "vela")
+			# pañuelo blanco chico en la mano
+			M.box(up, Vector3(0.07, 0.055, 0.015), hd + Vector3(x * 0.01, -0.035, 0.035), "vela", Vector3(0, 0, x * 12.0))
 	if bool(s.get("books", false)):
 		var bc := Vector3(0, torso * 0.45, g + 0.25)
 		for k in 4:
@@ -240,6 +248,21 @@ static func _body(root: Node3D, s: Dictionary, pose: String, seed: int) -> void:
 	if bool(s.get("kerchief", false)):
 		M.prism(up, Vector3(0.12, 0.12, 0.03), Vector3(-shw * 0.2, torso * 0.78, 0.16), "pintura_roja", Vector3(-15, 0, 180))
 		M.prism(up, Vector3(0.2, 0.26, 0.03), Vector3(shw * 0.35, torso * 0.1, sph + 0.1), "pintura_roja", Vector3(0, 0, 180))
+
+# Codo de un brazo de largos ua (hombro-codo) y fa (codo-mano) entre el hombro s y la mano h, del lado de hint.
+static func _elbow(s: Vector3, h: Vector3, ua: float, fa: float, hint: Vector3) -> Vector3:
+	var d := h - s
+	var dl := d.length()
+	if dl < 0.0001:
+		return s + hint.normalized() * ua
+	var u := d / dl
+	dl = clampf(dl, absf(ua - fa) + 0.001, ua + fa - 0.001)
+	var a := (ua * ua - fa * fa + dl * dl) / (2.0 * dl)
+	var r := sqrt(maxf(0.0, ua * ua - a * a))
+	var p := hint - u * hint.dot(u)
+	if p.length() < 0.0001:
+		p = Vector3(0, -1, 0) - u * (-u.y)
+	return s + u * a + p.normalized() * r
 
 static func _orient_y(mi: Node3D, dir: Vector3) -> void:
 	var l := dir.length()

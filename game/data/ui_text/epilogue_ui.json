@@ -1,0 +1,57 @@
+{
+  "_nota": "W4-EPILOGUE (ARCHITECTURE §2.3, §10 ola 4; GDD §12.2–12.3). Rótulos de la interfaz del epílogo (ui/epilogue/*); el texto del epílogo, el colofón y el marco del lápiz azul son de W3-CT-LISLE (ui_text/epilogo.json). Claves con prefijo «epilogue.» (las de contenido usan «epilogo.»). Voz de Lisle para lo suyo (forma, nunca contenido); la nota azul de la Strand es la de epilogo.04.park_lane+nota_de_s_h. Exento del lint de anacronismos (T7 EPILOGUE_FILES). Datos de presentación (los lee EpilogueModel con repo.files(); el motor ignora los campos «_»): _lente = párrafo del epílogo -> tramo de D38 sobre el que se posa la lupa cuando aparece; _corte = tramo de D38 que Lisle recorta (el último gesto, GDD §12.3); _sonido = línea de escena -> sonidos (audio.json) al decirla; _encuadre = línea de escena -> encuadre de la lámina (el viento en Baker Street, la casa vacía de enfrente al sonar el silbato). epilogue.ficha.anterior = primer renglón de la ficha que asoma detrás de la de Lisle en el fichero de Holmes (EE12, easter_eggs.json: «justo después de Lestrade»).",
+  "_lente": {
+    "epilogo.03.leer": "curiosos",
+    "epilogo.04.park_lane": "hombre_alto",
+    "epilogo.04.park_lane+reconoce_los_libros": "titulo",
+    "epilogo.04.park_lane+teoria_correcta": "absurdas",
+    "epilogo.04.park_lane+nota_de_s_h": "hombre_alto",
+    "epilogo.05.hueco": "hueco",
+    "epilogo.05.hueco+tomos_devueltos": "desordenado",
+    "epilogo.06.desmayo": "desmayo",
+    "epilogo.06.desmayo+subraya_first_and_last": "desmayo",
+    "epilogo.07.literal": "meses",
+    "epilogo.08.no_lo_es": "literal",
+    "epilogo.09.meses": "meses",
+    "epilogo.10.duelo": "duelo"
+  },
+  "_corte": "hombre_alto",
+  "_subraya": {"subraya_first_and_last": "desmayo"},
+  "_nota_azul": {"nota_de_s_h": "hombre_alto"},
+  "_sonido": {
+    "HC09.bs_ventana": ["clock.cuartos"],
+    "HC09.bs_arpa": ["harp.parker"],
+    "HC09.bs_vidrio": ["shot.silbido", "glass.tintineo"],
+    "HC09.bs_silbato": ["whistle.policia"],
+    "HC09.casa_campanas": ["bells.st_clement"]
+  },
+  "_encuadre": {
+    "HC09.bs_frio": "221b",
+    "HC09.bs_silbato": "camden",
+    "HC09.casa_viento": "ventana"
+  },
+  "_ids": {"revista": "D38@L1", "concordancia": "D21", "tramo_concordancia": "fina", "noche": "HC09"},
+  "_noche": {
+    "baker_street": {"place": "L3", "area": "calle", "frame": "221b", "tk": "10.night"},
+    "casa": {"place": "L1", "area": "buhardilla", "frame": "ventana", "tk": "10.night"}
+  },
+  "_final": {"place": "L1", "area": "buhardilla", "frame": "escritorio", "tk": "10.night", "slot": "M"},
+  "_estante": {"variant": "tomos_devueltos", "place": "L4", "area": "estudio", "frame": "estante", "tk": "10.night", "slot": "T", "prop": "biblioteca", "tomos": 5},
+  "text": {
+    "epilogue.seguir": "Seguir",
+    "epilogue.tijera": "Tijera",
+    "epilogue.tijera.dejar": "Dejar la tijera",
+    "epilogue.tijera.otra": "Ésa no es la mía.",
+    "epilogue.hoja": "Hoja ${n} de ${total}",
+    "epilogue.ficha.indice": "Del índice de S. H., letra L.",
+    "epilogue.ficha.letra": "L",
+    "epilogue.ficha.anterior": "Lestrade. Scotland Yard.",
+    "epilogue.publicar.titulo": "La fe de erratas",
+    "epilogue.publicar.ok": "Decidido",
+    "epilogue.nota_s_h": "No era un detective de paisano. Era un lector. —S. H.",
+    "epilogue.estante.pie": "Kensington. El estudio del doctor.",
+    "epilogue.concordancia.titulo": "Concordancia de E. L., última hoja",
+    "epilogue.lapiz.sin_asientos": "Sin asientos.",
+    "epilogue.cerrar": "Cerrar el libro"
+  }
+}

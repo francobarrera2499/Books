@@ -75,6 +75,14 @@ func setup(view: Dictionary, page_idx: int, px_per_mm: float, source_page: Contr
 	copy.name = "LupaHoja"
 	_content.add_child(copy)
 	copy.setup(view, page_idx, {"px_per_mm": px_per_mm, "interactive": false})
+	# la copia sigue al mouse por encima de la hoja: nunca toma un clic (la tijera corta en la hoja de abajo)
+	_ignore_all(copy)
+
+static func _ignore_all(n: Node) -> void:
+	if n is Control:
+		(n as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for c in n.get_children():
+		_ignore_all(c)
 
 func clear() -> void:
 	if copy != null:

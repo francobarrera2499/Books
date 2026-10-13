@@ -168,6 +168,69 @@ func test_truncated_last_line_and_other_version():
 	has(got, "core.save.otra_version")
 	eq(Game.sim.state_hash(), h)
 
+# Otra versión del contenido y una acción que ya no se acepta: el registro se reescribe sin ella, pero antes el original
+# entero queda en partida.<hash viejo>.jsonl (la .bak se pisa en la próxima escritura).
+func test_other_version_keeps_original_log():
+	_start("orig.jsonl")
+	for a in Kit.prologue():
+		_act(a)
+	var n: int = Game.sim.actions_log().size()
+	Game.end_session()
+	var lines := FileAccess.get_file_as_string(Game.save_path).strip_edges().split("\n")
+	var hdr = J.parse_str(lines[0])
+	hdr["content"] = "contenido_viejo_0123"
+	lines[0] = J.stringify_canon(hdr)
+	lines.append(J.stringify_canon({"t": "go", "place": "L_INEXISTENTE", "area": ""}))
+	var fw := FileAccess.open(Game.save_path, FileAccess.WRITE)
+	fw.store_string("\n".join(lines) + "\n")
+	fw.close()
+	expect_error("replay: acción rechazada")
+	ok(Game.continue_session())
+	eq(int(Game.sim.replay_errors), 1)
+	eq(Game.sim.actions_log().size(), n, "el registro reescrito ya no trae la rechazada")
+	var keep := Game.save_path.get_basename() + ".contenido_vi.jsonl"
+	ok(FileAccess.file_exists(keep), "copia del original: " + keep)
+	var back: Dictionary = EventLog.read(keep)
+	eq(back.actions.size(), n + 1, "el original entero, con la acción rechazada")
+	eq(String(back.header.content), "contenido_viejo_0123")
+
+# Reanudar no es cuadrático (hallazgo del playtest: 1.600 acciones, 24 s): 1.500 acciones libres sobre data/ real en
+# menos de 3 s, con el mismo estado.
+func test_replay_1500_actions_fast():
+	var r = repo()
+	var sim = GameSim.new(r, 5)
+	var b = load("res://devtools/bots/bot_pasivo.gd").new()
+	b.setup(sim, 5)
+	for _i in 60:
+		if String(sim.q_clock().phase) == "desk":
+			break
+		b.step()
+	eq(String(sim.q_clock().phase), "desk", "día 1 en el escritorio")
+	var cands: Array = []
+	for v in sim.q_accessible():
+		var view: Dictionary = sim.q_view(String(v.view))
+		for pi in (view.get("pages", []) as Array).size():
+			for bi in (view.pages[pi] as Array).size():
+				for t in view.pages[pi][bi].get("parsed", {}).get("tramos", []):
+					cands.append({"t": "clip_text", "src": {"kind": "doc", "ref": String(v.view), "part": pi, "block": bi}, "from": int(t.from), "len": int(t.to) - int(t.from)})
+	ok(cands.size() > 10, "tramos legibles en el escritorio: %d" % cands.size())
+	var i := 0
+	var bad := 0
+	while sim.actions_log().size() < 1500 and i < 6000:
+		var res: Dictionary = sim._apply(cands[i % cands.size()], true, false)
+		if not res.ok:
+			bad += 1
+		i += 1
+	eq(sim.actions_log().size(), 1500, "1.500 acciones (%d rechazadas al armar)" % bad)
+	var lg: Array = sim.actions_log()
+	var t0 := Time.get_ticks_msec()
+	var s2 = GameSim.replay(r, 5, lg)
+	var dt := Time.get_ticks_msec() - t0
+	print("T25 replay de %d acciones: %d ms" % [lg.size(), dt])
+	ok(dt < 3000, "reanudar 1.500 acciones en menos de 3 s (%d ms)" % dt)
+	eq(int(s2.replay_errors), 0)
+	eq(s2.state_hash(), sim.state_hash(), "mismo estado")
+
 func test_no_save_and_signals():
 	Game.save_path = tmp_dir().path_join("nada.jsonl")
 	Game.repo_override = Kit.repo()

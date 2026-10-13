@@ -235,7 +235,8 @@
       "keys": {"entities": ["club_diogenes", "pall_mall", "mycroft", "remington", "remington_s_alzada", "papel_corto", "giro_ahorrare", "whitehall", "matasellos_sw", "watson"], "kinds": []},
       "validate": {"from": "1.dawn", "until": null},
       "routes": [
-        {"id": "C7.R1", "star": false, "deps": "columna", "from": "8.T", "frags": [{"ref": "M:D25"}, {"ref": "M:HC06.papel"}], "cut_by": ["M1"]},
+        {"id": "C7.R1", "star": false, "deps": "garantizada", "from": "8.T", "frags": [{"ref": "M:HA1.carta"}, {"ref": "M:D46", "copy": "D46@L5"}], "cut_by": ["M1"]},
+        {"id": "C7.R1c", "star": false, "deps": "columna", "from": "8.T", "frags": [{"ref": "M:HA0.carta"}, {"ref": "M:D46", "copy": "D46@L5"}], "cut_by": ["M1"]},
         {"id": "C7.R1b", "star": false, "deps": "columna", "from": "8.dawn", "frags": [{"ref": "R:HA1.*"}, {"ref": "R:HC04.tarjeta"}], "cut_by": ["M1"]},
         {"id": "C7.R2", "star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "S:HC06.b_*"}, {"ref": "D31#para_mholmes", "copy": "D31@L5"}], "cut_by": []},
         {"id": "C7.R3", "star": false, "deps": "garantizada", "from": "2.dawn", "frags": [{"ref": "R:HA1.*"}, {"ref": "D30#recibo", "copy": "D30@L3"}], "cut_by": ["HB6", "M1"]},
@@ -363,7 +364,7 @@
       "validate": {"from": "5.dawn", "until": null},
       "routes": [
         {"id": "C11.R1", "star": true, "deps": "fija", "from": "8.dawn", "frags": [{"ref": "D15.0403#whist", "copy": "D15.0403@L1"}, {"ref": "D15.0403#nadie_oyo", "copy": "D15.0403@L1"}, {"ref": "D03#air_guns", "copy": "D03@BM"}, {"ref": "D10#bala_blanda", "copy": "D10@BM"}], "cut_by": []},
-        {"id": "C11.R2", "star": true, "deps": "fija", "from": "8.M", "frags": [{"ref": "N:L7.linea_de_tiro"}, {"ref": "D11#mejor_tiro", "copy": "D11@BM"}, {"ref": "D16#moran", "copy": "D16@L1"}, {"ref": "D03#air_guns", "copy": "D03@Crane"}], "cut_by": []}
+        {"id": "C11.R2", "star": true, "deps": "fija", "from": "8.M", "frags": [{"ref": "N:L7.linea_de_tiro"}, {"ref": "D11#mejor_tiro", "copy": "D11@BM"}, {"ref": "D16#moran", "copy": "D16@Crane"}, {"ref": "D03#air_guns", "copy": "D03@Crane"}], "cut_by": []}
       ],
       "blue_pencil": {"missing": "Falta: quién disparó, con qué y desde dónde.", "wrong": "Dele: nadie oyó el disparo; el aire no hace ruido."}
     },
@@ -424,7 +425,7 @@
         {"id": "C14.R1", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01N#mi_james", "copy": "D01N@tomo"}, {"ref": "D18#mary", "copy": "D18@L6"}], "cut_by": ["M1"]},
         {"id": "C14.R1b", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D01N#nov93", "copy": "D01N@tomo"}, {"ref": "D18#mary", "copy": "D18@L6"}], "cut_by": ["M1"]},
         {"id": "C14.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D20#subasta", "copy": "D20@BM"}, {"ref": "D45#duelo", "copy": "D45@BM"}], "cut_by": []},
-        {"id": "C14.R3", "star": false, "deps": "fija", "from": "6.T", "frags": [{"ref": "N:L4.hueco_estante"}, {"ref": "D01N#nov93", "copy": "D01N@tomo"}], "cut_by": ["HB4", "M1"]},
+        {"id": "C14.R3", "star": false, "deps": "fija", "from": "6.T", "frags": [{"ref": "N:L4.hueco_estante"}, {"ref": "N:L4.crespon"}, {"ref": "D01N#nov93", "copy": "D01N@tomo"}], "cut_by": ["HB4", "M1"]},
         {"id": "C14.R3b", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "N:L4.crespon"}, {"ref": "D01N#nov93", "copy": "D01N@tomo"}], "cut_by": ["HB4", "M1"]}
       ],
       "blue_pencil": {"missing": "Falta: de quién eran los tomos.", "wrong": "Dele: los vendió en enero; el crespón es de noviembre."}

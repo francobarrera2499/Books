@@ -7,9 +7,11 @@
 #   moran_credito (cat verdadero en informes 1–3) · moran_credito_perdido (falso_verificable, M9) ·
 #   holmes_entregado (paradero_extranjero, regreso_jueves, baker_street o camden) · informes_vacios (+1 si vacío)
 # st.react.moran = {reports:[{n, mode, cats, tk}], credit, lost, following, delivered_holmes, next_lines:[]}
-# report_cats(st, repo, item): asiento → por VALORES (Validator.values_match contra entry_conclusions, aunque el
-#   fundamento sea falso; entry_template_values); recorte → por etiquetas c:, visible_cats del doc, clase del
-#   ejemplar (P → original_p) y voz del documento runtime de origen (clip_voice). Nunca por a: ocultas.
+# report_cats(st, repo, item): asiento → por lo que dicen sus CAMPOS VISIBLES (entry_match, entry_template_values),
+#   nunca por la respuesta oculta de una conclusión (Moran no es oráculo de corrección: GDD §9.4, §11); sólo
+#   «verdadero» (crédito) mira entry_conclusions (Validator.values_match) y, con entry_ink, exige el asiento en tinta;
+#   recorte → por etiquetas c:, visible_cats del doc, clase del ejemplar (P → original_p) y voz del documento runtime
+#   de origen (clip_voice). Nunca por a: ocultas.
 # Extensión: report_item(st, repo, item) -> {kind, id, cats, values, copies, cls} (lo que Composers mete en el evento).
 extends RefCounted
 
@@ -142,16 +144,20 @@ static func report_cats(st, repo, item: Dictionary) -> Array:
 			return out
 		var sealed := _sealed(st)
 		var val = load(VALIDATOR_PATH)
+		var inked := String(entry.get("ink", "")) == "tinta"
 		for c in rc:
 			if typeof(c) != TYPE_DICTIONARY:
 				continue
 			var hit := false
-			for cid in RDB._as_arr(c.get("entry_conclusions", [])):
-				if val != null and val.values_match(repo, entry, String(cid), sealed):
-					hit = true
-					break
+			if inked or not bool(c.get("entry_ink", false)):
+				for cid in RDB._as_arr(c.get("entry_conclusions", [])):
+					if val != null and val.values_match(repo, entry, String(cid), sealed):
+						hit = true
+						break
 			if not hit and typeof(c.get("entry_template_values")) == TYPE_DICTIONARY:
 				hit = _template_values_hit(repo, entry, c.entry_template_values)
+			if not hit and typeof(c.get("entry_match")) == TYPE_ARRAY:
+				hit = entry_match_hit(repo, entry, c.entry_match)
 			if hit and not out.has(String(c.cat)):
 				out.append(String(c.cat))
 	return out
@@ -189,6 +195,38 @@ static func _template_values_hit(repo, entry: Dictionary, spec: Dictionary) -> b
 			continue
 		var want := _expand(repo, RDB._as_arr(fs[f]))
 		if want.has(String(vals[f])):
+			return true
+	return false
+
+# entry_match: [{tpl ("*" = cualquiera), all: {campo ("*" = algún campo): [valores]}}]; basta una forma cuyos campos
+# tengan TODOS uno de sus valores (sólo valores visibles del asiento; sin alias ni respuestas de conclusiones).
+static func entry_match_hit(repo, entry: Dictionary, forms: Array) -> bool:
+	var tpl := String(entry.get("template", ""))
+	var vals := entry_values(entry)
+	for f in forms:
+		if typeof(f) != TYPE_DICTIONARY:
+			continue
+		var ft := String(f.get("tpl", "*"))
+		if ft != "*" and ft != tpl:
+			continue
+		var all_ok := true
+		var spec = f.get("all", {})
+		if typeof(spec) != TYPE_DICTIONARY or spec.is_empty():
+			continue
+		for field in spec:
+			var want := _expand(repo, RDB._as_arr(spec[field]))
+			var got := false
+			if String(field) == "*":
+				for k in vals:
+					if want.has(String(vals[k])):
+						got = true
+						break
+			else:
+				got = vals.has(field) and want.has(String(vals[field]))
+			if not got:
+				all_ok = false
+				break
+		if all_ok:
 			return true
 	return false
 

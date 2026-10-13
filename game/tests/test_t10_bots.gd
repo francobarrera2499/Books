@@ -277,9 +277,13 @@ func test_t10_real_data():
 		_clean(b, "real/" + String(name))
 		ok(int(b.rank) >= int(d.rank), "real/%s: rank %d (%s) mejor que el del deductor %d" % [name, b.rank, b.ending, d.rank])
 	var nv := _run(r, "real", "novato", 1)
-	var a3 := float(nv.get("est_minutes_act", {}).get("III", 0.0))
-	print("T10 novato (data/ real): Acto III %.1f min (tope %.0f; GDD §7.7 → §15.7)" % [a3, ACT3_MAX_MIN])
-	ok(a3 <= ACT3_MAX_MIN, "Acto III del novato: %.1f min > %.0f (adelantar material, GDD §15.7)" % [a3, ACT3_MAX_MIN])
+	# Acto III con minutos de JUEGO (lectura + interacción + deliberación; modelo de bot_base T_ACT), no sólo de lectura:
+	# con la lectura sola la cota pasaba siempre (W4-BALANCE).
+	var a3 := float(nv.get("play_minutes_act", {}).get("III", 0.0))
+	print("T10 novato (data/ real): juego %.1f min en total, por tramo %s; lectura %.1f min, por tramo %s (tope Acto III %.0f; GDD §7.7 → §15.7)" % [
+		float(nv.get("play_minutes", 0.0)), str(nv.get("play_minutes_act", {})), float(nv.get("est_minutes", 0.0)), str(nv.get("est_minutes_act", {})), ACT3_MAX_MIN])
+	ok(a3 > 0.0, "Acto III medido en minutos de juego")
+	ok(a3 <= ACT3_MAX_MIN, "Acto III del novato: %.1f min de juego > %.0f (adelantar material, GDD §15.7)" % [a3, ACT3_MAX_MIN])
 	var hits := 0
 	var n := 50 if slow else 10
 	for i in n:
@@ -287,3 +291,78 @@ func test_t10_real_data():
 		if s.has("C6") and s.has("C7") and s.has("C10"):
 			hits += 1
 	ok(float(hits) / n <= PESCA_BUDGET, "real/pesca: %d de %d" % [hits, n])
+
+# Sondas del oráculo sobre data/ real (W4-BALANCE): partidas del deductor que la estándar no recorre. Un foco sin
+# compañeras opcionales, un jugador que deja pasar los primeros días y otro foco con C12. Cada una: sin fallas del
+# oráculo (una ruta ★ que el plan da por obtenible y no lo es) y partida limpia. Detectó D1 (C6.R1 «failed»:[5]).
+func test_t10_real_oracle_probes():
+	var r = _real_repo()
+	if not bool(BotData.content_report(r).ok):
+		pending_content("T10 sondas del oráculo: contenido incompleto")
+		return
+	var probes := [
+		{"label": "foco C2-C3-C5-C6-C8-C10", "focus": ["C2", "C3", "C5", "C6", "C8", "C10"], "idle": 0},
+		{"label": "tardío día 5", "focus": [], "idle": 5},
+		{"label": "tardío día 8", "focus": [], "idle": 8},
+		{"label": "foco C6-C7-C10-C2-C3-C5-C8-C12-C4", "focus": ["C6", "C7", "C10", "C2", "C3", "C5", "C8", "C12", "C4"], "idle": 0},
+	]
+	for pr in probes:
+		var b = RunBots.make("deductor")
+		var sim = load("res://core/sim/game_sim.gd").new(r, 1)
+		b.budget_ms = 600000
+		b.setup(sim, 1)
+		if not (pr.focus as Array).is_empty():
+			b.focus = (pr.focus as Array).duplicate()
+			b.fillers = false
+		b.idle_until_day = int(pr.idle)
+		var res: Dictionary = b.play(20000)
+		print("T10 sonda %s: %s (rank %d) sellos %s oráculo %s" % [pr.label, res.ending, int(res.rank), str(res.sealed), str(res.oracle)])
+		_clean(res, "sonda " + String(pr.label))
+		eq(res.get("oracle", []), [], "sonda %s: fallas del oráculo" % pr.label)
+
+
+# Sondas con guion sobre data/ real (hallazgo del playtest: cobertura sin verificar). Ningún bot de §9.3 recorre los
+# canarios a Watson (HA4), pagar a Wiggins (HB8) ni entregar notas privadas de Watson dos veces (M3 → HB9 →
+# watson_expuesto, V.expuesto). Guiones de la auditoría (.work/audit_sys/beats_canary.json, ab_m3.gd) en bot_guion.
+const BEATS_CANARY := [
+	{"tk": "1.M", "go": ["L4", "consulta"], "acts": [{"t": "assert", "char": "watson", "assertion": "cn.chelsea"}]},
+	{"tk": "4.M", "go": ["L4", "consulta"], "acts": [{"t": "assert", "char": "watson", "assertion": "cn.boda"}]},
+	{"tk": "3.T", "go": ["L3", "calle"], "acts": [{"t": "pay", "char": "wiggins", "amount_d": 12}]},
+	{"tk": "5.M", "go": ["L3", "calle"], "acts": [{"t": "assert", "char": "wiggins", "assertion": "cn.edimburgo"}]},
+]
+
+func _guion(r, beats: Array, leak: Array) -> Array:
+	var b = load("res://devtools/bots/bot_guion.gd").new()
+	var sim = load("res://core/sim/game_sim.gd").new(r, 1)
+	b.budget_ms = 600000
+	b.setup(sim, 1)
+	b.beats = beats.duplicate(true)
+	b.leak_reports = leak.duplicate()
+	var res: Dictionary = b.play(20000)
+	return [b, res, sim]
+
+func test_t10_real_scripted_probes():
+	var r = _real_repo()
+	if not bool(BotData.content_report(r).ok):
+		pending_content("T10 sondas con guion: contenido incompleto")
+		return
+	var g := _guion(r, BEATS_CANARY, [])
+	var res: Dictionary = g[1]
+	print("T10 guion canarios: %s; entregadas %s; golpes %s" % [res.ending, str(g[0].delivered()), str(g[0].beat_log)])
+	_clean(res, "guion canarios")
+	eq(res.get("oracle", []), [], "guion canarios: fallas del oráculo")
+	for st_beat in g[0].beat_log:
+		ok(bool(st_beat.ok), "golpe %s %s: %s" % [st_beat.tk, st_beat.a, st_beat.err])
+	has(g[0].delivered(), "HA4", "canario a Watson → HA4")
+	has(g[0].delivered(), "HB8", "pagarle a Wiggins → HB8")
+	ok(bool(g[2].st.flags.get("wiggins_aliado", false)), "wiggins_aliado")
+	var g2 := _guion(r, [], [1, 2])
+	var res2: Dictionary = g2[1]
+	print("T10 guion notas de Watson: %s; variantes %s; entregadas %s" % [res2.ending, str(res2.variants), str(g2[0].delivered())])
+	_clean(res2, "guion notas de Watson")
+	eq(res2.get("oracle", []), [], "guion notas de Watson: fallas del oráculo")
+	ok(g2[0].delivered().count("M3") >= 2, "dos entregas de material privado → M3 dos veces")
+	has(g2[0].delivered(), "HB9")
+	ok(bool(g2[2].st.flags.get("watson_expuesto", false)), "la segunda entrega tras HB9 expone a Watson")
+	has(res2.variants, "V.expuesto", "variante del epílogo")
+	ok(String(res2.ending) != "F1", "watson_expuesto impide F1")

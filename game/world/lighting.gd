@@ -3,9 +3,13 @@
 #
 #   Lighting.names() -> Array                         presets: manana_perla dia_ventana tarde gas farol_calle
 #                                                     electrica_fria dorada_parklane noche_viento
-#   Lighting.preset_for(place: Dictionary, slot) -> String   place.light[slot] (§4.11) o el de la franja
+#   Lighting.preset_for(place: Dictionary, slot, snap={}) -> String
+#                                                     place.light["<día>.<franja>"] > place.light[slot] (§4.11) > el de la
+#                                                     franja; luego el clima del día (CLIMA: la noche del 5 fría y ventosa)
 #   Lighting.paper_for(slot) -> Color                 papel de la franja: mañana gris perla, tarde, noche ámbar de gas
-#   Lighting.look(preset, slot) -> Dictionary         {paper, ink, exposure, contrast, haze, ...} -> EngravingPost.set_look
+#   Lighting.look(preset, slot) -> Dictionary         {paper, ink, exposure, contrast, haze, gamma, tone_floor, vignette, ...}
+#                                                     -> EngravingPost.set_look. El papel es el de la franja; un preset con
+#                                                     `paper` lo tiñe (Park Lane dorado, la noche fría del 5).
 #   Lighting.build_lights(preset, opts={}) -> Node3D  nodo "Lights": DirectionalLight3D "Key" (+ "Fill"); opts.azim gira en Y
 #   Lighting.make_environment(preset) -> Environment  tonemap lineal, sin glow/SSAO/SSIL/SDFGI/SSR/niebla
 #   Lighting.build_env(preset) -> WorldEnvironment    nodo "Env"
@@ -17,7 +21,7 @@
 #   Si el prop ya trae OmniLight3D hijos, se configuran ésos; si no, se crea el hijo "LampLight".
 #   Cada preset decide qué clases se encienden (de día, ninguna). Sombras: SÓLO lámparas con shadow:true
 #   (la de gas de la tienda de Crane: la sombra del librero llega al techo). Las direccionales nunca hacen sombra.
-# noche_viento: los faroles parpadean (nodo "Flicker" bajo Lights; tiempo real: es visual, no lógica).
+# noche_viento: los faroles parpadean con las rachas (nodo "Flicker" bajo Lights; tiempo real: es visual, no lógica).
 extends RefCounted
 
 const INK := Color("1b1712")
@@ -30,65 +34,77 @@ const LAMP_KINDS := {
 	"electrica": {"color": Color("eef3ff"), "energy": 1.6, "range": 12.0, "attenuation": 0.9},
 }
 # key/fill: {color, energy, elev (grados sobre el horizonte), azim (grados, giro en Y; 0 = luz hacia -Z)}
-# amb: ambiente de color; sky: fondo 3D; lamps: clases encendidas (+ multiplicador); post: parámetros del grabado.
+# amb: ambiente de color; sky: fondo 3D; lamps: clases encendidas (+ multiplicador); post: parámetros del grabado;
+# paper (opcional): {tint, mix} tiñe el papel de la franja.
+# Calibración W4-STYLE (capturas devtools/drivers/w4style_lugares.gd; T27 con ventana): gamma < 1 aclara los medios
+# tonos de día (paredes y pisos en sombra legibles) sin tocar el negro: lo macizo (paño, levitas, madera oscura) sigue
+# negro y sus contornos se tallan en blanco hasta white_line 0,3 (grabado a la contra: así se leen una figura oscura
+# en un sillón oscuro); de noche el gas deja la periferia en sombra (vignette). Las direccionales no hacen sombra (§7.7).
 const PRESETS := {
 	"manana_perla": {
 		"key": {"color": Color("e4e7ea"), "energy": 0.9, "elev": 38.0, "azim": -35.0},
-		"fill": {"color": Color("d8dde2"), "energy": 0.3, "elev": 20.0, "azim": 150.0},
-		"amb": {"color": Color("d4d6d8"), "energy": 0.5},
+		"fill": {"color": Color("d8dde2"), "energy": 0.32, "elev": 20.0, "azim": 150.0},
+		"amb": {"color": Color("d4d6d8"), "energy": 0.56},
 		"sky": Color("dfe1e2"), "lamps": {},
-		"post": {"exposure": 1.45, "contrast": 1.35, "haze": 0.3, "haze_range": Vector2(12.0, 60.0)},
+		"post": {"exposure": 1.45, "contrast": 1.3, "haze": 0.3, "haze_range": Vector2(12.0, 60.0), "gamma": 0.88, "white_line": 0.3},
 	},
 	"dia_ventana": {
 		"key": {"color": Color("f4f0e6"), "energy": 1.15, "elev": 30.0, "azim": 60.0},
-		"fill": {"color": Color("d6d2c8"), "energy": 0.2, "elev": 15.0, "azim": -120.0},
-		"amb": {"color": Color("ccc6ba"), "energy": 0.42},
+		"fill": {"color": Color("d6d2c8"), "energy": 0.26, "elev": 15.0, "azim": -120.0},
+		"amb": {"color": Color("ccc6ba"), "energy": 0.5},
 		"sky": Color("ece8dc"), "lamps": {},
-		"post": {"exposure": 1.4, "contrast": 1.45, "haze": 0.15},
+		"post": {"exposure": 1.4, "contrast": 1.35, "haze": 0.15, "gamma": 0.84, "white_line": 0.3},
 	},
 	"tarde": {
-		"key": {"color": Color("f3dcb4"), "energy": 1.05, "elev": 17.0, "azim": 72.0},
-		"fill": {"color": Color("c8c0b4"), "energy": 0.18, "elev": 25.0, "azim": -110.0},
-		"amb": {"color": Color("c4b8a6"), "energy": 0.46},
+		"key": {"color": Color("f3dcb4"), "energy": 1.05, "elev": 22.0, "azim": 72.0},
+		"fill": {"color": Color("c8c0b4"), "energy": 0.26, "elev": 28.0, "azim": -110.0},
+		"amb": {"color": Color("c4b8a6"), "energy": 0.58},
 		"sky": Color("efe2c8"), "lamps": {},
-		"post": {"exposure": 1.35, "contrast": 1.45, "haze": 0.2},
+		"post": {"exposure": 1.4, "contrast": 1.38, "haze": 0.2, "gamma": 0.82, "white_line": 0.3},
 	},
 	"gas": {
 		"key": {"color": Color("8c98aa"), "energy": 0.06, "elev": 30.0, "azim": 40.0},
 		"fill": {},
-		"amb": {"color": Color("7a6448"), "energy": 0.3},
+		"amb": {"color": Color("7a6448"), "energy": 0.27},
 		"sky": Color("2a2620"), "lamps": {"gas": 1.0, "farol": 1.0},
-		"post": {"exposure": 1.25, "contrast": 1.2, "white_line": 0.28},
+		"post": {"exposure": 1.3, "contrast": 1.25, "white_line": 0.28, "gamma": 1.0, "vignette": 0.42},
 	},
 	"farol_calle": {
 		"key": {"color": Color("ffcb8c"), "energy": 0.45, "elev": 9.0, "azim": -75.0},
 		"fill": {},
-		"amb": {"color": Color("5a5048"), "energy": 0.24},
+		"amb": {"color": Color("5a5048"), "energy": 0.27},
 		"sky": Color("201e1c"), "lamps": {"farol": 1.0, "gas": 1.0},
-		"post": {"exposure": 1.35, "contrast": 1.2, "white_line": 0.28},
+		"post": {"exposure": 1.4, "contrast": 1.2, "white_line": 0.28, "gamma": 0.92, "vignette": 0.25},
 	},
 	"electrica_fria": {
-		"key": {"color": Color("e6eef6"), "energy": 0.95, "elev": 68.0, "azim": 20.0},
-		"fill": {"color": Color("dae2ea"), "energy": 0.25, "elev": 30.0, "azim": -150.0},
-		"amb": {"color": Color("ccd4da"), "energy": 0.55},
+		"key": {"color": Color("e6eef6"), "energy": 1.0, "elev": 68.0, "azim": 20.0},
+		"fill": {"color": Color("dae2ea"), "energy": 0.32, "elev": 30.0, "azim": -150.0},
+		"amb": {"color": Color("ccd4da"), "energy": 0.72},
 		"sky": Color("e6eaee"), "lamps": {"electrica": 1.0},
-		"post": {"exposure": 1.35, "contrast": 1.4, "haze": 0.1},
+		"post": {"exposure": 1.5, "contrast": 1.3, "haze": 0.12, "gamma": 0.8, "white_line": 0.3},
 	},
 	"dorada_parklane": {
 		"key": {"color": Color("ffc56a"), "energy": 1.8, "elev": 7.0, "azim": -72.0},
-		"fill": {"color": Color("b0a8a0"), "energy": 0.12, "elev": 40.0, "azim": 110.0},
-		"amb": {"color": Color("a08c70"), "energy": 0.5},
+		"fill": {"color": Color("b0a8a0"), "energy": 0.14, "elev": 40.0, "azim": 110.0},
+		"amb": {"color": Color("a08c70"), "energy": 0.52},
 		"sky": Color("f2d8a4"), "lamps": {},
-		"post": {"exposure": 1.3, "contrast": 1.5, "haze": 0.35, "haze_range": Vector2(16.0, 80.0)},
+		"post": {"exposure": 1.3, "contrast": 1.5, "haze": 0.35, "haze_range": Vector2(16.0, 80.0), "gamma": 0.92, "white_line": 0.3},
+		"paper": {"tint": Color("f3c878"), "mix": 0.42},
 	},
 	"noche_viento": {
 		"key": {"color": Color("7c8698"), "energy": 0.05, "elev": 35.0, "azim": -20.0},
 		"fill": {},
 		"amb": {"color": Color("4a4850"), "energy": 0.24},
 		"sky": Color("1c1c20"), "lamps": {"farol": 1.0, "gas": 0.9}, "flicker": true,
-		"post": {"exposure": 1.4, "contrast": 1.2, "white_line": 0.28, "haze": 0.15},
+		"post": {"exposure": 1.4, "contrast": 1.25, "white_line": 0.3, "haze": 0.15, "gamma": 1.0, "vignette": 0.4},
+		"paper": {"tint": Color("d4d9e2"), "mix": 0.4},
 	},
 }
+# Clima del calendario (GDD §2.1 «Luz y clima» [H, C]; §14.4): la noche del jueves 5 de abril (día 10, N y 22 h) es
+# fría y ventosa. Con clima, los presets nocturnos de base pasan a su variante (faroles y gas que parpadean, papel frío).
+# Un lugar puede fijar otra cosa con place.light["10.N"].
+const CLIMA := {10: {"N": "viento", "night": "viento"}}
+const CLIMA_PRESET := {"viento": {"gas": "noche_viento", "farol_calle": "noche_viento", "noche_viento": "noche_viento"}}
 
 static func names() -> Array:
 	var a := PRESETS.keys()
@@ -104,15 +120,32 @@ static func tone_for(slot: String) -> String:
 static func paper_for(slot: String) -> Color:
 	return PAPER[tone_for(slot)]
 
-static func preset_for(place: Dictionary, slot: String) -> String:
+# snap (opcional) = la instantánea que se construye (§4.11: {day, slot, ...}); sin snap no hay clima ni excepciones por día.
+static func preset_for(place: Dictionary, slot: String, snap := {}) -> String:
 	var lt = place.get("light", {})
-	if lt is Dictionary and lt.has(slot) and PRESETS.has(str(lt[slot])):
-		return str(lt[slot])
-	if slot == "night" and lt is Dictionary and lt.has("N") and PRESETS.has(str(lt["N"])):
-		return str(lt["N"])
-	if slot == "dawn" and lt is Dictionary and lt.has("M") and PRESETS.has(str(lt["M"])):
-		return str(lt["M"])
-	return SLOT_PRESET.get(slot, "tarde")
+	if not (lt is Dictionary):
+		lt = {}
+	var day := int(snap.get("day", -1)) if snap is Dictionary else -1
+	if day >= 0:
+		var alias := "N" if slot == "night" else ("M" if slot == "dawn" else slot)
+		for k in ["%d.%s" % [day, slot], "%d.%s" % [day, alias]]:
+			if lt.has(k) and PRESETS.has(str(lt[k])):
+				return str(lt[k])
+	var base: String = SLOT_PRESET.get(slot, "tarde")
+	if lt.has(slot) and PRESETS.has(str(lt[slot])):
+		base = str(lt[slot])
+	elif slot == "night" and lt.has("N") and PRESETS.has(str(lt["N"])):
+		base = str(lt["N"])
+	elif slot == "dawn" and lt.has("M") and PRESETS.has(str(lt["M"])):
+		base = str(lt["M"])
+	var cl := clima(day, slot)
+	if cl != "" and (CLIMA_PRESET.get(cl, {}) as Dictionary).has(base):
+		return str(CLIMA_PRESET[cl][base])
+	return base
+
+# Clima de un día y franja ("" si es el de siempre).
+static func clima(day: int, slot: String) -> String:
+	return str((CLIMA.get(day, {}) as Dictionary).get(slot, ""))
 
 static func _p(preset: String) -> Dictionary:
 	if PRESETS.has(preset):
@@ -121,11 +154,20 @@ static func _p(preset: String) -> Dictionary:
 	return PRESETS["tarde"]
 
 static func look(preset: String, slot: String) -> Dictionary:
-	var lk := {"preset": preset, "slot": slot, "paper": paper_for(slot), "ink": INK}
+	var lk := {"preset": preset, "slot": slot, "paper": paper_of(preset, slot), "ink": INK}
 	var post: Dictionary = _p(preset).get("post", {})
 	for k in post:
 		lk[k] = post[k]
 	return lk
+
+# Papel de la franja, teñido por el preset si lo pide (la hora se lee en el papel; Park Lane a las 18 h, dorado; la
+# noche del 5, fría).
+static func paper_of(preset: String, slot: String) -> Color:
+	var c := paper_for(slot)
+	var pp = _p(preset).get("paper", {})
+	if pp is Dictionary and pp.has("tint"):
+		c = c.lerp(pp.tint, float(pp.get("mix", 0.0)))
+	return c
 
 static func _dir_light(nm: String, d: Dictionary) -> DirectionalLight3D:
 	var l := DirectionalLight3D.new()
@@ -304,13 +346,22 @@ class Flicker extends Node:
 		for c in n.get_children():
 			_collect(c)
 
+	# En 1 bit cualquier cambio de tono mueve la trama: nada de zumbido continuo. La llama está quieta entre rachas; la
+	# racha (dos senos lentos por lámpara, desfasados) la baja de golpe y la deja volver. La energía se cuantiza en
+	# LEVELS escalones y se evalúa cada STEP_S: la trama «late» con el viento unas veces por racha y si no, no se mueve.
+	const STEP_S := 0.12
+	const LEVELS := 8.0
+
 	func _process(dt: float) -> void:
 		t += dt
+		var tq := floorf(t / STEP_S) * STEP_S
 		for i in lamps.size():
 			var l: OmniLight3D = lamps[i]
 			if not is_instance_valid(l):
 				continue
-			var ph: float = phases[i]
-			var gust := 0.5 + 0.5 * sin(t * 1.3 + ph) * sin(t * 0.37 + ph * 2.0)
-			var w := 0.80 + 0.12 * sin(t * 9.0 + ph * 3.0) + 0.08 * sin(t * 23.0 + ph) - 0.25 * pow(gust, 6.0)
-			l.light_energy = float(l.get_meta("base_energy")) * clampf(w, 0.35, 1.05)
+			l.light_energy = float(l.get_meta("base_energy")) * gust_factor(tq, phases[i])
+
+	static func gust_factor(tq: float, ph: float) -> float:
+		var gust := 0.5 + 0.5 * sin(tq * 0.9 + ph) * sin(tq * 0.31 + ph * 2.0)
+		var w := 1.0 - 0.55 * pow(gust, 4.0)
+		return clampf(roundf(w * LEVELS) / LEVELS, 0.45, 1.0)

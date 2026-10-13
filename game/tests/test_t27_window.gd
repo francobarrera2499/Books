@@ -3,7 +3,7 @@
 extends "res://tests/test_base.gd"
 
 const WINDOW := true
-const TIMEOUT_S := 90.0
+const TIMEOUT_S := 180.0
 const EngravingPost = preload("res://world/post/engraving_post.gd")
 const Lighting = preload("res://world/lighting.gd")
 const Scene = preload("res://devtools/drivers/w1post_scene.gd")
@@ -290,3 +290,255 @@ func test_presets_legible() -> void:
 	var ef := _ink_frac(e, Rect2i(0, 100, e.get_width(), e.get_height() - 200))
 	print("T27 fracción de contornos: %.3f" % ef)
 	ok(ef > 0.01 and ef < 0.25, "contornos visibles y no invasivos (%.3f)" % ef)
+
+# ---------------------------------------------------------------------------------------------------------------------
+# W4-STYLE · calibración del grabado en toda la escala y por preset, y legibilidad de siluetas en 1 bit.
+const Med = preload("res://devtools/drivers/w4style_medidas.gd")
+const Mannequin = preload("res://world/characters/mannequin.gd")
+
+# La cobertura de tinta reproduce el tono continuo en toda la escala, en talla y en Bayer 8×8: plano liso a 5 m, papel
+# blanco y tinta negra, sin grano; |media del grabado − tono continuo (debug_view 1)| ≤ 0,03 para t = 0,1 … 0,9
+# (la talla reparte cada fila del rayado con los 64 umbrales Bayer: antes del arreglo erraba hasta 0,072 en las luces).
+func test_calibration_tone_ramp() -> void:
+	if _skip_if_headless():
+		return
+	var rg := _rig()
+	var pl := _plane(rg.root, -5.0, Color(0.5, 0.5, 0.5))
+	var post = rg.post
+	post.set_param("contrast", 1.0)
+	var worst := {"talla": 0.0, "bayer": 0.0}
+	for mode in ["talla", "bayer"]:
+		post.set_param("hatch", 1.0 if mode == "talla" else 0.0)
+		var row := []
+		for i in range(1, 10):
+			var t := i / 10.0
+			pl.material_override = _unshaded(Color(t, t, t))
+			post.set_param("debug_view", 1)
+			var ti: Image = await _grab(3)
+			var tone := _mean(ti, _center(ti, 0.6), 4)
+			post.set_param("debug_view", 0)
+			var img: Image = await _grab(3)
+			var m := _mean(img, _center(img, 0.6), 1)
+			row.append("%.2f→%.3f" % [tone, m])
+			worst[mode] = maxf(worst[mode], absf(m - tone))
+			ok(absf(tone - t) <= 0.02, "%s: tono continuo %.3f para t=%.1f" % [mode, tone, t])
+			ok(absf(m - tone) <= 0.03, "%s: t=%.1f grabado %.3f vs tono %.3f (±0,03)" % [mode, t, m, tone])
+		print("T27 rampa %s: %s" % [mode, " ".join(row)])
+	print("T27 rampa: error máximo talla %.3f · Bayer %.3f" % [worst.talla, worst.bayer])
+
+# La talla raya según la cara (pisos y cielo horizontal, caras X a 45°, caras Z a -45°; cruzado bajo hatch_below): la
+# rampa de arriba sólo ve caras Z. Aquí la misma calibración ±0,03 para un piso (cámara cenital) y una cara X. Material
+# con sombreado y sólo luz ambiente blanca (la dirección sale del búfer de normales, que exige geometría sombreada).
+func test_calibration_tone_ramp_faces() -> void:
+	if _skip_if_headless():
+		return
+	var rg := _rig()
+	var we: WorldEnvironment = rg.root.get_child(0)
+	we.environment.ambient_light_color = Color.WHITE
+	we.environment.ambient_light_energy = 1.0  # ambiente blanco 1,0 y albedo t (sRGB): el tono continuo ≈ t
+	var post = rg.post
+	post.set_param("contrast", 1.0)
+	post.set_param("hatch", 1.0)
+	var cam: Camera3D = rg.cam
+	var pl := _plane(rg.root, -5.0, Color(0.5, 0.5, 0.5))
+	var mat := StandardMaterial3D.new()
+	mat.roughness = 1.0
+	mat.metallic_specular = 0.0
+	pl.material_override = mat
+	# cara: [posición del plano, giro del plano, giro de la cámara] (el QuadMesh mira a +Z; la cámara a -Z)
+	var faces := {"Z": [Vector3(0, 0, -5), Vector3.ZERO, Vector3.ZERO], "Y": [Vector3(0, -5, 0), Vector3(-90, 0, 0), Vector3(-90, 0, 0)],
+		"X": [Vector3(-5, 0, 0), Vector3(0, 90, 0), Vector3(0, 90, 0)]}
+	var worst := 0.0
+	for f in faces:
+		pl.position = faces[f][0]
+		pl.rotation_degrees = faces[f][1]
+		cam.rotation_degrees = faces[f][2]
+		var row := []
+		for t in [0.15, 0.3, 0.5, 0.7, 0.85]:
+			mat.albedo_color = Color(t, t, t)
+			post.set_param("debug_view", 1)
+			var ti: Image = await _grab(3)
+			var tone := _mean(ti, _center(ti, 0.6), 4)
+			post.set_param("debug_view", 0)
+			var img: Image = await _grab(3)
+			var m := _mean(img, _center(img, 0.6), 1)
+			row.append("%.2f→%.3f" % [tone, m])
+			worst = maxf(worst, absf(m - tone))
+			ok(tone > 0.08 and tone < 0.92, "cara %s: tono medible %.3f (t=%.2f)" % [f, tone, t])
+			ok(absf(m - tone) <= 0.03, "cara %s: t=%.2f grabado %.3f vs tono %.3f (±0,03)" % [f, t, m, tone])
+		print("T27 rampa talla cara %s: %s" % [f, " ".join(row)])
+	print("T27 rampa por cara: error máximo %.3f" % worst)
+
+# Cada preset (con su exposición, contraste, gamma, piso y viñeta) sigue siendo fiel: sobre un gris liso iluminado por
+# el propio preset, la media del grabado (papel blanco, tinta negra, sin grano) iguala al tono continuo ±0,03.
+func test_calibration_per_preset() -> void:
+	if _skip_if_headless():
+		return
+	var holder := Node3D.new()
+	tree.root.add_child(holder)
+	_nodes.append(holder)
+	var cam := Camera3D.new()
+	cam.fov = 40.0
+	holder.add_child(cam)
+	cam.current = true
+	var mi := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(60, 60)
+	mi.mesh = q
+	mi.position = Vector3(0, 0, -5)
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.55, 0.55, 0.55)
+	m.roughness = 1.0
+	mi.material_override = m
+	holder.add_child(mi)
+	# un farol a 1,5 m del plano: de día está apagado; de noche el gris se mide en su luz (sin él gas y noche_viento
+	# dan tono ~0 y la comparación no prueba nada)
+	var lamp := Node3D.new()
+	lamp.set_meta("light", "farol")
+	lamp.position = Vector3(1.6, 1.0, -3.5)
+	holder.add_child(lamp)
+	var post = EngravingPost.attach(cam)
+	var res := {}
+	for p in Lighting.names():
+		var slot := "N" if p in ["gas", "farol_calle", "noche_viento"] else ("T" if p in ["tarde", "dorada_parklane"] else "M")
+		var lk := Lighting.apply(holder, p, slot)
+		var fl := holder.get_node_or_null("Lights/Flicker")
+		if fl != null:
+			fl.set_process(false)  # el parpadeo cambiaría la luz entre las dos capturas
+		post.set_look(lk)
+		post.set_palette(Color.WHITE, Color.BLACK)
+		post.set_param("grain", 0.0)
+		post.set_param("debug_view", 1)
+		var ti: Image = await _grab(3)
+		var tone := _mean(ti, _center(ti, 0.5), 4)
+		post.set_param("debug_view", 0)
+		var img: Image = await _grab(3)
+		var mm := _mean(img, _center(img, 0.5), 1)
+		res[p] = "%.3f/%.3f" % [tone, mm]
+		ok(tone > 0.08 and tone < 0.92, "%s: tono medible %.3f (ni negro ni papel)" % [p, tone])
+		ok(absf(mm - tone) <= 0.03, "%s: grabado %.3f vs tono %.3f (±0,03)" % [p, mm, tone])
+	print("T27 presets (tono/grabado): ", res)
+
+# Halo sólo tras lo macizo: una caja ancha a 3 m delante de un gris liso gana un filete de papel a cada lado (halo
+# encendido vs. apagado); un barrote de ~1,5 px no gana nada (antes de exigir grosor, de noche cada rama y cada barrote
+# se ensanchaba en papel: árboles «nevados», rejas de hierro como empalizadas blancas).
+func test_halo_only_behind_solid_shapes() -> void:
+	if _skip_if_headless():
+		return
+	var rg := _rig()
+	var post = rg.post
+	post.set_param("contrast", 1.0)
+	_plane(rg.root, -8.0, Color(0.5, 0.5, 0.5))
+	var cam: Camera3D = rg.cam
+	# [centro, ancho = fondo de la caja] (sección cuadrada: de costado no asoma una cara lateral más ancha que el frente)
+	var bars := {"ancha": [Vector3(-1.0, 0, -3), 0.6], "fina": [Vector3(0.6, 0, -3), 0.0045]}
+	var rects := {}
+	for nm in bars:
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(float(bars[nm][1]), 2.0, float(bars[nm][1]))
+		mi.mesh = bm
+		mi.material_override = _unshaded(Color.BLACK)
+		mi.position = bars[nm][0]
+		rg.root.add_child(mi)
+		var c: Vector3 = bars[nm][0]
+		var hw := float(bars[nm][1]) * 0.5
+		var xl := cam.unproject_position(c + Vector3(-hw, 0, hw)).x
+		var xr := cam.unproject_position(c + Vector3(hw, 0, hw)).x
+		var cy := int(cam.unproject_position(c).y)
+		rects[nm] = Rect2i(int(floor(xl)) - 8, cy - 100, int(ceil(xr - xl)) + 16, 200)
+	var counts := {}
+	# halo apagado · encendido · encendido sin mínimo de grosor (halo_thick 1: control de que la medida lo detecta)
+	for cfg in [["0", 0.0, 3.0], ["1", 1.0, 3.0], ["sin_grosor", 1.0, 1.0]]:
+		post.set_param("halo", cfg[1])
+		post.set_param("halo_thick", cfg[2])
+		var img: Image = await _grab(3)
+		for nm in rects:
+			counts["%s/%s" % [nm, cfg[0]]] = (1.0 - _ink_frac(img, rects[nm])) * rects[nm].size.x
+	post.set_param("halo", 1.0)
+	post.set_param("halo_thick", EngravingPost.DEFAULTS.halo_thick)
+	var add_wide := float(counts["ancha/1"]) - float(counts["ancha/0"])
+	var add_thin := float(counts["fina/1"]) - float(counts["fina/0"])
+	var add_ctrl := float(counts["fina/sin_grosor"]) - float(counts["fina/0"])
+	print("T27 halo: papel agregado por fila: caja ancha %.2f px · barrote fino %.2f px (sin mínimo de grosor %.2f)" % [add_wide, add_thin, add_ctrl])
+	ok(add_wide >= 1.0, "la figura maciza se separa del fondo con un filete de papel (%.2f px por fila)" % add_wide)
+	ok(add_thin <= 0.3, "el barrote fino no se ensancha en papel (%.2f px por fila)" % add_thin)
+	ok(add_ctrl >= 1.0, "control: sin mínimo de grosor el barrote sí ganaría papel (%.2f px por fila)" % add_ctrl)
+
+# GDD §14.4: «cada silueta se distingue en 1 bit». Cada rasgo de maniquí (§7.4) a 4 m, delante de una pared clara,
+# media y oscura a 7 m, con luz de tarde y de gas (con un farol encendido): Med.legibility (mancha contra fondo, línea
+# + halo o línea blanca
+# entre tintas) ≥ LEG_MIN. La máscara sale de la profundidad (debug_view 4) con y sin la figura.
+const LEG_MIN := 0.3
+func test_silhouettes_legible_in_one_bit() -> void:
+	if _skip_if_headless():
+		return
+	var holder := Node3D.new()
+	tree.root.add_child(holder)
+	_nodes.append(holder)
+	var cam := Camera3D.new()
+	cam.fov = 40.0
+	cam.position = Vector3(0, 1.0, 0)
+	holder.add_child(cam)
+	cam.look_at(Vector3(0, 0.95, -4.0))
+	cam.current = true
+	var wall := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(30, 12, 0.2)
+	wall.mesh = bm
+	wall.position = Vector3(0, 3, -7)
+	var wm := StandardMaterial3D.new()
+	wm.roughness = 1.0
+	wall.material_override = wm
+	holder.add_child(wall)
+	var floor_mi := MeshInstance3D.new()
+	var fm := BoxMesh.new()
+	fm.size = Vector3(30, 0.1, 14)
+	floor_mi.mesh = fm
+	floor_mi.position = Vector3(0, -0.05, -5)
+	var flm := StandardMaterial3D.new()
+	flm.albedo_color = Color(0.35, 0.3, 0.25)
+	flm.roughness = 1.0
+	floor_mi.material_override = flm
+	holder.add_child(floor_mi)
+	# farol arriba a la derecha (apagado con luz de tarde): con gas, pared y figura reciben luz y las tres paredes dan
+	# tonos distintos (sin él, todo es negro y sólo se prueba la línea blanca)
+	var lamp := Node3D.new()
+	lamp.set_meta("light", "farol")
+	lamp.position = Vector3(1.4, 2.4, -2.6)
+	holder.add_child(lamp)
+	var post = EngravingPost.attach(cam)
+	var vp := Rect2i(Vector2i.ZERO, Vector2i(tree.root.get_visible_rect().size))
+	var bad: Array = []
+	var lines: Array = []
+	for trt in Mannequin.traits():
+		var fig := Mannequin.make("t", trt)
+		fig.position = Vector3(0, 0, -4)
+		holder.add_child(fig)
+		Lighting.apply(holder, "tarde", "T")
+		post.set_look(Lighting.look("tarde", "T"))
+		post.set_param("debug_view", 4)
+		var d1: Image = await _grab(3)
+		fig.visible = false
+		var d0: Image = await _grab(3)
+		fig.visible = true
+		var r := Med.screen_rect(cam, fig).grow(14).intersection(vp)
+		var bnd := Med.bands(Med.mask_from_depth(d1, d0, r), r.size.x, r.size.y)
+		var row := []
+		for preset in ["tarde", "gas"]:
+			var slot := "T" if preset == "tarde" else "N"
+			for g in [0.8, 0.35, 0.08]:
+				wm.albedo_color = Color(g, g, g)
+				post.set_look(Lighting.apply(holder, preset, slot))
+				post.set_param("debug_view", 0)
+				var img: Image = await _grab(3)
+				var lg := Med.legibility_bands(img, bnd, r)
+				row.append("%s/%.2f:%.2f" % [preset, g, lg.leg])
+				if float(lg.leg) < LEG_MIN:
+					bad.append("%s %s fondo %.2f leg %.2f" % [trt, preset, g, lg.leg])
+		lines.append("%s %s" % [trt, " ".join(row)])
+		holder.remove_child(fig)
+		fig.free()
+	for l in lines:
+		print("T27 silueta ", l)
+	ok(bad.is_empty(), "siluetas ilegibles en 1 bit: %s" % str(bad))

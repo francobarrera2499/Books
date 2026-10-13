@@ -1,10 +1,37 @@
 {
-  "id": "D15.0330", "entity": "times", "title": "The Times, viernes 30 de marzo de 1894",
-  "src_type": "prensa_londres", "class": "I", "origin": "D15.0330", "date": "1894-03-30", "font": "imprenta", "paper": "diario_hueso",
-  "copies": [{"id": "D15.0330@L1", "holder": "L1", "via": "desk", "from": "4.dawn", "to": "10.N"}],
+  "id": "D15.0330",
+  "entity": "times",
+  "title": "The Times, viernes 30 de marzo de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "origin": "D15.0330",
+  "date": "1894-03-30",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "copies": [
+    {
+      "id": "D15.0330@L1",
+      "holder": "L1",
+      "via": "desk",
+      "from": "4.dawn",
+      "to": "10.N"
+    }
+  ],
   "parts": [
-    {"id": "p1", "text": "NOTICIAS. — Se corre hoy el Grand National.", "inserts": {"noticias": "p1"}},
-    {"id": "p2", "text": "COLUMNA DE AVISOS. — Clases de dibujo, a domicilio.", "inserts": {"columna": "p2"}}
+    {
+      "id": "p1",
+      "text": "<sc>Carreras.</sc> — {{#n1|Se corre hoy el Grand National.}}\n<sc>La Corte.</sc> — {{#n2|La Reina sigue en Florencia.}}\n<sc>El tiempo.</sc> — {{#n3|Templado.}}",
+      "inserts": {
+        "noticias": "p1"
+      }
+    },
+    {
+      "id": "p2",
+      "text": "<sc>Anuncios personales</sc>\n{{#a1|PERDIDO un perro de aguas.}} Se gratificará.\n{{#a2|SE VENDE un landó.}}\n{{#a3|INSTITUTRIZ inglesa busca casa.}}\n{{#a4|SE ALQUILA un piso.}}\n{{#a5|COCINERA busca casa.}}\nDINERO. — {{#a6|Se adelanta a caballeros.}}",
+      "inserts": {
+        "columna": "p2"
+      }
+    }
   ],
   "words": 14
 }

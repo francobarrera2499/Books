@@ -1,6 +1,7 @@
 # ui/input_router.gd — atajos del input map hacia la Shell (ARCHITECTURE §6.1, §6.3). Dueño: W3-SHELL.
 # _input: fe_cuaderno (Tab) salvo foco en LineEdit/TextEdit (se marca manejado antes de que la GUI mueva el foco).
-# _unhandled_input: fe_tijera (C), fe_libro_mayor (L), fe_mapa (M), fe_volver (clic derecho / Esc = pop()).
+# _unhandled_input: fe_tijera (C), fe_libro_mayor (L), fe_mapa (M), fe_volver (Esc = pop()). El clic derecho se toma
+# en _input (antes que la GUI, que lo tragaba sobre todo Control con STOP) y hace lo mismo que Esc.
 # Esc (tecla, no el clic derecho) sin nada que cerrar en la pantalla de juego abre las Opciones (pausa con «Volver al
 # título»): así siempre hay salida sin un botón permanente en pantalla.
 # Sólo en la pantalla de juego y fuera de transiciones (fundidos, ritual del amanecer). Mouse primero: todo lo que hace
@@ -24,6 +25,18 @@ func _typing() -> bool:
 
 func _input(ev: InputEvent) -> void:
 	if not enabled or shell == null:
+		return
+	# Clic derecho = volver, SIEMPRE (W4): se toma antes que la GUI, porque un Control con MOUSE_FILTER_STOP (tijera
+	# sobre el 3D, mapa, bandeja, tarjeta de examen, epílogo) se lo tragaba y nunca llegaba a _unhandled_input. Los
+	# menús emergentes (ventanas embebidas) lo reciben antes que este nodo; sobre un campo de texto se deja pasar.
+	if ev is InputEventMouseButton and (ev as InputEventMouseButton).pressed and (ev as InputEventMouseButton).button_index == MOUSE_BUTTON_RIGHT:
+		if not is_inside_tree() or get_viewport().gui_is_dragging():
+			return
+		var hov := get_viewport().gui_get_hovered_control()
+		if hov is LineEdit or hov is TextEdit:
+			return
+		if shortcut("fe_volver"):
+			get_viewport().set_input_as_handled()
 		return
 	if InputMap.has_action("fe_cuaderno") and ev.is_action_pressed("fe_cuaderno") and not ev.is_echo():
 		if _typing():
@@ -51,6 +64,9 @@ func shortcut(a: String, menu_ok := false) -> bool:
 		return true   # transición: se consume y no hace nada
 	var gs = shell.game_screen
 	if a == "fe_volver":
+		# primero lo que está encima de la pila o es un modo de la mano (confirmación propia, tijera sobre el 3D)
+		if gs != null and gs.has_method("front_back") and bool(gs.front_back()):
+			return true
 		if shell.pop():
 			return true
 		if gs != null and gs.has_method("back") and bool(gs.back()):

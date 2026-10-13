@@ -1,8 +1,43 @@
 # audio/analysis.gd — W1-AUDIO. Análisis de señal para tests y devtools (no se usa en el juego):
 # FFT, espectro medio, centroide, energía por banda, Goertzel, envolvente, ataques, autocorrelación, espectrograma.
+# W4-AUDIO: sonoridad aproximada (ponderación K de BS.1770, mono) para equilibrar la mezcla.
 extends RefCounted
 
+const Synth = preload("res://audio/synth.gd")
 const SR := 44100
+
+# ---------------------------------------------------------------- sonoridad (W4-AUDIO)
+# Ponderación K (ITU-R BS.1770): estante agudo +4 dB desde ~1,7 kHz y pasa-altos de 38 Hz. Devuelve una copia.
+static func k_weighted(x: PackedFloat32Array) -> PackedFloat32Array:
+	var y := x.duplicate()
+	Synth.biquad(y, Synth.HSHELF, 1681.97, 0.7071, 4.0)
+	Synth.biquad(y, Synth.HP, 38.13, 0.5)
+	return y
+
+# Sonoridad de corto plazo máxima (dB ≈ LUFS, mono): la ventana de win_s más fuerte (paso hop_s). Para sueltos.
+static func loudness_max(x: PackedFloat32Array, win_s := 0.4, hop_s := 0.1) -> float:
+	var y := k_weighted(x)
+	var w: int = maxi(1, int(win_s * SR))
+	var h: int = maxi(1, int(hop_s * SR))
+	var c := PackedFloat64Array()
+	c.resize(y.size() + 1)
+	c[0] = 0.0
+	for i in y.size(): c[i + 1] = c[i] + float(y[i]) * float(y[i])
+	var best := 0.0
+	if y.size() <= w: best = c[y.size()] / float(maxi(1, y.size()))
+	else:
+		var s := 0
+		while s + w <= y.size():
+			best = maxf(best, (c[s + w] - c[s]) / float(w))
+			s += h
+	return -0.691 + 10.0 * log(maxf(best, 1e-12)) / log(10.0)
+
+# Sonoridad integrada (dB ≈ LUFS, mono), sin compuertas: para bucles de ambiente.
+static func loudness_int(x: PackedFloat32Array) -> float:
+	var y := k_weighted(x)
+	var s := 0.0
+	for v in y: s += v * v
+	return -0.691 + 10.0 * log(maxf(s / float(maxi(1, y.size())), 1e-12)) / log(10.0)
 
 # FFT radix-2 en el lugar (tamaño potencia de 2).
 static func fft(re: PackedFloat64Array, im: PackedFloat64Array) -> void:

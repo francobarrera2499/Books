@@ -21,7 +21,7 @@
   "variants": [
     {"id": "V.confront_completa", "cond": {"flag_eq": {"confront_estado": "completa"}}, "card_add": "Cuatro de cuatro."},
     {"id": "V.confront_incompleta", "cond": {"flag_eq": {"confront_estado": "incompleta"}}, "card_add": "Tres errores; buen papel."},
-    {"id": "V.C12", "cond": {"sealed": "C12"}, "epilogue": "reconoce_los_libros", "_nota": "GDD: «C12 sellado, o C12.R2 vista en Park Lane». La segunda mitad necesita un átomo del DSL sobre recortes (no existe): sólo C12 sellado."},
+    {"id": "V.C12", "cond": {"any": [{"sealed": "C12"}, {"flag": "vio_libros_park"}]}, "epilogue": "reconoce_los_libros", "_nota": "GDD §12.2: «C12 sellado, o C12.R2 vista en Park Lane». vio_libros_park lo escribe Clipper al recortar N:PARK.libros (on_clip_flag del nodo en data/plates/PARK.json), por lámina o por texto."},
     {"id": "V.C14", "cond": {"sealed": "C14"}, "epilogue": "tomos_devueltos"},
     {"id": "V.expuesto", "cond": {"flag": "watson_expuesto"}, "epilogue": "subraya_first_and_last"},
     {"id": "V.C11", "cond": {"sealed": "C11"}, "epilogue": "teoria_correcta"},

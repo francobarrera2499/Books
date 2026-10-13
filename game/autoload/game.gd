@@ -37,6 +37,17 @@ func _repo():
 func header() -> Dictionary:
 	return _header.duplicate()
 
+# ¿El guardado se escribió con otra versión del texto? (sólo la cabecera; false si no hay guardado legible). El título
+# lo pregunta antes de continuar (W4: «Seguir» o «Volver al título»; el original se preserva en partida.<hash12>.jsonl).
+func save_other_version() -> bool:
+	var repo = _repo()
+	if repo == null or not has_save():
+		return false
+	var r: Dictionary = load(LOG_SCRIPT).read(save_path)
+	if not bool(r.get("ok", false)):
+		return false
+	return String(r.get("header", {}).get("content", "")) != String(repo.content_hash())
+
 func has_save() -> bool:
 	var p := _abs(save_path)
 	return FileAccess.file_exists(p) or FileAccess.file_exists(p + ".tmp") or FileAccess.file_exists(p + ".bak")
@@ -71,7 +82,8 @@ func continue_session() -> bool:
 			notice.emit("core.save.corrupta")
 		return false
 	_header = r.header
-	if String(_header.get("content", "")) != repo.content_hash():
+	var other_version: bool = String(_header.get("content", "")) != String(repo.content_hash())
+	if other_version:
 		notice.emit("core.save.otra_version")
 	if String(r.get("recovered", "")) != "":
 		notice.emit("core.save.recuperada")
@@ -80,11 +92,30 @@ func continue_session() -> bool:
 		notice.emit("core.save.corrupta")
 	_log = EL.new(save_path)
 	_connect()
-	# reescribe el registro canónico (descarta una última línea truncada)
+	# reescribe el registro canónico (descarta una última línea truncada). Si el contenido cambió o alguna acción ya no se
+	# acepta, el registro reescrito pierde acciones: antes se guarda el original entero aparte (la .bak se pisa en la
+	# próxima escritura), partida.<hash del contenido viejo>.jsonl, para poder volver a él con la versión anterior.
 	if int(r.get("dropped", 0)) > 0 or String(r.get("recovered", "")) != "" or int(sim.replay_errors) > 0:
+		if other_version or int(sim.replay_errors) > 0:
+			keep_original(r)
 		_write()
 	session_started.emit()
 	return true
+
+# Copia del registro tal como se leyó (cabecera y acciones originales) a partida.<hash viejo>.jsonl junto al archivo.
+func keep_original(r: Dictionary) -> String:
+	var old_hash := String(r.get("header", {}).get("content", "sin_hash"))
+	if old_hash == "":
+		old_hash = "sin_hash"
+	var base := save_path.get_basename()
+	var p := "%s.%s.%s" % [base, old_hash.left(12), save_path.get_extension() if save_path.get_extension() != "" else "jsonl"]
+	if FileAccess.file_exists(_abs(p)):
+		return p
+	var EL = load(LOG_SCRIPT)
+	if not EL.new(p).write(r.get("header", {}), r.get("actions", [])):
+		push_warning("Game: no se pudo guardar la copia del registro original en " + p)
+		return ""
+	return p
 
 func act(action: Dictionary) -> Dictionary:
 	if sim == null:

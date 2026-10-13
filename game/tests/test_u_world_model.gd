@@ -6,6 +6,7 @@ extends "res://tests/test_base.gd"
 const Kit = preload("res://tests/fixtures/sim/sim_kit.gd")
 const WorldModel = preload("res://core/sim/world_model.gd")
 const TimeKey = preload("res://core/util/timekey.gd")
+const Clipper = preload("res://core/deduction/clipper.gd")
 
 func _at(day: int, slot: String):
 	var s = Kit.new_sim()
@@ -135,14 +136,68 @@ func test_instantiate_and_deliver():
 	WorldModel.deliver(st, repo, col, "columna")
 	no(WorldModel.view_accessible(st, repo, col), "no es una vista suelta")
 	var t: Dictionary = s.q_view("D15.0330@L1")
-	eq(t.pages[1].size(), 2, "bloque runtime en la columna (p2)")
-	eq(t.pages[1][1].origin, "D15.0330", "comparte origen con el número")
-	eq(t.pages[1][1].doc, col)
-	eq(WorldModel.block(st, repo, "D15.0330@L1", "p2", 1).doc, col, "bloque por id de parte")
-	eq(WorldModel.block(st, repo, "D15.0330@L1", 1, 1).doc, col, "bloque por índice")
+	eq(t.pages[1].size(), 1, "el aviso runtime va DENTRO de la columna (p2), en el mismo bloque")
+	eq(t.pages[1][0].origin, "D15.0330", "comparte origen con el número")
+	eq(t.pages[1][0].segs.size(), 1)
+	eq(t.pages[1][0].segs[0].doc, col, "el tramo insertado es del documento runtime")
+	var plain: String = t.pages[1][0].parsed.plain
+	var sg: Dictionary = t.pages[1][0].segs[0]
+	eq(plain.substr(int(sg.from), int(sg.to) - int(sg.from)), "AL LECTOR DE HOLYWELL STREET. — Busca usted testigos.")
+	ok(not plain.contains("
+
+"), "sin renglón en blanco")
+	ok(plain.find("AL LECTOR") < plain.rfind("
+"), "nunca al pie de la columna")
+	eq(WorldModel.block(st, repo, "D15.0330@L1", "p2", 0).segs[0].doc, col, "bloque por id de parte")
+	eq(WorldModel.block(st, repo, "D15.0330@L1", 1, 0).segs[0].doc, col, "bloque por índice")
 	var nt: String = WorldModel.instantiate_doc(st, repo, {"tpl": "x", "texto": "Nota comunicada."}, {}, {"rid": "HB3"})
 	WorldModel.deliver(st, repo, nt, "noticias")
-	eq(s.q_view("D15.0330@L1").pages[0].size(), 2, "noticias en p1")
+	var t2: Dictionary = s.q_view("D15.0330@L1")
+	eq(t2.pages[0].size(), 1, "noticias en p1, en el mismo bloque")
+	eq(t2.pages[0][0].segs[0].doc, nt)
+
+# Hallazgo del lector: lo que el mundo agrega a la columna no sale al pie ni suelto. Va dentro del bloque de la parte,
+# entre los avisos (nunca después del último, DINERO), en un lugar fijo por semilla y distinto entre partidas; en
+# noticias, nunca después de «El tiempo.». El recorte de ese tramo es del documento runtime (voz, procedencia).
+func test_times_insert_position_and_clip():
+	var s = _at(4, "M")
+	var st = s.st
+	var repo = s.repo
+	var col: String = WorldModel.instantiate_doc(st, repo, {"tpl": "texto", "texto": "{{#hc10|AL LECTOR DE HOLYWELL STREET. — Busca usted testigos.}} —S."}, {}, {"rid": "HC10", "doc": {"title": "Columna"}})
+	WorldModel.deliver(st, repo, col, "columna")
+	var pg: Array = s.q_view("D15.0330@L1").pages[1]
+	eq(pg.size(), 1)
+	var plain: String = pg[0].parsed.plain
+	var lines: PackedStringArray = plain.split("
+")
+	var at := -1
+	for i in lines.size():
+		if lines[i].begins_with("AL LECTOR"):
+			at = i
+	ok(at >= 4 and at <= lines.size() - 3, "después del tercer aviso y antes del penúltimo: renglón %d de %d" % [at, lines.size()])
+	ok(lines[lines.size() - 1].begins_with("DINERO"), "DINERO sigue cerrando la columna")
+	# determinista por semilla, distinto entre semillas (alguna de 8 cae en otro renglón)
+	var units := WorldModel.insert_units(repo.parsed("D15.0330", "p2"), "columna")
+	var seen := {}
+	for sd in 8:
+		st.seed = sd
+		seen[WorldModel.insert_pos(st, units, "columna", "D15.0330", col, 999)] = true
+	ok(seen.size() >= 2, "el lugar depende de la semilla")
+	# el recorte del tramo insertado es del documento runtime
+	var sg: Dictionary = pg[0].segs[0]
+	var r := Clipper.act_clip_text(st, repo, {"src": {"kind": "doc", "ref": "D15.0330@L1", "part": 1, "block": 0}, "from": int(sg.from), "len": 13})
+	ok(r.ok, str(r))
+	eq(String(Clipper.get_clip(st, String(r.clip)).doc), col, "recorte del aviso insertado -> su documento")
+	eq(String(Clipper.get_clip(st, String(r.clip)).origin), "D15.0330", "con el origen del número")
+	var r2 := Clipper.act_clip_text(st, repo, {"src": {"kind": "doc", "ref": "D15.0330@L1", "part": 1, "block": 0}, "from": plain.find("SE VENDE"), "len": 8})
+	ok(r2.ok, str(r2))
+	eq(String(Clipper.get_clip(st, String(r2.clip)).doc), "D15.0330", "un aviso del número sigue siendo del número")
+	# noticias: nunca después de «El tiempo.»
+	var nt: String = WorldModel.instantiate_doc(st, repo, {"tpl": "x", "texto": "{{#hb3|Nota comunicada.}}"}, {}, {"rid": "HB3"})
+	WorldModel.deliver(st, repo, nt, "noticias")
+	var p0: String = s.q_view("D15.0330@L1").pages[0][0].parsed.plain
+	ok(p0.find("Nota comunicada.") < p0.find("El tiempo."), "la nota va antes del tiempo: " + p0)
+	ok(p0.find("Nota comunicada.") > p0.find("Grand National"), "y después de la primera noticia")
 
 func test_columna_without_times_falls_to_tray():
 	var s = _at(6, "T")
@@ -190,6 +245,46 @@ func test_visit_plate_archive_and_silhouette_char():
 	# recortar un nodo de la lámina archivada (accesible siempre)
 	ok(s.apply({"t": "clip_plate", "plate": "PL.L2.3.M", "hits": [], "touched": ["cesto_tiras"], "area_frac": 0.05}).ok)
 	eq(s.apply({"t": "clip_plate", "plate": "PL.NO", "hits": [], "touched": [], "area_frac": 0.05}).err, "inaccesible")
+
+# Recortar en casa (hub, lo que se ve desde el escritorio): la buhardilla de ahora se archiva como lámina de visita
+# PL.L1.<día>.<franja> (origen PL.L1…, el de RouteDB); sólo nodos de la buhardilla y «*»; una igual en la misma franja
+# se reutiliza; un recorte rechazado no deja lámina; fuera de casa no hay hub.
+func test_clip_hub_at_home():
+	var Clipper = load("res://core/deduction/clipper.gd")
+	var s = _at(3, "M")
+	for t in ["clip_plate", "clip_text"]:
+		s.st.handlers.erase(t)   # Clipper real (no el doble del kit)
+	WorldModel.add_silhouette(s.st, "wiggins", 3)
+	var hs: Dictionary = s.q_plate("hub")
+	ok((hs.get("nodes", []) as Array).has("estufa") and not (hs.get("nodes", []) as Array).has("estantes"), str(hs))
+	has(hs.get("silhouettes", []), "sil_wiggins")
+	ok(Clipper.accessible(s.st, s.repo, "plate", "hub"))
+	var bad: Dictionary = s.apply({"t": "clip_plate", "plate": "hub", "hits": [{"node": "estantes", "cover": 0.9, "tight": true}], "touched": [], "area_frac": 0.05})
+	no(bad.ok, "la tienda no se ve desde el escritorio")
+	eq(s.st.world.plates.keys().filter(func(k): return String(k).begins_with("PL.L1.")), [], "un recorte rechazado no archiva nada")
+	var r1: Dictionary = s.apply({"t": "clip_plate", "plate": "hub", "hits": [{"node": "sil_wiggins", "cover": 0.9, "tight": true}], "touched": ["sil_wiggins"], "area_frac": 0.05})
+	ok(r1.ok, str(r1))
+	var c1: Dictionary = Clipper.get_clip(s.st, String(r1.clip))
+	eq(String(c1.plate), "PL.L1.3.M")
+	ok(String(c1.origin).begins_with("PL.L1"), String(c1.origin))
+	var r2: Dictionary = s.apply({"t": "clip_text", "src": {"kind": "node", "ref": "hub/estufa"}, "from": 0, "len": 28})
+	ok(r2.ok, str(r2))
+	eq(String(Clipper.get_clip(s.st, String(r2.clip)).view), "PL.L1.3.M", "misma franja, misma lámina")
+	ok(s.apply({"t": "go", "place": "L2", "area": "sala", "seat": 7}).ok)
+	eq(s.q_plate("hub"), {}, "de visita no hay hub")
+	eq(s.apply({"t": "clip_plate", "plate": "hub", "hits": [], "touched": ["estufa"], "area_frac": 0.05}).err, "inaccesible")
+	ok(not s.q_plate("PL.L1.3.M").is_empty(), "la lámina archivada sigue")
+
+# lists.contracciones con borde de palabra: «de el»/«a el» sólo como palabras sueltas; «..» en cualquier lugar.
+func test_contract_word_boundary():
+	var r = Kit.repo()
+	eq(WorldModel.contract(r, "A propósito de el Journal.."), "A propósito del Journal.")
+	eq(WorldModel.contract(r, "Voy a el club, de el que le hablé."), "Voy al club, del que le hablé.")
+	eq(WorldModel.contract(r, "De el Strand. A el fin."), "Del Strand. Al fin.")
+	eq(WorldModel.contract(r, "«de el muelle»"), "«del muelle»")
+	var keep := "Fue para el doctor; nadie puede el domingo; se toca el crespón; nada el perro."
+	eq(WorldModel.contract(r, keep), keep, "sin borde de palabra no se contrae")
+	eq(WorldModel.contract(r, "El problema final"), "El problema final")
 
 func test_eggs_one_per_visit():
 	var s = _at(1, "M")
@@ -303,7 +398,7 @@ func test_effects_doc_format_and_scene_extra():
 	var col: String = WorldModel.instantiate_doc(st, s.repo, {"title": "The Times", "parts": [{"id": "p1", "text": "AL LECTOR. —S."}],
 		"insert": {"doc": "D15.0327", "part": "columna"}, "origin": "D15.0327"}, {}, {"iid": "R.HC10.1", "rid": "HC10", "origin": "D15.0327"})
 	WorldModel.deliver(st, s.repo, col, "columna")
-	eq(s.q_view("D15.0327@L1").pages[1][-1].doc, col)
+	eq(s.q_view("D15.0327@L1").pages[1][0].segs[-1].doc, col)
 	# líneas extra de una escena (siguiente comunicación de Moran)
 	var Effects = load("res://core/react/effects.gd")
 	Effects.init_world(st)
@@ -312,6 +407,8 @@ func test_effects_doc_format_and_scene_extra():
 	for l in WorldModel.scene_lines(st, s.repo, "M7"):
 		ids.append(l.id)
 	has(ids, "extra.0")
+	if ids.size() >= 3:
+		eq(ids.find("extra.0"), ids.size() - 2, "la línea extra va antes de la despedida, no después: %s" % str(ids))
 
 func test_scene_lines_registry_sync():
 	var s = _at(1, "M")
@@ -407,3 +504,41 @@ func test_certified_copy_pages():
 	eq(c.origin, "D18")
 	eq(c.cls, "P")
 	has(c.ents, "testamento", "entidad del documento copiado")
+
+# W4: pedir nunca es gratis. Una ficha de ruido del catálogo ({doc: "", noise}) y un documento cuyo ejemplar BM no se
+# sirve hoy gastan una papeleta y el ujier vuelve sin nada (view ""), como cualquier otra papeleta.
+func test_w4_slip_always_costs():
+	var s = _at(1, "M")
+	ok(s.apply({"t": "go", "place": "L2", "area": "sala", "seat": 214}).ok)
+	var r: Dictionary = s.apply({"t": "slip", "doc": "", "noise": "Viaje a la Luna"})
+	ok(r.ok, str(r))
+	eq(r.view, "", "el ujier vuelve sin nada")
+	eq(s.q_slips_used(), 1, "la papeleta se gastó")
+	eq(s.apply({"t": "slip", "doc": "", "noise": "Viaje a la Luna"}).err, "ya_pedido")
+	eq(s.apply({"t": "slip", "doc": ""}).err, "forma", "sin documento ni rótulo")
+	ok(s.apply({"t": "slip", "doc": "D05"}).ok)
+	ok(s.apply({"t": "slip", "doc": "", "noise": "Otra obra"}).ok)
+	eq(s.apply({"t": "slip", "doc": "D08"}).err, "sin_papeletas", "3 por visita, con o sin ejemplar")
+	var noise: Array = []
+	for ev in s.st.events:
+		if ev.type == "slip" and String(ev.doc) == "":
+			noise.append(ev)
+	eq(noise.size(), 2)
+	eq(noise[0].title, "Viaje a la Luna")
+	eq(noise[0].topic, "otros")
+	# datos reales: D16@BM se sirve desde el día 8; pedirlo el día 1 gasta la papeleta igual
+	var W = load("res://tests/fixtures/w3shell/walk.gd")
+	var GS = load("res://core/sim/game_sim.gd")
+	var g = GS.new(repo(), 3)
+	var act := func(a): return g.apply(a)
+	W.errs.clear()
+	W.tutorial(g, act)
+	ok(bool(g.apply({"t": "sleep"}).get("ok", false)), "dormir tras el prólogo")
+	ok(W.advance_to(g, act, 1, "M"), str(W.errs))
+	var rg: Dictionary = g.apply({"t": "go", "place": "L2", "area": "sala", "seat": 214})
+	ok(rg.ok, str(rg))
+	var r16: Dictionary = g.apply({"t": "slip", "doc": "D16"})
+	ok(r16.ok, str(r16))
+	eq(String(r16.get("view", "")), "", "fuera de su ventana: no se sirve")
+	eq(g.q_slips_used(), 1)
+	eq(g.apply({"t": "slip", "doc": "D23"}).err, "no_esta", "un documento sin ejemplar del BM no se pide")

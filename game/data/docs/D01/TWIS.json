@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-CORPUS-A. Corpus vol. II (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Contrato §4.8: #james (C1.02 inc02: la esposa del doctor lo llama «James»; el otro lado es D43#john_h). La nota de Mary «mi James» vive en D01N (W3-CT-CORPUS-B), no aquí: el texto impreso no la lleva.",
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. II (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Contrato §4.8: #james (C1.02 inc02: la esposa del doctor lo llama «James»; el otro lado es D43#john_h). La nota de Mary «mi James» vive en D01N (W3-CT-CORPUS-B), no aquí: el texto impreso no la lleva. W4: p2 abre con la fecha del fumadero («viernes, 19 de junio», #viernes), la que cita la concordancia (D21#twis_fecha); sin etiquetas a: (ruido, como el resto).",
   "id": "D01.TWIS",
   "entity": "twis",
   "title": "«El hombre del labio retorcido», The Strand Magazine, diciembre de 1891",
@@ -18,7 +18,7 @@
   ],
   "parts": [
     {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>VI\\. — El hombre del labio retorcido</b>\n{{#isa q:isa|[[isa_whitney|Isa Whitney]], hermano del difunto Elias Whitney, doctor en teología y rector del colegio teológico de San Jorge, era muy dado al opio.}}\n{{#junio_89 q:junio_89|Una noche —fue en junio del 89— sonó la campanilla a esa hora en que uno da el primer bostezo y mira el reloj.}} {{#labor e:esposa q:labor|Me incorporé en el sillón, y [[esposa|mi mujer]] dejó la labor en el regazo e hizo un gestito de contrariedad.}}\n—¡Pero si es [[kate_whitney|Kate Whitney]]! —dijo mi mujer, levantándole el velo—. ¡Qué susto me has dado, Kate!\n—No sabía qué hacer, así que vine derecho a ti.\n{{#faro e:esposa q:faro|Siempre era así: la gente afligida acudía a mi mujer como los pájaros a un faro.}}\n—Has sido muy buena en venir. Ahora tomarás un poco de vino con agua, te sentarás aquí cómoda y nos lo contarás todo. {{#james a:inc02 e:esposa q:james|¿O prefieres que mande a [[james|James]] a la cama?}}"},
-    {"id": "p2", "text": "\\[…\\] {{#tiron e:holmes q:tiron|Al pasar al lado del hombre alto que estaba sentado junto al brasero, sentí un súbito tirón del faldón, y una voz baja susurró: «Pase de largo y luego vuélvase a mirarme».}} {{#viejo q:viejo|Aquellas palabras sólo podían venir del viejo que tenía a mi lado, y sin embargo seguía tan absorto como siempre, muy flaco, muy arrugado, encorvado por la edad, con una pipa de opio colgándole entre las rodillas.}} Di dos pasos y miré atrás. {{#fuego q:fuego|Su figura se había llenado, las arrugas habían desaparecido, los ojos apagados habían recobrado su fuego, y allí, sentado junto al brasero y sonriendo ante mi sorpresa, estaba nada menos que [[holmes|Sherlock Holmes]].}}\n—¡Holmes! —susurré—. ¿Qué diablos hace usted en este antro?\n{{#oido e:holmes q:oido|—Hable lo más bajo que pueda —respondió—; tengo un oído excelente.}}\n{{#dos_calles e:holmes q:dos_calles|Durante dos calles caminó arrastrando los pies, con la espalda encorvada y el paso inseguro.}} Luego, tras echar una rápida mirada alrededor, se enderezó y soltó una carcajada."}
+    {"id": "p2", "text": "\\[…\\] {{#que_hora e:isa_whitney q:que_hora|—Watson, ¿qué hora es?}} —me preguntó [[isa_whitney|Whitney]].\n—Casi las once.\n—¿De qué día?\n{{#viernes q:viernes|—De viernes, 19 de junio.}}\n—¡Santo cielo! {{#miercoles e:isa_whitney q:miercoles|Creí que era miércoles.}} Es miércoles.\n\\[…\\] {{#tiron e:holmes q:tiron|Al pasar al lado del hombre alto que estaba sentado junto al brasero, sentí un súbito tirón del faldón, y una voz baja susurró: «Pase de largo y luego vuélvase a mirarme».}} {{#viejo q:viejo|Aquellas palabras sólo podían venir del viejo que tenía a mi lado, y sin embargo seguía tan absorto como siempre, muy flaco, muy arrugado, encorvado por la edad, con una pipa de opio colgándole entre las rodillas.}} Di dos pasos y miré atrás. {{#fuego q:fuego|Su figura se había llenado, las arrugas habían desaparecido, los ojos apagados habían recobrado su fuego, y allí, sentado junto al brasero y sonriendo ante mi sorpresa, estaba nada menos que [[holmes|Sherlock Holmes]].}}\n—¡Holmes! —susurré—. ¿Qué diablos hace usted en este antro?\n{{#oido e:holmes q:oido|—Hable lo más bajo que pueda —respondió—; tengo un oído excelente.}}\n{{#dos_calles e:holmes q:dos_calles|Durante dos calles caminó arrastrando los pies, con la espalda encorvada y el paso inseguro.}} Luego, tras echar una rápida mirada alrededor, se enderezó y soltó una carcajada."}
   ],
   "src_en": {
     "isa": "Isa Whitney, brother of the late Elias Whitney, D.D., Principal of the Theological College of St. George’s, was much addicted to opium.",
@@ -30,7 +30,10 @@
     "viejo": "They could only have come from the old man at my side, and yet he sat now as absorbed as ever, very thin, very wrinkled, bent with age, an opium pipe dangling down from between his knees",
     "fuego": "His form had filled out, his wrinkles were gone, the dull eyes had regained their fire, and there, sitting by the fire and grinning at my surprise, was none other than Sherlock Holmes.",
     "oido": "As low as you can,” he answered; “I have excellent ears.",
-    "dos_calles": "For two streets he shuffled along with a bent back and an uncertain foot."
+    "dos_calles": "For two streets he shuffled along with a bent back and an uncertain foot.",
+    "que_hora": "I say, Watson, what o’clock is it?",
+    "viernes": "Of Friday, June 19th.",
+    "miercoles": "I thought it was Wednesday."
   },
   "words": 300
 }

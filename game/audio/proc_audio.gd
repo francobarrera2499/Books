@@ -2,11 +2,34 @@
 # Determinista: semilla = md5("<id>#<variante>") y RNG propio (Synth.Rng). Sin estado: apto para hilos (render/pcm).
 # Bucles: lecho de ruido de dur+fade con fundido cruzado de igual potencia (Synth.make_loop) + capa de eventos
 # renderizada larga y plegada en circular (Synth.fold): ni clic ni hueco en el punto de bucle.
+# W4-AUDIO (ola 4): la tonada de Parker (una sola, con su nota falsa) en el arpa que se calla y en los ambientes de la
+# noche; vidrio largo con la lluvia de trozos sobre la vereda; seis campanas en rondas y cambio; la hora de St Clement
+# Danes, el cerrojo de Crane, la carrera de los agentes y la casa vacía.
 extends RefCounted
 
 const Synth = preload("res://audio/synth.gd")
 const Bank = preload("res://audio/sound_bank.gd")
 const SR := 44100
+
+# La tonada de Parker (W4-AUDIO): siempre la misma y siempre mal (Mrs. Hudson: «Toca siempre lo mismo, y siempre mal,
+# sir»). 6/8 a 100 negras con punto (corchea = 0,2 s), 4 compases. Arpa de boca en sol (98 Hz): la boca elige el
+# armónico. [corchea de inicio, armónico, corcheas que dura]. La nota falsa: el armónico 11 donde va un la (el 9),
+# en el 3.er compás; la corchea tarde: la que abre el 2.º compás.
+const PARKER_F0 := 98.0
+const PARKER_EIGHTH := 0.2
+const PARKER_TUNE := [[0, 8, 1], [1, 8, 1], [2, 9, 1], [3, 10, 1], [4, 9, 1], [5, 8, 1],
+	[6, 10, 2], [8, 12, 1], [9, 10, 1], [10, 9, 1], [11, 8, 1],
+	[12, 9, 1], [13, 9, 1], [14, 10, 1], [15, 11, 1], [16, 8, 1], [17, 6, 1],
+	[18, 8, 3], [21, 8, 3]]
+const PARKER_LATE := {6: 0.035}
+const PARKER_CUT_NOTES := 14        # la noche final: 2 compases y 3 corcheas del 3.º; se calla antes de la nota falsa
+
+# Tiempo (s) de la nota k desde el inicio de la tonada (con la corchea tarde; sin el azar de ±12 ms).
+static func parker_note_time(k: int) -> float:
+	return float(PARKER_TUNE[k][0]) * PARKER_EIGHTH + float(PARKER_LATE.get(k, 0.0))
+
+static func parker_len() -> float:
+	return 24.0 * PARKER_EIGHTH
 
 # ---------------------------------------------------------------- API
 static func gen(id: String) -> AudioStreamWAV:
@@ -76,6 +99,13 @@ static func _recipe(r: String, dur: float, fd: float, rng: Synth.Rng) -> PackedF
 		"amb_tienda": return _amb_tienda(dur, fd, rng)
 		"amb_viento": return _amb_viento(dur, fd, rng)
 		"amb_parque": return _amb_parque(dur, fd, rng)
+		# W4-AUDIO
+		"bells_horas": return _bells_horas(dur, rng)
+		"cerrojo": return _cerrojo(dur, rng)
+		"carrera": return _carrera(dur, rng)
+		"amb_calle_parker": return _amb_calle_parker(dur, fd, rng)
+		"amb_gas_parker": return _amb_gas_parker(dur, fd, rng)
+		"amb_casa_vacia": return _amb_casa_vacia(dur, fd, rng)
 	push_warning("proc_audio: receta desconocida " + r)
 	return Synth.zeros(Synth.n_of(dur))
 
@@ -396,6 +426,70 @@ static func _golpe_puerta(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
 	Synth.reverb(x, 0.7, 0.7, 0.4, 0.18)
 	return x
 
+# El cerrojo de Crane, abajo (HC09 en casa: «echa el cerrojo dos veces»): dos pasadores de hierro que corren por su
+# guía (raspado rugoso) y golpean el tope (hierro contra hierro y la puerta de madera). Se oye a través del piso.
+static func _cerrojo(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var n := _n(dur)
+	var x := Synth.zeros(n)
+	var sc := Synth.zeros(n)
+	for bo in [[0.12, 1.0], [0.95, 0.88]]:
+		var t0: float = bo[0]
+		var k: float = bo[1]
+		var slide := rng.r(0.16, 0.22)
+		var s := Synth.white(_n(slide), rng.sub())
+		Synth.bp(s, 2200.0 * k, 2.0)
+		Synth.mul_wobble(s, rng.sub(), 45.0, 0.25, 1.0)
+		Synth.mul_pts(s, [[0.0, 0.0], [0.03, 0.5], [slide * 0.7, 1.0], [slide, 0.6]])
+		Synth.mix(sc, s, _n(t0), 0.5)
+		Synth.add_mode(x, _n(t0 + 0.01), 1400.0 * k, 0.03, 0.08)
+		var ti := _n(t0 + slide)
+		Synth.add_mode(x, ti, 1850.0 * k * rng.r(0.98, 1.02), 0.03, 0.5)
+		Synth.add_mode(x, ti, 2930.0 * k * rng.r(0.98, 1.02), 0.02, 0.35)
+		Synth.add_mode(x, ti, 4370.0 * k * rng.r(0.98, 1.02), 0.01, 0.15)
+		Synth.add_thump(x, ti, 150.0, 110.0, 0.008, 0.035, 0.7)
+		Synth.add_mode(x, ti, 330.0, 0.03, 0.25)
+		Synth.add_mode(x, ti, 690.0, 0.02, 0.15)
+		Synth.add_burst(sc, ti, 0.0002, 0.003, 0.8, rng.sub())
+	Synth.hp(sc, 600.0)
+	Synth.mix(x, sc)
+	Synth.lp1(x, 3000.0)
+	Synth.lp(x, 4500.0)
+	Synth.reverb(x, 0.6, 0.65, 0.5, 0.2)
+	return x
+
+# Los agentes al silbato (EMPT: «the clatter of running feet upon the pavement»): dos pares de botas con clavos
+# sobre las losas, que vienen corriendo, se acercan y frenan. Rebote en las fachadas.
+static func _carrera(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var n := _n(dur)
+	var x := Synth.zeros(n)
+	var nz := Synth.zeros(n)
+	var stop_t := dur - 0.55
+	for r in 2:
+		var period := rng.r(0.30, 0.34)
+		var t := 0.05 + rng.r(0.0, 0.08) + 0.11 * float(r)
+		var k := 0
+		while t < stop_t:
+			var u := t / stop_t
+			var a := (0.2 + 0.8 * u * u) * rng.r(0.8, 1.0) * (1.0 if k % 2 == 0 else 0.85)
+			var i := _n(t)
+			Synth.add_thump(x, i, rng.r(130.0, 150.0), rng.r(95.0, 110.0), 0.006, 0.02, a)
+			Synth.add_mode(x, i, rng.r(520.0, 640.0), 0.01, a * 0.35)
+			var c := i + _n(rng.r(0.012, 0.02))
+			Synth.add_mode(x, c, rng.r(2500.0, 2900.0), 0.008, a * 0.25)
+			Synth.add_mode(x, c, rng.r(3800.0, 4300.0), 0.005, a * 0.12)
+			Synth.add_burst(nz, c, 0.0002, 0.003, a * 0.6, rng.sub())
+			t += period + rng.r(-0.015, 0.015)
+			k += 1
+		var ts := _n(stop_t + 0.05 * float(r))
+		Synth.add_thump(x, ts, 140.0, 100.0, 0.006, 0.03, 0.9)
+		Synth.add_burst(nz, ts + _n(0.015), 0.0005, 0.02, 0.5, rng.sub())
+	Synth.bp(nz, 2500.0, 0.9)
+	Synth.mix(x, nz, 0, 0.6)
+	Synth.lp(x, 7000.0)
+	Synth.slap(x, 0.05, 0.35, 2200.0)
+	Synth.reverb(x, 0.8, 0.65, 0.45, 0.15)
+	return x
+
 # Ladrillo que cae de un alero: impacto (golpe LP + chasquido) + granos de derrumbe, rebotes y polvo.
 static func _ladrillo(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
 	var n := _n(dur)
@@ -455,29 +549,66 @@ static func _bell_into(dst: PackedFloat32Array, start: int, prime: float, tau_k:
 	Synth.bp(cl, prime * 5.2 * fs, 1.5)
 	Synth.mix(dst, cl, start, 1.0)
 
-# St Clement Danes: 4 campanas en rondas (1-2-3-4) con pausa de toque de mano. Sintetizadas a media tasa
-# (todo el contenido < 7 kHz): cada campana se genera una vez y se mezcla en cada golpe.
+# St Clement Danes al amanecer (W4-AUDIO): seis campanas en re mayor (re, do#, si, la, sol, fa#), a la inglesa:
+# dos filas de rondas (123456) y dos de Queens (135246), con la pausa del toque de mano cada dos filas. La iglesia
+# está a un paso de Holywell Street: cerca y claras. Sintetizadas a media tasa (todo < 7 kHz): cada campana se genera
+# una vez y se mezcla en cada golpe.
+const RING := [587.3, 554.4, 493.9, 440.0, 392.0, 370.0]
+const ROWS := [[0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5], [0, 2, 4, 1, 3, 5], [0, 2, 4, 1, 3, 5]]
+
 static func _bells(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
 	var n := _n(dur)
 	var nh: int = (n + 1) / 2
 	var h := Synth.zeros(nh)
-	var primes := [587.3, 554.4, 493.9, 440.0]
 	var bells := []
-	for b in 4:
+	for b in RING.size():
 		var bb := Synth.zeros(nh)
-		_bell_into(bb, 0, float(primes[b]), 1.0, 1.0, rng, 2.0)
+		_bell_into(bb, 0, float(RING[b]), 1.0, 1.0, rng, 2.0)
 		bells.append(bb)
 	var row_t := 0.05
-	var gap := 0.27
-	for row in 4:
-		for b in 4:
-			var t := row_t + gap * b + rng.r(-0.012, 0.012)
-			Synth.mix(h, bells[b], int(t * SR * 0.5), rng.r(0.8, 1.0) * (1.1 if b == 3 else 1.0))
-		row_t += gap * 4.0 + (gap if row % 2 == 1 else 0.0)
+	var gap := 0.22
+	for row in ROWS.size():
+		var order: Array = ROWS[row]
+		for k in order.size():
+			var b: int = order[k]
+			var t := row_t + gap * k + rng.r(-0.012, 0.012)
+			if t > dur - 0.6: continue
+			Synth.mix(h, bells[b], int(t * SR * 0.5), rng.r(0.8, 1.0) * (1.15 if b == RING.size() - 1 else 1.0))
+		row_t += gap * float(order.size()) + (gap if row % 2 == 1 else 0.0)
 	Synth.lp(h, 14000.0)                       # = 7 kHz a media tasa
 	Synth.reverb(h, 1.25 * 0.5, 0.82, 0.35, 0.22)
 	var x := Synth.upsample2(h, n)
 	Synth.mul_pts(x, [[0.0, 1.0], [dur - 1.0, 1.0], [dur, 0.0]])
+	return x
+
+# La hora en St Clement Danes, de noche (HC09 en casa: «Dan las once…»): la campana grande da las once, golpes lentos
+# que se pueden contar (verificador W4: con cinco, quien cuenta oía las cinco) y que el viento empuja un poco; la
+# última queda sonando. La iglesia está a un paso de Holywell Street: cerca, pero tras la ventana (apagada; media tasa).
+# Cada campanada se sintetiza con 5 s de cola (después la tapan las siguientes) para que once no cuesten el doble.
+# Como cada golpe es la misma campanada, el martillo elige el signo que suma a lo que todavía suena (si no, a veces
+# la nueva cancela los parciales de la anterior y el golpe no se oye: se cuentan menos).
+const HOUR_STROKES := 11
+const HOUR_GAP := 1.5
+static func _bells_horas(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var n := _n(dur)
+	var nh: int = (n + 1) / 2
+	var h := Synth.zeros(nh)
+	var bell := Synth.zeros(mini(nh, int(5.0 * SR * 0.5)))
+	_bell_into(bell, 0, 246.9, 1.7, 1.0, rng, 2.0)
+	Synth.mul_pts(bell, [[0.0, 1.0], [3.5 * 0.5, 1.0], [5.0 * 0.5, 0.0]])
+	var ph := rng.r(0.0, TAU)
+	var look: int = int(0.25 * SR * 0.5)
+	for k in HOUR_STROKES:
+		var t := 0.1 + HOUR_GAP * float(k) + rng.r(-0.02, 0.02)
+		var gust := 0.86 + 0.14 * sin(TAU * 0.09 * t + ph)
+		var i0 := int(t * SR * 0.5)
+		var dot := 0.0
+		for j in mini(look, mini(bell.size(), nh - i0)): dot += h[i0 + j] * bell[j]
+		Synth.mix(h, bell, i0, gust * rng.r(0.9, 1.0) * (1.0 if dot >= 0.0 else -1.0))
+	Synth.lp(h, 2.0 * 2600.0)
+	Synth.reverb(h, 1.6 * 0.5, 0.86, 0.45, 0.3)
+	var x := Synth.upsample2(h, n)
+	Synth.mul_pts(x, [[0.0, 1.0], [dur - 1.2, 1.0], [dur, 0.0]])
 	return x
 
 # Cuartos: primer cuarto de Westminster (sol#, fa#, mi, si) con timbre de campana, lejos (media tasa).
@@ -519,44 +650,103 @@ static func _tic(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
 	return x
 
 # ---------------------------------------------------------------- la noche final
-# Arpa de boca (Parker): sierra 98 Hz; formante de la boca (BP resonante 400–1600 Hz) que barre con LFO;
-# pellizcos con «boing». Lejos, en la calle.
-static func _harp(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
-	var n := _n(dur)
-	var nb := Synth.nblocks(n)
+# Arpa de boca de Parker a media tasa (SR/2; todo < 4 kHz): las notas [0, n_notes) de la tonada desde t0 (s).
+# Sierra de 98 Hz (la lengüeta) × pellizcos (cada uno la re-excita en 2 ms desde lo que quedaba; acento en 1 y 4 del
+# 6/8) → formante de la boca (BP resonante en el armónico de la nota, con el «boing»: sube desde 0,78× en ~25 ms)
+# + resonancia fija de 2,3 kHz + el bordón. cut_s > 0: ahí la lengüeta se apaga en seco (se calla).
+# Con la convención de media tasa de _bell_into: a las primitivas se les pasan frecuencias ×2 y tiempos ÷2.
+static func _parker_half(nh: int, t0: float, n_notes: int, cut_s: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var hsr := float(SR) * 0.5
+	var nb := Synth.nblocks(nh)
 	var f0 := Synth.zeros(nb)
 	var vph := rng.r(0.0, TAU)
 	for b in nb:
-		var t := float(b * Synth.BLOCK) / SR
-		f0[b] = 98.0 * (1.0 + 0.004 * sin(TAU * 5.3 * t + vph))
-	var src := Synth.saw(n, f0)
-	var plucks := [0.04, 0.58, 0.98, 1.36, 1.9]
-	var harms := [6, 8, 7, 5, 6]
-	var env := Synth.zeros(n)
-	for k in plucks.size():
-		Synth.add_ad(env, _n(float(plucks[k])), 0.002, 0.33, 1.0)
+		var t := float(b * Synth.BLOCK) / hsr
+		f0[b] = 2.0 * PARKER_F0 * (1.0 + 0.004 * sin(TAU * 5.3 * t + vph))
+	var src := Synth.saw(nh, f0)
+	var starts: Array = []
+	var harms: Array = []
+	var amps: Array = []
+	var decs: Array = []
+	for k in n_notes:
+		var e: Array = PARKER_TUNE[k]
+		starts.append(int((t0 + parker_note_time(k) + rng.r(-0.012, 0.012)) * hsr))
+		harms.append(int(e[1]))
+		var beat := int(e[0]) % 3 == 0
+		amps.append((1.0 if beat else 0.72) * rng.r(0.9, 1.0))
+		decs.append(exp(-1.0 / ((0.16 if int(e[2]) == 1 else 0.32) * hsr)))
+	var env := Synth.zeros(nh)
+	var cut_i := int(cut_s * hsr) if cut_s > 0.0 else -1
+	var damp := exp(-1.0 / (0.012 * hsr))
+	var att := maxi(1, int(0.002 * hsr))
+	var a := 0.0
+	var dec := 1.0
+	var ramp := 0
+	var step := 0.0
+	var j := 0
+	for i in nh:
+		if j < starts.size() and i >= int(starts[j]) and (cut_i < 0 or i < cut_i):
+			ramp = att
+			step = (float(amps[j]) - a) / float(att)
+			dec = float(decs[j])
+			j += 1
+		if ramp > 0:
+			a += step
+			ramp -= 1
+		else:
+			a *= dec
+		if cut_i >= 0 and i >= cut_i:
+			a *= damp
+		env[i] = a
 	Synth.mul(src, env)
+	# formante por bloque: armónico de la nota en curso con el «boing»
 	var fm := Synth.zeros(nb)
 	var kk := 0
 	for b in nb:
-		var t := float(b * Synth.BLOCK) / SR
-		while kk < plucks.size() - 1 and t >= float(plucks[kk + 1]): kk += 1
-		var dt := maxf(0.0, t - float(plucks[kk]))
-		var g := 0.7 + 0.3 * (1.0 - exp(-dt / 0.025))
-		fm[b] = clampf(float(harms[kk]) * 98.0 * g * (1.0 + 0.1 * sin(TAU * 1.7 * t)), 400.0, 1600.0)
+		var i0 := b * Synth.BLOCK
+		while kk < starts.size() - 1 and i0 >= int(starts[kk + 1]): kk += 1
+		var dt := maxf(0.0, float(i0 - int(starts[kk])) / hsr)
+		var g := 0.78 + 0.22 * (1.0 - exp(-dt / 0.025))
+		var t := float(i0) / hsr
+		fm[b] = 2.0 * clampf(float(harms[kk]) * PARKER_F0 * g * (1.0 + 0.02 * sin(TAU * 1.7 * t)), 380.0, 1600.0)
 	var f1 := src.duplicate()
-	Synth.svf(f1, Synth.BP, fm, 9.0)
+	Synth.svf(f1, Synth.BP, fm, 12.0)
 	var f2 := src.duplicate()
-	Synth.bp(f2, 2300.0, 2.5)
+	Synth.bp(f2, 2.0 * 2300.0, 2.5)
 	var lo := src
-	Synth.lp(lo, 260.0)
-	var x := Synth.zeros(n)
-	Synth.mix(x, f1, 0, 3.0)
-	Synth.mix(x, f2, 0, 1.2)
-	Synth.mix(x, lo, 0, 0.22)
-	Synth.lp(x, 3800.0)
-	Synth.reverb(x, 0.9, 0.72, 0.45, 0.28)
-	return x
+	Synth.lp(lo, 2.0 * 260.0)
+	var h := Synth.zeros(nh)
+	Synth.mix(h, f1, 0, 3.0)
+	Synth.mix(h, f2, 0, 0.9)
+	Synth.mix(h, lo, 0, 0.22)
+	Synth.lp(h, 2.0 * 3800.0)
+	return h
+
+# Arpa de boca (noche final, GDD §2.1 / HC09): la tonada desde el principio, dos compases y tres corcheas del
+# tercero; antes de la nota falsa, se calla en seco a mitad del compás. En la esquina, al aire libre (rebote en las
+# fachadas y poca cola, para que el silencio se oiga).
+static func _harp(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var n := _n(dur)
+	var nh: int = (n + 1) / 2
+	var t0 := 0.05
+	var cut := t0 + parker_note_time(PARKER_CUT_NOTES - 1) + 0.09
+	var h := _parker_half(nh, t0, PARKER_CUT_NOTES, cut, rng)
+	Synth.slap(h, 0.045 * 0.5, 0.22, 2.0 * 2200.0)
+	Synth.reverb(h, 0.7 * 0.5, 0.6, 0.5, 0.1)
+	return Synth.upsample2(h, n)
+
+# Tonada entera de Parker, lejos, para plegar en un bucle de ambiente: buffer de nl + cola (tasa completa) con la
+# tonada desde t0; lp_hz = cuánto la apaga la distancia (o la ventana).
+static func _parker_far(nl: int, t0: float, lp_hz: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var m := _n(parker_len() + 1.4)
+	var mh: int = (m + 1) / 2
+	var h := _parker_half(mh, 0.0, PARKER_TUNE.size(), -1.0, rng)
+	Synth.lp(h, 2.0 * lp_hz)
+	Synth.slap(h, 0.06 * 0.5, 0.25, 2.0 * 1500.0)
+	Synth.reverb(h, 0.9 * 0.5, 0.65, 0.5, 0.18)
+	var out := Synth.zeros(nl + _n(1.2))
+	Synth.mix(out, Synth.upsample2(h, m), _n(t0))
+	return out
 
 # Silbato de policía: senos 2100/2500 Hz con trémolo de 30 Hz (la bolita), dos toques, aliento; en la calle.
 static func _whistle(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
@@ -608,30 +798,52 @@ static func _silbido(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
 	Synth.mix(x, pf, 0, 0.25)
 	return x
 
-# Vidrio roto: estallido + ~60 micro-campanas (parciales 3–9 kHz, 50–200 ms) dispersas en 1,2 s.
+# Trozo de vidrio que suena (micro-campana): 2–3 parciales 3–9 kHz a media tasa en h + chasquido en nz (tasa completa).
+static func _shard(h: PackedFloat32Array, nz: PackedFloat32Array, t: float, a: float, tau: float, rng: Synth.Rng) -> void:
+	var ih := int(t * SR * 0.5)
+	var f1 := rng.r(3000.0, 7200.0)
+	Synth.add_mode(h, ih, 2.0 * f1, tau * 0.5, a * 0.35, rng.r(0.0, TAU))
+	var f2 := f1 * rng.r(1.42, 1.78)
+	if f2 < 9400.0: Synth.add_mode(h, ih, 2.0 * f2, tau * 0.35, a * 0.18, rng.r(0.0, TAU))
+	var f3 := f1 * rng.r(2.15, 2.65)
+	if f3 < 9400.0: Synth.add_mode(h, ih, 2.0 * f3, tau * 0.25, a * 0.08, rng.r(0.0, TAU))
+	Synth.add_burst(nz, _n(t), 0.0002, 0.0007, a * 0.3, rng.sub())
+
+# Vidrio roto, «a long, silvery tinkle» (EMPT): el paño estalla (chasquido + parciales grandes) y se deshace en
+# ~45 trozos en 0,35 s; algunos resbalan del alféizar; al segundo (la caída desde el primer piso) la lluvia de
+# trozos sobre la vereda, con rebotes y colas más largas (la plata), que se apaga hacia los 2,5 s. Las
+# micro-campanas, a media tasa (parciales < 9,4 kHz).
 static func _glass(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
 	var n := _n(dur)
+	var nh: int = (n + 1) / 2
+	var h := Synth.zeros(nh)
 	var x := Synth.zeros(n)
 	var nz := Synth.zeros(n)
-	var t0 := _n(0.01)
-	Synth.add_burst(nz, t0, 0.0003, 0.02, 1.0, rng.sub())
-	Synth.add_thump(x, t0, 220.0, 170.0, 0.01, 0.03, 0.25)
-	for k in 60:
-		var u := pow(rng.f(), 1.8)
-		var i := t0 + _n(0.004 + 1.2 * u)
-		var a := rng.r(0.15, 1.0) * (1.0 - 0.6 * u)
-		var f1 := rng.r(3000.0, 7000.0)
-		var life := rng.r(0.05, 0.2) / 3.5
-		Synth.add_mode(x, i, f1, life, a * 0.35)
-		var f2 := f1 * rng.r(1.4, 1.75)
-		if f2 < 9000.0: Synth.add_mode(x, i, f2, life * 0.7, a * 0.18)
-		var f3 := f1 * rng.r(2.1, 2.6)
-		if f3 < 9000.0: Synth.add_mode(x, i, f3, life * 0.5, a * 0.08)
-		Synth.add_burst(nz, i, 0.0002, 0.0008, a * 0.3, rng.sub())
+	var t0 := 0.01
+	Synth.add_burst(nz, _n(t0), 0.0003, 0.022, 1.0, rng.sub())
+	Synth.add_thump(x, _n(t0), 240.0, 180.0, 0.01, 0.03, 0.2)
+	for k in 5:   # el paño entero, antes de partirse
+		Synth.add_mode(h, int(t0 * SR * 0.5), 2.0 * rng.r(2600.0, 4400.0), rng.r(0.05, 0.09) * 0.5, rng.r(0.3, 0.5))
+	for k in 45:   # se deshace
+		var u := pow(rng.f(), 1.6)
+		_shard(h, nz, t0 + 0.004 + 0.34 * u, rng.r(0.3, 1.0) * (1.0 - 0.5 * u), rng.r(0.012, 0.05), rng)
+	for k in 12:   # resbalan del alféizar
+		_shard(h, nz, rng.r(0.38, 1.02), rng.r(0.1, 0.4), rng.r(0.02, 0.06), rng)
+	var t := 1.0
+	for k in 55:   # la lluvia sobre la vereda
+		var u := float(k) / 55.0
+		t = 1.0 + 1.3 * pow(u, 1.5) + rng.r(-0.03, 0.03)
+		var a := rng.r(0.3, 0.9) * (1.0 - 0.75 * u)
+		var tau := rng.r(0.03, 0.12)
+		_shard(h, nz, t, a, tau, rng)
+		if rng.f() < 0.35:   # rebote: el mismo trozo, más débil
+			_shard(h, nz, t + rng.r(0.05, 0.14), a * 0.4, tau * 0.7, rng)
+	Synth.reverb(h, 0.9 * 0.5, 0.75, 0.4, 0.22)
+	Synth.mix(x, Synth.upsample2(h, n))
 	Synth.hp(nz, 1500.0)
+	Synth.lp(nz, 9000.0)
 	Synth.mix(x, nz, 0, 0.6)
 	Synth.lp(x, 11000.0)
-	Synth.reverb(x, 0.9, 0.75, 0.4, 0.25)
 	return x
 
 # ---------------------------------------------------------------- ambientes (bucles)
@@ -835,4 +1047,91 @@ static func _amb_parque(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32A
 	Synth.reverb_lofi(ev, 1.0, 0.6, 0.5, 0.2)
 	Synth.lp(ev, 9000.0)
 	Synth.mix(x, Synth.fold(ev, nl), 0, 0.03)
+	return x
+
+# ---------------------------------------------------------------- ambientes de W4-AUDIO
+# Baker Street de noche (L3, franjas N y noche; GDD §5: «Parker y su arpa (de noche)»): la calle más rala que de día
+# (rodar lejano, poca gente, un coche al paso sobre granito mientras Parker descansa) y, en la vereda de enfrente,
+# la tonada de Parker entera, cada 8 s: siempre la misma.
+static func _amb_calle_parker(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var nt := _bed_len(dur, fd)
+	var nl := _n(dur)
+	var bed := Synth.brown(nt, rng.sub())
+	Synth.lp(bed, 300.0)
+	Synth.hp1(bed, 30.0)
+	Synth.to_rms(bed, 0.016)
+	var mu := Synth.pink(nt, rng.sub())   # poca gente: una sola banda de murmullo (más barato que _murmur)
+	Synth.band(mu, 300.0, 1200.0)
+	Synth.mul_wobble(mu, rng.sub(), 4.5, 0.15, 1.0)
+	Synth.to_rms(mu, 0.003)
+	Synth.mix(bed, mu)
+	var x := Synth.make_loop(bed, fd)
+	var th := Synth.zeros(nl + _n(2.0))
+	var nz := Synth.zeros(nl + _n(2.0))
+	_cab(th, nz, rng.r(5.2, 5.6), 3.6, 1.8, 0.5, true, rng)
+	Synth.lp(nz, 1000.0)
+	Synth.mix(th, nz, 0, 0.6)
+	Synth.lp1(th, 900.0)
+	Synth.slap(th, 0.05, 0.3, 1500.0)
+	Synth.mix(x, Synth.fold(th, nl), 0, 0.05)
+	var hp := _parker_far(nl, 0.4, 2600.0, rng)
+	Synth.normalize(hp, 0.05)
+	Synth.mix(x, Synth.fold(hp, nl))
+	return x
+
+# El prólogo (lunes de Pascua, de noche, en la buhardilla): el siseo del gas y, abajo junto a la puerta de la tienda,
+# muy bajo, la tonada de Parker que sube por la ventana (PRO: «se oye, muy bajo, un arpa de boca»).
+static func _amb_gas_parker(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var x := _amb_gas(dur * 0.5, fd, rng)   # el bucle de gas de 4 s, dos veces (sin costura)
+	x.append_array(x.duplicate())
+	var nl := _n(dur)
+	var rum := Synth.brown(nl + _n(fd), rng.sub())
+	Synth.lp(rum, 160.0)
+	Synth.hp1(rum, 30.0)
+	Synth.to_rms(rum, 0.003)
+	Synth.mix(x, Synth.make_loop(rum, fd))
+	var hp := _parker_far(nl, 1.0, 1300.0, rng)
+	Synth.normalize(hp, 0.03)
+	Synth.mix(x, Synth.fold(hp, nl))
+	return x
+
+# Crujido de entarimado: pulsos de stick-slip que se aceleran y frenan, por dos resonancias de la tabla.
+static func _creak(dst: PackedFloat32Array, t0: float, rng: Synth.Rng) -> void:
+	var len_s := rng.r(0.35, 0.5)
+	var p := Synth.zeros(_n(len_s) + _n(0.05))
+	var t := 0.0
+	while t < len_s:
+		var u := t / len_s
+		Synth.add_burst(p, _n(t), 0.0001, 0.0006, sin(PI * u) * rng.r(0.6, 1.0), rng.sub())
+		t += 1.0 / (40.0 + 120.0 * sin(PI * u))
+	var a := p.duplicate()
+	Synth.bp(a, rng.r(420.0, 520.0), 6.0)
+	Synth.bp(p, rng.r(1050.0, 1250.0), 8.0)
+	Synth.mix(a, p, 0, 0.6)
+	Synth.mix(dst, a, _n(t0))
+
+# Camden House (L8): el cuarto delantero vacío. Tono de sala hueco (paredes desnudas), la calle apagada tras el
+# vidrio sucio, un crujido del entarimado y un chasquido de la casa que se asienta, con eco de cuarto vacío.
+static func _amb_casa_vacia(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var nt := _bed_len(dur, fd)
+	var nl := _n(dur)
+	var room := Synth.pink(nt, rng.sub())
+	Synth.band(room, 70.0, 320.0)
+	Synth.mul_wobble(room, rng.sub(), 0.5, 0.8, 1.0)
+	Synth.to_rms(room, 0.0035)
+	var st := Synth.brown(nt, rng.sub())
+	Synth.lp(st, 200.0)
+	Synth.hp1(st, 30.0)
+	Synth.to_rms(st, 0.006)
+	Synth.mix(room, st)
+	var x := Synth.make_loop(room, fd)
+	var ev := Synth.zeros(nl + _n(1.5))
+	_creak(ev, rng.r(1.6, 2.4), rng)
+	var tk := _n(rng.r(4.3, 4.9))
+	Synth.add_mode(ev, tk, rng.r(280.0, 340.0), 0.03, 0.25)
+	Synth.add_mode(ev, tk, rng.r(700.0, 820.0), 0.015, 0.15)
+	Synth.add_burst(ev, tk, 0.0002, 0.002, 0.2, rng.sub())
+	Synth.reverb_lofi(ev, 0.9, 0.8, 0.4, 0.45)
+	Synth.lp(ev, 5000.0)
+	Synth.mix(x, Synth.fold(ev, nl), 0, 0.12)
 	return x

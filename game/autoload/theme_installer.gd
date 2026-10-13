@@ -212,6 +212,8 @@ func _raster(path: String) -> FontFile:
 	_files[key] = ff
 	return ff
 
+const HAND_SPACE_PX := 11
+
 func _build_fonts() -> void:
 	_fonts.clear()
 	var liga := TextServerManager.get_primary_interface().name_to_tag("liga")
@@ -237,6 +239,11 @@ func _build_fonts() -> void:
 					fv.variation_embolden = EMBOLDEN
 				if s == "maquina":
 					fv.opentype_features = {liga: 0}
+				if s == "manuscrito":
+					# Homemade Apple: la «S» y la «G» mayúsculas arrancan con un rasgo hacia atrás que se come el espacio
+					# anterior («Lector.Sabe», «enSuiza»; a 32 px la «S» dibuja 18 px a la izquierda de su origen y el espacio
+					# mide 11): aire fijo en el espacio, en toda letra manuscrita (W4)
+					fv.spacing_space = HAND_SPACE_PX
 				fv.set_meta("fe_slot", s)
 				fv.set_meta("fe_italic", it)
 				fv.set_meta("fe_bold", b)

@@ -173,6 +173,26 @@ static func _plate_now_ok(st, repo, pid: String) -> bool:
 	return false
 
 static func _clip(st, repo, a: Dictionary) -> Dictionary:
+	# El escritorio muestra el hub («hub»): recortarlo (rectángulo o texto de examen «hub/<nodo>») archiva la buhardilla
+	# de ahora como lámina (WorldModel.archive_hub) y el recorte la nombra; si el recorte falla, la lámina nueva se borra.
+	var hub := {}
+	if String(a.get("t", "")) == "clip_plate" and String(a.get("plate", "")) == WorldModel.HUB_PLATE:
+		hub = WorldModel.archive_hub(st, repo)
+		if not hub.is_empty():
+			a = a.duplicate(true)
+			a["plate"] = String(hub.id)
+	elif String(a.get("t", "")) == "clip_text" and typeof(a.get("src")) == TYPE_DICTIONARY and String(a.src.get("kind", "")) == "node" \
+			and String(a.src.get("ref", "")).begins_with(WorldModel.HUB_PLATE + "/"):
+		hub = WorldModel.archive_hub(st, repo)
+		if not hub.is_empty():
+			a = a.duplicate(true)
+			a.src["ref"] = String(hub.id) + String(a.src.ref).substr(WorldModel.HUB_PLATE.length())
+	var r := _clip_now(st, repo, a)
+	if not bool(r.get("ok", false)) and bool(hub.get("created", false)):
+		st.world.plates.erase(String(hub.id))
+	return r
+
+static func _clip_now(st, repo, a: Dictionary) -> Dictionary:
 	if not source_accessible(st, repo, a):
 		return {"ok": false, "err": "inaccesible"}
 	var mem_key := ""

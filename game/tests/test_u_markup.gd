@@ -303,3 +303,11 @@ func test_placeholders_in_mentions_and_tags():
 	ok(_has_err(_p("[[@act|asiento ${seat}]] y nada.").errors, "placeholder sin resolver"), "superficie estática")
 	ok(_has_err(_p("{{#a a:ancla_${ch}|Texto.}}").errors, "placeholder sin resolver"), "etiqueta estática")
 	eq(_p("{{#a a:ancla_${ch}|[[@act|asiento ${seat}]].}}", {"allow_placeholders": true}).errors, [], "plantilla runtime")
+
+func test_contract_word_boundary():
+	var pairs := [["de el ", "del "], ["De el ", "Del "], ["a el ", "al "], ["A el ", "Al "], ["..", "."]]
+	eq(M.contract("A propósito de el Journal..", pairs), "A propósito del Journal.")
+	eq(M.contract("para el doctor, puede el mayor, toca el crespón", pairs), "para el doctor, puede el mayor, toca el crespón")
+	eq(M.contract("—a el fondo; (de el otro)", pairs), "—al fondo; (del otro)")
+	eq(M.contract("a el a el", pairs), "al a el", "el segundo «a el» no termina en espacio")
+	eq(M.contract("sin pares", null), "sin pares")

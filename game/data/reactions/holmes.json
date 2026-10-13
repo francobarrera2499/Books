@@ -128,7 +128,7 @@
       "efecto": [{"op": "noticia"}],
       "doc": {"entity": "times", "title": "The Times, noticias", "src_type": "prensa_londres", "class": "I", "font": "imprenta", "paper": "diario_hueso"},
       "rastro": [
-        {"tpl": "nota", "texto": "{{#nota f:refutado a:falsa_jartum e:sigerson e:alto_nilo e:foreign_office|Nota comunicada por el [[foreign_office|Foreign Office]]: el explorador noruego [[sigerson|S. Sigerson]], cuyos despachos de [[jartum|Jartum]] publicó este diario, ha seguido viaje hacia el [[alto_nilo|Alto Nilo]].}}"}
+        {"tpl": "nota", "texto": "<sc>Los viajeros.</sc> — {{#nota f:refutado a:falsa_jartum e:sigerson e:alto_nilo e:foreign_office|Nota comunicada por el [[foreign_office|Foreign Office]]: el explorador noruego [[sigerson|S. Sigerson]], cuyos despachos del [[tibet|Tíbet]] publicó este diario, ha dejado [[jartum|Jartum]] y sigue viaje hacia el [[alto_nilo|Alto Nilo]].}}"}
       ],
       "corta": [],
       "agrega": ["C7", "C8"],

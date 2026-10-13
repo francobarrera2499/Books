@@ -2,6 +2,7 @@
 extends "res://tests/test_base.gd"
 
 const Lighting = preload("res://world/lighting.gd")
+const EngravingPost = preload("res://world/post/engraving_post.gd")
 const PRESETS := ["dia_ventana", "dorada_parklane", "electrica_fria", "farol_calle", "gas", "manana_perla", "noche_viento", "tarde"]
 
 var _nodes: Array = []
@@ -88,8 +89,11 @@ func test_look() -> void:
 	ok(lk.ink.is_equal_approx(Color("1b1712")), "tinta")
 	ok(lk.has("exposure") and lk.has("contrast"), "parámetros de post")
 	eq(lk.preset, "gas")
-	var lk2 := Lighting.look("dorada_parklane", "N")
-	ok(lk2.paper.is_equal_approx(Color("ecd9b4")), "la hora se lee en el papel (franja)")
+	var lk2 := Lighting.look("tarde", "N")
+	ok(lk2.paper.is_equal_approx(Color("ecd9b4")), "la hora se lee en el papel (franja), sea cual sea el preset")
+	for p in ["manana_perla", "dia_ventana", "tarde", "gas", "farol_calle", "electrica_fria"]:
+		for sl in ["M", "T", "N"]:
+			ok(Lighting.look(p, sl).paper.is_equal_approx(Lighting.paper_for(sl)), "%s/%s: papel de la franja" % [p, sl])
 
 func test_environment_is_flat() -> void:
 	for p in PRESETS:
@@ -230,3 +234,98 @@ func test_diorama_builder_signatures() -> void:
 	var lit := Lighting.build_lights("tarde", {"azim": 30.0})
 	_nodes.append(lit)
 	near(lit.rotation_degrees.y, 30.0, 1e-4, "opts.azim gira las direccionales")
+
+# ---------------------------------------------------------------------------------------------------------------------
+# W4-STYLE: clima del calendario, papel teñido, calibración por preset, parpadeo con rachas.
+
+func test_preset_for_snap_and_clima() -> void:
+	var l1 := {"light": {"dawn": "manana_perla", "M": "manana_perla", "T": "tarde", "N": "gas", "night": "gas"}}
+	var l3 := {"light": {"M": "manana_perla", "T": "tarde", "N": "farol_calle", "night": "noche_viento"}}
+	var l2 := {"light": {"M": "electrica_fria", "N": "electrica_fria"}}
+	eq(Lighting.preset_for(l1, "N", {"day": 9, "slot": "N"}), "gas", "día 9: gas de siempre")
+	eq(Lighting.preset_for(l1, "N", {"day": 10, "slot": "N"}), "noche_viento", "noche del 5 (día 10 N): fría y ventosa")
+	eq(Lighting.preset_for(l1, "night", {"day": 10, "slot": "night"}), "noche_viento", "y a las 22 h")
+	eq(Lighting.preset_for(l3, "N", {"day": 10, "slot": "N"}), "noche_viento", "faroles de Baker Street con viento")
+	eq(Lighting.preset_for(l3, "N", {"day": 4, "slot": "N"}), "farol_calle", "otras noches: farol")
+	eq(Lighting.preset_for(l1, "M", {"day": 10, "slot": "M"}), "manana_perla", "el clima sólo toca la noche")
+	eq(Lighting.preset_for(l2, "N", {"day": 10, "slot": "N"}), "electrica_fria", "la luz eléctrica no cambia con el viento")
+	eq(Lighting.preset_for(l1, "N"), "gas", "sin instantánea no hay clima (firma de 2 argumentos intacta)")
+	eq(Lighting.preset_for(l3, "night"), "noche_viento", "datos del lugar intactos")
+	var ov := {"light": {"N": "gas", "10.N": "farol_calle", "3.T": "dorada_parklane"}}
+	eq(Lighting.preset_for(ov, "N", {"day": 10}), "farol_calle", "place.light[\"10.N\"] manda sobre el clima")
+	eq(Lighting.preset_for(ov, "night", {"day": 10}), "farol_calle", "\"10.N\" también vale a las 22 h")
+	eq(Lighting.preset_for(ov, "T", {"day": 3}), "dorada_parklane", "excepción por día y franja")
+	eq(Lighting.preset_for(ov, "T", {"day": 4}), "tarde", "sólo ese día")
+	eq(Lighting.preset_for({"light": {"10.N": "inexistente", "N": "gas"}}, "N", {"day": 10}), "noche_viento", "excepción desconocida -> base + clima")
+	eq(Lighting.clima(10, "N"), "viento")
+	eq(Lighting.clima(9, "N"), "")
+	for c in Lighting.CLIMA_PRESET:
+		for base in Lighting.CLIMA_PRESET[c]:
+			ok(Lighting.has(base) and Lighting.has(str(Lighting.CLIMA_PRESET[c][base])), "clima %s: %s existe" % [c, base])
+
+func test_paper_tints_parklane_and_cold_night() -> void:
+	var t := Lighting.paper_for("T")
+	var gold := Lighting.look("dorada_parklane", "T").paper as Color
+	ok(not gold.is_equal_approx(t), "Park Lane a las 18 h: el papel cambia")
+	ok(gold.r - gold.b > (t.r - t.b) + 0.08, "Park Lane: papel dorado (r−b %.3f > %.3f)" % [gold.r - gold.b, t.r - t.b])
+	ok(gold.get_luminance() > 0.75, "papel dorado claro, la tinta se sigue leyendo")
+	var n := Lighting.paper_for("N")
+	var cold := Lighting.look("noche_viento", "N").paper as Color
+	ok(cold.r - cold.b < (n.r - n.b) - 0.05, "noche del 5: papel más frío que el ámbar de gas")
+	ok(cold.get_luminance() > 0.75, "papel frío claro")
+	ok(Lighting.paper_of("gas", "N").is_equal_approx(n), "paper_of sin tinte = papel de la franja")
+
+func test_post_calibration_per_preset() -> void:
+	for p in ["manana_perla", "dia_ventana", "tarde", "electrica_fria"]:
+		var lk := Lighting.look(p, "M")
+		ok(float(lk.get("gamma", 1.0)) < 1.0, p + ": de día los medios tonos se aclaran (gamma < 1)")
+		ok(float(lk.get("tone_floor", 0.0)) == 0.0, p + ": el negro macizo se conserva (sin piso de tono)")
+		ok(float(lk.get("white_line", 0.0)) >= 0.25, p + ": figura oscura en fondo oscuro: contornos en blanco")
+		ok(float(lk.get("vignette", 0.0)) == 0.0, p + ": de día sin viñeta")
+	for p in ["gas", "noche_viento"]:
+		var lk2 := Lighting.look(p, "N")
+		ok(float(lk2.get("vignette", 0.0)) > 0.2, p + ": de noche la periferia se hunde (viñeta)")
+		ok(float(lk2.get("white_line", 0.0)) >= 0.25, p + ": contornos tallados en blanco en lo oscuro")
+		ok(float(lk2.get("tone_floor", 0.0)) == 0.0, p + ": la noche conserva el negro")
+	var lk3 := Lighting.look("dorada_parklane", "T")
+	ok(float(lk3.contrast) >= 1.45, "Park Lane: contraste de luz rasante")
+	for p in Lighting.names():
+		for k in Lighting.look(p, "M"):
+			if k in ["preset", "slot", "paper", "ink"]:
+				continue
+			ok(EngravingPost.LOOK_KEYS.has(k), "%s: la clave %s llega al shader" % [p, k])
+
+func test_flicker_steps_with_gusts() -> void:
+	var root := _lamp_scene()
+	Lighting.apply(root, "noche_viento", "N")
+	var fl = root.get_node("Lights/Flicker")
+	fl.scan_root = root
+	fl._ready()
+	ok(fl.lamps.size() >= 2, "lámparas encendidas")
+	var l: OmniLight3D = fl.lamps[0]
+	var base: float = l.get_meta("base_energy")
+	fl.t = 0.0
+	fl._process(0.01)
+	var e0 := l.light_energy
+	fl._process(0.02)
+	near(l.light_energy, e0, 1e-6, "dentro de un paso la llama no cambia (sin zumbido en la trama)")
+	var lo := 9.0
+	var hi := 0.0
+	var changes := 0
+	var prev := l.light_energy
+	for i in 600:
+		fl._process(0.05)
+		lo = minf(lo, l.light_energy / base)
+		hi = maxf(hi, l.light_energy / base)
+		if not is_equal_approx(prev, l.light_energy):
+			changes += 1
+		prev = l.light_energy
+	ok(lo >= 0.45 - 1e-4 and hi <= 1.0 + 1e-4, "energía en [0,45; 1] × base (%.2f–%.2f)" % [lo, hi])
+	ok(hi - lo > 0.25, "las rachas se ven (%.2f–%.2f)" % [lo, hi])
+	# 30 s de viento: la llama cambia unas pocas veces por racha, no en cada paso (en 1 bit, cada cambio mueve la trama)
+	ok(changes > 4 and changes < 600 * 0.05 / Lighting.Flicker.STEP_S * 0.4, "cambios en 30 s: %d (escalonado, no zumbido)" % changes)
+	var quiet := 0
+	for i in 250:
+		if is_equal_approx(Lighting.Flicker.gust_factor(i * 0.12, 1.0), 1.0):
+			quiet += 1
+	ok(quiet > 80, "entre rachas la llama está quieta (%d de 250 pasos a pleno)" % quiet)

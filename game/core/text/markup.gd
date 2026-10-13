@@ -407,6 +407,33 @@ static func _unescape(s: String, errors: Array, pos: int) -> String:
 		i += 1
 	return "".join(out)
 
+# lists.contracciones ([["de el ", "del "], ["..", "."], …]) en orden, con borde de palabra a la izquierda cuando el
+# patrón empieza con letra: «A propósito de el Journal» -> «del Journal», pero «para el», «puede el», «toca el» quedan
+# intactos (antes un replace ciego daba «paral», «pudel»). Los patrones que no empiezan con letra («..») van en cualquier lugar.
+static func contract(s: String, pairs) -> String:
+	if typeof(pairs) != TYPE_ARRAY:
+		return s
+	var out := s
+	for pr in pairs:
+		if typeof(pr) != TYPE_ARRAY or pr.size() != 2:
+			continue
+		var a := String(pr[0])
+		var b := String(pr[1])
+		if a == "":
+			continue
+		var need_bound := is_word_char(a[0])
+		var from := 0
+		while true:
+			var m := out.find(a, from)
+			if m < 0:
+				break
+			if not need_bound or m == 0 or not is_word_char(out[m - 1]):
+				out = out.substr(0, m) + b + out.substr(m + a.length())
+				from = m + b.length()
+			else:
+				from = m + 1
+	return out
+
 # --- palabras y oraciones ---
 static func is_word_char(c: String) -> bool:
 	var u := c.unicode_at(0)

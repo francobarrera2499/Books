@@ -61,6 +61,13 @@ const TALK := ["ask", "assert", "present", "pay", "task"]
 const CONF_GROUPS = Confrontation.GROUPS   # grupos refutadores de las cuatro afirmaciones (W2-SCENES)
 # Tramos de la partida (GDD §7.7): prólogo, actos I–III, epílogo (minutos del novato por tramo).
 const ACTS := {"P": [0, 0], "I": [1, 4], "II": [5, 7], "III": [8, 10], "E": [11, 11]}
+# Modelo de tiempo de juego (W4-BALANCE; supuestos, no mediciones): minutos por acto ACEPTADO, más 3 min de deliberación
+# por conclusión sellada ese día. play_minutes = lectura (palabras/WPM × REREAD) + interacción + deliberación.
+const T_ACT := {"go_costly": 1.0, "go_free": 0.5, "clip": 0.3, "link": 0.15, "folio_open": 0.2, "entry_new": 0.5,
+	"entry_set": 0.3, "entry_support_add": 0.3, "pass_clean": 0.7, "practice": 0.5, "slip": 0.5, "ask": 0.4, "assert": 0.4,
+	"present": 0.4, "pay": 0.2, "task": 0.3, "compose_ad": 1.5, "compose_telegram": 1.5, "compose_letter": 1.5,
+	"report_submit": 1.5, "confront": 1.0, "night_choice": 0.5, "publish_errata": 0.5}
+const T_THINK_PER_SEAL := 3.0
 # Conclusiones opcionales que el oráculo usa de compañeras de lote (C10a no cuenta para el tamaño del lote, pero sella).
 const FILLERS := ["C10a", "C14"]
 
@@ -75,6 +82,7 @@ var reads_all := false       # novato: lee todo lo legible en cada paso
 var deduce := true           # junta fragmentos y asienta (pasivo: false)
 var focus: Array = []        # conclusiones objetivo ([] = todas las obligatorias)
 var fillers := true          # el oráculo agrega opcionales factibles (FILLERS) como compañeras de lote
+var idle_until_day := 0      # > 1: los días 1..idle_until_day-1 sólo pasa franjas, duerme e informa «nada» (sondas del oráculo)
 var value_mode := "oracle"   # valores de los asientos: "oracle" (answers) | "random" (pesca: candidatos al azar)
 var log: Array = []
 var rnd_n := 0               # contador de sorteos (Det con la semilla del bot)
@@ -144,6 +152,12 @@ func step() -> bool:
 	if ph == "done":
 		return false
 	var before := int(stats.ok_acts)
+	if idle_until_day > 1 and ph != "prologue" and int(c.day) >= 1 and int(c.day) < idle_until_day and _idle_step(ph):
+		return String(sim.q_clock().phase) != "done"
+	# el novato también lee el día 10 y el epílogo (la confrontación, Park Lane, la elección de la noche, el epílogo)
+	var late_phase := ["confront", "final_report", "parklane", "night_choice", "epilogue"].has(ph)
+	if reads_all and late_phase:
+		_read_late()
 	match ph:
 		"prologue":
 			_do_prologue()
@@ -172,6 +186,8 @@ func step() -> bool:
 		_:
 			_err("fase desconocida " + ph)
 			return false
+	if reads_all and late_phase:
+		_read_late()
 	if _runaway != "":
 		return false
 	# salvaguarda: pasos seguidos sin ningún apply aceptado no pueden repetirse sin fin
@@ -183,6 +199,29 @@ func step() -> bool:
 	else:
 		_no_progress = 0
 	return String(sim.q_clock().phase) != "done"
+
+# idle_until_day: el jugador que deja pasar los primeros días (sólo fin de franja, dormir e informes vacíos).
+func _idle_step(ph: String) -> bool:
+	match ph:
+		"desk":
+			act({"t": "end_slot"})
+		"visit", "scene", "parklane":
+			act({"t": "leave"})
+		"night":
+			if bool(sim.q_report_status().get("due", false)):
+				act({"t": "report_submit", "mode": "nada", "items": []})
+			else:
+				act({"t": "sleep"})
+		_:
+			return false
+	return true
+
+func _read_late() -> void:
+	_read_all()
+	var cs: Dictionary = sim.q_confront()
+	var stmt = cs.get("statement", {})
+	if typeof(stmt) == TYPE_DICTIONARY and String(stmt.get("text", "")) != "":
+		_read_parsed("conf|" + String(stmt.get("uid", "")), repo.parse_text(String(stmt.text), {}, String(stmt.get("act", ""))))
 
 func act(a: Dictionary, may_fail := false) -> Dictionary:
 	var t := String(a.get("t", ""))
@@ -260,6 +299,34 @@ func result() -> Dictionary:
 	for a in by_act:
 		em[a] = snappedf(int(by_act[a]) / WPM * REREAD, 0.1)
 	stats["est_minutes_act"] = em
+	# minutos de juego por tramo: lectura + interacción (T_ACT por acto aceptado) + deliberación (T_THINK_PER_SEAL)
+	var pm := {}
+	for a in ACTS:
+		pm[a] = float(em.get(a, 0.0))
+	for e in log:
+		if not bool(e.ok):
+			continue
+		var t0 := String(e.t)
+		var cat := t0
+		if t0 == "go":
+			cat = "go_costly" if bool(e.get("costly", false)) else "go_free"
+		elif t0.begins_with("clip_"):
+			cat = "clip"
+		var ak := _act_of_day(int(e.day))
+		if ak != "":
+			pm[ak] = float(pm[ak]) + float(T_ACT.get(cat, 0.0))
+	for ps in sim.st.ded.get("passes", []):
+		if not bool(ps.get("inked", false)):
+			continue
+		var ak2 := _act_of_day(TimeKey.day_of(int(ps.get("tk", 0))))
+		if ak2 != "":
+			pm[ak2] = float(pm[ak2]) + T_THINK_PER_SEAL * float((ps.get("entries", []) as Array).size())
+	var pm_total := 0.0
+	for a in pm:
+		pm[a] = snappedf(float(pm[a]), 0.1)
+		pm_total += float(pm[a])
+	stats["play_minutes_act"] = pm
+	stats["play_minutes"] = snappedf(pm_total, 0.1)
 	stats["phase"] = String(sim.q_clock().phase)
 	stats["flags"] = {"moran_credito": bool(sim.st.flags.get("moran_credito", false)), "holmes_entregado": bool(sim.st.flags.get("holmes_entregado", false)),
 		"watson_expuesto": bool(sim.st.flags.get("watson_expuesto", false)), "errata_ofrecida": String(sim.st.flags.get("errata_ofrecida", "")),
@@ -308,11 +375,18 @@ func result() -> Dictionary:
 	stats["franjas"] = int(stats.outings)   # franjas gastadas en salidas con costo (§9.3)
 	return {"bot": bot_name, "seed": seed, "ending": stats.ending, "rank": stats.rank, "sealed": sealed, "words_read": words,
 		"verbs": verbs, "places": places, "ads": int(stats.get("ads", 0)),
-		"est_minutes": stats.est_minutes, "est_minutes_act": em, "acts": stats.acts, "steps": stats.steps,
+		"est_minutes": stats.est_minutes, "est_minutes_act": em, "play_minutes": stats.play_minutes, "play_minutes_act": stats.play_minutes_act,
+		"acts": stats.acts, "steps": stats.steps,
 		"outings": stats.outings, "franjas": stats.franjas, "passes": stats.passes, "passes_inked": stats.passes_inked, "errors": stats.errors.duplicate(),
 		"oracle": stats.oracle.duplicate(), "flags": stats.flags, "variants": stats.variants, "phase": stats.phase,
 		"blocked": stats.blocked.duplicate(), "reports": stats.reports.duplicate(), "confront": stats.confront.duplicate(),
 		"mycroft": stats.mycroft.duplicate(), "unsealed": unsealed, "runaway": _runaway}
+
+func _act_of_day(d: int) -> String:
+	for a in ACTS:
+		if d >= int(ACTS[a][0]) and d <= int(ACTS[a][1]):
+			return String(a)
+	return "E" if d > 10 else ""
 
 # ======================================================================= ganchos de política
 func _init_bot() -> void:
@@ -420,15 +494,22 @@ func _words(parsed) -> int:
 		return (w as Array).size()
 	return Markup.words_of(String(parsed.get("plain", ""))).size()
 
-func _read_parsed(key: String, parsed) -> void:
+# Firma por TEXTO, renglón por renglón (no por vista): el mismo documento leído en @tomo, @BM y @Crane cuenta una vez,
+# y un aviso que el mundo inserta en una columna ya leída suma sólo su renglón (W4-BALANCE a). key queda por compatibilidad.
+func _read_parsed(_key: String, parsed) -> void:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return
-	var sig := key + "|" + String(parsed.get("plain", "")).md5_text()
-	if read_sig.has(sig):
-		return
-	read_sig[sig] = true
 	var d := str(int(sim.q_clock().day))
-	stats.words_by_day[d] = int(stats.words_by_day.get(d, 0)) + _words(parsed)
+	for ln in String(parsed.get("plain", "")).split("
+"):
+		var t := String(ln).strip_edges()
+		if t == "":
+			continue
+		var sig := t.md5_text()
+		if read_sig.has(sig):
+			continue
+		read_sig[sig] = true
+		stats.words_by_day[d] = int(stats.words_by_day.get(d, 0)) + Markup.words_of(t).size()
 
 # Lee todo lo legible ahora (documentos, líneas de la escena en curso y el examen de cada objeto del diorama).
 func _read_all() -> void:
@@ -702,6 +783,8 @@ func _do_desk() -> void:
 	if not bool(_c().outing_done) and _once("outing"):
 		var o := pol_outing()
 		if not o.is_empty():
+			if deduce and WorldModel.place_needs_seat(repo, String(o.place)):
+				_prep_catalog()
 			var r2 := _go(String(o.place), String(o.get("area", "")))
 			if bool(r2.get("ok", false)):
 				return
@@ -787,12 +870,23 @@ func _do_visit() -> void:
 		_harvest()
 	act({"t": "leave"})
 
-# Papeletas de la Sala de Lectura: lo que falta de ejemplares BM, priorizando lo del itinerario.
+# Papeletas de la Sala de Lectura: lo que falta de ejemplares BM, priorizando lo del itinerario. Como el jugador, sólo se
+# pide lo que el catálogo muestra buscando una entidad del índice (R8; ui/desk/catalog.gd): lo que no, espera.
 func _slips() -> void:
 	var v: Dictionary = sim.st.world.get("visit", {})
 	if v.is_empty() or not WorldModel.place_needs_seat(repo, String(v.get("place", ""))):
 		return
-	var used: Array = sim.st.world.get("slips", {}).get(String(v.id), [])
+	for did in _bm_wants(String(v.id)):
+		if (sim.st.world.get("slips", {}).get(String(v.id), []) as Array).size() >= WorldModel.SLIPS_PER_VISIT:
+			break
+		if not _catalog_ok(did):
+			stats["catalog_waits"] = int(stats.get("catalog_waits", 0)) + 1
+			continue
+		act({"t": "slip", "doc": did})
+
+# Documentos BM pendientes de las rutas (sin pedir en esta visita, con su ejemplar en ventana ahora).
+func _bm_wants(visit_id := "") -> Array:
+	var used: Array = sim.st.world.get("slips", {}).get(visit_id, []) if visit_id != "" else []
 	var want: Array = []
 	for f in _pending():
 		if f.desc.kind != "doc":
@@ -804,10 +898,32 @@ func _slips() -> void:
 		if want.has(did) or used.has(cp) or not WorldModel.copy_available(sim.st, repo, cp, _tk()):
 			continue
 		want.append(did)
-	for did in want:
-		if (sim.st.world.get("slips", {}).get(String(v.id), []) as Array).size() >= WorldModel.SLIPS_PER_VISIT:
-			break
-		act({"t": "slip", "doc": did})
+	return want
+
+# ¿Se puede pedir por el catálogo? Un documento sin ficha de catálogo (sólo en datasets de fixtures: en data/ real todo
+# ejemplar BM la tiene, T7) se pide directo.
+func _catalog_ok(did: String) -> bool:
+	return typeof(repo.doc(did).get("catalog")) != TYPE_DICTIONARY or _catalog_ent(did) != ""
+
+# Entidad del índice cuya búsqueda en el catálogo lista el documento ("" si ninguna).
+func _catalog_ent(did: String) -> String:
+	for x in sim.q_index():
+		if String(x.get("kind", "")) == "act_ref":
+			continue
+		for r in sim.q_catalog(String(x.get("id", ""))):
+			if String(r.get("doc", "")) == did:
+				return String(x.get("id", ""))
+	return ""
+
+# Antes de salir a la Sala de Lectura: para cada documento a pedir que el catálogo todavía no muestre, indexa alguna de
+# sus entidades de catálogo recortando lo legible en el escritorio (como el jugador que busca por lo que ya leyó).
+func _prep_catalog() -> void:
+	for did in _bm_wants():
+		if _catalog_ok(did):
+			continue
+		for e in repo.doc(did).get("catalog", {}).get("entities", []):
+			if _ensure_indexed(String(e)) and _catalog_ent(did) != "":
+				break
 
 # ======================================================================= escena fija
 func _do_scene() -> void:
@@ -1133,10 +1249,19 @@ func _clip_tagged(view: String, want: Array, doc_filter := "") -> String:
 	for pi in pages.size():
 		for bi in (pages[pi] as Array).size():
 			var blk: Dictionary = pages[pi][bi]
-			if doc_filter != "" and not String(blk.get("doc", "")).begins_with(doc_filter):
+			var segs: Array = blk.get("segs", [])
+			if doc_filter != "" and segs.is_empty() and not String(blk.get("doc", "")).begins_with(doc_filter):
 				continue
 			var p: Dictionary = blk.get("parsed", {})
 			for t in p.get("tramos", []):
+				if doc_filter != "" and not segs.is_empty():
+					# número del Times con avisos insertados (WorldModel._merge_inserts): el doc del tramo es el de su seg
+					var dd := String(blk.get("doc", ""))
+					for sg in segs:
+						if int(t.from) >= int(sg.from) and int(t.to) <= int(sg.to):
+							dd = String(sg.doc)
+					if not dd.begins_with(doc_filter):
+						continue
 				if _tramo_has(t, want):
 					var r := act({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(t.from), "len": int(t.to) - int(t.from)}, true)
 					var id := String(r.get("clip", ""))
@@ -1194,6 +1319,8 @@ func _try_sil(f: Dictionary) -> String:
 	var nid := String(f.ref).get_slice(".", String(f.ref).get_slice_count(".") - 1)
 	for pid in _plates_sorted():
 		var snap: Dictionary = sim.st.world.plates[pid]
+		if String(snap.get("place", "")) == HUB:
+			continue   # la silueta vista desde el escritorio no cita un acto «go» (Availability.sil_srcs salta el hub, D1)
 		if (snap.get("silhouettes", []) as Array).has(nid):
 			var id := _clip_node(String(pid), nid)
 			if id != "" and _clip_has_any(id, f.want):
@@ -1321,9 +1448,18 @@ func _try_measure(f: Dictionary) -> String:
 	var src := {}
 	if repo.doc(ref).is_empty():
 		var sid := ref.get_slice(".", 0)
-		if repo.scene(sid).is_empty():
+		if not repo.scene(sid).is_empty():
+			src = {"kind": "scene", "ref": sid}
+		elif not repo.reaction(sid).is_empty():
+			# carta de una reacción (M:HA1.carta, voz A): la instancia entregada que se puede leer ahora
+			for x in sim.q_accessible():
+				if String(x.view).begins_with("R.%s." % sid):
+					src = {"kind": "doc", "ref": String(x.view)}
+					break
+			if src.is_empty():
+				return ""
+		else:
 			return ""
-		src = {"kind": "scene", "ref": sid}
 	else:
 		var view := String(f.copy)
 		if view == "":
@@ -1381,6 +1517,11 @@ func _ensure_indexed(ent: String) -> bool:
 				var dm: Dictionary = repo.doc(String(v.get("doc", "")))
 				if String(dm.get("entity", "")) == ent or (sim.st.world.get("docs", {}).has(String(blk.get("doc", ""))) and String(sim.st.world.docs[String(blk.doc)].get("meta", {}).get("entity", "")) == ent):
 					spans.append([0, mini(40, String(p.get("plain", "")).length())])
+				for sg in blk.get("segs", []):
+					# aviso insertado en la columna: la entidad de su documento runtime (el recorte cae dentro del seg)
+					var idoc = sim.st.world.get("docs", {}).get(String(sg.doc))
+					if typeof(idoc) == TYPE_DICTIONARY and String(idoc.get("meta", {}).get("entity", "")) == ent:
+						spans.append([int(sg.from), mini(int(sg.from) + 40, int(sg.to))])
 				for sp in spans:
 					var r := act({"t": "clip_text", "src": {"kind": "doc", "ref": String(view), "part": pi, "block": bi}, "from": int(sp[0]), "len": maxi(1, int(sp[1]) - int(sp[0]))}, true)
 					if String(r.get("clip", "")) != "" and _known(ent):
@@ -1660,6 +1801,11 @@ func _oracle_lot(n: int) -> Array:
 	var out: Array = []
 	for i in n:
 		out.append(String(ready[i].e))
+	# una obligatoria con una opcional de compañera sólo si hace falta: los lotes son exactos, y si quedan por sellar
+	# (antes de la pasada final, cuyo lote de 1 es de las que sólo valen ahí: C12) un número impar de obligatorias más,
+	# ésta se puede emparejar con una de ellas; la opcional queda para la última pasada doble.
+	if n == 2 and not FILLERS.has(String(ready[0].cid)) and FILLERS.has(String(ready[1].cid)) and not _filler_needed(String(ready[0].cid)):
+		return []
 	# no se gasta un lote sólo de opcionales mientras falten obligatorias
 	var all_fill := true
 	for i in n:
@@ -1670,6 +1816,31 @@ func _oracle_lot(n: int) -> Array:
 			if not sealed.has(String(cid)):
 				return []
 	return out
+
+# ¿Hace falta una opcional para pasar ya la obligatoria cid? Sí si no queda otra pasada doble antes de la final, o si
+# las demás obligatorias por sellar antes de la final (las que no sólo valen en ella) son pares: ésta quedaría sola.
+func _filler_needed(cid: String) -> bool:
+	var fin := RouteDB.final_idx(repo)
+	var later := false
+	for i in range(_idx() + 1, fin):
+		var x := TimeKey.from_idx(i)
+		if not x.is_empty() and Clock.passes_for(repo, int(x.day), String(x.slot)) > 0:
+			later = true
+			break
+	if not later:
+		return true
+	var sealed: Dictionary = sim.st.ded.get("sealed", {})
+	var k := 0
+	for m in RouteDB.mandatory(repo):
+		var ms := String(m)
+		if ms == cid or sealed.has(ms):
+			continue
+		var v = repo.conclusion(ms).get("validate", {})
+		var vf = v.get("from") if typeof(v) == TYPE_DICTIONARY else null
+		if vf != null and TimeKey.idx_at_or_after(TimeKey.of(vf)) >= fin:
+			continue
+		k += 1
+	return k % 2 == 0
 
 # Lote sin oráculo de valores (pesca): asientos a lápiz de conclusiones (propias) distintas y sin sellar, al azar.
 func _blind_lot(n: int) -> Array:

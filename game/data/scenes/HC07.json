@@ -1,9 +1,10 @@
 {
-  "_nota": "W3-CT-DLG-B. HC07 (columna, GDD §9.6, §8.8): jueves 5 de abril, 9:30, tienda de Crane. El librero viejo (Holmes disfrazado) compra los cuatro libros de EMPT a precio de gremio, escribe su dirección en el libro de ventas (D33 p2, W3-CT-TRACES), pide los tomos de la Strand, ve las notas de Mary («Éstos tienen dueño, señor»: ahí se entera del duelo de Watson, GDD §2.3) y deja un precio a lápiz en un tomo de sermones (D37, respuesta). Los nodos recortables (dedos amarillos, sombra) son de places/L1.json. Las líneas sin conf.* las dice WorldModel.start_scene al entrar; las conf.* las dice Confrontation paso a paso (who = librero, origen S.HC07). conf.3.si NO está aquí a propósito: necesita ${acto} (el acto citado) y el texto de escena no admite placeholders (Schema: markup); lo da ui_text scenes.conf.3.si («${acto}. Sí, sí.»). Ninguna afirmación toca Camden House; Holmes no se revela de palabra (§2.4).",
+  "_nota": "W3-CT-DLG-B. HC07 (columna, GDD §9.6, §8.8): jueves 5 de abril, 9:30, tienda de Crane. El librero viejo (Holmes disfrazado) compra los cuatro libros de EMPT a precio de gremio, escribe su dirección en el libro de ventas (D33 p2, W3-CT-TRACES), pide los tomos de la Strand, ve la nota de Mary en el tomo II y la de Watson en el VI («nov. 93 — junto a ella», D01N#nov93) y dice «Éstos tienen dueño, señor»: ahí se entera del duelo de Watson, GDD §2.3, y el epílogo 10.duelo («Ese modo fui yo») lo da por visto y deja un precio a lápiz en un tomo de sermones (D37, respuesta). Los nodos recortables (dedos amarillos, sombra) son de places/L1.json: la lámina PL.HC07 es la instantánea de la tienda al empezar la escena (WorldModel.start_scene; origen PL.L1.10.M), y es la que muestra la confrontación. Las líneas sin conf.* las dice WorldModel.start_scene al entrar; las conf.* las dice Confrontation paso a paso (who = librero, origen S.HC07). conf.3.si NO está aquí a propósito: necesita ${acto} (el acto citado) y el texto de escena no admite placeholders (Schema: markup); lo da ui_text scenes.conf.3.si («${acto}. Sí, sí.»). Ninguna afirmación toca Camden House; Holmes no se revela de palabra (§2.4).",
   "id": "HC07",
   "place": "L1",
   "area": "tienda",
   "tk": "10.M",
+  "plate": "PL.HC07",
   "origin": "S.HC07",
   "lines": [
     {"id": "llama", "who": "crane", "text": "Desde el pie de la escalera: —¡Señor Lisle! Baje un momento: aquí un colega pregunta por tomos de la Strand, y los únicos que hay en esta calle son los suyos."},
@@ -12,11 +13,11 @@
     {"id": "direccion", "who": "librero", "text": "Escribe la dirección en el libro de ventas de Crane, despacio, con la cabeza casi sobre la página. La letra no le tiembla."},
     {"id": "pide_tomos", "who": "librero", "text": "—¿Y los tomos de la Strand, señor, los encuadernados? Me dijeron que en esta calle había unos."},
     {"id": "arriba", "who": "crane", "text": "Se rasca la oreja con el lápiz. —Los tiene el caballero de arriba, que es este señor. Tráigalos, señor Lisle, que mirar no cuesta; aunque no están en venta, ¿verdad?"},
-    {"id": "hojea", "who": "librero", "text": "Hojea el tomo segundo y se detiene en una nota a lápiz, de letra de mujer, junto a «James». Los dedos tamborilean sobre la tapa. {{#dueno e:tomos e:notas_de_los_tomos|Cierra el tomo como quien cierra una puerta: —Éstos tienen dueño, señor.}}"},
+    {"id": "hojea", "who": "librero", "text": "Hojea el tomo segundo y se detiene en una nota a lápiz, de letra de mujer, junto a «James». Busca el sexto y, en la última página, lee otra, de letra grande y floja: «nov. 93 — junto a ella». Los dedos dejan de tamborilear. {{#dueno e:tomos e:notas_de_los_tomos|Cierra el tomo como quien cierra una puerta: —Éstos tienen dueño, señor.}}"},
     {"id": "sermones", "who": "librero", "text": "Escribe un precio a lápiz en la guarda de un tomo de sermones y lo deja sobre el mostrador. —Éste no me lo llevo, señor."},
 
     {"id": "conf.1", "who": "librero", "text": "Su patrón, señor, es un caballero que llora a un hermano."},
-    {"id": "conf.1.si", "who": "librero", "text": "—Hum. Un hermano muy bien informado sobre tigres."},
+    {"id": "conf.1.si", "who": "librero", "text": "—Hum. Entonces no es luto: es caza."},
     {"id": "conf.1.no", "who": "librero", "text": "—Eso prueba que su patrón lee, señor; no que caza."},
     {"id": "conf.2", "who": "librero", "text": "El relato del doctor es exacto en lo esencial, señor: uno cayó y el otro no volvió."},
     {"id": "conf.2.si", "who": "librero", "text": "Tamborilea con los dedos sobre el mostrador. —Literalmente, no."},

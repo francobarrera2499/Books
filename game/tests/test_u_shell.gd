@@ -308,6 +308,12 @@ func test_flow_prologue_visit_night_dawn() -> void:
 	eq(gs.state().mode, "plate", "prólogo: lámina")
 	eq(gs.cur_plate, "PL.prologo")
 	eq(gs.hud.day_label.text, "26")
+	no(gs.tutor.visible and gs.speech.visible, "la nota del instructor espera a que termine la presentación")
+	for i in 40:
+		if not gs.speech.visible:
+			break
+		gs.speech.advance()
+	await frames(2)
 	ok(gs.tutor.visible, "nota del instructor")
 	var n0: int = g.sim.actions_log().size()
 	gs.calendar()
@@ -633,6 +639,10 @@ func test_passive_calendar_through_ui() -> void:
 			"night":
 				a = {"t": "report_submit", "mode": "nada", "items": []} if bool(g.sim.q_report_status().due) else {"t": "sleep"}
 			"confront":
+				if sh.is_open("tray"):
+					ok(sh.top_kind() == "tray", "día 10: primero la bandeja del amanecer (el Times del jueves)")
+					sh.close_kind("tray")
+					await settle()
 				ok(sh.is_open("confront"), "confrontación: la vista se abre sola")
 				no(sh.is_open("report"), "sin el informe encima")
 				a = {"t": "confront", "step": int(g.sim.q_confront().get("step", 1)), "item": {}}

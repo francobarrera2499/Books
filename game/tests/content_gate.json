@@ -1,0 +1,4 @@
+{
+  "_nota": "W4-QA (ARCHITECTURE §10, ola 4; §9.1). strict = true: pending_content() es FAIL, no SKIP. Barrido de texto complementario: devtools/drivers/w4qa_text.gd (ortografía, tipografía, anacronismos, glifos de literales, presupuesto por bloques de GDD §15.1) -> .work/w4qa/.",
+  "strict": true
+}

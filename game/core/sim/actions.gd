@@ -27,7 +27,7 @@ const SPEC := {
 	"practice": {"args": {"entry": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
 	"pass_clean": {"args": {"entries": TYPE_ARRAY}, "opt": {}, "commit": true, "phases": ["desk", "final_report"]},
 	"go": {"args": {"place": TYPE_STRING, "area": TYPE_STRING, "seat": TYPE_INT}, "opt": {"area": "", "seat": 0}, "commit": true, "phases": ["desk"]},
-	"slip": {"args": {"doc": TYPE_STRING}, "opt": {}, "commit": true, "phases": ["visit"]},
+	"slip": {"args": {"doc": TYPE_STRING, "noise": TYPE_STRING}, "opt": {"noise": ""}, "commit": true, "phases": ["visit"]},
 	"order_copy": {"args": {"doc": TYPE_STRING}, "opt": {}, "commit": true, "phases": ["visit"]},
 	"ask": {"args": {"char": TYPE_STRING, "topic": TYPE_STRING}, "opt": {}, "commit": true, "phases": ["visit"]},
 	"assert": {"args": {"char": TYPE_STRING, "assertion": TYPE_STRING}, "opt": {}, "commit": true, "phases": ["visit"]},

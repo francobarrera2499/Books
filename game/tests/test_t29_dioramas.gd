@@ -8,7 +8,7 @@ extends "res://tests/test_base.gd"
 const WR = preload("res://world/world_root.gd")
 const RC = preload("res://world/rect_clip.gd")
 
-const TIMEOUT_S := 90.0
+const TIMEOUT_S := 300.0
 
 var _wr = null
 
@@ -73,6 +73,23 @@ func _clip_alone(wr, nid: String) -> Dictionary:
 	elif big.size() != 1 or str(big[0]["node"]) != nid: why = "captura %s" % str(big)
 	elif not bool(big[0]["tight"]): why = "no ajustado"
 	return {"ok": why == "", "why": why, "res": res}
+
+# Criterio del juego para que un recorte de lámina lleve las etiquetas del nodo (Clipper.act_clip_plate): rectángulo ≤ 1/8,
+# a lo sumo MAX_PLATE_HITS nodos con cover ≥ 0,5, el nodo pedido es el de mayor cover y está ajustado.
+func _clip_for_route(wr, nid: String) -> Dictionary:
+	var r := _rect_around(wr, nid, 0.03)
+	if r.get_area() <= 0.0: return {"ok": false, "why": "fuera de cuadro"}
+	var res: Dictionary = wr.rect_clip(r)
+	var big: Array = []
+	for h in res["hits"]:
+		if float(h["cover"]) >= 0.5: big.append(h)
+	big.sort_custom(func(x, y): return float(x["cover"]) > float(y["cover"]) or (float(x["cover"]) == float(y["cover"]) and str(x["node"]) < str(y["node"])))
+	var why := ""
+	if float(res["area_frac"]) > 0.125: why = "rectángulo > 1/8 (%.3f)" % float(res["area_frac"])
+	elif big.is_empty() or str(big[0]["node"]) != nid: why = "captura %s" % str(big)
+	elif big.size() > 2: why = "más de 2 nodos %s" % str(big)
+	elif not bool(big[0]["tight"]): why = "no ajustado"
+	return {"ok": why == "", "why": why}
 
 # «sin tapar» (GDD§14.4): en cuadro y con la mayoría de los puntos de muestra del ancla a la vista (no basta un hombro)
 func _visible_in_frame(wr, nid: String) -> String:
@@ -320,6 +337,97 @@ func test_places_line_of_fire_clippable_alone() -> void:
 		ok(any_ok, "%s: la línea de tiro no se recorta sola en ningún encuadre (%s)" % [pid, "; ".join(reasons)])
 	if not found:
 		pending_content("ningún lugar con nodo linea_de_tiro (L7)")
+
+# Todo nodo N: que una ruta de data/conclusions.json usa se recorta SOLO (rectángulo ≤ 1/8, cover ≥ 0,5, ajustado) desde
+# algún encuadre de su lugar o lámina, con la instantánea del primer día y franja en que existe (hallazgo del playtest:
+# T29 sólo probaba la línea de tiro). Nodos que pone un efecto (rastro) o un lugar inexistente: se informan aparte.
+func test_route_nodes_clippable_alone() -> void:
+	var r = repo()
+	var txt := FileAccess.get_file_as_string("res://data/conclusions.json")
+	var rx := RegEx.new()
+	rx.compile("\"N:([A-Za-z0-9_.]+)\"")
+	var refs: Array = []
+	for m in rx.search_all(txt):
+		if not refs.has(m.get_string(1)):
+			refs.append(m.get_string(1))
+	refs.sort()
+	if refs.is_empty():
+		pending_content("conclusions.json sin nodos N:")
+		return
+	var Cond = load("res://core/util/cond.gd")
+	var TK = load("res://core/util/timekey.gd")
+	var bad: Array = []
+	for ref in refs:
+		var parts: PackedStringArray = String(ref).split(".")
+		var pid := parts[0]
+		var nid := parts[parts.size() - 1]
+		var variant := parts[1] if parts.size() == 3 else ""
+		var pl: Dictionary = r.place(pid)
+		var fixed := false
+		if pl.is_empty():
+			pl = r.plate(pid)
+			fixed = not pl.is_empty()
+		if pl.is_empty():
+			bad.append("%s: no existe el lugar o lámina %s" % [ref, pid])
+			continue
+		var nodes: Array = (pl.get("nodes", []) as Array).duplicate()
+		var vd = (pl.get("variants", {}) as Dictionary).get(variant, {}) if pl.get("variants", {}) is Dictionary else {}
+		if vd is Dictionary:
+			nodes.append_array(vd.get("add_nodes", []))
+		var nd := {}
+		for n in nodes:
+			if str(n.get("id", "")) == nid:
+				nd = n
+		if nd.is_empty():
+			continue   # nodo que deja un efecto (rastro): no está en la lámina estática
+		# primer día/franja en que el nodo existe (when de calendario)
+		var day := int(pl.get("day", 3)) if fixed else -1
+		var slot := str(pl.get("slot", "M")) if fixed else ""
+		if not fixed:
+			for d in range(1, 11):
+				for sl in ["M", "T", "N"]:
+					var w = nd.get("when", {})
+					if day < 0 and (not (w is Dictionary) or (w as Dictionary).is_empty() or Cond.eval(w, {"st": null, "tk": TK.tk(d, sl)})):
+						day = d
+						slot = sl
+		if day < 0:
+			bad.append("%s: ningún día del calendario lo muestra" % ref)
+			continue
+		var node_area := str(nd.get("area", "*"))
+		var reasons: Array = []
+		var any_ok := false
+		for f in pl.get("frames", []):
+			var fid := str(f.get("id", ""))
+			var farea := str(f.get("area", "*"))
+			if node_area != "*" and farea != "*" and farea != node_area:
+				continue
+			var area := node_area if node_area != "*" else (farea if farea != "*" else _frame_area(pl, fid))
+			var snap := _full_snap(pl, area, slot, fid)
+			var ids: Array = []
+			for n in nodes:
+				var na := str(n.get("area", "*"))
+				if area != "*" and na != "*" and na != area:
+					continue
+				var w2 = n.get("when", {})
+				if w2 is Dictionary and not (w2 as Dictionary).is_empty() and not Cond.eval(w2, {"st": null, "tk": TK.tk(day, slot)}):
+					continue
+				ids.append(str(n["id"]))
+			snap["nodes"] = ids
+			snap["day"] = day
+			snap["variant"] = variant
+			snap["silhouettes"] = []
+			await _world(pl, snap)
+			_wr.set_frame(fid, true)
+			await tree.physics_frame
+			var res := _clip_for_route(_wr, nid)
+			after_each()
+			if res["ok"]:
+				any_ok = true
+				break
+			reasons.append("%s: %s" % [fid, res["why"]])
+		if not any_ok:
+			bad.append("%s (día %d.%s): %s" % [ref, day, slot, "; ".join(reasons)])
+	eq(bad, [], "nodos de rutas que no se recortan solos")
 
 # ---------------------------------------------------------------------------------------------
 # WorldRoot: entrada real (eventos empujados al viewport), precalentado y hub sin datos

@@ -117,10 +117,73 @@ func play(id: String) -> void:
 	if au != null and au.has_method("play"):
 		au.play(id)
 
+# Rótulos fijos por quien habla (la confrontación: el librero es «Anciano encorvado» toda la escena, W4).
+var who_override := {}
+
+static var _intro_cache := {}     # {"sim": id, "n": líneas, "set": {who: true}}
+
+# Se presentó él mismo en una línea dicha: el que habla se nombra con un vínculo a su propia entidad («[[pell|Josiah
+# Pell]], procurador…»). GDD: el nombre se conoce cuando el personaje se presenta (W4: Pell seguía siendo «Procurador con
+# cartera» el día 5). El índice del sim no lo registra porque las líneas de una escena fija no presentan a nadie.
+static func introduced_by_line(s, who: String) -> bool:
+	if s == null or who == "" or not (s is Object) or s.get("st") == null:
+		return false
+	var stv = s.get("st")
+	var w = stv.get("world")
+	var lines = w.get("lines", {}) if typeof(w) == TYPE_DICTIONARY else {}
+	if typeof(lines) != TYPE_DICTIONARY:
+		return false
+	var sid := (s as Object).get_instance_id()
+	if _intro_cache.is_empty() or int(_intro_cache.get("sim", 0)) != sid or int(_intro_cache.get("n", -1)) != lines.size():
+		# por escena (origen de la línea): quiénes hablan y a quiénes se nombra con vínculo. Presentado = habla en esa
+		# escena y alguien de esa escena (él mismo u otro: «El caballero es el [[harris|mayor Harris]]») lo nombra.
+		var speakers := {}
+		var named := {}
+		for uid in lines:
+			var rec = lines[uid]
+			if typeof(rec) != TYPE_DICTIONARY:
+				continue
+			var org := String(rec.get("origin", rec.get("scene", "")))
+			var wh := String(rec.get("who", ""))
+			if not speakers.has(org):
+				speakers[org] = {}
+				named[org] = {}
+			if wh != "":
+				speakers[org][wh] = true
+			var tx := String(rec.get("text", ""))
+			var k := tx.find("[[")
+			while k >= 0:
+				var e := tx.find("]]", k)
+				if e < 0:
+					break
+				var ent := tx.substr(k + 2, e - k - 2).get_slice("|", 0).strip_edges()
+				if ent != "":
+					named[org][ent] = true
+				k = tx.find("[[", e)
+		var found := {}
+		for org in speakers:
+			for wh in speakers[org]:
+				if named[org].has(wh):
+					found[wh] = true
+		_intro_cache = {"sim": sid, "n": lines.size(), "set": found}
+	return (_intro_cache.get("set", {}) as Dictionary).has(who)
+
+# Nombre propio de un personaje (rótulo del diálogo o nombre de la entidad).
+static func proper_name(r, who: String) -> String:
+	if r == null:
+		return who
+	var dl: Dictionary = r.dialogue(who)
+	var en: Dictionary = r.entity(who)
+	return String(dl.get("label", en.get("name", who)))
+
 # Nombre visible de quien habla. chars = q_scene().chars (ya resuelve «nombre sólo si se presentó»).
 func who_label(who: String, chars: Array = []) -> String:
 	if who == "" or who == "lisle":
 		return t("sceneui.who.lisle")
+	if who_override.has(who):
+		return Deps.cap_first(String(who_override[who]))
+	if introduced_by_line(sim(), who):
+		return Deps.cap_first(proper_name(repo(), who))
 	for c in chars:
 		if typeof(c) == TYPE_DICTIONARY and String(c.get("id", "")) == who and String(c.get("label", "")) != "":
 			return Deps.cap_first(String(c.label))
@@ -135,7 +198,7 @@ func who_label(who: String, chars: Array = []) -> String:
 	var dl: Dictionary = r.dialogue(who)
 	var en: Dictionary = r.entity(who)
 	var lab := ""
-	if known:
+	if known or bool(dl.get("known", false)):
 		lab = String(dl.get("label", en.get("name", who)))
 	else:
 		lab = String(en.get("noun", dl.get("label", en.get("name", who))))

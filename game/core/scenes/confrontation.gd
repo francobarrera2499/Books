@@ -162,6 +162,20 @@ static func _say(st, repo, id: String, vars: Dictionary) -> Dictionary:
 	text = Deps.cap_first(Deps.fill(repo, text, vars))
 	return Dialogue.say_line(st, repo, WHO, text, {"origin": ORIGIN, "scene": SCENE, "id": id, "kind": "confrontacion"})
 
+# La etiqueta del acto dicha en voz alta: «asiento 214, mar. 27» -> «asiento 214, el martes 27» (W4: el anciano no habla
+# en abreviaturas de fichero). Días de scenes.wd.<código ASCII>.
+const WD_ABBR := {"lun": "lun", "mar": "mar", "mié": "mie", "mie": "mie", "jue": "jue", "vie": "vie", "sáb": "sab", "sab": "sab", "dom": "dom"}
+
+static func _spoken(repo, lab: String) -> String:
+	var rx := RegEx.create_from_string("(lun|mar|mié|mie|jue|vie|sáb|sab|dom)[.] ([0-9]+)")
+	var out := lab
+	for m in rx.search_all(lab):
+		var code := String(WD_ABBR.get(m.get_string(1), ""))
+		var wd := Deps.txt(repo, "scenes.wd." + code, {}, "")
+		if code != "" and wd != "":
+			out = out.replace(m.get_string(0), "el %s %s" % [wd, m.get_string(2)])
+	return out
+
 # Etiqueta del acto propio citado por el ítem (entidad act.<seq> visible en el recorte o en los recortes del asiento).
 static func _act_label(st, repo, item: Dictionary) -> String:
 	var clips: Array = []
@@ -175,5 +189,5 @@ static func _act_label(st, repo, item: Dictionary) -> String:
 			var id := String(e.get("id", "")) if typeof(e) == TYPE_DICTIONARY else String(e)
 			if id.begins_with("act."):
 				var lab := Deps.ent_label(v.ents, id)
-				return Markup.escape(Deps.cap_first(lab if lab != "" else id))
+				return Markup.escape(Deps.cap_first(_spoken(repo, lab if lab != "" else id)))
 	return Deps.txt(repo, "scenes.conf.acto_def", {}, "Usted sabe cuándo")

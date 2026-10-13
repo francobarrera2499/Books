@@ -92,10 +92,17 @@ func test_files(p_filter := "") -> Array:
 	if d == null:
 		return files
 	for f in d.get_files():
-		if f.begins_with("test_") and f.ends_with(".gd") and f != "test_base.gd" and (p_filter == "" or f.contains(p_filter)):
+		if f.begins_with("test_") and f.ends_with(".gd") and f != "test_base.gd" and (p_filter == "" or _matches(f, p_filter)):
 			files.append(f)
 	files.sort()
 	return files
+
+# filtro: subcadena del archivo; varias separadas por coma (cualquiera).
+static func _matches(f: String, p_filter: String) -> bool:
+	for part in p_filter.split(",", false):
+		if f.contains(part.strip_edges()):
+			return true
+	return false
 
 static func test_methods(scr: Script) -> Array:
 	var methods: Array = []

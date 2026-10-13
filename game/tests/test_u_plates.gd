@@ -45,10 +45,12 @@ func test_contract_and_tags() -> void:
 		ok(PC.find_node(p, nid, "fina").is_empty(), "FINA sin %s" % nid)
 	ok(PC.find_node(p, "baston", "foto").is_empty(), "la foto-recuerdo no tiene bastón")
 	ok(PC.find_node(p, "marca", "foto").is_empty(), "ni la marca")
-	# T4 por nodo: a lo sumo una etiqueta de conclusión por nodo (y nunca las dos de C2 o de C3 juntas)
+	# T4 por nodo: a lo sumo una etiqueta de conclusión por nodo (y nunca las dos de C2 o de C3 juntas); las de refutación
+	# (a:refuta_<x>, R3) no son grupos de conclusión: la línea de la foto refuta «Lea a Reuter» (T17, como D05#corniche)
 	for v in ["", "fina", "journal", "foto"]:
 		for n in PC.node_defs(p, v):
-			ok((n.get("tags", []) as Array).filter(func(t): return str(t).begins_with("a:")).size() <= 1, "%s/%s" % [v, n.get("id")])
+			ok((n.get("tags", []) as Array).filter(func(t): return str(t).begins_with("a:") and not str(t).begins_with("a:refuta_")).size() <= 1, "%s/%s" % [v, n.get("id")])
+	ok(PC.has_tags(PC.find_node(p, "linea", "foto"), ["a:refuta_reuter"]), "la foto refuta «Lea a Reuter»")
 	for n in PC.node_defs(p, ""):
 		eq(str(n.get("cls")), "I", "las láminas son inmutables: %s" % n.get("id"))
 

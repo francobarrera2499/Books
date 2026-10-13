@@ -209,9 +209,43 @@ func test_char_silhouette_journal_sources():
 	eq(Av.journal_srcs(r, "nada"), [])
 	eq(Av.plate_tb(r, "PRO"), Av.full_mask(), "lámina del prólogo: desde P.N")
 
+# Silueta con diálogo = personaje de la visita (WorldModel.start_visit la suma a los chars): Wiggins se puede interrogar
+# desde el día 3 en todo lugar que declara su silueta (data/ real; en el hub sólo en la tienda, nunca en la buhardilla).
+func test_silhouette_with_dialogue_is_a_character_source():
+	var r = repo()
+	var w: Array = Av.char_srcs(r, "wiggins", [], "line", ".x", "C")
+	# W4: sólo en las áreas de silhouettes.wiggins.talk (exteriores: tienda, calle de Baker Street, portería, Park Lane)
+	eq(w.size(), 4, "una fuente por lugar y área donde se le habla: %d" % w.size())
+	var places := {}
+	for s in w:
+		places[String(s.place)] = true
+		eq(int(s.mask) & Av.range_mask(0, _i("2.night")), 0, "desde el día 3 (HC02): %s" % s.key)
+		ne(String(s.area), "buhardilla", "en la buhardilla no hay visita")
+		if String(s.place) != "L1":
+			eq(String(s.unit.get("cap", "")), "q", "cuenta preguntas")
+	var pk: Array = places.keys()
+	pk.sort()
+	eq(pk, ["L1", "L3", "L5", "L7"], str(pk))
+	for s in w:
+		ok(["tienda", "calle", "porteria", "exterior"].has(String(s.area)), "sólo exteriores: " + String(s.key))
+	has(Av.all_chars(r), "wiggins")
+	eq(Av.char_srcs(r, "cochero"), [], "silueta sin diálogo: no es personaje")
+	var RouteDB = load("res://core/graph/route_db.gd")
+	eq(String(RouteDB.resolve(r, "L:wiggins.vieja_tarifa").missing), "")
+	eq(String(RouteDB.resolve(r, "L:wiggins.conduit").missing), "")
+
 func test_frag_mask_contract():
 	var r = _r()
 	eq(Av.frag_mask(r, {"ref": "D05#marque", "copy": "D05@BM"}), Av.open_mask(r, "L2", "sala") & Av.range_mask(_i("1.M"), _i("9.N")))
 	eq(Av.frag_mask(r, {"mask": 5}), 5)
 	eq(Av.frag_mask(r, {}), 0)
 	eq(Av.frag_mask(r, {"ref": "D99#nada"}), 0)
+
+# W4-BALANCE D1: la silueta vista desde el escritorio (hub) no ancla K-S: no tiene acto «go» que citar (el recorte de la
+# lámina del hub sólo lleva al muchacho; C6.R1 fallaba la condición 5). Sobre data/ real: ninguna fuente de silueta en L1.
+func test_sil_srcs_skip_hub_real():
+	var r = repo()
+	var srcs: Array = Av.sil_srcs(r, "wiggins")
+	ok(not srcs.is_empty(), "Wiggins tiene siluetas fuera del escritorio")
+	for s in srcs:
+		ok(String(s.get("place", "")) != Av.HUB, "silueta en el hub: %s" % str(s.get("key", "")))

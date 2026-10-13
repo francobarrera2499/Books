@@ -11,6 +11,7 @@ signal read_requested(view: String)
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
 const SLIPS := 3
+const RES_MIN_H := 140.0
 var _remeasure := 0
 
 var shell = null
@@ -24,6 +25,7 @@ var slips_row: HBoxContainer
 var head_seat: Label
 var _entity := ""
 var _confirm: Control = null
+var _res_scroll: ScrollContainer
 
 func _init() -> void:
 	name = "Catalog"
@@ -79,9 +81,16 @@ func _ready() -> void:
 	mid.add_theme_constant_override("separation", 8)
 	cols.add_child(mid)
 	mid.add_child(Widgets.label(Widgets.t("shell.cat.asientos"), "SourceLine"))
+	# las fichas se desplazan dentro de la hoja: nunca bajan hasta debajo de la banda de la escena (W4: la quinta ficha
+	# quedaba tapada, con su «Pedir» sin clic)
+	_res_scroll = ScrollContainer.new()
+	_res_scroll.name = "Fichas"
+	_res_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	mid.add_child(_res_scroll)
 	results = VBoxContainer.new()
+	results.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	results.add_theme_constant_override("separation", 8)
-	mid.add_child(results)
+	_res_scroll.add_child(results)
 	# mesa: papeletas y lo pedido
 	var right := VBoxContainer.new()
 	right.custom_minimum_size = Vector2(230, 0)
@@ -140,9 +149,17 @@ func _place() -> void:
 	var inset := 0.0
 	if shell != null and shell.game_screen != null and shell.game_screen.has_method("_band_inset"):
 		inset = float(shell.game_screen._band_inset())
+	var free_h := vs.y - inset
+	# las fichas toman su alto natural; si la hoja no cabe sobre la banda, se acortan y se desplazan con la rueda
+	var need := results.get_combined_minimum_size().y
+	_res_scroll.custom_minimum_size = Vector2(0, need)
 	sheet.size = Vector2.ZERO
 	sheet.reset_size()
-	var free_h := vs.y - inset
+	var room := free_h - 32.0
+	if sheet.size.y > room:
+		_res_scroll.custom_minimum_size.y = maxf(RES_MIN_H, need - (sheet.size.y - room))
+		sheet.size = Vector2.ZERO
+		sheet.reset_size()
 	sheet.position = Vector2((vs.x - sheet.size.x) * 0.5, maxf(16.0, (free_h - sheet.size.y) * 0.5)).floor()
 
 func refresh() -> void:
@@ -196,7 +213,14 @@ func _on_desk(sim) -> Dictionary:
 func _fill_results() -> void:
 	var sim = _sim()
 	for c in results.get_children():
+		results.remove_child(c)
 		c.queue_free()
+	_res_scroll.scroll_vertical = 0
+	# la hoja se reacomoda con cada búsqueda (antes sólo al abrir), cuando el autowrap ya midió las fichas
+	if visible and is_inside_tree():
+		_place.call_deferred()
+		_remeasure = 2
+		set_process(true)
 	if sim == null:
 		return
 	if _entity == "":
@@ -221,11 +245,13 @@ func _fill_results() -> void:
 		if did != "" and desk.has(did):
 			var view := String(desk[did])
 			h.add_child(Widgets.ink_button(Widgets.t("shell.cat.leer"), func(): read_requested.emit(view)))
-		elif did != "" and _bm_copy(sim.repo, did):
-			h.add_child(Widgets.ink_button(Widgets.t("shell.cat.pedir"), func(): _ask_slip(did, String(r.get("label", "")))))
 		else:
-			var no := Widgets.label(Widgets.t("shell.cat.no_se_presta"), "SmallLabel")
-			h.add_child(no)
+			# toda ficha se pide igual (W4: «Pedir» sólo en las que son documentos del caso delataba cuáles importan; el
+			# catálogo mezcla ruido y hay que saber qué pedir). Lo que no se sirve se sabe después de la papeleta.
+			var req := did if did != "" and _bm_copy(sim.repo, did) else ""
+			var b := Widgets.ink_button(Widgets.t("shell.cat.pedir"), func(): _ask_slip(req, String(r.get("label", ""))))
+			b.name = "Pedir"
+			h.add_child(b)
 		results.add_child(card)
 
 func _note(text: String) -> Label:
@@ -242,7 +268,8 @@ func _fill_desk() -> void:
 	if sim == null:
 		return
 	var desk := _on_desk(sim)
-	for i in maxi(0, SLIPS - desk.size()):
+	var used: int = int(sim.q_slips_used()) if sim.has_method("q_slips_used") else desk.size()
+	for i in maxi(0, SLIPS - used):
 		slips_row.add_child(Slip.new())
 	for did in desk:
 		var view := String(desk[did])
@@ -256,7 +283,9 @@ func _fill_desk() -> void:
 func _ask_slip(did: String, label: String) -> void:
 	if _confirm != null and is_instance_valid(_confirm):
 		_confirm.queue_free()
-	var body := Widgets.rich("DocBody", Widgets.t("shell.cat.papeleta", {"titulo": label, "n": seat}))
+	# una ficha que ya trae comillas («El problema final», The Strand…) no se vuelve a entrecomillar
+	var key := "shell.cat.papeleta_sin" if label.strip_edges().begins_with("«") else "shell.cat.papeleta"
+	var body := Widgets.rich("DocBody", Widgets.t(key, {"titulo": label, "n": seat}))
 	body.custom_minimum_size = Vector2(440, 0)
 	var c := Widgets.confirm(body, Widgets.t("shell.cat.pedir"), Widgets.t("kit.confirm.back"), Widgets.t("shell.cat.papeleta_t"))
 	# centrada por un CenterContainer (el alto del texto se conoce con el ancho puesto) sobre un velo
@@ -280,7 +309,7 @@ func _ask_slip(did: String, label: String) -> void:
 		wrap.queue_free()
 		_confirm = null
 		if ok:
-			_do_slip(did))
+			_do_slip(did, label))
 
 # La confirmación de la papeleta a la vista (tests y drivers): el panel con la señal decided, o null.
 func confirm_panel() -> Control:
@@ -291,8 +320,11 @@ func confirm_panel() -> Control:
 			return ch
 	return null
 
-func _do_slip(did: String) -> void:
-	var r: Dictionary = shell.act({"t": "slip", "doc": did}) if shell != null else {}
+# Una papeleta se gasta siempre (W4): con documento del caso servido hoy, el ejemplar llega a la mesa; si no (obra de
+# época que la Sala no sirve, o fuera de su ventana), el ujier vuelve con las manos vacías y la papeleta queda gastada.
+func _do_slip(did: String, label := "") -> void:
+	var a := {"t": "slip", "doc": did} if did != "" else {"t": "slip", "doc": "", "noise": label}
+	var r: Dictionary = shell.act(a) if shell != null else {}
 	if not bool(r.get("ok", false)):
 		if shell != null:
 			shell.note(shell.err_text(String(r.get("err", ""))))
@@ -301,7 +333,12 @@ func _do_slip(did: String) -> void:
 	if shell != null:
 		shell.play("sfx.papel")
 	refresh()
-	read_requested.emit(String(r.get("view", "")))
+	var view := String(r.get("view", ""))
+	if view == "":
+		if shell != null:
+			shell.note(Widgets.t("shell.cat.no_esta"))
+		return
+	read_requested.emit(view)
 
 # Papeleta en blanco (dibujada).
 class Slip extends Control:

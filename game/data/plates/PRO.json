@@ -820,7 +820,7 @@
      0.06
     ]
    },
-   "examine": "El cajón del centro cierra mal. Adentro, doblada en cuatro, una [[galerada|prueba de imprenta]] con un sello: «1.ª prueba — lector: E. L.».",
+   "examine": "El cajón del centro cierra mal. Dentro, doblada en cuatro, una [[galerada|prueba de imprenta]] con un sello: «1.ª prueba — lector: E. L.».",
    "tags": [
     "e:galerada",
     "e:cajon_del_escritorio"
@@ -1629,7 +1629,7 @@
     0.0,
     -0.35
    ],
-   "rot": 30.8,
+   "rot": 64.0,
    "pose": "de_pie",
    "trait": "chistera_bigote",
    "when": {}

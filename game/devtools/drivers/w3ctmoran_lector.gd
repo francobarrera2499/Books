@@ -40,7 +40,7 @@ func drive(p_tool, scene) -> void:
 	for a in OS.get_cmdline_user_args():
 		if String(a).begins_with("--only="):
 			only = String(a).substr(7)
-	var plan := [["D09@BM", "d09", 2], ["D10@Crane", "d10", 3], ["D11@BM", "d11", 2], ["D16@L1", "d16", 1], ["D17@Crane", "d17", 2], ["D32@L3", "d32", 2], ["D39@BM", "d39", 1]]
+	var plan := [["D09@BM", "d09", 2], ["D10@Crane", "d10", 3], ["D11@BM", "d11", 2], ["D16@Crane", "d16", 1], ["D17@Crane", "d17", 2], ["D32@L3", "d32", 2], ["D39@BM", "d39", 1]]
 	for row in plan:
 		if only != "" and not String(row[1]).contains(only):
 			continue

@@ -6,7 +6,8 @@
 #   origin = documento o escena (D03 recortado en Crane o en el BM es un solo origen); passage = origin|parte|tramo (C1).
 # Par: st.ded.pairs[id] = {id, a, b, note}. Los pares no se anidan; un par vale por sus dos recortes.
 # Resolución de fuentes (sim está aguas abajo de deduction: sin preload; load() en tiempo de llamada, sin ciclo):
-#   doc   -> WorldModel.view_accessible(view) y WorldModel.view(view).pages[part][block] = {doc, origin, copy, parsed};
+#   doc   -> WorldModel.view_accessible(view) y WorldModel.view(view).pages[part][block] = {doc, origin, copy, parsed, segs?};
+#            con segs (avisos insertados en un número del Times), el recorte que cae dentro de un seg es de su doc runtime;
 #            si view() no trae páginas: datos estáticos (repo.copy(view) o id de doc; part = índice o id de parte).
 #   line / diary -> registro en st.world.diary | st.world.lines | st.scenes.lines con id o uid == ref:
 #            {parsed | text (+act), origin | scene, who?, place?, cls?, src_type?, title?, voice?}. diario sin origen -> D36.
@@ -90,8 +91,11 @@ static func accessible(st, repo, kind: String, ref: String) -> bool:
 		"line", "diary":
 			return true
 		"plate":
-			if plate_snapshot(st, repo, ref).is_empty():
+			var ps := plate_snapshot(st, repo, ref)
+			if ps.is_empty():
 				return false
+			if bool(ps.get("hub", false)):
+				return true   # la buhardilla de ahora, con Lisle en casa (WorldModel.hub_snapshot)
 			var plates = _world(st).get("plates", {})
 			if typeof(plates) == TYPE_DICTIONARY and plates.has(ref):
 				return true
@@ -216,7 +220,9 @@ static func resolve_text_src(st, repo, src: Dictionary) -> Dictionary:
 				"copy": String(snap.get("copy", plate)), "cls": String(nd.get("cls", "I")), "src_type": "lugar",
 				"place": String(snap.get("place", "")), "view": plate, "part": node, "block": 0,
 				"title": _place_label(repo, String(snap.get("place", "")))}
-			return _norm_block(st, repo, blk3, kind, ref)
+			var nb := _norm_block(st, repo, blk3, kind, ref)
+			nb["on_clip_flag"] = String(nd.get("on_clip_flag", ""))
+			return nb
 	return _err("forma")
 
 static func _block_from_view(v, src: Dictionary) -> Dictionary:
@@ -337,6 +343,11 @@ static func _norm_block(st, repo, blk: Dictionary, kind: String, ref: String) ->
 	out["scene"] = String(blk.get("scene", ""))
 	out["who"] = String(blk.get("who", ""))
 	out["place"] = String(blk.get("place", ""))
+	if typeof(blk.get("segs")) == TYPE_ARRAY and not (blk.segs as Array).is_empty():
+		# número del Times con avisos insertados por el mundo (WorldModel._merge_inserts): el recorte que cae dentro
+		# de un tramo insertado es de ese documento runtime (voz, meta), no del número (act_clip_text -> seg_block)
+		out["segs"] = blk.segs
+		out["_blk"] = blk
 	var line := String(blk.get("src_line", ""))
 	if line == "":
 		var lugar := _place_label(repo, out.place)
@@ -471,7 +482,7 @@ static func node_def(st, repo, snap: Dictionary, node: String) -> Dictionary:
 	for n in nodes:
 		if typeof(n) == TYPE_DICTIONARY and String(n.get("id", "")) == node:
 			return _fill_def(repo, {"id": node, "noun": String(n.get("noun", "")), "tags": n.get("tags", []),
-				"cls": String(n.get("cls", "I")), "examine": String(n.get("examine", ""))})
+				"cls": String(n.get("cls", "I")), "examine": String(n.get("examine", "")), "on_clip_flag": String(n.get("on_clip_flag", ""))})
 	if node.begins_with("sil_"):
 		var who := node.substr(4)
 		var ents: Array = []
@@ -591,6 +602,7 @@ static func act_clip_text(st, repo, a) -> Dictionary:
 	var sn := ClipRules.snap(parsed, int(a.get("from", 0)), int(a.get("len", 0)))
 	if not sn.ok:
 		return _err(String(sn.err))
+	b = seg_block(st, repo, b, sn.from, sn.to)
 	var inh := ClipRules.inherit(parsed, sn.from, sn.to)
 	var ents: Array = inh.ents.duplicate()
 	var extra: Array = []
@@ -619,7 +631,20 @@ static func act_clip_text(st, repo, a) -> Dictionary:
 	}
 	var labels := _act_labels(parsed, sn.from, sn.to)
 	var id := _store(st, repo, clip, labels)
+	_set_clip_flag(st, String(b.get("on_clip_flag", "")))
 	return {"ok": true, "clip": id}
+
+# Bloque normalizado del documento runtime insertado si [from, to) cae dentro de uno de sus segs; si no, el mismo.
+static func seg_block(st, repo, b: Dictionary, from: int, to: int) -> Dictionary:
+	for sg in b.get("segs", []):
+		if from >= int(sg.from) and to <= int(sg.to) and b.has("_blk"):
+			var rb: Dictionary = (b._blk as Dictionary).duplicate()
+			rb["doc"] = String(sg.doc)
+			rb.erase("segs")
+			var nb := _norm_block(st, repo, rb, String(b.src_kind), String(b.view))
+			nb["parsed"] = b.parsed
+			return nb
+	return b
 
 # Etiqueta de las entidades runtime (act.<n>) = superficie de su mención (recortada al tamaño de la tira).
 static func _act_labels(parsed: Dictionary, from: int, to: int) -> Dictionary:
@@ -674,7 +699,8 @@ static func _caption(st, repo, clip: Dictionary, act_labels: Dictionary) -> Stri
 	var pl := _place_label(repo, String(clip.get("place_label_src", "")))
 	if pl != "" and not parts.has(pl):
 		parts.append(pl)
-	return ", ".join(parts)
+	# «; » como un índice de imprenta: las etiquetas ya llevan comas («Holmes, Mycroft»)
+	return "; ".join(parts)
 
 static func act_clip_plate(st, repo, a) -> Dictionary:
 	Index.ensure(st)
@@ -759,7 +785,15 @@ static func act_clip_plate(st, repo, a) -> Dictionary:
 		"who": "", "tk": now_tk(st), "part": main, "block": 0, "from": 0, "to": 0,
 	}
 	var id := _store(st, repo, clip)
+	for nid in clip.nodes:
+		_set_clip_flag(st, String(defs.get(nid, {}).get("on_clip_flag", "")))
 	return {"ok": true, "clip": id}
+
+# Nodo con on_clip_flag (data/plates, data/places): recortarlo escribe ese flag (§3.9: escritor Clipper). Hoy sólo
+# PARK.libros -> vio_libros_park (GDD §12.2: «C12 sellado, o C12.R2 vista en Park Lane», endings V.C12).
+static func _set_clip_flag(st, flag: String) -> void:
+	if flag != "" and typeof(st.flags) == TYPE_DICTIONARY:
+		st.flags[flag] = true
 
 static func act_clip_measure(st, repo, a) -> Dictionary:
 	Index.ensure(st)

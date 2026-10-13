@@ -135,6 +135,32 @@ func test_m11_follows_after_s_column_from_day5():
 	h2.advance_to("6.night")
 	eq(h2.find("M11").size(), 0, "HC10 (día 4) no despierta a Moran")
 
+# M10–M12 en la voz de quien comunica (data/ real): Pell transmite en tercera persona («El mayor…»); Harris en persona
+# (M7) o firmando «H.» (tras M4) habla en primera persona: nunca «El mayor» en boca de Harris. Mismas etiquetas.
+func test_next_lines_voice_real_data():
+	var h = H.new(repo())
+	_report(h, 2, "5.night", [{"kind": "entry", "id": "AS009", "cats": ["paradero_extranjero"], "copies": [], "cls": []}])
+	h.advance_to("7.night")
+	var ex: Array = Effects.scene_extra(h.st, "M7")
+	eq(ex.size(), 1, str(ex))
+	ok(String(ex[0]).contains("No cazo en monte ajeno") and String(ex[0]).contains("a:busca_a_holmes"), str(ex))
+	no(String(ex[0]).contains("mayor"), "Harris no habla de sí en tercera persona: " + str(ex))
+	var h2 = H.new(repo())
+	h2.ev("go", {"place": "L3", "area": "calle", "streets": ["Baker Street"], "hour": "10:00"}, "1.M")
+	h2.advance_to("5.dawn")
+	var m6: Dictionary = h2.first("M6")
+	var t6 := String(m6.get("text", "")) + str(Effects.scene_extra(h2.st, "M6"))
+	ok(t6.contains("El mayor") and t6.contains("celebra su diligencia"), "Pell transmite: " + t6)
+	var h3 = H.new(repo())
+	_report(h3, 1, "2.night", [{"kind": "entry", "id": "AS001", "cats": ["moran_autor"], "copies": [], "cls": []}])
+	h3.advance_to("3.dawn")
+	ok(bool(h3.st.flags.get("pell_despedido", false)))
+	h3.ev("go", {"place": "L3", "area": "calle", "streets": ["Baker Street"], "hour": "10:00"}, "3.M")
+	h3.advance_to("5.dawn")
+	var t3 := h3.text("M6")
+	ok(t3.contains("Celebro su diligencia") and t3.ends_with("—H."), "nota «H.» en primera persona: " + t3)
+	no(t3.contains("El mayor celebra"), t3)
+
 func test_m12_paradero():
 	var h = H.new(R())
 	_report(h, 2, "5.night", [{"kind": "entry", "id": "AS009", "cats": ["paradero_extranjero"], "copies": [], "cls": []}])
@@ -200,3 +226,37 @@ func test_report_cats_entries_by_values():
 			has_c2 = true
 	if has_c2:
 		has(MoranAgent.report_cats(st, r, {"kind": "entry", "id": "A1"}), "verdadero")
+
+# Hallazgo del playtest (sistemas): Moran lee lo que DICE el asiento, no si coincide con la respuesta oculta. Un T4 que
+# nombra a Moran como redactor es moran_autor (M4) sea cual sea el documento; un lápiz con los valores de C5 no da
+# crédito (sólo un asiento en tinta, o un recorte con c:verdadero); «Harris» cuenta sin C10a sellado.
+func test_report_cats_real_by_visible_fields():
+	var r = repo()
+	var mk4 := func(doc: String, who: String, ink: String) -> Dictionary:
+		return {"template": "T4", "ink": ink, "lines": [{"fields": {"documento": doc}, "support": []}, {"fields": {"redacto": who}, "support": []}]}
+	var st = _st_with({}, {
+		"A1": mk4.call("fina", "moran", "lapiz"),
+		"A2": mk4.call("cartas_del_coronel", "moran", "lapiz"),
+		"A3": mk4.call("cartas_del_coronel", "harris", "lapiz"),
+		"A4": mk4.call("cartas_del_coronel", "moran", "tinta"),
+		"A5": mk4.call("cartas_del_coronel", "watson", "lapiz"),
+		"A6": {"template": "T7", "ink": "lapiz", "lines": [{"fields": {"persona": "holmes"}, "support": []}, {"fields": {"estado": "vivo"}, "support": []}]},
+		"A7": {"template": "T5", "ink": "lapiz", "lines": [{"fields": {"persona": "harris", "hizo": "matar", "que": "watson"}, "support": []}]},
+		"A8": {"template": "T5", "ink": "lapiz", "lines": [{"fields": {"persona": "moran", "hizo": "escribir", "que": "fina"}, "support": []}]},
+		"A9": {"template": "T5", "ink": "lapiz", "lines": [{"fields": {"persona": "holmes", "hizo": "ocultar", "que": "bienes"}, "support": []}, {}, {}, {"fields": {"donde": "camden_house"}, "support": []}]},
+	})
+	st.ded.sealed = {"C5": "A4"}
+	var cats := func(id: String) -> Array:
+		return MoranAgent.report_cats(st, r, {"kind": "entry", "id": id})
+	has(cats.call("A1"), "moran_autor", "«El problema final · Lo redactó: Moran» nombra a Moran como autor")
+	has(cats.call("A2"), "moran_autor")
+	no(cats.call("A1").has("verdadero"))
+	no(cats.call("A2").has("verdadero"), "un lápiz con los valores de C5 no da crédito: Moran no confirma valores")
+	eq(cats.call("A1"), cats.call("A2"), "mismas categorías con el documento verdadero o con otro: Moran no es oráculo")
+	has(cats.call("A3"), "moran_autor", "Harris como redactor, sin C10a sellado")
+	has(cats.call("A4"), "verdadero", "en tinta, sí da crédito")
+	no(cats.call("A5").has("moran_autor"))
+	has(cats.call("A6"), "holmes_vive")
+	has(cats.call("A7"), "moran_autor", "Harris como asesino")
+	no(cats.call("A8").has("moran_autor"), "«escribir» no es asesinar")
+	has(cats.call("A9"), "camden", "nombrar Camden House en cualquier campo")

@@ -89,10 +89,11 @@
   },
   "L8": {
    "xy": [
-    259.1,
-    58.6
+    268.0,
+    60.5
    ],
    "label": "Camden House",
+   "_xy": "Frente a Baker Street, del otro lado de la calle; separado del marcador de Baker Street lo bastante para que no se tapen a ninguna escala del mapa (W4: la persiana de Camden House se comía el clic de Baker Street).",
    "label_off": [
     9,
     7
@@ -1206,6 +1207,10 @@
   "E": "d3a49c",
   "F": "b0584e",
   "G": "cfae55"
+ },
+ "world_events": {
+  "_nota": "Lo que ve y oye Lisle de un evento_mundo de las reacciones (Effects.world_events): on = salida (la primera vez que sale a la calle desde que ocurrió) o amanecer; sound = id de data/audio.json (su subtítulo lo describe); veil = velo breve sobre la lámina (polvo). Sin entrada: el evento no tiene forma propia en pantalla (lo cuentan sus cartas o líneas). GDD §9.7 M2: el ladrillo cae a un paso al salir, «sonido y polvo».",
+  "ladrillo": {"on": "salida", "sound": "evt.ladrillo", "veil": "polvo"}
  },
  "objects": {
   "L1": {

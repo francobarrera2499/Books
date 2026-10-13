@@ -47,7 +47,8 @@ const LisleNote = preload("res://ui/scene/lisle_note.gd")
 const LAYER := 40
 const BAND_H := 262.0
 const MARGIN := 24.0
-const CAST_W := 330.0
+const CAST_W := 360.0          # cuatro verbos en un renglón aun con la barra de desplazamiento (W4-SLICE: 330 no alcanzaba)
+const BAND_MAX_EXTRA := 110.0
 const SUB_GAP := 12.0
 const TASKS := ["seguir_chico_pell", "seguir_parker"]
 const PAY_AMOUNTS := [6, 12, 30]
@@ -108,6 +109,8 @@ var _picker_char := ""
 var _refresh_queued := false
 var _connected := false
 var _opened := false
+var _band_h := BAND_H
+var _fit_frames := 0
 
 var sim:
 	get: return link.sim_override
@@ -411,6 +414,7 @@ func refresh() -> void:
 	for ln in sc.get("lines", []):
 		uids.append(String(ln.get("uid", "")))
 	transcript.set_caption(_epigraph(sc))
+	transcript.set_narration(phase == "parklane")
 	transcript.set_lines(uids, chars)
 	_title.text = _title_text(sc, c)
 	_build_cast()
@@ -522,11 +526,52 @@ func _build_cast() -> void:
 			if not first:
 				_cast.add_child(Widgets.rule())
 			first = false
-			_cast.add_child(_cast_block(cid, String(ch.get("label", cid)), vs))
+			_cast.add_child(_cast_block(cid, _label_of(cid), vs))
 		if show_leave:
 			_foot.add_child(Widgets.ink_button(link.t("sceneui.leave.free" if _visit_free() else "sceneui.leave"), leave))
 	elif phase == "scene" or phase == "parklane":
 		_foot.add_child(Widgets.button(link.t("sceneui.continue"), _do_leave))
+	_fit_band.call_deferred()
+
+# La banda crece lo justo para que el elenco entero quepa sin desplazar (W4: con dos personajes los verbos del segundo
+# pasaban a un segundo renglón y «Pagar» quedaba cortado al pie). Tope BAND_MAX_EXTRA.
+func _fit_band() -> void:
+	# dos cuadros después (los HFlowContainer de los verbos miden su alto con el ancho ya puesto); por _process y no
+	# con await: el panel puede liberarse antes
+	_fit_frames = 2
+	set_process(true)
+
+func _process(_dt: float) -> void:
+	if _fit_frames <= 0:
+		set_process(false)
+		return
+	_fit_frames -= 1
+	if _fit_frames == 0:
+		set_process(false)
+		_do_fit_band()
+
+func _do_fit_band() -> void:
+	if not is_inside_tree() or band == null:
+		return
+	var want := BAND_H
+	if _cast_scroll.visible:
+		var need := _cast.get_combined_minimum_size().y + _foot.get_combined_minimum_size().y + 8.0 + 44.0 + 6.0
+		want = clampf(need, BAND_H, BAND_H + BAND_MAX_EXTRA)
+	set_band_height(want)
+
+func set_band_height(h: float) -> void:
+	if is_equal_approx(h, _band_h):
+		return
+	_band_h = h
+	band.offset_top = -(h + MARGIN)
+	note.offset_bottom = -(h + MARGIN + SUB_GAP)
+	note.offset_top = note.offset_bottom
+	for c in [ask_panel, picker, present_bar]:
+		c.offset_bottom = -(h + MARGIN + SUB_GAP)
+		c.offset_top = c.offset_bottom
+
+func band_height() -> float:
+	return _band_h
 
 func _cast_block(cid: String, label: String, vs: Array) -> Control:
 	var b := CastBlock.new()
@@ -611,6 +656,11 @@ func _present_char(cid: String) -> bool:
 	return false
 
 func _label_of(cid: String) -> String:
+	# el mismo rótulo que sus líneas (rótulo fijo de la escena, presentado por sí mismo o el del sim), sin mayúscula inicial
+	if link.who_override.has(cid):
+		return String(link.who_override[cid])
+	if SimLink.introduced_by_line(link.sim(), cid):
+		return SimLink.proper_name(link.repo(), cid)
 	for x in chars:
 		if String(x.get("id", "")) == cid:
 			return String(x.get("label", cid))
@@ -644,7 +694,12 @@ func _epigraph(sc: Dictionary) -> String:
 	if r == null:
 		return ""
 	var p := String(sc.get("place", ""))
-	var e := String(r.place(p).get("epigraph", "")) if p != "" else ""
+	var e := ""
+	if p != "":
+		var pd: Dictionary = r.place(p)
+		var by = pd.get("epigraph_by_area", {})
+		var ar := String(sc.get("area", ""))
+		e = String(by[ar]) if typeof(by) == TYPE_DICTIONARY and ar != "" and by.has(ar) else String(pd.get("epigraph", ""))
 	if e == "" and String(sc.get("plate", "")) != "":
 		var pl: Dictionary = link.qd("q_plate", [String(sc.plate)])
 		var pid := String(pl.get("place", ""))

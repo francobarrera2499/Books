@@ -70,7 +70,7 @@
       "add_nodes": [
         {"id": "pared", "prop": "garganta_f", "noun": "pared", "anchor": {"c": [-4.0, 2.05, 0.12], "s": [14.0, 3.6, 0.24]}, "examine": "La [[pared|pared]] de roca, gris y áspera, sobre el [[sendero|sendero]].", "tags": ["e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}},
         {"id": "saliente", "prop": "saliente_f", "noun": "saliente", "anchor": {"c": [-2.7, 5.05, 0.55], "s": [14.6, 2.3, 1.1]}, "examine": "Sobre el sendero, la roca hace un saliente.", "tags": ["e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}},
-        {"id": "linea", "prop": "garganta_f", "noun": "línea oscura", "anchor": {"c": [-1.1, 6.93, -0.25], "s": [7.0, 1.4, 2.5]}, "examine": "En la [[pared|pared]], por encima del final del [[sendero|sendero]], corre una línea oscura, horizontal.", "tags": ["a:cornisa_existe", "e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}},
+        {"id": "linea", "prop": "garganta_f", "noun": "línea oscura", "anchor": {"c": [-1.1, 6.93, -0.25], "s": [7.0, 1.4, 2.5]}, "examine": "En la [[pared|pared]], por encima del final del [[sendero|sendero]], corre una línea oscura, horizontal.", "tags": ["a:cornisa_existe", "a:refuta_reuter", "e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}},
         {"id": "roca_alta", "prop": "garganta_f", "noun": "roca", "anchor": {"c": [-4.0, 11.0, 0.2], "s": [14.0, 3.6, 0.4]}, "examine": "Arriba, la roca sigue hasta el borde de la garganta.", "tags": ["e:fotografia_reichenbach"], "cls": "I", "area": "*", "when": {}}
       ]
     }

@@ -79,6 +79,12 @@ func test_engraving_contract_text() -> void:
 		names.append(u.name)
 	for u in ["paper", "ink", "edge_depth", "edge_normal", "cell_px", "grain", "anchor_rad", "exposure", "contrast", "hatch"]:
 		ok(names.has(u), "uniform " + u)
+	# W4-STYLE: calibración por preset y separación de siluetas
+	for u in ["gamma", "tone_floor", "vignette", "halo", "halo_rel", "halo_abs", "halo_thick"]:
+		ok(names.has(u), "uniform " + u)
+	ok(code.contains("line_thr"), "talla con umbrales uniformes por fila (calibración en toda la escala)")
+	for k in EngravingPost.LOOK_KEYS:
+		ok(names.has(k), "LOOK_KEYS: %s es uniform del shader" % k)
 
 func test_post_attach_contract() -> void:
 	var cam := Camera3D.new()

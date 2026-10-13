@@ -1,0 +1,18 @@
+{
+  "_nota": "W4 (corrector de contenido; playtest «lector»). Correo de ruido de la bandeja (GDD §7.1 «también las cuentas y el ruido», §9.9 «entre la cuenta del sastre y el Times»): papeles de época que llegan por correo a la buhardilla (WorldModel.arrivals_at: ejemplar L1, via desk, from = amanecer de un día con correo), con su sello «Recibido» y su línea neutra en el diario. Sin etiquetas a:/c:/f: ni menciones de entidades de la trama: no son prueba de nada, para que no todo sobre que llega sea una pista. El título es el sobre, como el de las cartas de las reacciones («Carta a máquina, matasellos S.W.»): la bandeja no dice qué trae. Días 2, 4, 5, 7 y 9 (nunca el 1: el Times del 27 llega solo; nunca el domingo, sin correo). Prospecto de un óptico del barrio (inventado); los vidrios azules son los de cualquier vista delicada, no un dato.",
+  "id": "D51",
+  "entity": "prospecto_del_optico",
+  "title": "Hoja impresa, matasellos W.C.",
+  "src_type": "carta_recibida",
+  "class": "P",
+  "date": "1894-04-03",
+  "font": "imprenta",
+  "paper": "carta",
+  "copies": [
+    {"id": "D51@L1", "holder": "L1", "area": "buhardilla", "class": "P", "via": "desk", "from": "9.dawn", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "M. HALLAM, ÓPTICO. — STRAND, FRENTE A ST CLEMENT DANES.\n\nAnteojos y quevedos de todas clases. Vidrios ahumados y azules para vistas delicadas, a precio de fábrica. Se gradúa la vista sin cargo. Composturas en el día."}
+  ],
+  "words": 36
+}

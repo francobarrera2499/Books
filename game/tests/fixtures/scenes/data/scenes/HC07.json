@@ -1,7 +1,25 @@
 {
   "id": "HC07", "place": "L1", "area": "tienda", "tk": "10.M", "origin": "S.HC07",
+  "_nota": "Fixture de W2-SCENES. Una sola fuente por id (W4): las líneas de la confrontación están aquí (conf.2 difiere a propósito de data/), no en ui_text; conf.3.si y conf.acto_def sólo en ui_text.",
   "lines": [
     {"id": "compra", "who": "librero", "text": "Cuatro libros, señor, a precio de gremio, si me hace el favor."},
-    {"id": "conf.2", "who": "librero", "text": "El relato del doctor es exacto en lo esencial: uno cayó y el otro no volvió. (fixture HC07)"}
+    {"id": "conf.2", "who": "librero", "text": "El relato del doctor es exacto en lo esencial: uno cayó y el otro no volvió. (fixture HC07)"},
+    {"id": "conf.1", "who": "librero", "text": "Su patrón, señor, es un caballero que llora a un hermano."},
+    {"id": "conf.1.si", "who": "librero", "text": "Hum. Un hermano muy bien informado sobre tigres."},
+    {"id": "conf.1.no", "who": "librero", "text": "Eso prueba que su patrón lee, señor; no que caza."},
+    {"id": "conf.2.si", "who": "librero", "text": "Tamborilea con los dedos sobre el mostrador. —Literalmente, no."},
+    {"id": "conf.2.no", "who": "librero", "text": "Eso prueba que el doctor no sabe de geología."},
+    {"id": "conf.3", "who": "librero", "text": "Nadie lo lee a usted, señor. Usted lee demasiado."},
+    {"id": "conf.3.no", "who": "librero", "text": "Eso prueba que el correo funciona."},
+    {"id": "conf.4", "who": "librero", "text": "Yo no soy más que un pobre librero de Church Street."},
+    {"id": "conf.4.si", "who": "librero", "text": "Se endereza un instante, a su altura entera; bajo el gas, su sombra llega al techo. Vuelve a encorvarse."},
+    {"id": "conf.4.no", "who": "librero", "text": "Eso prueba que leo a Bunyan, señor."},
+    {"id": "conf.paquete", "who": "librero", "text": "Recoge su paquete del mostrador."},
+    {"id": "conf.sombrero", "who": "librero", "text": "Se pone el sombrero."},
+    {"id": "conf.se_va", "who": "librero", "text": "Buenos días, señor."},
+    {"id": "conf.nota", "who": "librero", "text": "Abre el tomo VI y escribe a lápiz en el margen: «Faltan cinco tomos en un estante de Kensington.»"},
+    {"id": "conf.oferta", "who": "librero", "text": "Si el señor me permite, le corregiré las pruebas de su informe del mediodía."},
+    {"id": "conf.silencio", "who": "librero", "text": "Y le ruego silencio, señor, hasta que el autor lo autorice."},
+    {"id": "conf.fin", "who": "librero", "text": "Hum. Buenos días, señor."}
   ]
 }

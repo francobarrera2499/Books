@@ -6,7 +6,7 @@
   "addr": "muchacho",
   "max_questions": 3,
   "trait": "",
-  "closing": "Suena la campanilla de la puerta. —Perdone, señor: me llaman de adentro.",
+  "closing": "Suena la campanilla de la puerta. —Perdone, señor: me llaman de dentro.",
   "ask_phrase": {
     "default": "Dígame, ${addr}: ¿qué sabe usted de ${topic}?",
     "camden_house": "¿Se alquila esa casa, muchacho?",

@@ -252,17 +252,44 @@ func test_c10a_entry_and_alias_in_same_lot():
 
 # ---------------- lotes ----------------
 func test_lot_size_by_calendar():
-	var st = _st(3)
+	# fixture ded: lot_counts C2 (P.N), C6 (4.dawn), C10 (5.dawn), C12 (sólo 10.M)
+	var st = _st(5)
 	eq(Validator.lot_size(st, r), 2)
 	st.clock.day = 10
 	eq(Validator.lot_size(st, r), 1, "día 10: de a uno")
 	st.clock.day = 7
-	st.ded.sealed = {"C2": "a", "C6": "b", "C10": "c"}
-	eq(Validator.lot_size(st, r), 1, "min(2, sin sellar)")
+	st.ded.sealed = {"C2": "a", "C6": "b"}
+	eq(Validator.lot_size(st, r), 1, "min(2, sin sellar con la ventana abierta): C12 no cuenta antes del 10")
+	st.ded.sealed["C10"] = "c"
+	eq(Validator.lot_size(st, r), 0, "sólo queda C12, que se valida el 10.M")
+	st.clock.day = 10
+	eq(Validator.lot_size(st, r), 1, "el 10.M, C12")
 	st.ded.sealed["C12"] = "d"
 	eq(Validator.lot_size(st, r), 0)
+	st.clock.day = 7
 	st.ded.sealed = {"C10a": "x"}
 	eq(Validator.lot_size(st, r), 2, "C10a no está en lot_counts")
+	st.clock.day = 3
+	st.ded.sealed = {}
+	eq(Validator.lot_size(st, r), 1, "día 3: sólo C2 tiene la ventana abierta")
+
+# Hallazgo del playtest (sistemas): con {C7, C12} sin sellar a las 9.T, el lote es de 1 (C7 se puede entintar sola;
+# antes valía 2 y C7 tenía que esperar al día 10 para competir con C12 por la única pasada).
+func test_lot_size_real_c7_c12_on_9T():
+	var rr = repo()
+	var st = FakeState.new()
+	st.clock = {"day": 9, "slot": "T", "phase": "desk"}
+	Clipper.init_state(st, rr)
+	Ledger.init_state(st, rr)
+	for cid in rr.conclusions_meta().get("lot_counts", []):
+		if not ["C7", "C12"].has(String(cid)):
+			st.ded.sealed[String(cid)] = "AS_" + String(cid)
+	eq(Validator.lot_size(st, rr), 1, "C12 no es compañera de lote antes del 10.M")
+	st.clock = {"day": 10, "slot": "M", "phase": "desk"}
+	eq(Validator.lot_size(st, rr), 1, "el día 10, de a uno")
+	st.ded.sealed.erase("C9")
+	st.clock = {"day": 9, "slot": "T", "phase": "desk"}
+	eq(Validator.lot_size(st, rr), 2, "con C9 (ventana desde el 8) sí hay compañera")
 
 func test_pass_clean_all_good():
 	var st = _st()
@@ -278,7 +305,9 @@ func test_pass_clean_all_good():
 	eq(Validator.passes_spent(st, 41), 1)
 	eq(st.notes.map(func(n): return n.kind), ["entry", "entry"], "el aviso «pass» lo emite el despachador (W2-SIM)")
 	eq(Ledger.act_entry_set(st, r, {"entry": e1, "line": 0, "field": "calla", "value": ""}).get("err"), "en_tinta", "la tinta es inmutable")
-	eq(Validator.act_pass_clean(st, r, {"entries": [e1, e2]}).get("err"), "en_tinta")
+	eq(Validator.lot_size(st, r), 0, "el día 4, con C2 y C6 selladas, no queda ninguna con la ventana abierta")
+	st.clock.day = 5
+	eq(Validator.act_pass_clean(st, r, {"entries": [e1]}).get("err"), "en_tinta")
 
 func test_pass_clean_all_or_nothing_single_message():
 	var st = _st()
@@ -303,8 +332,8 @@ func test_pass_clean_distinct_and_not_sealed():
 	no(Validator.act_pass_clean(st, r, {"entries": [a, b]}).inked, "dos veces lo mismo no")
 	var c6 := _c6(st)
 	ok(Validator.act_pass_clean(st, r, {"entries": [a, c6]}).inked)
-	var c10 := _c10(st)
-	no(Validator.act_pass_clean(st, r, {"entries": [b, c10]}).inked, "C2 ya está sellada")
+	st.clock.day = 5
+	no(Validator.act_pass_clean(st, r, {"entries": [b]}).inked, "C2 ya está sellada")
 
 func test_pass_clean_formal_does_not_spend():
 	var st = _st()
@@ -342,8 +371,8 @@ func test_day10_lot_of_one_and_validate_window():
 	eq(res.sealed, ["C12"], "lote de 1 el día 10")
 	var st3 = _st(3, "M")
 	var e3 := _c6(st3)
-	var e4 := _c2(st3)
-	no(Validator.act_pass_clean(st3, r, {"entries": [e3, e4]}).inked, "C6 se valida desde 4.dawn")
+	eq(Validator.lot_size(st3, r), 1, "el día 3 sólo C2 cuenta para el lote")
+	no(Validator.act_pass_clean(st3, r, {"entries": [e3]}).inked, "C6 se valida desde 4.dawn")
 
 # ---------------- C1: práctica aparte ----------------
 func _c101(st, folio := "erratas", dice_b := "pierna") -> String:

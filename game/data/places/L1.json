@@ -15,7 +15,7 @@
   }
  },
  "observers": [],
- "epigraph": "—Con esos vidrios azules, señor Lisle, ¿cómo distingue usted una errata?",
+ "epigraph": "—Con esos vidrios azules, señor Lisle, no sé cómo distingue usted una errata.",
  "frames": [
   {
    "id": "escritorio",
@@ -1132,7 +1132,7 @@
      0.06
     ]
    },
-   "examine": "El cajón del centro cierra mal. Adentro, doblada en cuatro, una [[galerada|prueba de imprenta]] con un sello: «1.ª prueba — lector: E. L.».",
+   "examine": "El cajón del centro cierra mal. Dentro, doblada en cuatro, una [[galerada|prueba de imprenta]] con un sello: «1.ª prueba — lector: E. L.».",
    "tags": [
     "e:galerada",
     "e:cajon_del_escritorio"
@@ -2525,7 +2525,7 @@
   }
  ],
  "silhouettes": {
-  "wiggins": {
+  "wiggins": {"talk": ["tienda"], 
    "frame": "ventana",
    "pos": [
     -2.05,

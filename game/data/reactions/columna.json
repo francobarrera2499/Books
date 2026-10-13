@@ -92,7 +92,7 @@
         {"tpl": "c", "nodo": "S:HC06.c", "tags": ["a:identidad_holmes", "e:mycroft", "e:holmes"]},
         {"tpl": "d", "nodo": "S:HC06.d", "tags": ["e:holmes"]},
         {"tpl": "e", "nodo": "S:HC06.e", "tags": ["a:dia_jueves", "e:jueves", "e:mycroft"]},
-        {"tpl": "f", "nodo": "M:HC06.papel", "tags": ["a:vinculo_mycroft", "e:papel_corto"]},
+        {"tpl": "f", "nodo": "M:D46", "tags": ["a:vinculo_mycroft", "e:papel_corto"]},
         {"tpl": "g", "nodo": "S:HC06.g", "tags": []}
       ],
       "corta": [], "agrega": ["C6", "C7.R2", "C7.R8", "C8.R3", "C9.R2"], "variante_blanda": null, "exento_d2": true

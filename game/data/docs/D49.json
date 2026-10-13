@@ -1,0 +1,18 @@
+{
+  "_nota": "W4 (corrector de contenido; playtest «lector»). Correo de ruido de la bandeja (GDD §7.1 «también las cuentas y el ruido», §9.9 «entre la cuenta del sastre y el Times»): papeles de época que llegan por correo a la buhardilla (WorldModel.arrivals_at: ejemplar L1, via desk, from = amanecer de un día con correo), con su sello «Recibido» y su línea neutra en el diario. Sin etiquetas a:/c:/f: ni menciones de entidades de la trama: no son prueba de nada, para que no todo sobre que llega sea una pista. El título es el sobre, como el de las cartas de las reacciones («Carta a máquina, matasellos S.W.»): la bandeja no dice qué trae. Días 2, 4, 5, 7 y 9 (nunca el 1: el Times del 27 llega solo; nunca el domingo, sin correo). La semana del cuarto, el sábado, de mano del librero de abajo: la deuda que Mycroft le ve a Lisle (HC06 a) y que Crane sigue fiando (epílogo 02).",
+  "id": "D49",
+  "entity": "nota_de_crane",
+  "title": "Nota a lápiz, sin sobre",
+  "src_type": "carta_recibida",
+  "class": "P",
+  "date": "1894-03-31",
+  "font": "manuscrito",
+  "paper": "carta",
+  "copies": [
+    {"id": "D49@L1", "holder": "L1", "area": "buhardilla", "class": "P", "via": "desk", "from": "5.dawn", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<ink=lapiz>Señor Lisle: la semana del cuarto, 3s. 6d., y la vela que se llevó el martes. Sin prisa. — A. C.</ink>"}
+  ],
+  "words": 20
+}

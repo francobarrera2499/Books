@@ -1,5 +1,5 @@
 {
-  "_nota": "W2-STRUCT. Moran, el otro lector (GDD §9.7): roba, rompe y responde exactamente a lo informado; ciego salvo los informes (cats de MoranAgent.report_cats), lo que ve Parker en Baker Street, lo que ve su hombre cuando sigue a Lisle y la columna. Reacciona a cada informe al día siguiente. Sus notas llegan en mano por el chico de Pell o, tras M4 (pell_despedido), firmadas «H.» y retiradas por Parker en la lista de correos de Charing Cross. La firma («—J. Pell» / «—H.») NO va en los rastros: la pone Effects una sola vez al pie, después de las líneas pendientes de M10–M12 que se adjuntan a la nota. Flags que escribe MoranAgent, no estos efectos (§3.9): moran_credito, moran_credito_perdido (M9), holmes_entregado (M12 y regreso/lugar/Camden informados), informes_vacios. Las líneas «en la siguiente comunicación» (M10, M11, M12) esperan la próxima nota de Pell/«H.» o M7/M8. Ley de la huella (T5): toda reacción de Moran que corta agrega etiquetas de C10 o C13.",
+  "_nota": "W2-STRUCT. Moran, el otro lector (GDD §9.7): roba, rompe y responde exactamente a lo informado; ciego salvo los informes (cats de MoranAgent.report_cats), lo que ve Parker en Baker Street, lo que ve su hombre cuando sigue a Lisle y la columna. Reacciona a cada informe al día siguiente. Sus notas llegan en mano por el chico de Pell o, tras M4 (pell_despedido), firmadas «H.» y retiradas por Parker en la lista de correos de Charing Cross. La firma («—J. Pell» / «—H.») NO va en los rastros: la pone Effects una sola vez al pie, después de las líneas pendientes de M10–M12 que se adjuntan a la nota. Flags que escribe MoranAgent, no estos efectos (§3.9): moran_credito, moran_credito_perdido (M9), holmes_entregado (M12 y regreso/lugar/Camden informados), informes_vacios. Las líneas «en la siguiente comunicación» (M10, M11, M12) esperan la próxima nota de Pell/«H.» o M6/M7/M8; cada una tiene dos voces: `linea` (Pell transmite: «El mayor…») y `linea_h` (Harris en primera persona: notas «H.» tras M4 y Harris en persona en M7). Effects elige la voz al adjuntarla (mismas etiquetas en las dos; `linea_h` lleva e:harris porque habla él). Ley de la huella (T5): toda reacción de Moran que corta agrega etiquetas de C10 o C13.",
   "reactions": [
     {
       "id": "M1", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
@@ -52,7 +52,7 @@
     {
       "id": "M4", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
       "actor": ["moran", "pell"],
-      "_nota": "El informe nombra a Moran o a Harris como autor o asesino (asiento con valores de C5, C10, C10a, C11 o C13), o Lisle se lo presenta a Pell (show con item.cats que incluya moran_autor; Pell palidece en el acto: dialogue/pell.json). Despiden a Pell; los informes siguientes van a la lista de correos de Charing Cross «a nombre de H.» y los retira Parker. M6 y M7 ocurren igual (M6 como nota «H.»). Corta C10.Id en su forma «seguir al chico de Pell» (task seguir_chico_pell); variante blanda: Wiggins puede seguir a Parker desde Charing Cross hasta Conduit Street (task seguir_parker).",
+      "_nota": "El informe nombra a Moran o a Harris como autor o asesino (un asiento cuyo campo de autor o actor dice moran, autor_heavy_game o harris: T4.redacto, T5.persona con hizo matar o disparar, T9.persona, T3.es; lists.report_cats moran_autor por campos visibles, sin mirar si el asiento es correcto), o Lisle se lo presenta a Pell (show con item.cats que incluya moran_autor; Pell palidece en el acto: dialogue/pell.json). Despiden a Pell; los informes siguientes van a la lista de correos de Charing Cross «a nombre de H.» y los retira Parker. M6 y M7 ocurren igual (M6 como nota «H.»). Corta C10.Id en su forma «seguir al chico de Pell» (task seguir_chico_pell); variante blanda: Wiggins puede seguir a Parker desde Charing Cross hasta Conduit Street (task seguir_parker).",
       "disparador": {"evento": ["report", "show"], "match": {"any": [{"type": "report", "cat": "moran_autor"}, {"type": "show", "char": "pell", "cat": "moran_autor"}]}, "una_vez_por": ["*"]},
       "condiciones": {},
       "ancla": ["n"],
@@ -166,7 +166,8 @@
       "latencia": {"tipo": "siguiente_comunicacion"},
       "efecto": [{"op": "linea_siguiente_comunicacion", "tpl": "linea"}],
       "rastro": [
-        {"tpl": "linea", "texto": "{{#linea a:tirador f:secreto_camden e:baker_street|[[harris|El mayor]] celebra su diligencia en [[baker_street|Baker Street]].}}"}
+        {"tpl": "linea", "texto": "{{#linea a:tirador f:secreto_camden e:baker_street|[[harris|El mayor]] celebra su diligencia en [[baker_street|Baker Street]].}}"},
+        {"tpl": "linea_h", "texto": "{{#linea a:tirador f:secreto_camden e:baker_street e:harris|Celebro su diligencia en [[baker_street|Baker Street]].}}"}
       ],
       "corta": [], "agrega": ["C13.R5"], "variante_blanda": null, "exento_d2": false
     },
@@ -185,6 +186,7 @@
       ],
       "rastro": [
         {"tpl": "linea", "texto": "{{#linea a:cebo e:hombre_del_abrigo|[[harris|El mayor]] sabe que usted pasea, señor.}}"},
+        {"tpl": "linea_h", "texto": "{{#linea a:cebo e:hombre_del_abrigo e:harris|Sé que usted pasea, señor.}}"},
         {"tpl": "silueta", "nodo": "N:*.sil_cochero", "tags": ["a:cebo", "e:hombre_del_abrigo"]}
       ],
       "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": false
@@ -199,7 +201,8 @@
       "latencia": {"tipo": "siguiente_comunicacion"},
       "efecto": [{"op": "linea_siguiente_comunicacion", "tpl": "linea"}],
       "rastro": [
-        {"tpl": "linea", "texto": "{{#monte a:busca_a_holmes|[[harris|El mayor]] no caza en monte ajeno, señor.}} {{#donde a:busca_a_holmes e:donde|Quiere saber dónde va a estar, no dónde estuvo.}}"}
+        {"tpl": "linea", "texto": "{{#monte a:busca_a_holmes|[[harris|El mayor]] no caza en monte ajeno, señor.}} {{#donde a:busca_a_holmes e:donde|Quiere saber dónde va a estar, no dónde estuvo.}}"},
+        {"tpl": "linea_h", "texto": "{{#monte a:busca_a_holmes e:harris|No cazo en monte ajeno, señor.}} {{#donde a:busca_a_holmes e:donde|Quiero saber dónde va a estar, no dónde estuvo.}}"}
       ],
       "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": false
     }

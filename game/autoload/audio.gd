@@ -130,6 +130,11 @@ func _config() -> Dictionary:
 func caption(id: String) -> String:
 	return String(_config().get("captions", {}).get(Bank.resolve(id), ""))
 
+# Foley del propio clic del jugador (audio.json quiet_captions): suena sin subtítulo.
+func quiet(id: String) -> bool:
+	var q = _config().get("quiet_captions", [])
+	return typeof(q) == TYPE_ARRAY and q.has(Bank.resolve(id))
+
 func reload_config() -> void:
 	_cfg = null
 
@@ -202,6 +207,7 @@ func _pick_player() -> AudioStreamPlayer:
 
 func _emit_caption(key: String, seconds: float) -> void:
 	if not subtitles_on: return
+	if quiet(key): return
 	var t := caption(key)
 	if t != "": subtitle.emit(t, clampf(seconds, 2.0, 6.0))
 

@@ -40,6 +40,7 @@ static func short(r: Dictionary) -> Dictionary:
 	var errs: Array = r.get("errors", [])
 	return {"seed": r.get("seed", 0), "ending": r.get("ending", ""), "rank": r.get("rank", 0), "sealed": r.get("sealed", []),
 		"words_read": r.get("words_read", 0), "est_minutes": r.get("est_minutes", 0.0), "est_minutes_act": r.get("est_minutes_act", {}),
+		"play_minutes": r.get("play_minutes", 0.0), "play_minutes_act": r.get("play_minutes_act", {}),
 		"acts": r.get("acts", 0), "steps": r.get("steps", 0), "phase": r.get("phase", ""), "errors": errs.slice(0, 3),
 		"n_errors": errs.size(), "oracle": (r.get("oracle", []) as Array).slice(0, 3), "runaway": r.get("runaway", ""),
 		"flags": r.get("flags", {}), "mycroft": (r.get("mycroft", []) as Array).size(), "blocked": r.get("blocked", {}), "ms": r.get("ms", 0), "apply_ms": r.get("apply_ms", 0)}

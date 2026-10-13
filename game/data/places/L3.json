@@ -32,7 +32,7 @@
    ],
    "look": [
     -1.8,
-    2.6,
+    1.95,
     -13.8
    ],
    "fov": 64,
@@ -1344,7 +1344,7 @@
      0.5
     ]
    },
-   "examine": "Un farol de gas en el cordón de la vereda, frente al [[221b|221B]].",
+   "examine": "Un farol de gas en el bordillo de la acera, frente al [[221b|221B]].",
    "tags": [
     "e:luz_de_gas"
    ],
@@ -1368,7 +1368,7 @@
      0.6
     ]
    },
-   "examine": "En la vereda de enfrente, un [[hombrecito_del_arpa|hombrecito agachado]] toca un [[arpa_de_boca|arpa de boca]] sin mirar a nadie.",
+   "examine": "En la acera de enfrente, un [[hombrecito_del_arpa|hombrecito agachado]] toca un [[arpa_de_boca|arpa de boca]] sin mirar a nadie.",
    "tags": [
     "e:hombrecito_del_arpa",
     "e:arpa_de_boca",
@@ -1742,7 +1742,7 @@
   }
  ],
  "silhouettes": {
-  "wiggins": {
+  "wiggins": {"talk": ["calle"], 
    "frame": "221b",
    "pos": [
     4.2,

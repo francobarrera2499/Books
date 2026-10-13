@@ -1,0 +1,20 @@
+{
+  "_nota": "Cierre de ola 3 (orquestador). D46, el papel del club sobre la mesita de la Sala de Forasteros [INV; GDD §9.6 HC06 (f): «Papel del club sobre la mesa, que se puede medir»; §9.9: las cartas de las dos voces «mide[n] lo mismo que el papel del Diógenes»]. Un pliego en blanco con el membrete grabado; Lisle lo lee en el lector (el nodo papel_mesa de L5 lleva e:papel_del_club: su examen ofrece «Leer») y lo mide con la regla («Anotar la medida»). Mismas medidas que las cartas a máquina (measure de sus reacciones: 203 × 244 mm, entidad papel_corto): las dos medidas se enlazan por esa clave de C7. Reemplaza el measure de escena que HC06 no podía declarar (_measure_pendiente) y que la UI no podía tomar. Contrato §4.8: M:D46 (C7.R1/R1c, a:vinculo_mycroft). Clase I: el club no lo retira. Ejemplar en L5 los días 8–9, los de la invitación (HC04): en la Sala de Forasteros, el pliego que Mycroft empuja sobre la mesita (nodo papel_mesa); en la portería, los del atril (nodo papel_club). HB12 cierra la Sala, no la portería: la fuente I no queda única (D9, T2).",
+  "id": "D46",
+  "entity": "papel_del_club",
+  "title": "Pliego de papel del Club Diógenes",
+  "src_type": "lugar",
+  "class": "I",
+  "date": "1894-04-03",
+  "font": "imprenta",
+  "paper": "diogenes",
+  "paper_mm": [203, 244],
+  "measure": {"entity": "papel_corto", "tags": ["vinculo_mycroft"]},
+  "copies": [
+    {"id": "D46@L5", "holder": "L5", "area": "*", "class": "I", "via": "place", "from": "8.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>[[club_diogenes|Club Diógenes]]</sc>\n<i>[[pall_mall|Pall Mall]], S.W.</i>"}
+  ],
+  "words": 5
+}

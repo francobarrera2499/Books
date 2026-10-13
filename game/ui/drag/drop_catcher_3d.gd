@@ -41,7 +41,26 @@ func _notification(what: int) -> void:
 func char_at(pos: Vector2) -> String:
 	if world == null or not is_instance_valid(world):
 		return ""
-	return String(world.pick_character(pos))
+	var cid := String(world.pick_character(pos))
+	if cid != "" or not world.has_method("pick"):
+		return cid
+	# una silueta con diálogo (Wiggins desde el día 3) es un personaje de la visita aunque no sea un maniquí: soltar sobre
+	# su figura también presenta (W4)
+	var hit: Dictionary = world.pick(pos)
+	var nid := String(hit.get("id", ""))
+	if String(hit.get("kind", "")) == "node" and nid.begins_with("sil_") and _in_scene(nid.substr(4)):
+		return nid.substr(4)
+	return ""
+
+static func _in_scene(cid: String) -> bool:
+	var ml = Engine.get_main_loop()
+	var g = ml.root.get_node_or_null("Game") if ml is SceneTree else null
+	if g == null or g.get("sim") == null:
+		return false
+	for c in g.sim.q_scene().get("chars", []):
+		if typeof(c) == TYPE_DICTIONARY and String(c.get("id", "")) == cid:
+			return true
+	return false
 
 func _can_drop_data(at_position: Vector2, data) -> bool:
 	if not armed or not Chips.presentable(data):

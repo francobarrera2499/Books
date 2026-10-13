@@ -76,7 +76,7 @@
   ],
   "characters": [],
   "silhouettes": {
-    "wiggins": {"frame": "patio", "pos": [-1.6, -0.3, -10.6], "rot": 0},
+    "wiggins": {"talk": [], "frame": "patio", "pos": [-1.6, -0.3, -10.6], "rot": 0},
     "cochero": {"frame": "patio", "pos": [3.3, -0.3, -11.9], "rot": -20},
     "muchacho_sin_gorra": {"frame": "patio", "pos": [0.9, -0.3, -10.9], "rot": 8, "_nota": "HB8b: reemplaza a Wiggins (el canal K-S sigue, GDD C6)."}
   },

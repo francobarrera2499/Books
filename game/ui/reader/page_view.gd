@@ -57,6 +57,9 @@ func setup(p_view: Dictionary, p_page := 0, opts := {}) -> void:
 	slot = String(view.get("font", "imprenta"))
 	machine = String(view.get("machine", ""))
 	interactive = bool(opts.get("interactive", true))
+	# una hoja no interactiva (la copia de la lupa) nunca toma el mouse: va encima de la hoja real y se comía los clics
+	# de la tijera (epílogo trabado en «tijera», W4)
+	mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
 	var ti := TextBuilder.ti_node()
 	hc = bool(opts.get("hc", ti != null and bool(ti.high_contrast)))
 	_build_blocks()

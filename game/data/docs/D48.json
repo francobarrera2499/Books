@@ -1,0 +1,18 @@
+{
+  "_nota": "W4 (corrector de contenido; playtest «lector»). Correo de ruido de la bandeja (GDD §7.1 «también las cuentas y el ruido», §9.9 «entre la cuenta del sastre y el Times»): papeles de época que llegan por correo a la buhardilla (WorldModel.arrivals_at: ejemplar L1, via desk, from = amanecer de un día con correo), con su sello «Recibido» y su línea neutra en el diario. Sin etiquetas a:/c:/f: ni menciones de entidades de la trama: no son prueba de nada, para que no todo sobre que llega sea una pista. El título es el sobre, como el de las cartas de las reacciones («Carta a máquina, matasellos S.W.»): la bandeja no dice qué trae. Días 2, 4, 5, 7 y 9 (nunca el 1: el Times del 27 llega solo; nunca el domingo, sin correo). Spottiswoode y Cía., impresores de New-street Square: buscan lectores de pruebas, que es el oficio de Lisle.",
+  "id": "D48",
+  "entity": "circular_de_la_imprenta",
+  "title": "Sobre impreso, matasellos E.C.",
+  "src_type": "carta_recibida",
+  "class": "P",
+  "date": "1894-03-29",
+  "font": "imprenta",
+  "paper": "carta",
+  "copies": [
+    {"id": "D48@L1", "holder": "L1", "area": "buhardilla", "class": "P", "via": "desk", "from": "4.dawn", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "SPOTTISWOODE Y CÍA., IMPRESORES. — NEW-STREET SQUARE, LONDRES, E.C.\n\nSe necesitan lectores de pruebas a destajo, con práctica en cuerpo 8 y en cuerpo 6, para los trabajos de la temporada parlamentaria. Se pagará por pliego corregido. Presentarse con referencias en el despacho de lectura, de diez a doce, cualquier día laborable."}
+  ],
+  "words": 51
+}

@@ -11,6 +11,7 @@ const PAPERS := {
 	"diario_hueso": Color("ece3cf"),
 	"strand": Color("f0e8d6"),
 	"diogenes_recortado": Color("f3ead6"),
+	"diogenes": Color("f3ead6"),          # el mismo papel crema del club, entero (D46: con su membrete)
 	"telegrama": Color("e6d3b0"),
 	"carta": Color("f1ead9"),
 	"registro": Color("e9e2d0"),

@@ -41,7 +41,7 @@
     {"id": "arana_s1", "type": "furniture.gasolier", "pos": [-1.5, 0, 5.57], "rot": 0, "p": {"h": 4.2, "drop": 1.2}},
     {"id": "arana_s2", "type": "furniture.gasolier", "pos": [1.5, 0, 5.57], "rot": 0, "p": {"h": 4.2, "drop": 1.2}},
     {"id": "mirador", "type": "l5.bow_window", "pos": [-4.22, 0, -2.41], "rot": 0, "p": {"w": 2.4, "depth": 0.85, "h": 3.0, "sill": 0.45}},
-    {"id": "sillon_m", "type": "furniture.armchair", "pos": [-4.9, 0, -1.9], "rot": 60, "p": {"wing": true, "mat": "cuero"}},
+    {"id": "sillon_m", "type": "furniture.armchair", "pos": [-4.9, 0, -1.9], "rot": 35, "p": {"wing": true, "mat": "lienzo"}},
     {"id": "sillon_v", "type": "furniture.armchair", "pos": [-3.55, 0, -1.65], "rot": -95, "p": {"wing": true, "mat": "cuero"}},
     {"id": "mesa_f", "type": "furniture.table", "pos": [-4.22, 0, -1.4], "rot": 0, "p": {"w": 0.62, "d": 0.62, "h": 0.7, "round": true}},
     {"id": "papel_f", "type": "l5.club_paper", "pos": [-4.1, 0.7, -1.6], "rot": 15, "p": {"n": 5, "seed": 8}},
@@ -81,7 +81,7 @@
     {"id": "mesa_forasteros", "prop": "mesa_f", "noun": "mesa", "anchor": {"c": [-4.22, 0.36, -1.4], "s": [0.66, 0.72, 0.66]}, "examine": "Una mesita redonda entre los dos sillones.", "tags": [], "cls": "C", "area": "forasteros", "when": {}},
     {"id": "papel_mesa", "prop": "papel_f", "noun": "papel del club", "anchor": {"c": [-4.1, 0.72, -1.6], "s": [0.3, 0.05, 0.34]}, "examine": "Sobre la mesita, pliegos de papel crema del club con el membrete grabado.", "tags": ["a:vinculo_mycroft", "e:papel_del_club"], "cls": "C", "area": "forasteros", "when": {}},
     {"id": "tabaquera", "prop": "tabaquera", "noun": "tabaquera", "anchor": {"c": [-4.43, 0.74, -1.21], "s": [0.14, 0.08, 0.12]}, "examine": "Una tabaquera de carey, abierta; unos granos de [[rape|rapé]] sobre la mesa.", "tags": [], "cls": "C", "area": "forasteros", "when": {}},
-    {"id": "sillon_mycroft", "prop": "sillon_m", "noun": "sillón", "anchor": {"c": [-4.9, 0.55, -1.9], "s": [0.9, 1.1, 0.9]}, "examine": "Un sillón de cuero en el mirador, hundido por el uso.", "tags": [], "cls": "C", "area": "forasteros", "when": {}},
+    {"id": "sillon_mycroft", "prop": "sillon_m", "noun": "sillón", "anchor": {"c": [-5.2, 0.6, -1.69], "s": [0.36, 0.34, 0.5]}, "examine": "Un sillón de cuero en el mirador, hundido por el uso.", "tags": [], "cls": "C", "area": "forasteros", "when": {}},
     {"id": "sillon_visita", "prop": "sillon_v", "noun": "sillón", "anchor": {"c": [-3.55, 0.55, -1.65], "s": [0.9, 1.1, 0.9]}, "examine": "Otro sillón de cuero, frente al primero.", "tags": [], "cls": "C", "area": "forasteros", "when": {}},
     {"id": "chimenea_f", "prop": "chimenea_f", "noun": "chimenea", "anchor": {"c": [-5.67, 1.3, -0.1], "s": [0.5, 2.6, 1.6]}, "examine": "Una chimenea encendida, con un espejo encima y un reloj de repisa.", "tags": [], "cls": "C", "area": "forasteros", "when": {}},
     {"id": "puerta_vestibulo", "prop": "forasteros", "noun": "puerta", "anchor": {"c": [-2.57, 1.2, -1.3], "s": [0.1, 2.4, 1.0]}, "examine": "La puerta al vestíbulo, cerrada.", "tags": [], "cls": "C", "area": "forasteros", "when": {}},
@@ -89,10 +89,10 @@
   ],
   "characters": [
     {"id": "portero", "area": "porteria", "pos": [1.9, 0, -0.3], "rot": -90, "pose": "de_pie", "trait": "", "when": {}},
-    {"id": "mycroft", "area": "forasteros", "pos": [-4.9, 0, -1.9], "rot": 60, "pose": "sentado", "trait": "esfera_panuelo", "when": {"all": [{"day": {"gte": 8, "lte": 9}}, {"slot": ["T", "N"]}]}}
+    {"id": "mycroft", "area": "forasteros", "pos": [-4.9, 0, -1.9], "rot": 35, "pose": "sentado", "trait": "esfera_panuelo", "when": {"all": [{"day": {"gte": 8, "lte": 9}}, {"slot": ["T", "N"]}]}}
   ],
   "silhouettes": {
-    "wiggins": {"frame": "pall_mall", "pos": [-1.8, -0.7, -16.4], "rot": 0},
+    "wiggins": {"talk": ["porteria"], "frame": "pall_mall", "pos": [-1.8, -0.7, -16.4], "rot": 0},
     "cochero": {"frame": "pall_mall", "pos": [2.4, -0.7, -15.9], "rot": -15},
     "muchacho_sin_gorra": {"frame": "pall_mall", "pos": [0.4, -0.7, -16.3], "rot": 5, "_nota": "HB8b: reemplaza a Wiggins (el canal K-S sigue, GDD C6)."}
   },
