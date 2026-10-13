@@ -5,7 +5,7 @@
   {"id": "cajon_del_escritorio", "kind": "objeto", "name": "el cajón del escritorio", "index": "cajón del escritorio", "noun": "cajón"},
   {"id": "tintero_de_lisle", "kind": "objeto", "name": "el tintero", "index": "tintero", "noun": "tintero"},
   {"id": "atril_de_lisle", "kind": "objeto", "name": "el atril", "index": "atril de lectura", "noun": "atril"},
-  {"id": "libro_mayor", "kind": "objeto", "name": "el libro mayor", "index": "libro mayor («Fe de erratas»)", "noun": "libro mayor"},
+  {"id": "libro_mayor", "kind": "objeto", "name": "el libro de conclusiones", "index": "libro de conclusiones", "noun": "libro de conclusiones"},
   {"id": "cuaderno_de_recortes", "kind": "objeto", "name": "el cuaderno", "index": "cuaderno de recortes", "noun": "cuaderno"},
   {"id": "mechero_de_pie", "kind": "objeto", "name": "el mechero de pie", "index": "mechero de gas de pie (tienda de Crane)", "noun": "mechero"},
   {"id": "mostrador_de_crane", "kind": "objeto", "name": "el mostrador de Crane", "index": "mostrador (tienda de Crane)", "noun": "mostrador"},

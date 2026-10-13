@@ -6,11 +6,15 @@
 # («Falta un según.»); al pie, los avisos del asiento («Una sola fuente no es prueba.», «Demasiado papel.»).
 # A lápiz se escribe a mano (gris); en tinta, de imprenta (negro) y con el «Visto». Pie: «Al sello» (lote) o
 # «Pasar en limpio» (práctica, C1) y «Borrar» (sólo lápiz).
+# GDD_v2 §B.7, §C.3: hasta la práctica del día 1, toda conclusión a lápiz ofrece el sello de práctica («Practicar», no
+#   gasta nada); el lote «Al sello» aparece recién con el panel del sello (lg.sello). Bajo «Pruebas», una ayuda de una
+#   línea hasta que se pone la primera prueba en alguna conclusión.
 extends RefCounted
 
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
 const Model = preload("res://ui/ledger/ledger_model.gd")
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
 
 static func empty(host) -> Control:
 	var v := VBoxContainer.new()
@@ -40,6 +44,7 @@ static func build(host, vm: Dictionary, marked: bool) -> Control:
 	head.mouse_default_cursor_shape = Control.CURSOR_DRAG
 	head.set_drag_forwarding(func(_p): return host.drag_entry(eid, head), Callable(), Callable())
 	var t := Widgets.label(Model.tx(sim, "ledger.asiento", {"n": int(vm.n)}), "DocTitle")
+	t.size_flags_vertical = Control.SIZE_SHRINK_END   # título, tipo y estado sobre el mismo renglón de abajo (el sello arriba)
 	head.add_child(t)
 	var tn := Widgets.label(String(vm.tname), "Caption")
 	tn.size_flags_vertical = Control.SIZE_SHRINK_END
@@ -47,14 +52,24 @@ static func build(host, vm: Dictionary, marked: bool) -> Control:
 	var fill := Control.new()
 	fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(fill)
+	# el sello y el estado van apilados a la derecha: uno al lado del otro («CONFIRMADO» + «confirmada · práctica») la
+	# cabecera pedía más ancho que la hoja y la página derecha tapaba las pestañas
+	var right := VBoxContainer.new()
+	right.name = "Estado"
+	right.add_theme_constant_override("separation", 0)
+	right.size_flags_vertical = Control.SIZE_SHRINK_END
+	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if ink == "tinta":
 		var st := Widgets.stamp(Model.tx(sim, "ledger.sello"), "roja", -7.0)
 		st.name = "VistoGrande"
-		head.add_child(st)
+		st.size_flags_horizontal = Control.SIZE_SHRINK_END
+		right.add_child(st)
 		host.maybe_animate_stamp(eid, st)
 	var state := Widgets.label(Model.tx(sim, "ledger.tinta" if ink == "tinta" else "ledger.lapiz") + ((" · " + Model.tx(sim, "ledger.practica")) if bool(vm.practice) else ""), "SourceLine")
-	state.size_flags_vertical = Control.SIZE_SHRINK_END
-	head.add_child(state)
+	state.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	state.size_flags_horizontal = Control.SIZE_SHRINK_END
+	right.add_child(state)
+	head.add_child(right)
 	v.add_child(host.indent(head))
 	v.add_child(host.indent(Widgets.rule()))
 	# --- un asiento en blanco dice cómo se llena (forma, nunca contenido); desaparece al escribir algo
@@ -83,13 +98,14 @@ static func build(host, vm: Dictionary, marked: bool) -> Control:
 		var foot := HBoxContainer.new()
 		foot.name = "Pie"
 		foot.add_theme_constant_override("separation", 16)
-		if bool(vm.practice):
+		var hflags: Dictionary = host.flags if "flags" in host else {}
+		if bool(vm.practice) or not Model.practice_done(sim):
 			var pb := Widgets.button(Model.tx(sim, "ledger.pasar_practica"))
 			pb.name = "Practicar"
 			pb.disabled = not Model.tut_allows(sim, "practice")
 			pb.pressed.connect(func(): host.on_practice(eid))
 			foot.add_child(pb)
-		else:
+		elif UiFlags.on(hflags, "lg.sello"):
 			var cb := CheckBox.new()
 			cb.name = "AlSello"
 			cb.text = Model.tx(sim, "ledger.al_sello")
@@ -167,12 +183,37 @@ static func _line(host, eid: String, ln: Dictionary, ink: String, editable: bool
 		slot.set_drag_forwarding(Callable(), func(_p, data): return editable and host.can_drop_support(data),
 			func(_p, data): host.drop_support(eid, li, data))
 	body.add_child(sg)
+	if ink != "tinta" and editable and (ln.support as Array).is_empty() and not _any_support(sim):
+		var hp := Widgets.marginal(host.plain(Model.tx(sim, "v2d.lg.ayuda.pruebas")))
+		hp.name = "AyudaPruebas"
+		hp.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		hp.add_theme_color_override("font_color", Paper.ink("tenue"))
+		body.add_child(hp)
 	if bool(ln.falta_segun) and ink != "tinta":
 		var n := Widgets.marginal(host.plain(Model.tx(sim, "formal.falta_segun")))
 		n.name = "FaltaSegun"
 		n.add_theme_color_override("font_color", Paper.ink("roja"))
 		body.add_child(n)
 	return row
+
+# ¿Alguna conclusión tiene ya una prueba? (la ayuda de «Pruebas» se va con el primer uso)
+static var _sup_seen := {}   # instancia de GameSim -> ya hubo una prueba (no vuelve atrás: «hasta el primer uso»)
+
+static func _any_support(sim) -> bool:
+	if sim == null:
+		return true
+	if _sup_seen.has(sim.get_instance_id()):
+		return true
+	var q: Dictionary = sim.q_ledger()
+	var ids: Array = (q.get("varios", []) as Array) + (q.get("erratas", []) as Array)
+	for fo in q.get("folios", []):
+		ids.append_array(fo.get("entries", []))
+	for id in ids:
+		for ln in sim.q_entry(String(id)).get("lines", []):
+			if not (ln.get("support", []) as Array).is_empty():
+				_sup_seen[sim.get_instance_id()] = true
+				return true
+	return false
 
 static func _field(host, eid: String, li: int, f: Dictionary, ink: String, editable: bool) -> Control:
 	var h := HBoxContainer.new()

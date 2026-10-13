@@ -10,6 +10,8 @@ extends RefCounted
 const J = preload("res://core/util/j.gd")
 const Markup = preload("res://core/text/markup.gd")
 const Schema = preload("res://core/data/schema.gd")
+const TimeKey = preload("res://core/util/timekey.gd")
+const Fisica = preload("res://core/text/fisica.gd")
 
 const SELF_PATH := "res://core/data/data_repo.gd"
 
@@ -45,6 +47,7 @@ var _texts := {}
 var _map := {}
 var _fonts := {}
 var _audio := {}
+var _fisica := {}           # data/fisica.json (GDD_v2 §C.5; dueño de los datos: DESPEJE-UI)
 var _hash := ""
 var _names = null
 var _schema_ctx := {}       # {abbrev} de lists.json para Schema.check
@@ -88,7 +91,78 @@ func _load(p_root: String) -> void:
 	for rel in rels:
 		if _files.has(rel):
 			_ingest(rel, _files[rel])
+	_apply_stock()
+	_apply_fisica()
 	_cross_checks()
+
+# GDD_v2 §B.5: schedule.stock atrasa el `from` de esos ejemplares a la franja jugable siguiente a tk (nunca lo
+# adelanta). Se escribe en el ejemplar del documento y en el índice de ejemplares: WorldModel, Availability y los bots
+# leen lo mismo.
+func _apply_stock() -> void:
+	var stock = _schedule.get("stock", [])
+	if typeof(stock) != TYPE_ARRAY:
+		return
+	for e in stock:
+		if typeof(e) != TYPE_DICTIONARY:
+			continue
+		var t := TimeKey.of(e.get("tk", ""))
+		var i := TimeKey.idx_at_or_after(t)
+		var at := TimeKey.from_idx(i)
+		if t < 0 or at.is_empty():
+			_errors.append("schedule.json: stock tk '%s' sin franja jugable" % str(e.get("tk", "")))
+			continue
+		var frm := TimeKey.label(TimeKey.tk(int(at.day), String(at.slot)))
+		for cid in e.get("copies", []):
+			var c = _copies.get(String(cid))
+			if typeof(c) != TYPE_DICTIONARY:
+				continue   # dataset parcial (fixtures): el ejemplar no está; test_u_reveal lo exige en data/ real
+			var cur := TimeKey.of(c.copy.get("from", "")) if c.copy.has("from") else -1
+			if cur >= TimeKey.tk(int(at.day), String(at.slot)):
+				continue
+			c.copy["from"] = frm
+			for dc in _docs.get(String(c.doc), {}).get("copies", []):
+				if typeof(dc) == TYPE_DICTIONARY and String(dc.get("id", "")) == String(cid):
+					dc["from"] = frm
+
+# GDD_v2 §C.5.2: descripción física de cada documento estático. Se antepone la línea (un tramo #fisica, mismo formato
+# para todos; core/text/fisica.gd) y un salto de renglón al texto de parts[0]; si la descripción trae mm, reemplaza paper_mm (el papel
+# del lector tiene la misma forma). Así D46#fisica se resuelve como cualquier tramo (doc_tramo, RouteDB, T4). Antes de
+# _cross_checks (tramos del contrato) y de toda caché de parsed.
+func _apply_fisica() -> void:
+	if _fisica.is_empty():
+		return
+	for id in _sorted_keys(_docs):
+		var d: Dictionary = _docs[id]
+		var spec := Fisica.spec_doc(_fisica, String(id))
+		if spec.is_empty():
+			continue
+		var parts = d.get("parts", [])
+		if typeof(parts) != TYPE_ARRAY or parts.is_empty() or typeof(parts[0]) != TYPE_DICTIONARY:
+			continue
+		var mm = d.get("paper_mm", [])
+		var ln := Fisica.line(spec, mm if typeof(mm) == TYPE_ARRAY else [], _fisica)
+		if ln == "":
+			continue
+		parts[0]["text"] = Fisica.prepend(String(parts[0].get("text", "")), ln)
+		if typeof(spec.get("mm")) == TYPE_ARRAY and (spec.mm as Array).size() == 2:
+			d["paper_mm"] = (spec.mm as Array).duplicate()
+
+func fisica() -> Dictionary:
+	return _fisica
+
+# Línea física de la plantilla de un documento generado (doc.entity): marcado listo para anteponer; "" si no hay.
+func fisica_tpl_line(entity: String, mm) -> String:
+	var spec := Fisica.spec_tpl(_fisica, entity)
+	if spec.is_empty():
+		return ""
+	return Fisica.line(spec, mm if typeof(mm) == TYPE_ARRAY else [], _fisica)
+
+# Ejemplar -> tk de su entrada en schedule.stock (-1 si no es novedad). Mesa de novedades de Crane.
+func stock_tk(copy_id: String) -> int:
+	for e in _schedule.get("stock", []):
+		if typeof(e) == TYPE_DICTIONARY and (e.get("copies", []) as Array).has(copy_id):
+			return TimeKey.of(e.get("tk", ""))
+	return -1
 
 func _scan(dir: String, rel: String, out: Array) -> void:
 	for f in DirAccess.get_files_at(dir):
@@ -150,6 +224,9 @@ func _ingest(rel: String, data) -> void:
 			"map.json":
 				_schema("map", rel, data)
 				_map = data if typeof(data) == TYPE_DICTIONARY else {}
+			"fisica.json":
+				_schema("fisica", rel, data)
+				_fisica = data if typeof(data) == TYPE_DICTIONARY else {}
 			_:
 				_errors.append("%s: archivo desconocido en data/" % rel)
 		return

@@ -2,7 +2,7 @@
   "_nota": "W3-CT-REICH. Pruebas de la composición para la sindicación americana (oct. 1893), canceladas tras el pedido del F.O. (GDD §2.3, §2.5, §6). Llegaron a Crane en un lote de papel de imprenta vendido al peso. Contrato §4.8: #clausula (C2.R3), #cajista (refuta falsa_tachadura).",
   "id": "D04",
   "entity": "pruebas_americanas",
-  "title": "Pruebas americanas de «El problema final» (octubre de 1893), canceladas",
+  "title": "Pruebas de imprenta para Estados Unidos de «El problema final» (octubre de 1893), anuladas",
   "src_type": "prueba",
   "class": "I",
   "date": "1893-11-14",
@@ -26,7 +26,7 @@
   "parts": [
     {
       "id": "p1",
-      "text": "{{#cabecera e:mcclures|<sc>Composición para América</sc> — sindicato de [[mcclures|McClure]], Nueva York — «The Final Problem», pág. 11.}}\nFue la vista de aquel bastón alpino lo que me heló y me revolvió el estómago. No había ido a [[rosenlaui|Rosenlaui]], entonces. Se había quedado en aquel [[sendero|sendero]] de tres pies, {{#clausula a:raspadura_registrada e:reichenbach c:verdadero|con una [[pared|pared]] [[a_pique|a pique]] a un lado —salvo que, a la altura del hombro, la [[roca|roca]] mostraba una [[raspadura|raspadura]] fresca, como la que dejaría el [[clavo_de_bota|clavo de una bota]]; la atribuí a algún [[cabrero|cabrero]]—}} y un [[precipicio|precipicio]] a pique al otro, hasta que su enemigo le dio alcance. También el joven suizo había desaparecido.\n<f=manuscrito><ink=roja>Cancelado. {{#cajista a:refuta_tachadura e:cajista e:pedido_del_fo h:F.pedido_fo c:verdadero|Rehacer la pág. por orden recibida el 14-xi ([[foreign_office|F.O.]]).}} No se envía.</ink></f>"
+      "text": "{{#cabecera e:mcclures|<sc>Pruebas para Estados Unidos</sc> — agencia de [[mcclures|McClure]], Nueva York — «The Final Problem», pág. 11.}}\nFue la vista de aquel bastón alpino lo que me heló y me revolvió el estómago. No había ido a [[rosenlaui|Rosenlaui]], entonces. Se había quedado en aquel [[sendero|sendero]] de tres pies, {{#clausula a:raspadura_registrada e:reichenbach c:verdadero|con una [[pared|pared]] [[a_pique|a pique]] a un lado —salvo que, a la altura del hombro, la [[roca|roca]] mostraba una [[raspadura|raspadura]] fresca, como la que dejaría el [[clavo_de_bota|clavo de una bota]]; la atribuí a algún [[cabrero|cabrero]]—}} y un [[precipicio|precipicio]] a pique al otro, hasta que su enemigo le dio alcance. También el joven suizo había desaparecido.\n<f=manuscrito><ink=roja>Anulado. {{#cajista a:refuta_tachadura e:cajista e:pedido_del_fo h:F.pedido_fo c:verdadero|Rehacer la página por una orden del 14 de noviembre ([[foreign_office|Foreign Office]]).}} No se envía.</ink></f>"
     }
   ],
   "words": 120

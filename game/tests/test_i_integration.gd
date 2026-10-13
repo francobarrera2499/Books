@@ -38,7 +38,7 @@ const SEED := 1894
 # escenas, catálogo y sus entidades) sale únicamente de tests/fixtures/integ, para que un archivo de contenido a medio
 # hacer no rompa la prueba del motor (ese contenido lo juzgan test_real_data_loads_clean y el modo «real»).
 const CONTENT_DIRS := ["docs/", "dialogue/", "scenes/", "catalog/"]
-const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json"]
+const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json", "entities/v2_fisica.json"]
 # Archivos de contenido que el recorrido necesita (rutas relativas a data/).
 const NEEDED := ["docs/D23.json", "docs/D01/REDH.json", "docs/D03.json", "docs/D05.json", "docs/D15/0327.json",
 	"docs/D15/0328.json", "docs/D15/0329.json", "docs/D15/0330.json", "dialogue/watson.json", "scenes/PRO.json"]
@@ -210,7 +210,7 @@ func _walk(repo, variant := "nada"):
 	# --- prólogo (P, noche): tutorial con instructor; un verbo por paso ---
 	_expect_phase(sim, "prologue", 0, "N", "inicio")
 	var t0: Dictionary = sim.q_tutorial()
-	_chk(String(t0.step.get("id", "")) == "clip", "el tutorial empieza por recortar: %s" % str(t0))
+	_chk(String(t0.step.get("id", "")) == "read", "el tutorial empieza por abrir el encargo (GDD_v2 §B.7): %s" % str(t0))
 	_chk(String(sim.can({"t": "go", "place": "L2", "area": "sala", "seat": 214}).err) == "fase", "en el prólogo no se sale")
 	_chk(String(sim.can({"t": "folio_open", "clip": "RC0001"}).err) == "tutorial", "en el prólogo no se adelanta un paso")
 	var c_aviso := _clip_tramo(sim, "D23@L1", "aviso")
@@ -243,7 +243,8 @@ func _walk(repo, variant := "nada"):
 	for v in ["clip_text", "link", "folio_open", "entry_set", "practice", "pass_clean", "compose_ad"]:
 		_chk(taught.has(v), "verbo enseñado en el prólogo: " + v)
 	var pro_lines: Array = _diary_by(sim, func(e): return String(e.kind) == "line" and String(e.origin) == "S.PRO")
-	_chk(pro_lines.size() >= 7, "las líneas del prólogo (escena e instructor) van al diario con origen S.PRO: %d" % pro_lines.size())
+	# GDD_v2 §B.7: el instructor del prólogo dice ahora 3 líneas (leer, aviso, dormir; recortar el encargo da por leído)
+	_chk(pro_lines.size() >= 5, "las líneas del prólogo (escena e instructor) van al diario con origen S.PRO: %d" % pro_lines.size())
 	_act(sim, {"t": "sleep"})
 	# --- día 1, amanecer: bandeja, aviso impreso, HC01 ---
 	_expect_phase(sim, "desk", 1, "M", "día 1")

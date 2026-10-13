@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-B. El librero viejo = Sherlock Holmes disfrazado (GDD §4, EMPT): voz cascada y servil que se le cae al precisar; joroba, patillas blancas, pila de libros; dedos manchados de amarillo; «Hum!». No se revela de palabra a nadie. El tic: empieza a precisar como un erudito (catulo, church_street), se oye y vuelve con «Hum» a la voz cascada. Sólo aparece el día 10 por la mañana en la tienda de Crane (scenes/HC07.json); la confrontación (ids conf.*) está en esa escena. Aquí, el respaldo por capas.",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A.3: «Hum» se conserva). El librero viejo = Sherlock Holmes disfrazado (GDD §4, EMPT): voz cascada y servil que se le cae al precisar; joroba, patillas blancas, pila de libros; dedos manchados de amarillo; «Hum!». No se revela de palabra a nadie. El tic: empieza a precisar como un erudito (catulo, church_street), se oye y vuelve con «Hum» a la voz cascada. Sólo aparece el día 10 por la mañana en la tienda de Crane (scenes/HC07.json); la confrontación (ids conf.*) está en esa escena. Aquí, el respaldo por capas.",
   "char": "librero",
   "label": "el librero viejo",
   "intro": "Un librero de Church Street",
@@ -10,12 +10,12 @@
   "closing": "Buenos días, señor.",
   "ask_phrase": {"default": "¿Qué me dice de ${topic}, ${addr}?"},
   "lines": [
-    {"id": "af.todas", "layer": "afirmacion", "match": {"assertion": ["cebo", "vive", "canario"]}, "text": "—Hum. Eso, señor, habría que verlo en primeras pruebas."},
-    {"id": "tomos", "layer": "tema", "match": {"topic": ["tomos", "notas_de_los_tomos", "strand"]}, "text": "Pasa la mano por los lomos, despacio. —Éstos tienen dueño, señor."},
-    {"id": "catulo", "layer": "tema", "match": {"topic": ["catullus"]}, "text": "—El Catulo, señor, es de Leipzig: texto limpio, con el aparato al pie y las conjeturas de los alemanes, que son muchas y casi todas… Hum. Una ganga, señor."},
+    {"id": "af.todas", "layer": "afirmacion", "match": {"assertion": ["cebo", "vive", "canario"]}, "text": "—Hum. Eso, señor, habría que verlo en las pruebas de imprenta."},
+    {"id": "tomos", "layer": "tema", "match": {"topic": ["tomos", "notas_de_los_tomos", "strand"]}, "text": "Pasa la mano por los lomos, despacio. —Estos tienen dueño, señor."},
+    {"id": "catulo", "layer": "tema", "match": {"topic": ["catullus"]}, "text": "—El Catulo, señor, es de Leipzig: texto limpio, con las variantes al pie y las conjeturas de los alemanes, que son muchas y casi todas… Hum. Una ganga, señor."},
     {"id": "libros", "layer": "tema", "match": {"topic": ["british_birds", "holy_war", "tree_worship", "bunyan", "precio_de_gremio"]}, "text": "—Una ganga, señor, cada uno de ellos. A precio de gremio, si me hace el favor."},
-    {"id": "church_street", "layer": "tema", "match": {"topic": ["church_street", "kensington"]}, "text": "—En la esquina, señor, a mano izquierda según se viene de la iglesia, entre… Hum. Una tiendita, señor; pase cuando guste."},
+    {"id": "church_street", "layer": "tema", "match": {"topic": ["church_street", "kensington"]}, "text": "—En la esquina, señor, a mano izquierda viniendo de la iglesia, entre… Hum. Una tiendita, señor; pase cuando quiera."},
     {"id": "gen.1", "layer": "generica", "text": "—Una ganga, señor, cada uno de ellos."},
-    {"id": "gen.2", "layer": "generica", "text": "Se encoge sobre sus libros. —Yo no sé de eso, señor; yo sólo vendo lo que otros escriben."}
+    {"id": "gen.2", "layer": "generica", "text": "Se encoge sobre sus libros. —Yo no sé de eso, señor; yo solo vendo lo que otros escriben."}
   ]
 }

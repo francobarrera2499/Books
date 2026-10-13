@@ -1,0 +1,32 @@
+{
+  "_nota": "Look 'aguada' (POR DEFECTO: elegido por el usuario; 'grabado' queda como alternativa en Opciones). Dibujo a la aguada sepia, como los originales de Paget para la Strand: cada cara se abstrae en un lavado (suavizado por profundidad y normal), borde acumulado en el lado oscuro de cada zona, el lavado levemente desfasado de la pluma, pluma en siluetas y pliegues, pluma fina de cerca para los escalones chicos (lo que hay sobre una mesa, lomos de libros: fine*), hilo de papel seco tras las figuras (lift) y tras los objetos chicos de cerca (lift_fine), blancos reservados (paper_white), papel de acuarela. Papel por franja y tinta por preset de Lighting (la hora se lee en papel y tinta: mañana perla, tarde sepia, gas ámbar, noche fría del 5 en bistre frío, Park Lane dorado). Calibración de la iteración de feedback: días menos expuestos y con menos bruma (se entiende qué hay en cada mesa), densidad 0,85 (lavados medios más cargados). T27 (test_t27_window.gd, sección AGUADA) mide tono, presets, objetos sobre la mesa, piso rasante y siluetas; capturas: devtools/drivers/look_compare.gd (SET=todo: L1-L8, láminas y franjas).",
+  "name": "Aguada sepia",
+  "desc": "Como un dibujo hecho con pincel y tinta sepia sobre papel de acuarela: manchas de tinta suaves y trazos finos en los bordes. Es el estilo por defecto.",
+  "order": 0,
+  "ink": "#3a2414",
+  "paper": {"manana": "#eae8e2", "tarde": "#f1e5c9", "noche": "#ebd3a3"},
+  "defaults": {
+    "grain": 0.5, "exposure": 1.3, "contrast": 1.25, "gamma": 0.9, "paper_white": 0.94, "density_gamma": 0.85, "max_density": 1.0,
+    "wash_shift": 1.25, "soften": 4.0, "soften_far": 2.0, "soften_range": [6.0, 40.0], "detail": 0.3,
+    "levels": 4.0, "posterize": 0.35, "band_soft": 0.3, "wobble": 0.0, "pool": 0.3, "pool_px": 3.0, "pool_big": 1.0, "pool_lod": 3.0,
+    "mottle": 0.09, "bloom": 0.03, "granulation": 0.12, "chroma": 0.0,
+    "line": 0.9, "line_density": 1.05, "line_depth": 0.14, "line_abs": 0.12, "line_normal": 0.7, "crease": 0.45, "line_far": 40.0, "line_break": 0.35,
+    "lift": 0.4, "lift_px": 2.0, "lift_rel": 0.08, "lift_fine": 0.55,
+    "fine": 0.85, "fine_rel": 0.012, "fine_abs": 0.006, "fine_far": 7.0,
+    "haze": 0.0, "haze_range": [14.0, 70.0], "vignette": 0.0, "fade_edge": 0.07, "fade_amount": 0.6
+  },
+  "presets": {
+    "manana_perla": {"ink": "#3a2b1e", "exposure": 1.15, "contrast": 1.25, "haze": 0.1, "haze_range": [12.0, 60.0], "gamma": 0.95},
+    "dia_ventana": {"ink": "#33281f", "exposure": 1.15, "contrast": 1.3, "haze": 0.06, "gamma": 0.94},
+    "tarde": {"ink": "#3a2414", "exposure": 1.25, "contrast": 1.35, "haze": 0.08, "gamma": 0.88},
+    "gas": {"ink": "#3a1f0c", "exposure": 1.6, "contrast": 1.25, "gamma": 0.9, "vignette": 0.25, "fade_edge": 0.0},
+    "farol_calle": {"ink": "#33241a", "exposure": 1.7, "contrast": 1.2, "gamma": 0.82, "vignette": 0.15, "fade_edge": 0.0},
+    "electrica_fria": {"ink": "#36291f", "exposure": 1.2, "contrast": 1.3, "haze": 0.05, "gamma": 0.9,
+      "paper": {"tint": "#e4e8ec", "mix": 0.35}},
+    "dorada_parklane": {"ink": "#42250b", "exposure": 1.12, "contrast": 1.4, "haze": 0.12, "haze_range": [16.0, 80.0], "gamma": 0.98,
+      "paper": {"tint": "#f2c26a", "mix": 0.42}},
+    "noche_viento": {"ink": "#20232a", "exposure": 1.7, "contrast": 1.2, "haze": 0.15, "gamma": 0.9, "vignette": 0.25, "fade_edge": 0.0,
+      "paper": {"tint": "#cad3de", "mix": 0.5}}
+  },
+  "high_contrast": {"paper": "#ffffff", "ink": "#000000", "grain": 0.0}
+}

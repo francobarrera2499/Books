@@ -7,7 +7,8 @@
 #   Validator (para no pasar en limpio a ciegas) y el estado interno de recortes (Clipper.get_clip) — los bots que
 #   modelan a un jugador honesto (pesca, recorta_todo, fuerza bruta) no usan las etiquetas ocultas para elegir valores.
 # Motor (lo heredan todos; cada bot cambia la política con los ganchos «pol_*»):
-#   prólogo  : tutorial completo (recortar, vincular, folio, asiento C1 de práctica desde P.N, practicar, aviso de testigos).
+#   prólogo  : tutorial v2 (abrir el encargo, recortar, aviso de testigos, dormir); día 1: la primera conclusión C1 de
+#              práctica (juntar, hoja, conclusión, practicar) antes de cualquier confirmación (GDD_v2 §B.7).
 #   objetivos: Feasibility.plan (rutas ★ elegibles, mínimo de salidas) desde 1.M → targets {cid: ruta} + itinerario
 #              {idx: (lugar, área)}; replanifica si una salida no se pudo hacer o faltan fragmentos.
 #   cosecha  : en cada paso recorta todo fragmento pendiente obtenible AHORA (documentos legibles, láminas archivadas,
@@ -68,6 +69,8 @@ const T_ACT := {"go_costly": 1.0, "go_free": 0.5, "clip": 0.3, "link": 0.15, "fo
 	"present": 0.4, "pay": 0.2, "task": 0.3, "compose_ad": 1.5, "compose_telegram": 1.5, "compose_letter": 1.5,
 	"report_submit": 1.5, "confront": 1.0, "night_choice": 0.5, "publish_errata": 0.5}
 const T_THINK_PER_SEAL := 3.0
+# Peso de las palabras de la línea física en el modelo de lectura (0 = no cuenta, 1 = como el texto). Ver _read_parsed.
+const PACE_FISICA := 1.0
 # Conclusiones opcionales que el oráculo usa de compañeras de lote (C10a no cuenta para el tamaño del lote, pero sella).
 const FILLERS := ["C10a", "C14"]
 
@@ -79,6 +82,8 @@ var bot_name := "base"
 var random_bot := false      # bots al azar: un ok:false no es fallo
 var only_taught := false     # novato: sólo verbos ya enseñados (Tutorial.verbs_taught)
 var reads_all := false       # novato: lee todo lo legible en cada paso
+var emit_reads := false      # novato: cada hoja que lee por primera vez emite la acción libre `read` (GDD_v2 §B.4)
+var _read_emitted := {}
 var deduce := true           # junta fragmentos y asienta (pasivo: false)
 var focus: Array = []        # conclusiones objetivo ([] = todas las obligatorias)
 var fillers := true          # el oráculo agrega opcionales factibles (FILLERS) como compañeras de lote
@@ -265,9 +270,13 @@ func act(a: Dictionary, may_fail := false) -> Dictionary:
 
 func read(view: String) -> void:
 	var v: Dictionary = sim.q_view(view)
-	for page in v.get("pages", []):
-		for b in page:
+	var pages: Array = v.get("pages", [])
+	for pi in pages.size():
+		for b in pages[pi]:
 			_read_parsed(String(view) + "|" + String(b.get("doc", "")) + "|" + String(b.get("part", "")), b.get("parsed", {}))
+		if emit_reads and not _read_emitted.has(view + "|" + str(pi)):
+			_read_emitted[view + "|" + str(pi)] = true
+			act({"t": "read", "view": view, "part": pi}, true)
 
 func clip_ref(ref: String) -> String:
 	var f := _frag(ref, "")
@@ -500,8 +509,17 @@ func _read_parsed(_key: String, parsed) -> void:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return
 	var d := str(int(sim.q_clock().day))
-	for ln in String(parsed.get("plain", "")).split("
-"):
+	var plain := String(parsed.get("plain", ""))
+	# GDD_v2 §C.5: la línea de descripción física (tramo #fisica, una línea de interfaz en todos los papeles por igual) se
+	# mira de un vistazo: cuenta como palabras_fisica, aparte de la lectura (PACE_FISICA de peso).
+	var fis: Array = []
+	for tr in parsed.get("tramos", []):
+		if String(tr.get("id", "")) == "fisica":
+			fis.append([int(tr.from), int(tr.to)])
+	var at := 0
+	for ln in plain.split(String.chr(10)):
+		var a0 := at
+		at += String(ln).length() + 1
 		var t := String(ln).strip_edges()
 		if t == "":
 			continue
@@ -509,7 +527,18 @@ func _read_parsed(_key: String, parsed) -> void:
 		if read_sig.has(sig):
 			continue
 		read_sig[sig] = true
-		stats.words_by_day[d] = int(stats.words_by_day.get(d, 0)) + Markup.words_of(t).size()
+		var n := Markup.words_of(t).size()
+		var is_fis := false
+		for f in fis:
+			if a0 >= int(f[0]) - 1 and a0 + String(ln).length() <= int(f[1]) + 1:
+				is_fis = true
+		if is_fis:
+			stats["words_fisica"] = int(stats.get("words_fisica", 0)) + n
+			if not stats.has("words_fisica_by_day"):
+				stats["words_fisica_by_day"] = {}
+			stats.words_fisica_by_day[d] = int(stats.words_fisica_by_day.get(d, 0)) + n
+			n = int(round(n * PACE_FISICA))
+		stats.words_by_day[d] = int(stats.words_by_day.get(d, 0)) + n
 
 # Lee todo lo legible ahora (documentos, líneas de la escena en curso y el examen de cada objeto del diorama).
 func _read_all() -> void:
@@ -542,55 +571,75 @@ func _go(place: String, area: String) -> Dictionary:
 		a["seat"] = SEAT
 	return act(a, true)
 
-# ======================================================================= prólogo (tutorial)
+# ======================================================================= prólogo (tutorial, GDD_v2 §B.7)
+# Prólogo: abrir el encargo (read), recortar (los fragmentos de la práctica y lo que pide el aviso), el aviso de
+# testigos y dormir. La primera conclusión (juntar, hoja, conclusión, práctica) es del día 1 (_first_conclusion): sin
+# práctica no se confirma (practica_pendiente).
 func _do_prologue() -> void:
 	var tut: Dictionary = sim.q_tutorial()
 	var sid := String(tut.step.get("id", "")) if typeof(tut.get("step")) == TYPE_DICTIONARY else ""
 	if reads_all:
 		_read_all()
 	match sid:
+		"read":
+			_prologue_read()
 		"clip":
 			_prologue_clips()
-		"link":
-			# dos recortes DISTINTOS (con recortes máximos, los dos fragmentos de la práctica pueden caer en el mismo)
-			var pc := _uniq(_practice_clips())
-			if pc.size() >= 2:
-				act({"t": "link", "a": pc[0], "b": pc[1], "note": "dos fechas"})
-			else:
-				var ids := _uniq(pc + _clip_ids())
-				if ids.size() < 2:
-					for x in sim.q_accessible():
-						if _clip_ids().size() >= 2:
-							break
-						_clip_first_sentence(String(x.view), _clip_ids())
-					ids = _uniq(pc + _clip_ids())
-				if ids.size() >= 2:
-					act({"t": "link", "a": ids[0], "b": ids[1], "note": ""})
-				else:
-					_err("prólogo: no hay dos recortes para vincular")
-					act({"t": "sleep"}, true)
-		"folio":
-			var pc2 := _practice_clips()
-			var head: String = pc2[0] if not pc2.is_empty() else String(_clip_ids()[0])
-			stats["practice_folio"] = String(act({"t": "folio_open", "clip": head}).get("folio", ""))
-		"entry":
-			_prologue_entry()
-		"practice":
-			var eid := String(stats.get("practice_entry", ""))
-			stats["practice_tries"] = int(stats.get("practice_tries", 0)) + 1
-			if int(stats.practice_tries) > 3:
-				_err("prólogo: la práctica no pasa el chequeo formal tras 3 intentos")
-				_runaway = "práctica trabada"
-				return
-			var r := act({"t": "practice", "entry": eid}, true)
-			if not bool(r.get("ok", false)):
-				# chequeo formal: se arregla la FORMA del «según» (dos pasajes, ≤4 recortes) y se reintenta
-				_fix_practice_support(eid, r.get("formal", []))
-				act({"t": "practice", "entry": eid}, int(stats.practice_tries) < 3)
 		"ad":
 			_prologue_ad()
 		"sleep", "":
 			act({"t": "sleep"})
+
+# Abre el encargo (D23) o, si el dataset no lo tiene, el primer papel legible.
+func _prologue_read() -> void:
+	var first := ""
+	for x in sim.q_accessible():
+		if first == "":
+			first = String(x.view)
+		if String(x.doc) == "D23":
+			first = String(x.view)
+			break
+	if first == "":
+		_err("prólogo: nada legible para abrir")
+		act({"t": "sleep"}, true)
+		return
+	act({"t": "read", "view": first, "part": 0})
+
+# Día 1 (o el primer escritorio sin práctica): la primera conclusión guiada por las notas de Lisle. Una vez por franja.
+func _first_conclusion() -> void:
+	if bool(sim.q_tutorial().get("practice_done", false)) or not _once("first_conclusion"):
+		return
+	if _practice_clips().size() < 2:
+		_prologue_clips()
+	var pc := _uniq(_practice_clips())
+	if pc.size() >= 2:
+		act({"t": "link", "a": pc[0], "b": pc[1], "note": "dos fechas"})
+	else:
+		var ids := _uniq(pc + _clip_ids())
+		if ids.size() < 2:
+			for x in sim.q_accessible():
+				if _clip_ids().size() >= 2:
+					break
+				_clip_first_sentence(String(x.view), _clip_ids())
+			ids = _uniq(pc + _clip_ids())
+		if ids.size() >= 2:
+			act({"t": "link", "a": ids[0], "b": ids[1], "note": ""})
+	var pc2 := _practice_clips()
+	var cl := _clip_ids()
+	if pc2.is_empty() and cl.is_empty():
+		_err("primera conclusión: sin recortes")
+		return
+	var head: String = pc2[0] if not pc2.is_empty() else String(cl[0])
+	stats["practice_folio"] = String(act({"t": "folio_open", "clip": head}).get("folio", ""))
+	_prologue_entry()
+	var eid := String(stats.get("practice_entry", ""))
+	for tries in 3:
+		var r := act({"t": "practice", "entry": eid}, true)
+		if bool(r.get("ok", false)):
+			return
+		# chequeo formal: se arregla la FORMA de las pruebas (dos pasajes, ≤4 recortes) y se reintenta
+		_fix_practice_support(eid, r.get("formal", []))
+	_err("primera conclusión: la práctica no pasa el chequeo formal tras 3 intentos")
 
 # Recortes del prólogo: los fragmentos de una C1 practicable desde P.N y lo que pide el aviso de testigos.
 func _prologue_clips() -> void:
@@ -765,6 +814,8 @@ func _do_desk() -> void:
 	if deduce:
 		_harvest()
 		_build_entries()
+	if deduce or value_mode != "oracle":
+		_first_conclusion()
 	pol_desk_extra()
 	if String(sim.q_clock().phase) != "desk":
 		return
@@ -981,6 +1032,8 @@ func _do_confront() -> void:
 		act({"t": "confront", "step": step_n, "item": {}})
 
 func _do_final_report() -> void:
+	if deduce or value_mode != "oracle":
+		_first_conclusion()
 	if deduce:
 		_harvest()
 		_build_entries()
@@ -1013,6 +1066,30 @@ func _complete(cid: String) -> bool:
 			return false
 	return true
 
+# GDD_v2 §B.4: el grafo sólo cuenta con la hora garantizada de cada lugar (schedule.reveal.by). Un jugador que ya tiene el
+# lugar en el mapa antes (lo leyó, lo oyó o lo recortó) puede ir antes: el plan del bot usa un repo envuelto sin la
+# garantía de esos lugares (lo que ve en el mapa, no un oráculo). Uno por conjunto de lugares revelados antes de hora.
+var _plan_repos := {}
+func _plan_repo():
+	var rv = repo.schedule().get("reveal", {})
+	if typeof(rv) != TYPE_DICTIONARY or rv.is_empty():
+		return repo
+	var early: Array = []
+	var revealed: Dictionary = sim.st.world.get("revealed", {})
+	for L in revealed:
+		if rv.has(L) and int(revealed[L]) < TimeKey.of(rv[L].get("by", "")):
+			early.append(String(L))
+	if early.is_empty():
+		return repo
+	early.sort()
+	var key := ",".join(early)
+	if not _plan_repos.has(key):
+		var sch: Dictionary = repo.schedule().duplicate(true)
+		for L in early:
+			sch.reveal.erase(L)
+		_plan_repos[key] = load("res://tests/fixtures/graph/patch_repo.gd").new(repo, {"schedule": sch})
+	return _plan_repos[key]
+
 # Replanifica desde la franja actual: Feasibility.plan sobre lo que falta. Lo que ya tiene todos sus fragmentos no se toca.
 func _replan() -> void:
 	if conf_cover and conf_frags.is_empty():
@@ -1022,25 +1099,26 @@ func _replan() -> void:
 	itinerary = {}
 	if need.is_empty():
 		return
-	var p: Dictionary = Feasibility.plan(repo, i, [], need)
+	var prepo = _plan_repo()
+	var p: Dictionary = Feasibility.plan(prepo, i, [], need)
 	var ok_need: Array = need.duplicate()
 	if not bool(p.get("ok", false)):
 		# sin plan conjunto: se planifica lo factible de a una conclusión y el resto queda sin ruta (oráculo)
 		ok_need = []
 		for cid in need:
-			var p1: Dictionary = Feasibility.plan(repo, i, [], ok_need + [cid])
+			var p1: Dictionary = Feasibility.plan(prepo, i, [], ok_need + [cid])
 			if bool(p1.get("ok", false)):
 				ok_need.append(cid)
 			else:
 				_oracle("sin ruta ★ factible para %s desde %s: %s" % [cid, TimeKey.label(TimeKey.tk(int(_c().day), String(_c().slot))), str(p1.get("unmet", []))])
-		p = Feasibility.plan(repo, i, [], ok_need) if not ok_need.is_empty() else {"ok": true, "plan": [], "routes": {}}
+		p = Feasibility.plan(prepo, i, [], ok_need) if not ok_need.is_empty() else {"ok": true, "plan": [], "routes": {}}
 	# opcionales como compañeras de lote, si caben sin romper el plan de las obligatorias
 	if fillers and focus.is_empty() and value_mode == "oracle":
 		var sealed: Dictionary = sim.st.ded.get("sealed", {})
 		for fc in FILLERS:
 			if repo.conclusion(fc).is_empty() or sealed.has(fc) or entry_of.has(fc) or (targets.has(fc) and _complete(fc)):
 				continue
-			var p2: Dictionary = Feasibility.plan(repo, i, [], ok_need + [fc])
+			var p2: Dictionary = Feasibility.plan(prepo, i, [], ok_need + [fc])
 			if bool(p2.get("ok", false)):
 				ok_need.append(fc)
 				p = p2

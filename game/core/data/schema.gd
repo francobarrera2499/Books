@@ -10,7 +10,7 @@ const Cond = preload("res://core/util/cond.gd")
 const TimeKey = preload("res://core/util/timekey.gd")
 
 const DATASETS := ["fonts", "audio", "ui_text", "lists", "entities", "canon_bible", "docs", "catalog", "schedule",
-	"conclusions", "reactions", "endings", "easter_eggs", "scenes", "dialogue", "places", "plates", "map"]
+	"conclusions", "reactions", "endings", "easter_eggs", "scenes", "dialogue", "places", "plates", "map", "fisica"]
 
 const CLS := {"t": "enum", "v": ["I", "P", "C"]}
 const VEC3 := {"t": "list", "of": "num", "min": 3, "max": 3}
@@ -54,7 +54,7 @@ static func _spec(ds: String):
 	match ds:
 		"fonts":
 			return _obj({"slots": _map(_obj({"file": "str", "italic": "str"}, ["file"])), "fallback": "str"}, ["slots"], true)
-		"audio", "map":
+		"audio", "map", "fisica":
 			return {"t": "dict"}
 		"ui_text":
 			return _obj({"text": _map("tpl")}, ["text"])
@@ -109,6 +109,8 @@ static func _lists() -> Dictionary:
 		"sensors": {"t": "dict"},
 		"diary": _map(_obj({"text": "tpl", "tags": "tags"}, ["text"])),
 		"report_cats": _list(_obj({"cat": "id"}, ["cat"], true)),
+		# GDD_v2 §B.5/§B.6.1: «Lo que me preguntaron» = citas de personajes (doc#tramo, S:escena.línea, R:reacción.*)
+		"preguntas": _list(_obj({"id": "id", "src": "str", "who": "str"}, ["id", "src"])),
 	}, [], true)
 
 static func _doc() -> Dictionary:
@@ -138,6 +140,10 @@ static func _schedule() -> Dictionary:
 		"ads": {"t": "dict"}, "places": _map(_obj({"areas": _map(area)}, ["areas"])),
 		"column": _list(_obj({"tk": "tk", "r": "id"}, ["tk", "r"])), "voice_b": _map("tk"), "voice_a": {"t": "dict"},
 		"money_d": _map("int"), "baedeker": "markup",
+		# GDD_v2 §B.5: garantía de revelado de lugares (by) con disparadores anticipados (ents / ents_all) y novedades de
+		# la tienda de Crane (DataRepo atrasa el `from` de esos ejemplares a la franja siguiente a tk).
+		"reveal": _map(_obj({"by": "tk", "ents": STRS, "ents_all": STRS, "areas": STRS}, ["by"])),
+		"stock": _list(_obj({"tk": "tk", "copies": STRS, "line": "str"}, ["tk", "copies"])),
 	}, ["days"])
 
 static func _conclusions() -> Dictionary:
@@ -205,7 +211,7 @@ static func _place() -> Dictionary:
 	var chr := _obj({"id": "id", "area": "str", "pos": VEC3, "rot": "num", "pose": "str", "trait": "str", "when": "cond"}, ["id", "pos"])
 	return _obj({"id": "id", "name": "str", "streets": STRS, "areas": _map(_obj({"desc": "str"}, [], true)), "observers": STRS,
 		"epigraph": "str", "epigraph_by_area": _map("str"), "frames": _list(frame, 1), "light": _map("str"), "props": _list(prop), "nodes": _list(node),
-		"characters": _list(chr), "silhouettes": _map(_obj({"frame": "str", "pos": VEC3, "rot": "num", "talk": STRS}, ["frame", "pos"])),
+		"characters": _list(chr), "silhouettes": _map(_obj({"frame": "str", "pos": VEC3, "rot": "num", "talk": STRS, "where": "str"}, ["frame", "pos"])),
 		"variants": {"t": "dict"}, "fixed": "bool", "origin": "str", "doc_variant": _map("str"), "place": "str", "day": "int",
 		"slot": "str"}, ["id", "name", "frames", "props", "nodes"])
 

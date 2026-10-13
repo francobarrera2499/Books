@@ -1,4 +1,7 @@
-# T27 (W1-POST) — parte con ventana: calibración del grabado, contornos, trama estable y anclada, CanvasLayer intacta.
+# T27 (W1-POST) — parte con ventana. Look 'grabado' (alternativa en Opciones): calibración, contornos, trama estable y
+# anclada, CanvasLayer intacta. Look 'aguada' (por defecto): CanvasLayer intacta, cuadros estables, tono monótono con
+# blancos reservados, cada preset legible, lo que hay sobre una mesa se separa de la mesa (pluma fina + hilo de papel)
+# sin líneas falsas en un piso de costado, y siluetas legibles en tono continuo.
 # Correr SIN --headless:  ./godot.sh -s tests/run_tests.gd -- --window t27
 extends "res://tests/test_base.gd"
 
@@ -7,6 +10,7 @@ const TIMEOUT_S := 180.0
 const EngravingPost = preload("res://world/post/engraving_post.gd")
 const Lighting = preload("res://world/lighting.gd")
 const Scene = preload("res://devtools/drivers/w1post_scene.gd")
+const Looks = preload("res://world/post/looks.gd")
 
 var _nodes: Array = []
 
@@ -35,6 +39,7 @@ func _rig(fov := 40.0) -> Dictionary:
 	root.add_child(cam)
 	cam.current = true
 	var post = EngravingPost.attach(cam)
+	post.set_look_id("grabado")  # las calibraciones de abajo son del grabado (la aguada tiene las suyas al final)
 	post.set_palette(Color.WHITE, Color.BLACK)
 	post.set_param("grain", 0.0)
 	return {"root": root, "cam": cam, "post": post}
@@ -230,14 +235,19 @@ static func _diff_frac(a: Image, b: Image, r: Rect2i, off: Vector2i) -> float:
 			n += 1
 	return float(k) / maxf(1.0, n)
 
-# Una CanvasLayer con texto queda intacta: mismos píxeles con y sin grabado, y el 3D sí cambia.
+# Una CanvasLayer con texto queda intacta: mismos píxeles con y sin post-proceso, y el 3D sí cambia. Con cada look.
 func test_canvas_layer_untouched() -> void:
 	if _skip_if_headless():
 		return
+	for id in Looks.ids():
+		await _canvas_untouched(str(id))
+
+func _canvas_untouched(id: String) -> void:
 	var holder := Node.new()
 	tree.root.add_child(holder)
 	_nodes.append(holder)
 	var sc := Scene.build(holder)
+	sc.post.set_look_id(id)
 	Scene.set_preset(sc, "dia_ventana", "M")
 	var on: Image = await _grab(8)
 	sc.post.set_enabled(false)
@@ -247,21 +257,23 @@ func test_canvas_layer_untouched() -> void:
 	var band := Rect2i(0, h - 70, on.get_width(), 66)
 	var same_panel := on.get_region(pr).get_data() == off.get_region(pr).get_data()
 	var same_band := on.get_region(band).get_data() == off.get_region(band).get_data()
-	ok(same_panel, "panel con texto idéntico con y sin grabado")
-	ok(same_band, "epígrafe idéntico con y sin grabado")
+	ok(same_panel, "%s: panel con texto idéntico con y sin post" % id)
+	ok(same_band, "%s: epígrafe idéntico con y sin post" % id)
 	var px := on.get_pixel(pr.position.x + pr.size.x - 6, pr.position.y + 4)
-	ok(px.is_equal_approx(Color("f0e8d6")) or (absf(px.r - 0.941) < 0.01 and absf(px.g - 0.91) < 0.01), "color del panel exacto: %s" % px.to_html(false))
+	ok(px.is_equal_approx(Color("f0e8d6")) or (absf(px.r - 0.941) < 0.01 and absf(px.g - 0.91) < 0.01), "%s: color del panel exacto: %s" % [id, px.to_html(false)])
 	var mid := Rect2i(400, 200, 800, 400)
 	var d3 := absf(_mean(on, mid, 3) - _mean(off, mid, 3)) + _diff_frac(on, off, mid, Vector2i.ZERO)
-	ok(d3 > 0.05, "el 3D sí pasa por el grabado (%.3f)" % d3)
+	ok(d3 > 0.05, "%s: el 3D sí pasa por el post (%.3f)" % [id, d3])
 	# el rótulo 3D (Label3D con alpha_cut) se lee: hay tinta donde están las letras
 	var cam: Camera3D = sc.cam
 	var lab: Label3D = sc.props.get_node("Rotulo")
 	var lp := cam.unproject_position(lab.global_position)
 	var lr := Rect2i(Vector2i(lp) - Vector2i(120, 18), Vector2i(240, 36))
 	var ink_lab := _ink_frac(on, lr)
-	print("T27 tinta en el rótulo 3D: %.3f" % ink_lab)
-	ok(ink_lab > 0.15, "el Label3D con alpha_cut sale en el grabado")
+	print("T27 %s tinta en el rótulo 3D: %.3f" % [id, ink_lab])
+	ok(ink_lab > 0.15, "%s: el Label3D con alpha_cut sale en el post" % id)
+	holder.queue_free()
+	await tree.process_frame
 
 # Cada preset rinde algo legible: hay papel y tinta, la noche es más oscura que el día y los contornos existen.
 func test_presets_legible() -> void:
@@ -271,6 +283,7 @@ func test_presets_legible() -> void:
 	tree.root.add_child(holder)
 	_nodes.append(holder)
 	var sc := Scene.build(holder)
+	sc.post.set_look_id("grabado")
 	var res := {}
 	for p in Lighting.names():
 		var slot := "N" if p in ["gas", "farol_calle", "noche_viento", "dorada_parklane"] else ("T" if p == "tarde" else "M")
@@ -398,6 +411,7 @@ func test_calibration_per_preset() -> void:
 	lamp.position = Vector3(1.6, 1.0, -3.5)
 	holder.add_child(lamp)
 	var post = EngravingPost.attach(cam)
+	post.set_look_id("grabado")
 	var res := {}
 	for p in Lighting.names():
 		var slot := "N" if p in ["gas", "farol_calle", "noche_viento"] else ("T" if p in ["tarde", "dorada_parklane"] else "M")
@@ -508,6 +522,7 @@ func test_silhouettes_legible_in_one_bit() -> void:
 	lamp.position = Vector3(1.4, 2.4, -2.6)
 	holder.add_child(lamp)
 	var post = EngravingPost.attach(cam)
+	post.set_look_id("grabado")
 	var vp := Rect2i(Vector2i.ZERO, Vector2i(tree.root.get_visible_rect().size))
 	var bad: Array = []
 	var lines: Array = []
@@ -542,3 +557,444 @@ func test_silhouettes_legible_in_one_bit() -> void:
 	for l in lines:
 		print("T27 silueta ", l)
 	ok(bad.is_empty(), "siluetas ilegibles en 1 bit: %s" % str(bad))
+
+# ---------------------------------------------------------------------------------------------------------------------
+# AGUADA (look por defecto, world/post/looks/aguada.*). Medidas en tono continuo (luminancia), no en 1 bit: la aguada
+# no tiene trama; lo que importa es que cada cosa se separe de lo que tiene detrás.
+const LEGC_MIN := 0.08       # contraste mínimo (luminancia) de una figura contra su fondo: mancha, borde o filete
+const LEGC_TABLE_MIN := 0.06 # un objeto del MISMO color que la mesa en la que está: sólo lo separan pluma e hilo de papel
+
+func _aguada(post) -> void:
+	post.set_look_id("aguada")
+
+# contraste en tono continuo por bandas de la máscara (Med.bands): 1 dentro · 2 filo interior · 3 filo exterior · 4 anillo
+#   fill = |dentro − anillo| · outline = |filo interior − filo exterior| (pluma + hilo de papel) · white = filete entre
+#   dos tonos iguales · leg = el mayor
+static func _leg_cont(img: Image, bnd: PackedByteArray, r: Rect2i) -> Dictionary:
+	var de := img.get_data()
+	var W := img.get_width()
+	var s := [0.0, 0.0, 0.0, 0.0, 0.0]
+	var n := [0, 0, 0, 0, 0]
+	for y in r.size.y:
+		var row := y * r.size.x
+		var base := ((r.position.y + y) * W + r.position.x) * 3
+		for x in r.size.x:
+			var c: int = bnd[row + x]
+			if c == 0:
+				continue
+			var i := base + x * 3
+			s[c] += (0.2126 * de[i] + 0.7152 * de[i + 1] + 0.0722 * de[i + 2]) / 255.0
+			n[c] += 1
+	var m := [0.0, 0.0, 0.0, 0.0, 0.0]
+	for c in range(1, 5):
+		m[c] = s[c] / maxf(1.0, n[c])
+	var edge: float = (s[2] + s[3]) / maxf(1.0, n[2] + n[3])
+	var fill: float = absf(m[1] - m[4])
+	var outline: float = absf(m[2] - m[3])
+	var white: float = minf(absf(edge - m[1]), absf(edge - m[4]))
+	return {"in": m[1], "ring": m[4], "fill": fill, "outline": outline, "white": white, "leg": maxf(fill, maxf(outline, white)),
+		"n_in": n[1]}
+
+static func _lums(img: Image, r: Rect2i, step := 3) -> PackedFloat32Array:
+	var d := img.get_data()
+	var w := img.get_width()
+	var out := PackedFloat32Array()
+	for y in range(r.position.y, r.end.y, step):
+		for x in range(r.position.x, r.end.x, step):
+			out.append(_lum(d, w, x, y))
+	out.sort()
+	return out
+
+# Cámara quieta: cuadros idénticos byte a byte (ni el papel ni los lavados titilan: sin TIME, ruido anclado a px enteros).
+func test_aguada_static_frames_identical() -> void:
+	if _skip_if_headless():
+		return
+	var holder := Node.new()
+	tree.root.add_child(holder)
+	_nodes.append(holder)
+	var sc := Scene.build(holder)
+	_aguada(sc.post)
+	Scene.set_preset(sc, "tarde", "T")
+	var fl: Node = sc.root.get_node_or_null("Lights/Flicker")
+	if fl != null:
+		fl.set_process(false)
+	var a: Image = await _grab(6)
+	var b: Image = await _grab(6)
+	var r := Rect2i(0, 0, a.get_width(), a.get_height() - 80)
+	ok(a.get_region(r).get_data() == b.get_region(r).get_data(), "aguada: cámara quieta, cuadros idénticos")
+
+# Tono: un plano liso a 5 m (sin luz: unshaded) de gris t -> la media del centro crece con t (monótona), lo casi
+# blanco queda en papel limpio (blancos reservados), lo casi negro llega a la tinta, y hay escala entre medio.
+func test_aguada_tone_monotonic_and_reserved_whites() -> void:
+	if _skip_if_headless():
+		return
+	var rg := _rig()
+	_aguada(rg.post)
+	rg.post.set_preset("tarde", "T")
+	rg.post.set_param("grain", 0.0)
+	var pl := _plane(rg.root, -5.0, Color(0.5, 0.5, 0.5))
+	var paper: Color = rg.post.current_paper()
+	var ink: Color = rg.post.current_ink()
+	var row := []
+	var ms := []
+	for t in [0.04, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.98]:
+		pl.material_override = _unshaded(Color(t, t, t))
+		var img: Image = await _grab(3)
+		var m := _mean(img, _center(img, 0.5), 2)
+		ms.append(m)
+		row.append("%.2f→%.3f" % [t, m])
+	print("T27 aguada rampa: %s (papel %.3f · tinta %.3f)" % [" ".join(row), _lum_c(paper), _lum_c(ink)])
+	for i in range(1, ms.size()):
+		ok(float(ms[i]) >= float(ms[i - 1]) - 0.004, "monótona: %s" % str(row))
+	near(float(ms[-1]), _lum_c(paper), 0.03, "casi blanco -> papel reservado")
+	ok(float(ms[0]) <= _lum_c(ink) + 0.12, "casi negro -> tinta (%.3f vs %.3f)" % [ms[0], _lum_c(ink)])
+	ok(float(ms[8]) - float(ms[1]) > 0.35, "escala de lavados entre 0,1 y 0,8 (%.3f)" % (float(ms[8]) - float(ms[1])))
+
+# Cada preset (escena de prueba con su luz): rango de valores amplio, ni lavado a papel ni empastado en tinta, y la
+# noche más cargada que el día.
+func test_aguada_presets_legible() -> void:
+	if _skip_if_headless():
+		return
+	var holder := Node.new()
+	tree.root.add_child(holder)
+	_nodes.append(holder)
+	var sc := Scene.build(holder)
+	_aguada(sc.post)
+	var res := {}
+	var means := {}
+	for p in Lighting.names():
+		var slot := "N" if p in ["gas", "farol_calle", "noche_viento"] else ("T" if p in ["tarde", "dorada_parklane"] else "M")
+		Scene.set_preset(sc, p, slot)
+		var fl: Node = sc.root.get_node_or_null("Lights/Flicker")
+		if fl != null:
+			fl.set_process(false)
+		var img: Image = await _grab(5)
+		var r := Rect2i(0, 100, img.get_width(), img.get_height() - 200)
+		var ls := _lums(img, r)
+		var paper := _lum_c(sc.post.current_paper())
+		var ink := _lum_c(sc.post.current_ink())
+		var p10 := ls[int(ls.size() * 0.1)]
+		var p90 := ls[int(ls.size() * 0.9)]
+		var on_paper := 0
+		var on_ink := 0
+		var tot := 0.0
+		for v in ls:
+			tot += v
+			if v >= paper - 0.02:
+				on_paper += 1
+			if v <= ink + 0.04:
+				on_ink += 1
+		means[p] = tot / ls.size()
+		res[p] = "p10 %.2f p90 %.2f papel %.2f tinta %.2f media %.2f" % [p10, p90, float(on_paper) / ls.size(), float(on_ink) / ls.size(), means[p]]
+		ok(p90 - p10 >= 0.2, "%s: rango de valores %.2f" % [p, p90 - p10])
+		ok(float(on_paper) / ls.size() < 0.5, "%s: no se lava a papel (%s)" % [p, res[p]])
+		ok(float(on_ink) / ls.size() < 0.4, "%s: no se empasta en tinta (%s)" % [p, res[p]])
+	for p in res:
+		print("T27 aguada %s: %s" % [p, res[p]])
+	var day := (float(means.manana_perla) + float(means.dia_ventana) + float(means.tarde)) / 3.0
+	var night := (float(means.gas) + float(means.farol_calle) + float(means.noche_viento)) / 3.0
+	ok(night < day - 0.08, "la noche más cargada que el día (%.2f vs %.2f)" % [night, day])
+
+# Lo que hay sobre una mesa se distingue de la mesa (feedback: «no entiendo qué hay sobre la mesa»): un cuaderno, un
+# tintero y una regla del MISMO color que la mesa, a 2 m con luz de tarde y de gas. La pluma fina (escalón chico de
+# profundidad) y el hilo de papel fino los separan: legibilidad ≥ LEGC_TABLE_MIN y claramente mejor que sin ellos.
+# Igual para todo objeto (no marca pistas): depende sólo de la geometría.
+func test_aguada_objects_on_table_separate() -> void:
+	if _skip_if_headless():
+		return
+	var holder := Node3D.new()
+	tree.root.add_child(holder)
+	_nodes.append(holder)
+	var cam := Camera3D.new()
+	cam.fov = 40.0
+	holder.add_child(cam)
+	cam.position = Vector3(0, 1.45, 0.35)
+	cam.look_at(Vector3(0, 0.76, -1.4))
+	cam.current = true
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color(0.3, 0.22, 0.15)
+	wood.roughness = 1.0
+	var table := MeshInstance3D.new()
+	var tb := BoxMesh.new()
+	tb.size = Vector3(3.0, 0.06, 2.2)
+	table.mesh = tb
+	table.material_override = wood
+	table.position = Vector3(0, 0.72, -1.4)
+	holder.add_child(table)
+	_plane_floor(holder)
+	var objs := {}
+	for spec in [["cuaderno", Vector3(0.24, 0.025, 0.17), Vector3(-0.3, 0.7625, -1.5), 14.0],
+			["regla", Vector3(0.3, 0.008, 0.03), Vector3(0.05, 0.754, -1.25), -20.0]]:
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = spec[1]
+		mi.mesh = bm
+		mi.material_override = wood
+		mi.position = spec[2]
+		mi.rotation_degrees.y = spec[3]
+		holder.add_child(mi)
+		objs[spec[0]] = mi
+	var tin := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 0.03
+	cm.bottom_radius = 0.035
+	cm.height = 0.05
+	tin.mesh = cm
+	tin.material_override = wood
+	tin.position = Vector3(0.35, 0.775, -1.6)
+	holder.add_child(tin)
+	objs["tintero"] = tin
+	var post = EngravingPost.attach(cam)
+	_aguada(post)
+	var vp := Rect2i(Vector2i.ZERO, Vector2i(tree.root.get_visible_rect().size))
+	var lines := []
+	for preset in ["tarde", "gas"]:
+		var slot := "T" if preset == "tarde" else "N"
+		var lamp := Node3D.new()
+		lamp.set_meta("light", "gas")
+		lamp.position = Vector3(0.9, 1.3, -1.2)
+		holder.add_child(lamp)
+		Lighting.apply(holder, preset, slot)
+		for nm in objs:
+			var o: Node3D = objs[nm]
+			post.set_look(Looks.params("aguada", preset, slot))
+			post.set_param("debug_view", 4)
+			var d1: Image = await _grab(3)
+			o.visible = false
+			var d0: Image = await _grab(3)
+			o.visible = true
+			var r := Med.screen_rect(cam, o).grow(14).intersection(vp)
+			var bnd := Med.bands(Med.mask_from_depth(d1, d0, r), r.size.x, r.size.y)
+			var res := {}
+			for cfg in [["con", -1.0], ["sin", 0.0]]:
+				post.set_look(Looks.params("aguada", preset, slot))
+				post.set_param("debug_view", 0)
+				if float(cfg[1]) >= 0.0:
+					post.set_param("fine", cfg[1])
+					post.set_param("lift_fine", cfg[1])
+				var img: Image = await _grab(3)
+				res[cfg[0]] = _leg_cont(img, bnd, r)
+			lines.append("%s %s: con %.3f (borde %.3f) · sin %.3f" % [preset, nm, res.con.leg, res.con.outline, res.sin.leg])
+			ok(float(res.con.leg) >= LEGC_TABLE_MIN, "%s %s se separa de la mesa (%.3f)" % [preset, nm, res.con.leg])
+			ok(float(res.con.leg) >= float(res.sin.leg) + 0.02, "%s %s: pluma fina + hilo ayudan (%.3f vs %.3f)" % [preset, nm, res.con.leg, res.sin.leg])
+		holder.remove_child(lamp)
+		lamp.free()
+	for l in lines:
+		print("T27 aguada mesa ", l)
+
+func _plane_floor(holder: Node3D) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var q := PlaneMesh.new()
+	q.size = Vector2(400, 400)
+	mi.mesh = q
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.45, 0.4, 0.35)
+	m.roughness = 1.0
+	mi.material_override = m
+	holder.add_child(mi)
+	return mi
+
+# Un piso liso visto de costado (rasante) no dibuja pluma fina ni se aclara con el hilo fino: el laplaciano de 1/z de un
+# plano es cero aunque la profundidad cambie mucho entre píxeles vecinos.
+func test_aguada_no_false_fine_lines_on_grazing_floor() -> void:
+	if _skip_if_headless():
+		return
+	var holder := Node3D.new()
+	tree.root.add_child(holder)
+	_nodes.append(holder)
+	var cam := Camera3D.new()
+	cam.fov = 40.0
+	holder.add_child(cam)
+	cam.position = Vector3(0, 1.6, 0)
+	cam.rotation_degrees = Vector3(-6.0, 0, 0)
+	cam.current = true
+	_plane_floor(holder)
+	Lighting.apply(holder, "tarde", "T")
+	var post = EngravingPost.attach(cam)
+	_aguada(post)
+	post.set_look(Looks.params("aguada", "tarde", "T"))
+	post.set_param("debug_view", 2)
+	var img: Image = await _grab(4)
+	var hz := int(cam.unproject_position(Vector3(0, 0, -150)).y)
+	var r := Rect2i(20, hz + 12, img.get_width() - 40, img.get_height() - hz - 32)
+	var lf := 0
+	var n := 0
+	var d := img.get_data()
+	var w := img.get_width()
+	for y in range(r.position.y, r.end.y, 2):
+		for x in range(r.position.x, r.end.x, 2):
+			n += 1
+			if _lum(d, w, x, y) < 0.8:
+				lf += 1
+	print("T27 aguada piso rasante: pluma en %.5f de los píxeles (horizonte y=%d)" % [float(lf) / maxf(1, n), hz])
+	ok(float(lf) / maxf(1, n) < 0.002, "sin pluma falsa en el piso (%.5f)" % (float(lf) / maxf(1, n)))
+	post.set_param("debug_view", 1)
+	post.set_param("lift_fine", 0.0)
+	var a: Image = await _grab(3)
+	post.set_param("lift_fine", 0.8)
+	var b: Image = await _grab(3)
+	var diff := _diff_cont(a, b, r)
+	print("T27 aguada piso rasante: el hilo fino cambia %.5f de los píxeles" % diff)
+	ok(diff < 0.002, "el hilo fino no aclara el piso (%.5f)" % diff)
+
+static func _diff_cont(a: Image, b: Image, r: Rect2i) -> float:
+	var da := a.get_data()
+	var db := b.get_data()
+	var w := a.get_width()
+	var n := 0
+	var k := 0
+	for y in range(r.position.y, r.end.y, 2):
+		for x in range(r.position.x, r.end.x, 2):
+			n += 1
+			if absf(_lum(da, w, x, y) - _lum(db, w, x, y)) > 0.02:
+				k += 1
+	return float(k) / maxf(1, n)
+
+# GDD §14.4 con la aguada: cada rasgo de maniquí a 4 m delante de una pared clara, media y oscura, con luz de tarde y de
+# gas (farol encendido): contraste en tono continuo (_leg_cont) ≥ LEGC_MIN.
+func test_aguada_silhouettes_legible() -> void:
+	if _skip_if_headless():
+		return
+	var holder := Node3D.new()
+	tree.root.add_child(holder)
+	_nodes.append(holder)
+	var cam := Camera3D.new()
+	cam.fov = 40.0
+	cam.position = Vector3(0, 1.0, 0)
+	holder.add_child(cam)
+	cam.look_at(Vector3(0, 0.95, -4.0))
+	cam.current = true
+	var wall := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(30, 12, 0.2)
+	wall.mesh = bm
+	wall.position = Vector3(0, 3, -7)
+	var wm := StandardMaterial3D.new()
+	wm.roughness = 1.0
+	wall.material_override = wm
+	holder.add_child(wall)
+	var floor_mi := MeshInstance3D.new()
+	var fm := BoxMesh.new()
+	fm.size = Vector3(30, 0.1, 14)
+	floor_mi.mesh = fm
+	floor_mi.position = Vector3(0, -0.05, -5)
+	var flm := StandardMaterial3D.new()
+	flm.albedo_color = Color(0.35, 0.3, 0.25)
+	flm.roughness = 1.0
+	floor_mi.material_override = flm
+	holder.add_child(floor_mi)
+	var lamp := Node3D.new()
+	lamp.set_meta("light", "farol")
+	lamp.position = Vector3(1.4, 2.4, -2.6)
+	holder.add_child(lamp)
+	var post = EngravingPost.attach(cam)
+	_aguada(post)
+	var vp := Rect2i(Vector2i.ZERO, Vector2i(tree.root.get_visible_rect().size))
+	var bad: Array = []
+	var lines: Array = []
+	for trt in Mannequin.traits():
+		var fig := Mannequin.make("t", trt)
+		fig.position = Vector3(0, 0, -4)
+		holder.add_child(fig)
+		Lighting.apply(holder, "tarde", "T")
+		post.set_look(Lighting.look("tarde", "T"))
+		post.set_param("debug_view", 4)
+		var d1: Image = await _grab(3)
+		fig.visible = false
+		var d0: Image = await _grab(3)
+		fig.visible = true
+		var r := Med.screen_rect(cam, fig).grow(14).intersection(vp)
+		var bnd := Med.bands(Med.mask_from_depth(d1, d0, r), r.size.x, r.size.y)
+		var row := []
+		for preset in ["tarde", "gas"]:
+			var slot := "T" if preset == "tarde" else "N"
+			for g in [0.8, 0.35, 0.08]:
+				wm.albedo_color = Color(g, g, g)
+				post.set_look(Lighting.apply(holder, preset, slot))
+				var fl: Node = holder.get_node_or_null("Lights/Flicker")
+				if fl != null:
+					fl.set_process(false)
+				post.set_param("debug_view", 0)
+				var img: Image = await _grab(3)
+				var lg := _leg_cont(img, bnd, r)
+				row.append("%s/%.2f:%.3f" % [preset, g, lg.leg])
+				if float(lg.leg) < LEGC_MIN:
+					bad.append("%s %s fondo %.2f leg %.3f" % [trt, preset, g, lg.leg])
+		lines.append("%s %s" % [trt, " ".join(row)])
+		holder.remove_child(fig)
+		fig.free()
+	for l in lines:
+		print("T27 aguada silueta ", l)
+	ok(bad.is_empty(), "siluetas ilegibles con la aguada: %s" % str(bad))
+
+# Opciones «Estilo de imagen» con clics reales (como un jugador, sin atajos): la lista muestra la aguada elegida por
+# defecto, abrirla y elegir «Grabado» cambia en vivo el quad del 3D, y volver a elegir la aguada lo restaura.
+# No cierra el panel (close() guardaría user://opciones.cfg).
+const Options = preload("res://ui/menus/options.gd")
+
+func _real_click(p: Vector2) -> void:
+	tree.root.warp_mouse(p)
+	await tree.process_frame
+	for pressed in [true, false]:
+		var e := InputEventMouseButton.new()
+		e.button_index = MOUSE_BUTTON_LEFT
+		e.pressed = pressed
+		e.position = p
+		e.global_position = p
+		Input.parse_input_event(e)
+		await tree.process_frame
+		await tree.process_frame
+
+func test_options_style_by_real_clicks() -> void:
+	if _skip_if_headless():
+		return
+	var saved := {"o": Looks._override, "c": Looks._choice}
+	Looks._override = ""
+	Looks.set_choice("")
+	var holder := Node.new()
+	tree.root.add_child(holder)
+	_nodes.append(holder)
+	var sc := Scene.build(holder)
+	Scene.set_preset(sc, "tarde", "T")
+	await _grab(3)
+	eq(str(sc.post.look_id), "aguada", "sin elección: la aguada")
+	var op = Options.new()
+	op.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	tree.root.add_child(op)
+	_nodes.append(op)
+	op.open()
+	for i in 12:
+		await tree.process_frame
+	var ob: OptionButton = op.find_child("Look", true, false)
+	ok(ob != null and ob.is_visible_in_tree(), "fila «Estilo de imagen» visible")
+	if ob == null:
+		return
+	eq(str(ob.get_item_metadata(ob.selected)), "aguada", "muestra la aguada")
+	ok(ob.tooltip_text != "", "explica el estilo al pasar el mouse")
+	var gi := -1
+	for i in ob.item_count:
+		if str(ob.get_item_metadata(i)) == "grabado":
+			gi = i
+	ok(gi >= 0, "el grabado está en la lista")
+	await _real_click(ob.get_global_rect().get_center())
+	var pop := ob.get_popup()
+	ok(pop.visible, "un clic abre la lista")
+	var pr := Rect2(Vector2(pop.position), Vector2(pop.size))
+	await _real_click(Vector2(pr.get_center().x, pr.position.y + pr.size.y * (gi + 0.5) / ob.item_count))
+	for i in 4:
+		await tree.process_frame
+	eq(Looks.choice(), "grabado", "elegido con el mouse")
+	eq(str(sc.post.look_id), "grabado", "el 3D cambia en vivo")
+	ok(sc.post.material_override.shader.resource_path == EngravingPost.SHADER_PATH, "shader del grabado")
+	await _real_click(ob.get_global_rect().get_center())
+	pr = Rect2(Vector2(pop.position), Vector2(pop.size))
+	var ai := 1 - gi
+	await _real_click(Vector2(pr.get_center().x, pr.position.y + pr.size.y * (ai + 0.5) / ob.item_count))
+	for i in 4:
+		await tree.process_frame
+	eq(Looks.choice(), "aguada", "vuelve a la aguada")
+	eq(str(sc.post.look_id), "aguada", "el 3D vuelve a la aguada")
+	op.visible = false
+	Looks._override = str(saved.o)
+	Looks._choice = str(saved.c)
+	Looks.serial += 1

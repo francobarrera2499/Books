@@ -33,6 +33,9 @@ const MoranAgent = preload("res://core/react/moran_agent.gd")
 const Dialogue = preload("res://core/scenes/dialogue.gd")
 const Confrontation = preload("res://core/scenes/confrontation.gd")
 const Composers = preload("res://core/scenes/composers.gd")
+const Reveal = preload("res://core/sim/reveal.gd")
+const Guide = preload("res://core/sim/guide.gd")
+const UiState = preload("res://core/sim/ui_state.gd")
 
 const MAX_EVENT_ROUNDS := 32
 # Manejadores propios que validan todo antes de mutar (no necesitan la copia de seguridad del estado).
@@ -50,6 +53,7 @@ func _init(p_repo, p_seed: int, handlers := {}) -> void:
 	st.handlers = handlers
 	Clock.init_state(st, repo)
 	WorldModel.init_state(st, repo)
+	Reveal.init_state(st, repo)
 	Tutorial.init_state(st, repo)
 	Clipper.init_state(st, repo)
 	Ledger.init_state(st, repo)
@@ -61,6 +65,7 @@ func _init(p_repo, p_seed: int, handlers := {}) -> void:
 	WorldModel.start_prologue(st, repo)
 	WorldModel.sync_scene_lines(st, repo)
 	_say_tutorial_line()
+	Reveal.update(st, repo)
 	st.pending_events.clear()
 	st.notes.clear()
 
@@ -134,6 +139,8 @@ func _apply(a: Dictionary, live: bool, rollback := true) -> Dictionary:
 		res["ok"] = false
 		return res
 	Tutorial.after(st, repo, na, res)
+	if res.has("clip") and String(res.get("clip", "")) != "":
+		Reveal.learn(st, Clipper.get_clip(st, String(res.clip)).get("ents", []))
 	_flush_events(Clock.tk_of(clock_before))
 	WorldModel.sync_scene_lines(st, repo)
 	WorldModel.sync_scene_extra(st, repo)
@@ -148,6 +155,7 @@ func _apply(a: Dictionary, live: bool, rollback := true) -> Dictionary:
 		Director.on_time(st, repo, tk)
 		_flush_events(tk)
 		WorldModel.sync_scene_lines(st, repo)
+		Reveal.update(st, repo, tk)
 		# escena fija abierta en este mismo tk (M6 al amanecer, M7 a las 22 h): líneas que el director le agregó
 		WorldModel.sync_scene_extra(st, repo)
 		st.now_tk = -1
@@ -155,6 +163,7 @@ func _apply(a: Dictionary, live: bool, rollback := true) -> Dictionary:
 	WorldModel.sync_scene_lines(st, repo)
 	WorldModel.sync_scene_extra(st, repo)
 	WorldModel.check_eggs(st, repo)
+	Reveal.update(st, repo)
 	var step_after := String(Tutorial.step(st).get("id", ""))
 	if step_after != step_before:
 		_say_tutorial_line()
@@ -240,6 +249,9 @@ func clip_plate(plate: String, hits: Array, touched: Array, area_frac: float) ->
 func clip_measure(src: Dictionary) -> Dictionary:
 	return apply({"t": "clip_measure", "src": src})
 
+func read(view: String, part := 0) -> Dictionary:
+	return apply({"t": "read", "view": view, "part": part})
+
 func link(a: String, b: String, note := "") -> Dictionary:
 	return apply({"t": "link", "a": a, "b": b, "note": note})
 
@@ -319,21 +331,38 @@ func q_clock() -> Dictionary:
 		"slot_label": repo.text("core.slot." + String(c.slot)), "scene": String(c.get("scene", "")),
 		"coins_d": int(st.world.get("coins_d", 0)), "tutorial": Tutorial.step(st)}
 
+# Lo que todavía no está en el mapa (GDD_v2 §B.4) no se lista: ni siquiera con la persiana baja. Extras v2: hours (una
+# línea de horario, map.json places.<L>.hours), new (revelado hoy: sello «Nuevo», uniforme) y seat (asiento por defecto).
 func q_places() -> Array:
 	var c: Dictionary = st.clock
 	var out: Array = []
+	var news := Reveal.revealed_on(st, repo, int(c.day))
+	var mp: Dictionary = repo.map().get("places", {}) if repo.has_method("map") else {}
 	for d in Clock.destinations(repo):
 		var p := String(d.place)
 		var a := String(d.area)
+		if not Reveal.place_known(st, repo, p):
+			continue
 		var op := Clock.place_open(repo, st, p, a, int(c.day), String(c.slot))
 		var pl: Dictionary = repo.place(p)
 		var free := Clock.is_free(repo, p, a)
 		var ad = pl.get("areas", {}).get(a, {})
+		var mpl = mp.get(p, {})
 		out.append({"id": p, "area": a, "name": Diary.place_name(repo, p), "area_name": String(ad.get("desc", a)) if typeof(ad) == TYPE_DICTIONARY else a,
 			"open": bool(op.open), "reason": String(op.reason), "streets": (pl.get("streets", []) as Array).duplicate(), "free": free,
 			"can_go": bool(op.open) and String(c.phase) == "desk" and (free or not bool(c.outing_done)),
-			"needs_seat": WorldModel.place_needs_seat(repo, p)})
+			"needs_seat": WorldModel.place_needs_seat(repo, p), "new": news.has(p),
+			"hours": String(mpl.get("hours", "")) if typeof(mpl) == TYPE_DICTIONARY else ""})
 	return out
+
+# ¿Está el lugar en el mapa? (L1 siempre.)
+func q_place_known(place: String) -> bool:
+	return Reveal.place_known(st, repo, place)
+
+# Asiento de la Sala de Lectura por defecto: el último usado; la primera vez, 214 (GDD_v2 §C.3, catálogo). El `go` lo lleva.
+func q_seat() -> int:
+	var s := int(st.world.get("seat", 0))
+	return s if s > 0 else 214
 
 func q_tray(day := -1) -> Array:
 	var d := int(st.clock.day) if day < 0 else day
@@ -414,8 +443,10 @@ func q_index() -> Array:
 				it["kind"] = "act_ref"
 			else:
 				var en: Dictionary = repo.entity(id)
-				it["label"] = String(en.get("index", en.get("name", id)))
+				it["label"] = Index.display(repo, id)
 				it["kind"] = String(en.get("kind", ""))
+		if not it.has("index"):
+			it["index"] = Index.index_label(st, repo, id)
 		out.append(it)
 	return out
 
@@ -500,7 +531,10 @@ func q_entry(id: String) -> Dictionary:
 	e["id"] = id
 	if not e.has("ink"):
 		e["ink"] = "lapiz"
-	e["formal"] = Ledger.formal_check(st, repo, id)
+	# v2 (§B.7): mientras la práctica del día 1 no se hizo, el borrador se mira con el chequeo de la práctica (pasajes, no
+	# orígenes): las dos fechas de REDH salen del mismo papel y el libro marcaba «Una sola fuente» justo antes de «Confirmar
+	# práctica». Confirmar de verdad sigue pidiendo la práctica hecha (practica_pendiente) y dos fuentes.
+	e["formal"] = Ledger.formal_codes(st, repo, entries[id], bool(entries[id].get("practice", false)) or not Tutorial.practice_done(st))
 	return e
 
 func q_templates() -> Dictionary:
@@ -523,6 +557,11 @@ func q_scene() -> Dictionary:
 		var known := Index.has(st, cid) or bool(dl.get("known", false))
 		var en: Dictionary = repo.entity(cid)
 		var label := Diary.char_label(repo, cid) if known else String(en.get("noun", dl.get("trait", cid)))
+		# una silueta dice dónde está (playtest v2: «Muchacho con gorra» en la banda de la tienda sin verlo en ningún lado)
+		if typeof(c) == TYPE_DICTIONARY and bool(c.get("sil", false)):
+			var sd = repo.place(String(v.get("place", ""))).get("silhouettes", {}).get(cid, {})
+			if typeof(sd) == TYPE_DICTIONARY and String(sd.get("where", "")) != "":
+				label += " (" + String(sd.where) + ")"
 		chars.append({"id": cid, "label": label, "trait": String(c.get("trait", dl.get("trait", ""))) if typeof(c) == TYPE_DICTIONARY else String(dl.get("trait", "")),
 			"can_ask": String(st.clock.phase) == "visit" and not dl.is_empty() and PlayerActions.questions_used(st, cid) < PlayerActions.max_questions(repo, cid)})
 	var lines: Array = []
@@ -586,8 +625,35 @@ func q_report_status() -> Dictionary:
 func q_confront() -> Dictionary:
 	return Confrontation.status(st)
 
+# step: paso del prólogo (bloquea); day1: paso de la primera conclusión (notas de Lisle, guía; {} cuando no hay);
+# practice_done: confirmar ya no pide la práctica.
 func q_tutorial() -> Dictionary:
-	return {"step": Tutorial.step(st), "taught": Tutorial.verbs_taught(st), "complete": Tutorial.complete(st)}
+	return {"step": Tutorial.step(st), "taught": Tutorial.verbs_taught(st), "complete": Tutorial.complete(st),
+		"day1": Tutorial.day1_step(st), "practice_done": Tutorial.practice_done(st)}
+
+# ---------------- v2: progresión y guía (GDD_v2 §B, §C.2) ----------------
+# Banderas de revelado de la interfaz: {bandera: bool}, sólo del estado (core/sim/ui_state.gd).
+func q_ui() -> Dictionary:
+	return UiState.flags(st, repo)
+
+# Tira «Pendientes» del calendario: ≤3 líneas [{key, vars}] (core/sim/guide.gd). Nunca nombra pistas ni progreso.
+func q_guide() -> Array:
+	return Guide.lines(st, repo)
+
+# «Lo que me preguntaron»: citas textuales de las preguntas ya dichas o entregadas (lists.preguntas).
+func q_questions() -> Array:
+	return Guide.questions(st, repo)
+
+# Novedades de la tienda de Crane ya en la mesa (schedule.stock), lo más nuevo primero: [{tk, copies:[...], line}].
+func q_stock() -> Array:
+	return Guide.stock_now(st, repo)
+
+# Lo que Lisle ya sabe (vio, oyó o recortó): {entidad: tk}. Sólo decide el mapa.
+func q_known() -> Dictionary:
+	return (st.world.get("known", {}) as Dictionary).duplicate()
+
+func q_read(view: String) -> Array:
+	return (st.world.get("read", {}).get(view, []) as Array).duplicate()
 
 func _after_final() -> bool:
 	return bool(st.clock.get("d10", {}).get("final_done", false))

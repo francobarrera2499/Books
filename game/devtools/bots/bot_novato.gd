@@ -14,6 +14,7 @@ func _init_bot() -> void:
 	bot_name = "novato"
 	only_taught = true
 	reads_all = true
+	emit_reads = true
 
 func pol_desk_extra() -> void:
 	if _shop_done:
@@ -68,10 +69,13 @@ func pol_confront(step_n: int) -> Dictionary:
 # anuncio…) no tienen versión gratuita: su primer uso debe ocurrir en el prólogo o ya enseñado en contexto por Tutorial
 # (instructor dentro del mundo: ujier, chico de Pell, Crane…), es decir con taught = true en el registro.
 const RAMP_TWINS := {"pass_clean": ["practice", "pass_clean"], "ask": ["ask"], "assert": ["assert"], "present": ["present"], "go": ["go"]}
-# Pasos del prólogo y los verbos que el novato debe tocar en cada uno (al menos uno ok de cada grupo, en fase prologue).
-const PROLOGUE_TOUCH := {"recortar": ["clip_text", "clip_plate", "clip_measure"], "vincular": ["link"], "folio": ["folio_open"],
-	"asentar": ["entry_new"], "llenar": ["entry_set"], "según": ["entry_support_add"], "practicar": ["practice"],
-	"aviso": ["compose_ad"], "dormir": ["sleep"]}
+# Pasos del prólogo (GDD_v2 §B.7) y los verbos que el novato debe tocar en cada uno (al menos uno ok de cada grupo, en
+# fase prologue). La primera conclusión (juntar, hoja, conclusión, práctica) es del día 1: DAY1_TOUCH, antes de la
+# primera confirmación (day1_violations).
+const PROLOGUE_TOUCH := {"leer": ["read"], "recortar": ["clip_text", "clip_plate", "clip_measure"], "aviso": ["compose_ad"],
+	"dormir": ["sleep"]}
+const DAY1_TOUCH := {"juntar": ["link"], "hoja": ["folio_open"], "conclusión": ["entry_new"], "llenar": ["entry_set"],
+	"pruebas": ["entry_support_add"], "practicar": ["practice"]}
 
 # Violaciones de T24 sobre un registro de bot (lista de {t, ok, free, costly, taught, phase, tk}). [] = rampa cumplida.
 static func ramp_violations(lg: Array) -> Array:
@@ -115,4 +119,34 @@ static func prologue_missing(lg: Array) -> Array:
 				hit = true
 		if not hit:
 			out.append(k)
+	return out
+
+# Primera conclusión del día 1: cada grupo de DAY1_TOUCH tocado (ok, fuera del prólogo) antes del primer pass_clean ok,
+# y la práctica hecha el día 1. [] = cumplido (también si nunca confirma).
+static func day1_violations(lg: Array) -> Array:
+	var seen := {}
+	var first_pass := -1
+	var practice_day := -1
+	for i in lg.size():
+		var e: Dictionary = lg[i]
+		if not bool(e.get("ok", false)):
+			continue
+		var t := String(e.t)
+		if t == "pass_clean" and first_pass < 0:
+			first_pass = i
+		if first_pass < 0 and String(e.get("phase", "")) != "prologue":
+			seen[t] = true
+		if t == "practice" and practice_day < 0:
+			practice_day = int(e.get("day", -1))
+	var out: Array = []
+	if first_pass >= 0:
+		for k in DAY1_TOUCH:
+			var hit := false
+			for t in DAY1_TOUCH[k]:
+				if seen.has(t):
+					hit = true
+			if not hit:
+				out.append("%s: no antes de la primera confirmación" % k)
+	if practice_day >= 0 and practice_day != 1:
+		out.append("la práctica fue el día %d, no el 1" % practice_day)
 	return out

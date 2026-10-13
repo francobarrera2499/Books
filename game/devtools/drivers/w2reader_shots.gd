@@ -57,16 +57,16 @@ func drive(p_tool, scene) -> void:
 	_open(fx, "D25@L1")
 	await tool.frames(6)
 	await tool.snap("carta")
-	reader.set_lupa(true)
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 	var at := _word_pos(0, "ahorraré")
 	_mm(at, 0)
 	await tool.frames(4)
 	await tool.snap("carta_lupa")
-	reader.set_lupa(false)
-	reader.set_regla(true)
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 	await tool.frames(4)
 	await tool.snap("carta_regla")
-	reader.set_regla(false)
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 
 	_open(mini, "D29b@L4")
 	await tool.frames(4)
@@ -85,11 +85,11 @@ func drive(p_tool, scene) -> void:
 	reader.point_at(Vector2(left - 900.0, gy - 600.0))
 	await tool.frames(3)
 	await tool.snap("rasante_sin")
-	reader.set_lupa(true)
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 	_mm(Vector2(left + 150.0, gy + 6.0), 0)
 	await tool.frames(4)
 	await tool.snap("rasante_lupa")
-	reader.set_lupa(false)
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 
 	_open(fx, "D27@L1")
 	await tool.frames(4)

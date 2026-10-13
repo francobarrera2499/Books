@@ -132,11 +132,15 @@ func _d46() -> void:
 	gs._read("D46@L5")
 	await tool.frames(30)
 	var rd = shell.reader
-	rd.set_regla(true)
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 	await tool.frames(20)
 	await tool.snap("2_lector_regla")
 	var before: int = g.sim.st.ded.get("clips", {}).size()
-	rd._do_measure()
+	# GDD_v2 §C.4–C.5: sin «Anotar la medida»; la medida está en la descripción física del pliego, que se recorta
+	var v46: Dictionary = g.sim.q_view("D46@L5")
+	for t in v46.pages[0][0].parsed.tramos:
+		if String(t.id) == "fisica":
+			g.act({"t": "clip_text", "src": {"kind": "doc", "ref": "D46@L5", "part": 0, "block": 0}, "from": int(t.from), "len": int(t.to) - int(t.from)})
 	await tool.frames(30)
 	await tool.snap("2_medida")
 	var ids: Array = g.sim.st.ded.get("clips", {}).keys()

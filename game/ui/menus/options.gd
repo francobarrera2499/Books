@@ -1,6 +1,7 @@
 # ui/menus/options.gd — opciones y accesibilidad (GDD§14.7, ARCHITECTURE §6.1). Dueño: W3-SHELL. Panel modal.
 # Tamaño de letra (ThemeInstaller.set_text_scale 0,8–1,6), alto contraste, subtítulos (encendidos por defecto),
-# volumen de ambiente y de efectos (buses Amb/Sfx), pantalla completa. Se guardan en user://opciones.cfg (cae en
+# volumen de ambiente y de efectos (buses Amb/Sfx), pantalla completa, estilo de imagen del 3D (look de
+# world/post/looks.gd; "look" = "" sigue el default de Looks.DEFAULT). Se guardan en user://opciones.cfg (cae en
 # .work/appdata por godot.sh) y se aplican al arrancar (apply_saved). open() · close() · señal closed.
 extends Control
 
@@ -8,6 +9,8 @@ signal closed
 
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
+const Looks = preload("res://world/post/looks.gd")
+const CameraRig = preload("res://world/camera_rig.gd")   # v2 CÁMARA: «Girar la vista con los bordes de la pantalla» (edge_turn)
 const PATH := "user://opciones.cfg"
 
 var shell = null
@@ -27,7 +30,8 @@ static func _root(n: String) -> Node:
 static func current() -> Dictionary:
 	var ti := _root("ThemeInstaller")
 	var au := _root("Audio")
-	var o := {"text_scale": 1.0, "high_contrast": false, "subtitles": true, "amb_db": -3.0, "sfx_db": 0.0, "fullscreen": false}
+	var o := {"text_scale": 1.0, "high_contrast": false, "subtitles": true, "amb_db": -3.0, "sfx_db": 0.0, "fullscreen": false,
+		"look": Looks.choice(), "edge_turn": CameraRig.edge_turn}
 	if ti != null:
 		o.text_scale = float(ti.text_scale)
 		o.high_contrast = bool(ti.high_contrast)
@@ -51,6 +55,10 @@ static func apply(o: Dictionary) -> void:
 			ti.set_high_contrast(bool(o.get("high_contrast", false)))
 	if au != null:
 		au.subtitles_on = bool(o.get("subtitles", true))
+	if o.has("edge_turn"):
+		CameraRig.edge_turn = bool(o.edge_turn)
+	if o.has("look") and str(o.look) != Looks.choice():
+		Looks.set_choice(str(o.look))
 	for pair in [["Amb", "amb_db"], ["Sfx", "sfx_db"]]:
 		var i := AudioServer.get_bus_index(String(pair[0]))
 		if i >= 0 and o.has(pair[1]):
@@ -125,6 +133,10 @@ func _build() -> void:
 		var au := _root("Audio")
 		if au != null:
 			au.subtitles_on = on))
+	v.add_child(_look_row())
+	var eb := _check(Widgets.t("cam.opt.bordes"), CameraRig.edge_turn, func(on): CameraRig.edge_turn = on)
+	eb.name = "Bordes"
+	v.add_child(eb)
 	v.add_child(_slider(Widgets.t("shell.opt.ambiente"), -40.0, 6.0, 1.0, float(o.amb_db), func(x): _bus("Amb", x)))
 	v.add_child(_slider(Widgets.t("shell.opt.efectos"), -40.0, 6.0, 1.0, float(o.sfx_db), func(x): _bus("Sfx", x)))
 	if DisplayServer.get_name() != "headless":
@@ -163,6 +175,32 @@ func _slider(label: String, lo: float, hi: float, step: float, val: float, cb: C
 	s.focus_mode = Control.FOCUS_NONE
 	s.drag_ended.connect(func(_c): cb.call(s.value))
 	h.add_child(s)
+	return h
+
+# «Estilo de imagen»: los looks de post-proceso descubiertos (world/post/looks/*.json); elegir uno lo aplica en vivo.
+func _look_row() -> Control:
+	var h := HBoxContainer.new()
+	h.name = "LookRow"
+	h.add_theme_constant_override("separation", 12)
+	var l := Widgets.label(Widgets.t("shell.opt.estilo"), "")
+	l.custom_minimum_size = Vector2(200, 0)
+	h.add_child(l)
+	var ob := OptionButton.new()
+	ob.name = "Look"
+	ob.focus_mode = Control.FOCUS_NONE
+	ob.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var ids := Looks.ids()
+	for i in ids.size():
+		ob.add_item(Looks.label(str(ids[i])), i)
+		ob.set_item_metadata(i, str(ids[i]))
+		ob.set_item_tooltip(i, str(Looks.info(str(ids[i])).get("desc", "")))
+	ob.select(maxi(0, ids.find(Looks.current())))
+	ob.tooltip_text = ob.get_item_tooltip(ob.selected)
+	ob.item_selected.connect(func(i):
+		ob.tooltip_text = ob.get_item_tooltip(i)
+		if not _building:
+			Looks.set_choice(str(ob.get_item_metadata(i))))
+	h.add_child(ob)
 	return h
 
 func _check(label: String, on: bool, cb: Callable) -> Control:

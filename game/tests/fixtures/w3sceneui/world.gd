@@ -15,7 +15,7 @@ const J = preload("res://core/util/j.gd")
 const INTEG := "res://tests/fixtures/integ"
 const OWN := "res://tests/fixtures/w3sceneui/data"
 const CONTENT_DIRS := ["docs/", "dialogue/", "scenes/", "catalog/"]
-const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json"]
+const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json", "entities/v2_fisica.json"]
 const SEED := 1894
 
 var repo = null
@@ -102,7 +102,7 @@ func clip_tagged(sim, view: String, tag: String) -> String:
 			var p: Dictionary = v.pages[pi][bi].get("parsed", {})
 			for t in p.get("tramos", []):
 				var tv = t.tags.get(k, [])
-				if (tv is Array and tv.has(val)) or String(tv) == val:
+				if (tv is Array and tv.has(val)) or (not (tv is Array) and String(tv) == val):
 					return String(act(sim, {"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(t.from), "len": int(t.to) - int(t.from)}).get("clip", ""))
 	errs.append("sin tramo con %s en %s" % [tag, view])
 	return ""

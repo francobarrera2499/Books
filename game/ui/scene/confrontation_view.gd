@@ -15,6 +15,8 @@
 # Config: sim, act_fn, sounds, handle_keys (como ScenePanel). Señales: finished · answered(res) · clipped(res) · closed.
 # Protocolo de la pila de Shell: open() · close() · back() -> bool (selector, 2.º paso, callar pendiente o tijera) ·
 #   handle_back (= handle_keys) · toggle_tijera() / tijera. «Seguir» emite finished y cierra.
+# GDD_v2 §C.3: el selector lista primero las conclusiones confirmadas y después los recortes, lo más reciente primero
+#   (ItemPicker merged); «Tijera» con desk.tijera.
 extends CanvasLayer
 
 signal finished
@@ -383,13 +385,14 @@ func refresh() -> void:
 	_buttons.visible = not _silence_row.visible
 	transcript.set_lines(_uids(), chars)
 	_title.text = _title_text()
+	_tijera_btn.visible = link.flag("desk.tijera")
 
 func open_refute() -> void:
 	if bool(status.get("done", false)):
 		return
 	cancel_silence()
 	confirm_bar.visible = false
-	picker.open(link.t("sceneui.conf.picker"))
+	picker.open(link.t("sceneui.conf.picker"), ["entry", "clip"], {"merged": true})
 	picker.fit_height(_free_height())
 
 # Alto libre entre la afirmación (arriba) y la banda de la transcripción (abajo): el selector no tapa la afirmación ni

@@ -27,6 +27,9 @@
 #   (posición en pantalla del maniquí: world = WorldRoot inyectado o shell.world; sin mundo, a la derecha).
 # Reglas (§6.1): sin contador de preguntas (si ya no contesta, sus verbos de hablar desaparecen tras su línea de cierre),
 #   sin brillos, frase exacta antes de hablar, dos pasos para presentar, ≤2 paneles (banda + un subpanel).
+# GDD_v2 §C.3 (revelado progresivo, q_ui vía SimLink.flags): al principio la banda con lo dicho y «Preguntar»; «Mostrar»
+#   aparece con sc.mostrar (hay algo que mostrar), «Decir» cuando hay afirmaciones posibles, «Pagar»/«Encargar» sólo ante
+#   quien los acepta, y «Tijera» con desk.tijera.
 extends CanvasLayer
 
 signal said(res: Dictionary)
@@ -111,6 +114,7 @@ var _connected := false
 var _opened := false
 var _band_h := BAND_H
 var _fit_frames := 0
+var _flags := {}                 # q_ui() del último refresco
 
 var sim:
 	get: return link.sim_override
@@ -417,6 +421,10 @@ func refresh() -> void:
 	transcript.set_narration(phase == "parklane")
 	transcript.set_lines(uids, chars)
 	_title.text = _title_text(sc, c)
+	_flags = link.flags()
+	_tijera_btn.visible = link.flag("desk.tijera", _flags)
+	if not _tijera_btn.visible and transcript.tijera:
+		set_tijera(false)
 	_build_cast()
 
 func present(char_id: String, item: Dictionary) -> bool:
@@ -626,7 +634,8 @@ func _verbs(cid: String) -> Array:
 			out.append("ask")
 		if not ask_panel.assertions_for(cid).is_empty():
 			out.append("assert")
-	out.append("present")
+	if link.flag("sc.mostrar", _flags):
+		out.append("present")
 	var lines: Array = dl.get("lines", [])
 	var has_pay := false
 	var has_task := false

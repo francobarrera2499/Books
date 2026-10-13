@@ -1,18 +1,14 @@
 {
-  "_nota": "W2-READER. Textos del lector de documentos (ui/reader/*). Claves con prefijo reader. Los errores de recorte usan clip.* (rules.json, W1-BIBLE).",
+  "_nota": "W2-READER; redacción v2: TEXTOS-UI (GDD_v2 §A, §C.3 lector). Textos del lector de documentos (ui/reader/*). Claves con prefijo reader. Los errores de recorte usan clip.* (rules.json). reader.tool.lupa, reader.tool.regla, reader.zoom.menos/mas y reader.measure ya no se muestran (§C.4: se fueron la lupa, la regla y los botones de zoom); quedan por compatibilidad. reader.plate = botón del documento que tiene imagen (D07, las fotos). reader.tijera_ayuda = ayuda de una línea mientras la tijera está activa (§C.1: sólo hasta el primer recorte; la muestra ui/reader, propuesta de TEXTOS-UI).",
   "text": {
     "reader.tool.tijera": "Tijera",
-    "reader.tool.lupa": "Lupa",
-    "reader.tool.regla": "Regla",
-    "reader.zoom.menos": "–",
-    "reader.zoom.mas": "+",
     "reader.zoom.pct": "${n} %",
     "reader.page": "Hoja ${n} de ${total}",
     "reader.prev": "‹",
     "reader.next": "›",
-    "reader.measure": "Anotar la medida",
-    "reader.plate": "Ver la lámina",
+    "reader.plate": "Ver la imagen",
     "reader.close": "Volver",
-    "reader.no_cuadra": "La tira no coincide con el papel; otra vez, con más cuidado."
+    "reader.tijera_ayuda": "Arrastrar sobre las palabras para recortarlas.",
+    "reader.no_cuadra": "No corté bien; lo intento otra vez, con más cuidado."
   }
 }

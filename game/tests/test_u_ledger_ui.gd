@@ -13,6 +13,7 @@ const GameSim = preload("res://core/sim/game_sim.gd")
 const Validator = preload("res://core/deduction/validator.gd")
 const Ledger = preload("res://ui/ledger/ledger.gd")
 const Model = preload("res://ui/ledger/ledger_model.gd")
+const Widgets = preload("res://ui/kit/widgets.gd")
 
 static var _repo_cache = null
 
@@ -246,51 +247,82 @@ func test_model_seal_state_and_lot():
 	eq(String(Model.seal_state(w, [fo3[0], varios[0]]).reason), "fuera", "de visita: el sello no sale del escritorio")
 
 # ---------------------------------------------------------------- UI
-func test_ui_rules_page_first():
+# GDD_v2 §B.6.1, §C.3: la primera página es «Lo que me preguntaron» (citas textuales) con «Cómo se anota una conclusión»
+# plegado debajo; ya no están el «Modo de asentar» ni la lista de plantillas; al principio no hay sello ni «Nueva hoja».
+func test_ui_first_page_questions_and_folded_rules():
 	var sim = GameSim.new(_r(), 7)
 	var lg = _ledger(sim)
 	lg.open()
-	eq(String(lg.page), "reglas", "la primera vez abre en las reglas")
+	eq(String(lg.page), "reglas", "la primera vez abre en la primera página")
 	var txt: Array = []
 	_all_text(lg, txt)
 	var all := "\n".join(PackedStringArray(txt))
-	for k in range(1, 7):
-		ok(all.contains(sim.repo.text("rules.%d" % k).replace("<i>", "").replace("</i>", "")), "regla %d" % k)
+	if sim.repo.texts().has("preg.titulo"):
+		ok(all.contains(sim.repo.text("preg.titulo")), "título «Lo que me preguntaron»")
+	for q in sim.q_questions():
+		ok(all.contains(String(q.text).strip_edges()), "la pregunta citada tal cual: %s" % String(q.text).left(40))
 	for k in range(1, 5):
-		ok(all.contains(sim.repo.text("ledger.modo.%d" % k).replace("<i>", "").replace("</i>", "")), "modo %d" % k)
-	for name in ["Errata", "Omisión", "Identidad", "Autoría", "Hecho", "Relación", "Estado", "Paradero", "Propósito"]:
-		ok(all.contains(name), "plantilla " + name)
-	ok(_find(lg, "Sello") != null and _find(lg, "NuevoFolio") != null, "sello y «Nuevo folio» a la vista")
+		no(all.contains(sim.repo.text("ledger.modo.%d" % k).replace("<i>", "").replace("</i>", "")), "sin «Modo de asentar» %d" % k)
+	var fold = _find(lg, "ComoSeAnota")
+	ok(fold != null, "«Cómo se anota una conclusión» está")
+	no(bool(fold.get_meta("open", true)), "y está plegado")
+	no((fold.get_meta("content") as Control).visible, "las reglas no se ven de entrada")
+	Widgets.set_fold(fold, true)
+	ok((fold.get_meta("content") as Control).visible, "se despliegan con un clic")
+	var txt2: Array = []
+	_all_text(fold.get_meta("content"), txt2)
+	var all2 := "\n".join(PackedStringArray(txt2))
+	for k in range(1, 6):
+		ok(all2.contains(sim.repo.text("rules.%d" % k).replace("<i>", "").replace("</i>", "")), "regla %d" % k)
+	Widgets.set_fold(fold, false)
+	var st: Dictionary = lg.debug_state()
+	no(st.seal, "prólogo: sin sello")
+	no(st.new_folio, "prólogo: sin «Nueva hoja»")
+	no(st.nb_tab, "el cuaderno no es una pestaña del libro")
+	eq(st.tabs, ["reglas"], "una sola página: %s" % str(st.tabs))
 
-func test_ui_prologue_tutorial_flow():
+# GDD_v2 §B.7, §C.2–C.3: día 1, «Primera conclusión». «Nueva hoja» aparece cuando la guía llega a la hoja (lg.hoja_nueva);
+# el elector de tipos muestra tres y «Más tipos…»; hasta la práctica no hay sello ni «Al sello» (cada conclusión ofrece el
+# sello de práctica); «Práctica» y el sello aparecen después, con sus banderas.
+func test_ui_day1_first_conclusion_reveal():
 	var sim = GameSim.new(_r(), 7)
 	var lg = _ledger(sim)
 	lg.open()
 	var c := _prologue(sim)
+	_act(sim, {"t": "compose_ad", "form": "testigo", "fields": {"suceso": "suceso_reichenbach"}})
+	_act(sim, {"t": "sleep"})
+	eq(String(sim.q_clock().phase), "desk", "día 1")
 	lg.refresh()
-	ok(_find(lg._seal, "SoloPractica") != null, "prólogo: en el sello, Lisle dice que esta noche sólo se practica")
-	ok(lg._seal.slot_node(0) == null, "sin ranuras de lote en el prólogo")
-	no(lg._new_folio.enabled, "antes de vincular, el tutorial no habilita «Nuevo folio»")
-	no(lg.can_drop_folio({"kind": "clip", "id": c.abril}), "ni soltar un recorte para abrir folio")
+	no(lg.debug_state().new_folio, "antes de juntar los recortes, sin «Nueva hoja»")
+	no(lg.debug_state().seal, "sin sello antes de practicar")
 	_act(sim, {"t": "link", "a": c.abril, "b": c.oct, "note": "dos fechas"})
 	lg.refresh()
-	ok(lg._new_folio.enabled, "paso «folio»: «Nuevo folio» habilitado")
+	ok(lg.debug_state().new_folio and lg._new_folio.enabled, "paso «hoja»: «Nueva hoja» a la vista")
+	ok(_find(lg, "AyudaHoja") != null, "una línea de ayuda hasta la primera hoja")
 	lg.on_new_folio(lg._new_folio)
-	ok(lg.picker() != null, "clic en «Nuevo folio» -> elector de recortes")
+	ok(lg.picker() != null, "clic en «Nueva hoja» -> elector de recortes")
 	ok(lg.picker().pick_id(c.abril), "elegir el recorte")
 	await tree.process_frame
-	eq(sim.q_ledger().folios.size(), 1, "folio abierto")
-	eq(String(lg.page), String(sim.q_ledger().folios[0].id), "el libro pasa al folio nuevo")
+	eq(sim.q_ledger().folios.size(), 1, "hoja abierta")
+	eq(String(lg.page), String(sim.q_ledger().folios[0].id), "el libro pasa a la hoja nueva")
 	lg.refresh()
+	eq(_find(lg, "AyudaHoja"), null, "la ayuda de la hoja se fue con el primer uso")
 	var add: Button = _find(lg, "NuevoAsiento")
-	ok(add != null and not add.disabled, "paso «asentar»: «Nuevo asiento»")
+	ok(add != null and not add.disabled, "«Nueva conclusión»")
+	ok(_find(lg, "AyudaConclusion") != null, "una línea de ayuda hasta la primera conclusión")
 	lg.on_new_entry(add)
-	ok(lg.picker() != null and lg.picker().options.size() == 9, "elector con las nueve plantillas")
+	ok(lg.picker() != null, "elector de tipos")
+	eq(lg.picker().visible_ids(), ["T1", "T2", "T5", Model.MORE_ID], "tres tipos y «Más tipos…»")
+	eq(lg.picker().options.size(), 10, "los nueve tipos están (seis plegados)")
+	lg.picker().pick_id(Model.MORE_ID)
+	eq(lg.picker().visible_ids().size(), 9, "«Más tipos…» despliega los nueve")
 	lg.picker().pick_id("T1")
 	await tree.process_frame
 	var e: String = lg.selected
-	ok(e != "" and bool(sim.q_entry(e).get("practice", false)), "asiento del prólogo = práctica")
+	ok(e != "" and not bool(sim.q_entry(e).get("practice", false)), "conclusión del día 1 (no es de la página de práctica)")
 	lg.refresh()
+	eq(_find(lg, "AlSello"), null, "sin sello todavía: sin casilla «Al sello»")
+	ok(_find(lg, "AyudaPruebas") != null, "ayuda de «Pruebas» hasta la primera prueba")
 	var v: Button = _find(_find(lg, "Campo_fuente_a"), "Valor")
 	lg.on_field(e, 0, "fuente_a", {"kinds": ["documento", "persona"]}, "", v)
 	ok(lg.picker() != null and lg.picker().pick_id("redh"), "elector del campo con el documento recortado")
@@ -307,16 +339,30 @@ func test_ui_prologue_tutorial_flow():
 	lg.add_support(e, 1, c.oct)
 	lg.refresh()
 	eq(_find(lg, "FaltaSegun"), null, "ya no falta según")
+	eq(_find(lg, "AyudaPruebas"), null, "la ayuda de «Pruebas» se fue")
 	var pb: Button = _find(lg, "Practicar")
-	ok(pb != null and not pb.disabled, "paso «practicar»: «Pasar en limpio» de la práctica")
+	ok(pb != null and not pb.disabled, "paso «practicar»: el sello de práctica")
 	no(_find(lg, "AlSello") != null, "la práctica no va al sello del lote")
 	var r: Dictionary = lg.practice(e)
 	ok(bool(r.get("inked", false)), "C1.10 en tinta: %s" % str(r))
-	eq(lg.last_note(), sim.repo.text("practice.ok").replace("<i>", "").replace("</i>", ""), "Lisle: «Visto. Errata inocente: sic.»")
+	eq(lg.last_note(), sim.repo.text("practice.ok").replace("<i>", "").replace("</i>", ""), "Lisle: práctica en tinta")
 	lg.refresh()
-	ok(_find(lg, "VistoGrande") != null, "el asiento muestra el «Visto»")
-	eq(String(sim.q_tutorial().step.get("id", "")), "ad", "el tutorial sigue con el aviso")
+	ok(_find(lg, "VistoGrande") != null, "la conclusión muestra el sello")
+	await tree.process_frame
+	await tree.process_frame
+	# la cabecera con el sello («CONFIRMADO» + «confirmada · práctica») cabe en la hoja: la página no se ensancha
+	# (antes la hoja derecha crecía ~35 px y tapaba las pestañas)
+	ok(lg._left.size.x <= Ledger.PAGE_L.size.x + 0.5 and lg._right.size.x <= Ledger.PAGE_R.size.x + 0.5,
+		"las hojas no se ensanchan con el sello: %s / %s" % [str(lg._left.size.x), str(lg._right.size.x)])
 	ok(sim.st.ded.sealed.is_empty(), "la práctica no sella nada")
+	ok(lg.debug_state().tabs.has("erratas"), "aparece «Práctica» (lg.practica): %s" % str(lg.debug_state().tabs))
+	eq(lg.debug_state().tabs[lg.debug_state().tabs.size() - 1], "erratas", "«Práctica» va al final")
+	no(lg.debug_state().seal, "sin un borrador que confirmar, todavía sin sello")
+	var e2: String = lg.new_entry("T2").get("entry", "")
+	lg.refresh()
+	ok(e2 != "" and lg.debug_state().seal, "práctica hecha y un borrador: aparece el sello (lg.sello)")
+	ok(_find(lg, "AlSello") != null, "y la casilla «Al sello»")
+	no(lg.debug_state().tabs.has("varios"), "sin conclusiones sueltas no hay «Varios»")
 
 func test_ui_day1_folio_entries_and_inked_pass():
 	var sim = GameSim.new(_r(), 7)

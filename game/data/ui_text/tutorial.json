@@ -1,0 +1,12 @@
+{
+  "_nota": "TEXTOS-UI (GDD_v2 §B.7). Día 1, «Primera conclusión»: las notas de Lisle que guían sin bloquear (Tutorial.DAY1 line_key = tut.d1.<paso>, en este orden: clip, link, folio, entry, practice). Voz de Lisle en primera persona, una línea corta por paso: sirven igual como nota del instructor y como línea de «Pendientes». Explican la FORMA (qué botón, dónde soltar) y tienen que funcionar al pie de la letra (verificador TEXTOS-UI): «Nueva hoja» se abre con UN recorte (folio_open y la zona de soltar no aceptan pares) y cada línea completa necesita su propia prueba (formal falta_segun), por eso el par va en las «pruebas» de cada línea (y la nota de la práctica lo repite: el paso «entry» se da por hecho con UNA prueba, Tutorial._d1_done); el error de práctica (C1.10, las dos fechas de REDH en el tomo II) es el del tutorial y lo nombran también D22 y Pendientes. Nombres de la interfaz entre comillas, idénticos a ui_text: «Nueva hoja» (ledger.tab.nuevo_folio), «pruebas» (ledger.segun), «Confirmar práctica» (ledger.pasar_practica), «Contradicción» (lists.templates.T1.name, GDD_v2 §A.1).",
+  "text": {
+    "tut.d1.titulo": "Primera conclusión",
+    "tut.d1.clip": "Para practicar: recorto las dos fechas de «La liga de los pelirrojos» (tomo II).",
+    "tut.d1.link": "Junto los dos recortes en el cuaderno: arrastro uno y lo suelto encima del otro.",
+    "tut.d1.folio": "En el libro de conclusiones, abro una «Nueva hoja» con uno de los dos recortes.",
+    "tut.d1.entry": "Escribo una Contradicción: lleno los campos y pongo el par en las «pruebas» de cada línea.",
+    "tut.d1.practice": "Con una prueba en cada línea, la confirmo con «Confirmar práctica»: no gasta el sello.",
+    "tut.d1.hecho": "Listo: así se arma una conclusión. Lo demás lo decido yo."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "_nota": "Look 'grabado' (W1-POST, calibración W4-STYLE; GDD §14.5, ARCHITECTURE §7.8): contornos por profundidad y normales, talla anclada (umbrales Bayer 8x8), halo de papel tras lo macizo, grano de papel. base = lighting: los parámetros por preset (post) y el tinte del papel viven en world/lighting.gd (PRESETS.*.post / paper, PAPER por franja, INK) y los defaults en world/post/engraving_post.gd (DEFAULTS); T27 los calibra.",
+  "name": "Grabado a dos tintas",
+  "desc": "Como un grabado de revista antigua: rayas de tinta negra sobre papel claro.",
+  "order": 10,
+  "base": "lighting"
+}

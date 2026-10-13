@@ -8,6 +8,9 @@
 #   También se puede soltar un chip del índice ({"kind":"ent","id"}) sobre el panel.
 # Paso 2: se ve la frase exacta de Lisle (q_preview) y se confirma con «Preguntar» / «Decirlo»; «Volver» no gasta nada.
 # Sin contador de preguntas restantes (§6.1): si el personaje ya no contesta, el panel no se ofrece (lo decide ScenePanel).
+# GDD_v2 §C.3: con pocos temas (≤7) la lista va entera y sin buscador. Con más: el buscador, «De esta conversación» (lo
+#   nombrado en esta visita, ≤6), «Recientes» (lo último que entró al índice, ≤6) y «Todo el índice» plegado. La
+#   pestaña «Decir» aparece sólo si hay algo que decir ante este personaje.
 extends PanelContainer
 
 signal said(res: Dictionary)
@@ -31,7 +34,12 @@ var _list: ItemList
 var _phrase: Label
 var _ok: Button
 var _empty: Label
-var _shown: Array = []         # ids en el orden del ItemList
+var _shown: Array = []         # ids en el orden del ItemList ("" = encabezado; ALL_ID = desplegar todo)
+var _all_open := false
+
+const LIST_MAX := 7
+const SECTION_MAX := 6
+const ALL_ID := "__todo_el_indice__"
 
 func _init(p_link = null) -> void:
 	link = p_link if p_link != null else SimLink.new()
@@ -69,8 +77,11 @@ func _init(p_link = null) -> void:
 	_list.auto_height = false
 	_list.focus_mode = Control.FOCUS_NONE
 	_list.allow_reselect = true
-	_list.item_selected.connect(func(i): choose(String(_shown[i])))
-	_list.item_activated.connect(func(i): choose(String(_shown[i])); confirm())
+	_list.item_selected.connect(_on_item)
+	_list.item_activated.connect(func(i):
+		if String(_shown[i]) != "" and String(_shown[i]) != ALL_ID:
+			choose(String(_shown[i]))
+			confirm())
 	v.add_child(_list)
 	_empty = Widgets.caption("")
 	_empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -97,6 +108,7 @@ func open(p_char: String, p_label: String, p_mode := "ask") -> void:
 	char_id = p_char
 	char_label = p_label
 	_search.text = ""
+	_all_open = false
 	visible = true
 	set_mode(p_mode)
 	link.play("sfx.papel")
@@ -111,9 +123,9 @@ func set_mode(m: String) -> void:
 	_tabs["assert"].visible = not _assertions().is_empty() or m == "assert"
 	_tabs["ask"].visible = not link.qa("q_topics", [char_id]).is_empty() or m == "ask"
 	_title.text = link.t("sceneui.ask.title", {"quien": SimLink.cap(char_label)})
-	_search.visible = m == "ask"
 	_ok.text = link.t("sceneui.%s.ok" % m)
 	options = link.qa("q_topics", [char_id]) if m == "ask" else _assertions()
+	_search.visible = m == "ask" and options.size() > LIST_MAX
 	chosen = ""
 	_fill_list()
 	_update_phrase()
@@ -172,23 +184,95 @@ func assertions_for(cid: String) -> Array:
 		out.append({"id": String(x.id), "label": ph if ph != "" else String(x.get("phrase", x.id))})
 	return out
 
+func _on_item(i: int) -> void:
+	var id := String(_shown[i])
+	if id == "":
+		_list.deselect(i)
+		return
+	if id == ALL_ID:
+		_all_open = not _all_open
+		_fill_list()
+		return
+	choose(id)
+
 func _fill_list() -> void:
 	_list.clear()
 	_shown.clear()
 	var q := _search.text.strip_edges().to_lower()
-	for o in options:
-		var lab := String(o.get("label", o.id))
-		if q != "" and not lab.to_lower().contains(q):
-			continue
-		_list.add_item(lab)
-		_shown.append(String(o.id))
+	var any := false
+	if q != "" or mode != "ask" or options.size() <= LIST_MAX:
+		for o in options:
+			var lab := String(o.get("label", o.id))
+			if q != "" and not lab.to_lower().contains(q):
+				continue
+			_add(lab, String(o.id))
+			any = true
+	else:
+		var by_id := {}
+		for o in options:
+			by_id[String(o.id)] = String(o.get("label", o.id))
+		var used := {}
+		for sec in [["v2d.sc.conversacion", conversation_ids(by_id)], ["v2d.sc.recientes", recent_ids(by_id)]]:
+			var ids: Array = []
+			for id in sec[1]:
+				if not used.has(id) and ids.size() < SECTION_MAX:
+					ids.append(id)
+			if ids.is_empty():
+				continue
+			_add_header(link.t(String(sec[0])))
+			for id in ids:
+				used[id] = true
+				_add("  " + String(by_id[id]), String(id))
+				any = true
+		_add((Widgets.FOLD_OPEN if _all_open else Widgets.FOLD_CLOSED) + link.t("v2d.sc.todo"), ALL_ID)
+		any = true
+		if _all_open:
+			for o in options:
+				_add("  " + String(o.get("label", o.id)), String(o.id))
 	var i := _shown.find(chosen)
 	if i >= 0:
 		_list.select(i)
-	_empty.visible = _shown.is_empty()
-	_list.visible = not _shown.is_empty()
+	_empty.visible = not any
+	_list.visible = any
 	if _empty.visible:
 		_empty.text = link.t("sceneui.%s.none" % mode) if q == "" else link.t("sceneui.picker.nada_busqueda")
+
+func _add(lab: String, id: String) -> void:
+	var i := _list.add_item(lab)
+	# la frase entera al pasar el mouse (playtest v2: una afirmación larga se cortaba con «...»)
+	_list.set_item_tooltip(i, lab.strip_edges())
+	_shown.append(id)
+
+func _add_header(lab: String) -> void:
+	var i := _list.add_item(lab, null, false)
+	_list.set_item_disabled(i, true)
+	_shown.append("")
+
+# Entidades nombradas en las líneas de esta visita (en el orden en que se dijeron), si son temas posibles.
+func conversation_ids(by_id: Dictionary) -> Array:
+	var out: Array = []
+	for ln in link.qd("q_scene").get("lines", []):
+		var p: Dictionary = ln.get("parsed", {}) if typeof(ln) == TYPE_DICTIONARY else {}
+		for m in p.get("mentions", []):
+			var e := String(m.get("ent", ""))
+			if by_id.has(e) and not out.has(e) and e != char_id:
+				out.append(e)
+	return out
+
+# Lo último que entró al índice: las entidades de los recortes, del más nuevo al más viejo.
+func recent_ids(by_id: Dictionary) -> Array:
+	var out: Array = []
+	var cl: Array = link.qa("q_clips")
+	for k in range(cl.size() - 1, -1, -1):
+		for e in cl[k].get("ents", []):
+			var id := String(e.get("id", "")) if typeof(e) == TYPE_DICTIONARY else String(e)
+			if by_id.has(id) and not out.has(id):
+				out.append(id)
+	return out
+
+# Ids a la vista en la lista (tests, drivers): "" son encabezados.
+func shown_ids() -> Array:
+	return _shown.duplicate()
 
 func _update_phrase() -> void:
 	var ph := phrase()

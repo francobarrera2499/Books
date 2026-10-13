@@ -94,3 +94,37 @@ func test_closed_click_does_not_touch_disk():
 	Game.save_path = old[0]
 	Game.repo_override = old[1]
 	Game.sim_handlers = old[2]
+
+# GDD_v2 §B.4/§B.9 (T26 ampliado): lo que todavía no está en el mapa no se lista (ni con persiana) y un `go` a ese lugar
+# devuelve `cerrado` sin escribir a disco. Datos reales (schedule.reveal).
+func test_unrevealed_not_listed_and_not_written():
+	var old := [Game.save_path, Game.repo_override, Game.sim_handlers]
+	Game.save_path = tmp_dir().path_join("t26_reveal.jsonl")
+	Game.repo_override = repo()
+	Game.sim_handlers = {}
+	ok(Game.new_session(7))
+	ok(Game.act({"t": "read", "view": "D23@L1", "part": 0}).ok)
+	var v: Dictionary = Game.sim.q_view("D23@L1")
+	var clipped := false
+	for pi in (v.pages as Array).size():
+		for bi in (v.pages[pi] as Array).size():
+			for tr in v.pages[pi][bi].parsed.tramos:
+				if not clipped and String(tr.id) == "aviso":
+					clipped = Game.act({"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": pi, "block": bi}, "from": int(tr.from), "len": int(tr.to) - int(tr.from)}).ok
+	ok(clipped)
+	ok(Game.act({"t": "compose_ad", "form": "testigo", "fields": {"suceso": "suceso_reichenbach"}}).ok)
+	ok(Game.act({"t": "sleep"}).ok)
+	eq(String(Game.sim.q_clock().phase), "desk")
+	for p in Game.sim.q_places():
+		no(["L5", "L6", "L7", "L8"].has(String(p.id)), "no revelado no se lista: %s.%s" % [p.id, p.area])
+	var bytes := FileAccess.get_file_as_bytes(Game.save_path)
+	var n0: int = Game.sim.actions_log().size()
+	var r: Dictionary = Game.act({"t": "go", "place": "L6", "area": "sala"})
+	eq(r.err, "cerrado")
+	eq(FileAccess.get_file_as_bytes(Game.save_path), bytes, "nada se escribe")
+	eq(Game.sim.actions_log().size(), n0, "ni se registra")
+	no(Game.sim.q_clock().outing_done, "ni gasta la franja")
+	Game.end_session()
+	Game.save_path = old[0]
+	Game.repo_override = old[1]
+	Game.sim_handlers = old[2]

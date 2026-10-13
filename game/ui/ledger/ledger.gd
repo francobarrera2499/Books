@@ -23,6 +23,11 @@
 #     «Pasar en limpio» por asiento, sin gastar el sello.
 # Todo con el mouse; nada distingue lo importante (sin brillos, contadores ni pistas); el chequeo formal se lee en la
 # voz de Lisle junto a la línea. Animaciones ≤0,4 s sin rebote. Respeta text_scale y alto contraste (reconstruye).
+# GDD_v2 §C.3 («libro de conclusiones», revelado progresivo con q_ui): la primera página es «Lo que me preguntaron» con
+#   «Cómo se anota una conclusión» plegado debajo (rules_page.gd); «Nueva hoja» aparece con lg.hoja_nueva, «Varios» con
+#   lg.varios, «Práctica» (id erratas) con lg.practica y el panel del sello con lg.sello. Ya no hay pestaña «Cuaderno» en
+#   el libro (queda la cinta del HUD) ni «Modo de asentar»; al elegir el tipo de una conclusión se ven Contradicción,
+#   Omisión y Hecho y «Más tipos…» despliega los demás (los nueve, siempre disponibles).
 # API de automatización (lo mismo que hacen los clics; tests y drivers): new_folio_from(clip) · new_entry(tid) ·
 #   set_field(eid, line, field, value) · add_support(eid, line, item) · remove_support(eid, line, item) ·
 #   toggle_lot(eid) · stamp() (abre la confirmación) · confirm_stamp() · practice(eid) · delete_entry(eid) ·
@@ -45,6 +50,7 @@ const FolioPage = preload("res://ui/ledger/folio_page.gd")
 const EntryView = preload("res://ui/ledger/entry_view.gd")
 const Seal = preload("res://ui/ledger/seal.gd")
 const Picker = preload("res://ui/ledger/picker.gd")
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
 
 const LAYER := 20
 const DESIGN := Vector2(1560, 860)
@@ -85,6 +91,7 @@ var side := false               # acoplado por el Shell (lo decide _sync_with_sh
 var page := Model.PAGE_RULES
 var selected := ""
 var lot: Array = []
+var flags := {}                 # q_ui() del último refresco (revelado progresivo)
 
 var _built := false
 var _root: Control
@@ -378,7 +385,8 @@ func _sync_with_shell() -> void:
 func _sync_nb_tab() -> void:
 	if _col == null:
 		return
-	var want: bool = shell != null and is_instance_valid(shell) and shell.has_method("is_open") and not bool(shell.is_open("notebook"))
+	# GDD_v2 §C.3: el «Cuaderno» ya no es una pestaña del libro (queda la cinta del HUD)
+	var want := false
 	if want == (_nb_tab != null and is_instance_valid(_nb_tab)) and not _nb_tab_stale:
 		return
 	_nb_tab_stale = false
@@ -723,13 +731,14 @@ func _rebuild() -> void:
 	var keep_t := _tabs_scroll.scroll_vertical
 	if s != null:
 		lot = Model.clean_lot(s, lot)
-	var pages: Array = Model.pages(s)
+	flags = UiFlags.of(s)
+	var pages: Array = Model.pages(s, flags)
 	var pinfo := {}
 	for p in pages:
 		if String(p.id) == page:
 			pinfo = p
 	if pinfo.is_empty():
-		page = Model.PAGE_VARIOS if s != null else Model.PAGE_RULES
+		page = Model.PAGE_RULES
 		for p in pages:
 			if String(p.id) == page:
 				pinfo = p
@@ -771,12 +780,12 @@ func _rebuild() -> void:
 	_scroll_l.add_child(lc)
 	_scroll_r.add_child(rc)
 	# el sello no sale del escritorio: de visita (o en una escena) no se ve; el libro sí va con Lisle
-	var shown: bool = s != null and not Model.AWAY_PHASES.has(String(s.q_clock().get("phase", "")))
+	var shown: bool = s != null and not Model.AWAY_PHASES.has(String(s.q_clock().get("phase", ""))) and UiFlags.on(flags, "lg.sello")
 	_seal.visible = shown
 	if shown != _seal_shown:
 		_seal_shown = shown
 		_apply_geom()
-	_new_folio.visible = s != null
+	_new_folio.visible = s != null and UiFlags.on(flags, "lg.hoja_nueva")
 	_sync_nb_tab()
 	if s != null:
 		_new_folio.enabled = Model.tut_allows(s, "folio_open")
@@ -1105,10 +1114,7 @@ func on_new_entry(anchor: Control) -> void:
 	var s = sim_ref()
 	if s == null:
 		return
-	var opts: Array = []
-	for t in Model.templates(s):
-		opts.append({"id": String(t.id), "text": String(t.name), "sub": String(t.shape)})
-	_open_picker(Model.tx(s, "ledger.picker.plantilla"), opts, anchor, "", func(id: String, _o): new_entry(id))
+	_open_picker(Model.tx(s, "ledger.picker.plantilla"), Model.template_options(s), anchor, "", func(id: String, _o): new_entry(id))
 
 func new_entry(tid: String) -> Dictionary:
 	var where := page if page != Model.PAGE_RULES else Model.PAGE_VARIOS
@@ -1498,6 +1504,14 @@ func _sfx_event(nm: String) -> void:
 		au.play_event(nm)
 
 func debug_state() -> Dictionary:
+	var tabs: Array = []
+	if _tabs != null:
+		for m in _tabs.get_children():
+			for t in m.get_children():
+				if "pid" in t:
+					tabs.append(String(t.pid))
 	return {"open": visible, "page": page, "selected": selected, "lot": lot.duplicate(), "picker": picker() != null,
 		"confirm": confirm_dialog() != null, "note": last_note(), "scale": _stage.scale.x if _stage != null else 0.0,
-		"compact": compact, "compact_entry": _compact_entry, "side": side, "rect": _back.get_rect() if _back != null else Rect2()}
+		"compact": compact, "compact_entry": _compact_entry, "side": side, "rect": _back.get_rect() if _back != null else Rect2(),
+		"tabs": tabs, "seal": _seal != null and _seal.visible, "new_folio": _new_folio != null and _new_folio.visible,
+		"nb_tab": _nb_tab != null and is_instance_valid(_nb_tab)}

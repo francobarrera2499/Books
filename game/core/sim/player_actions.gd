@@ -21,6 +21,8 @@ const Validator = preload("res://core/deduction/validator.gd")
 const Dialogue = preload("res://core/scenes/dialogue.gd")
 const Confrontation = preload("res://core/scenes/confrontation.gd")
 const Composers = preload("res://core/scenes/composers.gd")
+const Reveal = preload("res://core/sim/reveal.gd")
+const Tutorial = preload("res://core/sim/tutorial.gd")
 
 const DEFAULT_MAX_QUESTIONS := 3
 
@@ -35,7 +37,12 @@ static func dispatch(st, repo, a: Dictionary) -> Dictionary:
 			return act_folio_open(st, repo, a)
 		"entry_new", "entry_set", "entry_support_add", "entry_support_remove", "entry_delete", "practice":
 			return _ext(st, repo, a)
+		"read":
+			return Reveal.act_read(st, repo, a, WorldModel.view(st, repo, String(a.get("view", ""))))
 		"pass_clean":
+			# GDD_v2 §B.7: confirmar pide la práctica hecha (día 1, notas de Lisle); el sello no se muestra hasta entonces
+			if not Tutorial.practice_done(st):
+				return {"ok": false, "err": "practica_pendiente"}
 			if Clock.passes_left(st, repo) <= 0:
 				return {"ok": false, "err": "sin_pasada"}
 			var rp := _ext(st, repo, a)
@@ -172,7 +179,29 @@ static func _plate_now_ok(st, repo, pid: String) -> bool:
 			return true
 	return false
 
+# GDD_v2 §C.5.6: la regla ya no existe en la interfaz; `clip_measure` sigue en Actions.SPEC para reproducir partidas
+# viejas y se resuelve como el recorte de la línea de descripción física (tramo #fisica) de la primera hoja del
+# documento. Sin esa línea (escenas, datos viejos) sigue el recorte de medida de siempre.
+static func measure_as_fisica(st, repo, a: Dictionary) -> Dictionary:
+	var src = a.get("src", {})
+	if typeof(src) != TYPE_DICTIONARY or String(src.get("kind", "")) != "doc":
+		return {}
+	var view := String(src.get("ref", ""))
+	var v := WorldModel.view(st, repo, view)
+	var pages: Array = v.get("pages", [])
+	if pages.is_empty():
+		return {}
+	for bi in (pages[0] as Array).size():
+		for tr in pages[0][bi].get("parsed", {}).get("tramos", []):
+			if String(tr.get("id", "")) == "fisica":
+				return {"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": 0, "block": bi}, "from": int(tr.from), "len": int(tr.to) - int(tr.from)}
+	return {}
+
 static func _clip(st, repo, a: Dictionary) -> Dictionary:
+	if String(a.get("t", "")) == "clip_measure":
+		var fa := measure_as_fisica(st, repo, a)
+		if not fa.is_empty():
+			a = fa
 	# El escritorio muestra el hub («hub»): recortarlo (rectángulo o texto de examen «hub/<nodo>») archiva la buhardilla
 	# de ahora como lámina (WorldModel.archive_hub) y el recorte la nombra; si el recorte falla, la lámina nueva se borra.
 	var hub := {}

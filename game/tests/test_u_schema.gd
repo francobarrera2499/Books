@@ -10,7 +10,7 @@ const FILES := {
 	"entities": "entities/core.json", "canon_bible": "canon_bible.json", "docs": "docs/D05.json", "catalog": "catalog/noise.json",
 	"schedule": "schedule.json", "conclusions": "conclusions.json", "reactions": "reactions/moran.json", "endings": "endings.json",
 	"easter_eggs": "easter_eggs.json", "scenes": "scenes/M7.json", "dialogue": "dialogue/watson.json", "places": "places/L4.json",
-	"plates": "plates/PRO.json", "map": "map.json",
+	"plates": "plates/PRO.json", "map": "map.json", "fisica": "fisica.json",
 }
 
 func _load(ds: String):

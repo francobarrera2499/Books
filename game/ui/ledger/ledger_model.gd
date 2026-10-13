@@ -8,12 +8,18 @@
 extends RefCounted
 
 const Tutorial = preload("res://core/sim/tutorial.gd")
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
 
-const PAGE_RULES := "reglas"
+const PAGE_RULES := "reglas"          # primera página: «Lo que me preguntaron» (GDD_v2 §B.6.1) y, plegado, «Cómo se anota»
 const PAGE_VARIOS := "varios"
 const PAGE_ERRATAS := "erratas"
 const STAMP_PHASES := ["desk", "final_report"]
 const AWAY_PHASES := ["visit", "scene", "parklane", "confront"]
+# GDD_v2 §C.3: tipos de conclusión a la vista al elegir uno nuevo; el resto, plegado en «Más tipos…» (los nueve están
+# siempre disponibles: plegar no oculta nada que dependa del caso).
+const FEATURED_TEMPLATES := ["T1", "T2", "T5"]
+const MORE_ID := "__mas_tipos__"
+const RULES_N := 5
 
 # ---------------------------------------------------------------- textos
 static func tx(sim, key: String, vars := {}) -> String:
@@ -88,7 +94,7 @@ static func index_label(sim, id: String) -> String:
 		if String(r.get("id", "")) == id:
 			return String(r.get("label", id))
 	var e: Dictionary = sim.repo.entity(id)
-	return String(e.get("index", e.get("name", id))) if not e.is_empty() else id
+	return preload("res://core/deduction/index.gd").display(sim.repo, id) if not e.is_empty() else id
 
 static func list_items(sim, name: String) -> Array:
 	var l = sim.repo.lists().get(name, [])
@@ -190,21 +196,26 @@ static func support_options(sim, exclude: Array = [], with_pairs := true) -> Arr
 	return out
 
 # ---------------------------------------------------------------- páginas
-static func pages(sim) -> Array:
-	var out: Array = [{"id": PAGE_RULES, "kind": "rules", "tab": tx(sim, "ledger.tab.reglas"), "title": tx(sim, "rules.title")}]
+# flags = q_ui() (revelado progresivo, GDD_v2 §C.2): «Varios» con lg.varios; «Práctica» (id erratas) con lg.practica, al
+# final. Sin flags (sin partida o vistas sueltas) se ven todas, como antes.
+static func pages(sim, flags := {}) -> Array:
+	var first_tab := tx(sim, "preg.titulo") if has_text(sim, "preg.titulo") else tx(sim, "ledger.tab.reglas")
+	var out: Array = [{"id": PAGE_RULES, "kind": "rules", "tab": first_tab, "title": first_tab}]
 	if sim == null:
 		return out
 	var q: Dictionary = sim.q_ledger()
-	out.append({"id": PAGE_VARIOS, "kind": "varios", "tab": tx(sim, "ledger.tab.varios"), "title": tx(sim, "ledger.tab.varios"),
-		"sub": tx(sim, "ledger.varios.sub")})
+	if UiFlags.on(flags, "lg.varios") or not (q.get("varios", []) as Array).is_empty():
+		out.append({"id": PAGE_VARIOS, "kind": "varios", "tab": tx(sim, "ledger.tab.varios"), "title": tx(sim, "ledger.tab.varios"),
+			"sub": tx(sim, "ledger.varios.sub")})
 	for fo in q.get("folios", []):
 		var fid := String(fo.get("id", ""))
 		var n := num_of(fid)
 		var head := card(sim, String(fo.get("head_clip", "")))
 		out.append({"id": fid, "kind": "folio", "n": n, "tab": tx(sim, "ledger.tab.folio", {"n": n}), "title": tx(sim, "ledger.folio", {"n": n}),
 			"head": head, "head_short": short(String(head.text), 30)})
-	out.append({"id": PAGE_ERRATAS, "kind": "erratas", "tab": tx(sim, "ledger.tab.erratas"), "title": tx(sim, "ledger.tab.erratas"),
-		"sub": tx(sim, "ledger.erratas.sub")})
+	if UiFlags.on(flags, "lg.practica") or not (q.get("erratas", []) as Array).is_empty():
+		out.append({"id": PAGE_ERRATAS, "kind": "erratas", "tab": tx(sim, "ledger.tab.erratas"), "title": tx(sim, "ledger.tab.erratas"),
+			"sub": tx(sim, "ledger.erratas.sub")})
 	return out
 
 static func page_info(sim, pid: String) -> Dictionary:
@@ -231,17 +242,36 @@ static func page_of_entry(sim, eid: String) -> String:
 	var f := String(e.get("folio", ""))
 	return f if f != "" else PAGE_VARIOS
 
+# «Cómo se anota una conclusión» (GDD_v2 §A.3): cinco reglas; la sexta de antes es la ayuda de la página «Práctica».
 static func rules(sim) -> Array:
 	var out: Array = []
-	for k in range(1, 7):
+	for k in range(1, RULES_N + 1):
 		out.append(tx(sim, "rules.%d" % k))
 	return out
 
-static func how_to(sim) -> Array:
-	var out: Array = []
-	for k in range(1, 5):
-		out.append(tx(sim, "ledger.modo.%d" % k))
+# Opciones del elector «Nueva conclusión»: los tipos destacados, «Más tipos…» y los demás (plegados hasta desplegar).
+static func template_options(sim) -> Array:
+	var feat: Array = []
+	var rest: Array = []
+	for t in templates(sim):
+		var o := {"id": String(t.id), "text": String(t.name), "sub": String(t.shape)}
+		if FEATURED_TEMPLATES.has(String(t.id)):
+			feat.append(o)
+		else:
+			o["folded"] = true
+			rest.append(o)
+	if rest.is_empty():
+		return feat
+	var out := feat.duplicate()
+	out.append({"id": MORE_ID, "text": tx(sim, "v2d.lg.mas_tipos"), "sub": "", "expand": true})
+	out.append_array(rest)
 	return out
+
+# ¿Se hizo ya la práctica del día 1? (el sello del libro y «Confirmar» aparecen después, GDD_v2 §B.7)
+static func practice_done(sim) -> bool:
+	if sim == null or not sim.has_method("q_tutorial"):
+		return true
+	return bool(sim.q_tutorial().get("practice_done", true))
 
 # ---------------------------------------------------------------- asientos
 static func entry_vm(sim, eid: String) -> Dictionary:

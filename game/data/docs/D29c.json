@@ -28,8 +28,8 @@
   "parts": [
     {
       "id": "p1",
-      "text": "<ink=lapiz>Pasado en limpio en marzo de 1892, para no olvidarle la voz.</ink>\n{{#fines_de_marzo x:EE04 d:1892-03-31 e:watson|Hallo anotado en mi libreta que fue hacia fines de marzo de 1892, un día de viento y frío.}} A [[holmes|Holmes]] le llegó [[telegrama|un telegrama]] mientras almorzábamos; garabateó la respuesta sin decir palabra, pero el asunto le rondó toda la tarde. De pronto se volvió hacia mí, con un destello en los ojos:\n—¿Cómo define usted, Watson, la palabra «grotesco»?"
+      "text": "<ink=lapiz>Copiado en limpio en marzo de 1892, para no olvidar su voz.</ink>\n{{#fines_de_marzo x:EE04 d:1892-03-31 e:watson|Encuentro anotado en mi libreta que fue a fines de marzo de 1892, un día de viento y frío.}} A [[holmes|Holmes]] le llegó [[telegrama|un telegrama]] mientras almorzábamos; garabateó la respuesta sin decir palabra, pero el asunto le rondó toda la tarde. De pronto se volvió hacia mí, con un destello en los ojos:\n—¿Cómo define usted, Watson, la palabra «grotesco»?"
     }
   ],
-  "words": 70
+  "words": 89
 }

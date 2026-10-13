@@ -10,6 +10,7 @@ extends RefCounted
 
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Deps = preload("res://core/scenes/deps.gd")
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
 
 const ERR_PREFIXES := ["sceneui.err.", "sim.err.", "clip.", "entry.", "pass.", "core.err."]
 
@@ -47,6 +48,13 @@ func sim():
 
 func uses_game() -> bool:
 	return sim_override == null
+
+# Revelado progresivo (GDD_v2 §C.2): q_ui() de la partida; sin partida, {} (todo visible).
+func flags() -> Dictionary:
+	return UiFlags.of(sim())
+
+func flag(name: String, f = null) -> bool:
+	return UiFlags.on(f if typeof(f) == TYPE_DICTIONARY else flags(), name)
 
 func repo():
 	var s = sim()
@@ -213,7 +221,7 @@ func ent_label(id: String) -> String:
 	if r != null:
 		var e: Dictionary = r.entity(id)
 		if not e.is_empty():
-			return String(e.get("index", e.get("name", id)))
+			return preload("res://core/deduction/index.gd").display(r, id)
 	return id
 
 # Resumen de un asiento (q_entry): «Fuente: «El problema final» · Calla: la raspadura».

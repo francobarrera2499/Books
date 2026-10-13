@@ -79,6 +79,11 @@ func run(p_key: String, fast_to_phase := "") -> Dictionary:
 	if not g.sim_changed.is_connected(_on_sim_changed):
 		g.sim_changed.connect(_on_sim_changed)
 	await shell.new_game(int(sc.seed))
+	# GDD_v2 §B.4: el lector emite `read` la primera vez que muestra cada hoja. El guion ya trae sus `read` (si los
+	# tiene): aquí el lector no emite por su cuenta y cada `read` del guion se hace abriendo esa hoja (_ui_read).
+	var rd0 = shell.ensure_reader()
+	rd0.emit_read = false
+	rd0.reset_read_memory()
 	await idle()
 	if g.sim == null or shell.game_screen == null:
 		fails.append("no arrancó la partida")
@@ -306,6 +311,8 @@ func do_action(a: Dictionary, i: int) -> void:
 			tried = await _ui_link(a)
 		"clip_measure":
 			tried = await _ui_measure(a)
+		"read":
+			tried = await _ui_read(a)
 		"slip":
 			tried = await _ui_slip(a)
 		"order_copy":
@@ -746,23 +753,29 @@ func _ui_link(a: Dictionary) -> bool:
 	await fr(6)
 	return true
 
-func _ui_measure(a: Dictionary) -> bool:
-	var view := String(a.get("src", {}).get("ref", ""))
-	if String(a.get("src", {}).get("kind", "")) != "doc" or not shell.open_reader(view):
+# GDD_v2 §C.4: la regla y «Anotar la medida» ya no existen; clip_measure (partidas viejas) va por Game.act.
+func _ui_measure(_a: Dictionary) -> bool:
+	return false
+
+# `read` del guion: abrir esa hoja en el lector (el lector la anota la primera vez que la muestra) y cerrarlo.
+func _ui_read(a: Dictionary) -> bool:
+	var view := String(a.get("view", ""))
+	var part := int(a.get("part", 0))
+	var rd = shell.ensure_reader()
+	rd.reset_read_memory()
+	rd.emit_read = part == 0
+	if not shell.open_reader(view):
+		rd.emit_read = false
 		return false
-	await fr(8)
-	var rd = shell.reader
-	rd.set_regla(true)
-	await fr(6)
-	await snap("regla_" + view.replace("@", "_").replace(".", "_"))
-	var mb: Button = null
-	for b in rd.find_children("*", "Button", true, false):
-		if (b as Button).is_visible_in_tree() and String((b as Button).text).to_lower().contains("medida"):
-			mb = b
-	if mb == null:
-		return false
-	mb.pressed.emit()   # «Anotar la medida»
-	await fr(6)
+	await fr(4)
+	if part > 0:
+		rd.emit_read = true
+		rd.go_page(part)
+		await fr(3)
+	rd.emit_read = false
+	if rd.visible:
+		rd.close()
+		await fr(3)
 	return true
 
 # Recorte de texto (Game.act): antes, el documento abierto en el lector en su hoja (lo que el jugador tendría delante).

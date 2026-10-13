@@ -8,6 +8,8 @@
 #   en que sale (prólogo: schedule.ads.prologue_pub_day; si no, el siguiente día con Times).
 #   API extra: choose_form(id) · set_field(slot, value) -> bool · forms_available() · form_id · fields.
 # Errores (oficina cerrada, uno por día, tutorial): nota de Lisle (ui_text sim.err.*); no se cierra.
+# GDD_v2 §C.3: una forma aparece sólo cuando TODOS sus blancos tienen alguna opción (bandera cmp.forma.<id> de q_ui); en
+#   el prólogo, sólo «Se busca testigo». Con una sola forma posible no se dibuja la fila de formas.
 extends "res://ui/compose/compose_base.gd"
 
 const Composers = preload("res://core/scenes/composers.gd")
@@ -16,6 +18,7 @@ const Cond = preload("res://core/util/cond.gd")
 var form_id := ""
 var fields := {}
 var _forms_row: HFlowContainer
+var _forms_lbl: Control = null
 var _galley: HFlowContainer
 var _blanks := {}               # slot -> Blank
 var _form_btns := {}
@@ -50,7 +53,9 @@ func _stamp_text(_res: Dictionary) -> String:
 
 func _build_body(v: VBoxContainer) -> void:
 	var fl := Widgets.small(link.t("sceneui.ad.forma"))
+	fl.name = "FormaRotulo"
 	v.add_child(fl)
+	_forms_lbl = fl
 	_forms_row = HFlowContainer.new()
 	_forms_row.add_theme_constant_override("h_separation", 6)
 	_forms_row.add_theme_constant_override("v_separation", 6)
@@ -81,11 +86,17 @@ func forms_available() -> Array:
 	var out: Array = []
 	if r == null:
 		return out
+	var fl: Dictionary = link.flags()
+	var all: Array = []
 	for f in Composers.forms(r):
 		if f.has("when") and st != null and not Cond.eval(f.when, {"st": st, "repo": r}):
 			continue
-		out.append(String(f.get("id", "")))
-	return out
+		var id := String(f.get("id", ""))
+		all.append(id)
+		if link.flag("cmp.forma." + id, fl):
+			out.append(id)
+	# ninguna forma se puede llenar todavía: se ofrecen las del día igual (el sobre no queda vacío; Lisle dirá qué falta)
+	return out if not out.is_empty() else all
 
 func choose_form(id: String) -> void:
 	form_id = id
@@ -126,6 +137,10 @@ func _fill_forms() -> void:
 		b.pressed.connect(choose_form.bind(String(id)))
 		_form_btns[String(id)] = b
 		_forms_row.add_child(b)
+	_forms_row.visible = _form_btns.size() > 1
+	# con una sola forma no hay nada que elegir: sin rótulo «Tipo de aviso» (playtest v2)
+	if _forms_lbl != null:
+		_forms_lbl.visible = _forms_row.visible
 
 func _build_galley() -> void:
 	for c in _galley.get_children():

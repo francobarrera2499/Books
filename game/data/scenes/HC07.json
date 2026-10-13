@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-B. HC07 (columna, GDD §9.6, §8.8): jueves 5 de abril, 9:30, tienda de Crane. El librero viejo (Holmes disfrazado) compra los cuatro libros de EMPT a precio de gremio, escribe su dirección en el libro de ventas (D33 p2, W3-CT-TRACES), pide los tomos de la Strand, ve la nota de Mary en el tomo II y la de Watson en el VI («nov. 93 — junto a ella», D01N#nov93) y dice «Éstos tienen dueño, señor»: ahí se entera del duelo de Watson, GDD §2.3, y el epílogo 10.duelo («Ese modo fui yo») lo da por visto y deja un precio a lápiz en un tomo de sermones (D37, respuesta). Los nodos recortables (dedos amarillos, sombra) son de places/L1.json: la lámina PL.HC07 es la instantánea de la tienda al empezar la escena (WorldModel.start_scene; origen PL.L1.10.M), y es la que muestra la confrontación. Las líneas sin conf.* las dice WorldModel.start_scene al entrar; las conf.* las dice Confrontation paso a paso (who = librero, origen S.HC07). conf.3.si NO está aquí a propósito: necesita ${acto} (el acto citado) y el texto de escena no admite placeholders (Schema: markup); lo da ui_text scenes.conf.3.si («${acto}. Sí, sí.»). Ninguna afirmación toca Camden House; Holmes no se revela de palabra (§2.4).",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A: conf.oferta = el informe trampa dicho en voz del librero: «los errores que convienen»). HC07 (columna, GDD §9.6, §8.8): jueves 5 de abril, 9:30, tienda de Crane. El librero viejo (Holmes disfrazado) compra los cuatro libros de EMPT a precio de gremio, escribe su dirección en el libro de ventas (D33 p2, W3-CT-TRACES), pide los tomos de la Strand, ve la nota de Mary en el tomo II y la de Watson en el VI («nov. 93 — junto a ella», D01N#nov93) y dice «Estos tienen dueño, señor»: ahí se entera del duelo de Watson, GDD §2.3, y el epílogo 10.duelo («Ese modo fui yo») lo da por visto y deja un precio a lápiz en un tomo de sermones (D37, respuesta). Los nodos recortables (dedos amarillos, sombra) son de places/L1.json: la lámina PL.HC07 es la instantánea de la tienda al empezar la escena (WorldModel.start_scene; origen PL.L1.10.M), y es la que muestra la confrontación. Las líneas sin conf.* las dice WorldModel.start_scene al entrar; las conf.* las dice Confrontation paso a paso (who = librero, origen S.HC07). conf.3.si NO está aquí a propósito: necesita ${acto} (el acto citado) y el texto de escena no admite placeholders (Schema: markup); lo da ui_text scenes.conf.3.si («${acto}. Sí, sí.»). Ninguna afirmación toca Camden House; Holmes no se revela de palabra (§2.4).",
   "id": "HC07",
   "place": "L1",
   "area": "tienda",
@@ -7,14 +7,14 @@
   "plate": "PL.HC07",
   "origin": "S.HC07",
   "lines": [
-    {"id": "llama", "who": "crane", "text": "Desde el pie de la escalera: —¡Señor Lisle! Baje un momento: aquí un colega pregunta por tomos de la Strand, y los únicos que hay en esta calle son los suyos."},
+    {"id": "llama", "who": "crane", "text": "Desde el pie de la escalera: —¡Señor Lisle! Baje un momento: acá un colega pregunta por tomos de la Strand, y los únicos que hay en esta calle son los suyos."},
     {"id": "compra", "who": "librero", "text": "Un anciano encorvado, de patillas blancas, apoya cuatro libros en el mostrador: <i>[[british_birds|British Birds]]</i>, <i>[[catullus|Catullus]]</i>, <i>[[holy_war|The Holy War]]</i> y <i>[[tree_worship|The Origin of Tree Worship]]</i>. —Una ganga, señor, cada uno de ellos."},
     {"id": "gremio", "who": "librero", "text": "—A [[precio_de_gremio|precio de gremio]], si me hace el favor: yo también vendo, en mi tiendita de la esquina de [[church_street|Church Street]]."},
     {"id": "direccion", "who": "librero", "text": "Escribe la dirección en el libro de ventas de Crane, despacio, con la cabeza casi sobre la página. La letra no le tiembla."},
     {"id": "pide_tomos", "who": "librero", "text": "—¿Y los tomos de la Strand, señor, los encuadernados? Me dijeron que en esta calle había unos."},
-    {"id": "arriba", "who": "crane", "text": "Se rasca la oreja con el lápiz. —Los tiene el caballero de arriba, que es este señor. Tráigalos, señor Lisle, que mirar no cuesta; aunque no están en venta, ¿verdad?"},
-    {"id": "hojea", "who": "librero", "text": "Hojea el tomo segundo y se detiene en una nota a lápiz, de letra de mujer, junto a «James». Busca el sexto y, en la última página, lee otra, de letra grande y floja: «nov. 93 — junto a ella». Los dedos dejan de tamborilear. {{#dueno e:tomos e:notas_de_los_tomos|Cierra el tomo como quien cierra una puerta: —Éstos tienen dueño, señor.}}"},
-    {"id": "sermones", "who": "librero", "text": "Escribe un precio a lápiz en la guarda de un tomo de sermones y lo deja sobre el mostrador. —Éste no me lo llevo, señor."},
+    {"id": "arriba", "who": "crane", "text": "Se rasca la oreja con el lápiz. —Los tiene el caballero de arriba, que es este señor. Tráigalos, señor Lisle, que mirar no cuesta nada; aunque no están en venta, ¿no?"},
+    {"id": "hojea", "who": "librero", "text": "Hojea el tomo segundo y se detiene en una nota a lápiz, con letra de mujer, junto a «James». Busca el sexto y, en la última página, lee otra, de letra grande y floja: «nov. 93 — junto a ella». Los dedos dejan de tamborilear. {{#dueno e:tomos e:notas_de_los_tomos|Cierra el tomo como quien cierra una puerta: —Estos tienen dueño, señor.}}"},
+    {"id": "sermones", "who": "librero", "text": "Escribe un precio a lápiz en la primera hoja de un tomo de sermones y lo deja sobre el mostrador. —Este no me lo llevo, señor."},
 
     {"id": "conf.1", "who": "librero", "text": "Su patrón, señor, es un caballero que llora a un hermano."},
     {"id": "conf.1.si", "who": "librero", "text": "—Hum. Entonces no es luto: es caza."},
@@ -25,13 +25,13 @@
     {"id": "conf.3", "who": "librero", "text": "Nadie lo lee a usted, señor. Usted lee demasiado."},
     {"id": "conf.3.no", "who": "librero", "text": "—Eso prueba que el correo funciona, señor."},
     {"id": "conf.4", "who": "librero", "text": "Yo no soy más que un pobre librero de [[church_street|Church Street]]."},
-    {"id": "conf.4.si", "who": "librero", "text": "Se endereza un instante, a su altura entera; bajo el gas, su sombra llega al techo. Vuelve a encorvarse."},
+    {"id": "conf.4.si", "who": "librero", "text": "Se endereza un instante, con toda su altura; bajo el gas, su sombra llega al techo. Vuelve a encorvarse."},
     {"id": "conf.4.no", "who": "librero", "text": "—Eso prueba que leo a [[bunyan|Bunyan]], señor."},
-    {"id": "conf.paquete", "who": "librero", "text": "Recoge su paquete del mostrador."},
+    {"id": "conf.paquete", "who": "librero", "text": "Levanta su paquete del mostrador."},
     {"id": "conf.sombrero", "who": "librero", "text": "Se pone el sombrero."},
     {"id": "conf.se_va", "who": "librero", "text": "Se pone el paquete bajo el brazo, sin enderezarse. —Buenos días, señor."},
     {"id": "conf.nota", "who": "librero", "text": "Abre el tomo VI y escribe en el margen, a lápiz, con una letra que ya no finge: «Faltan cinco tomos en un estante de [[kensington|Kensington]].»"},
-    {"id": "conf.oferta", "who": "librero", "text": "—Y si me permite, señor, le corregiré las pruebas de su informe de mediodía. Tengo buena mano para las erratas."},
+    {"id": "conf.oferta", "who": "librero", "text": "—Y si me permite, señor, le corrijo el informe del mediodía antes de que lo entregue. Tengo buena mano para los errores que convienen."},
     {"id": "conf.silencio", "who": "librero", "text": "—Le ruego silencio, señor, hasta que el autor lo autorice. Buenos días."},
     {"id": "conf.fin", "who": "librero", "text": "—Hum. Buenos días, señor."}
   ]

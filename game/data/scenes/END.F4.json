@@ -1,13 +1,13 @@
 {
-  "_nota": "W3-CT-DLG-B. Final F4 «Ve, pero no observa» (GDD §12.1; SCAN): menos de seis conclusiones obligatorias selladas; el contrato de Pell pedía seis. En Park Lane la multitud oyó una teoría equivocada y Lisle no reconoció al librero que chocó con el médico (HC08). El día siguiente: lo tuvo todo sobre la mesa y no lo vio; baja los tomos a la tienda de Crane (el hueco de Kensington no se cierra; con C14 sellado —el hilo de los tomos del doctor— los lleva a Kensington el sábado, como dice el epílogo 05.hueco+tomos_devueltos: líneas tomos / tomos_c14). Sin place; when día ≥ 10.",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A, §C.4: sin la lupa). Final F4 «Ve, pero no observa» (GDD §12.1; SCAN): menos de seis conclusiones obligatorias selladas; el contrato de Pell pedía seis. En Park Lane la multitud oyó una teoría equivocada y Lisle no reconoció al librero que chocó con el médico (HC08). El día siguiente: lo tuvo todo sobre la mesa y no lo vio; baja los tomos a la tienda de Crane (el hueco de Kensington no se cierra; con C14 sellado —el hilo de los tomos del doctor— los lleva a Kensington el sábado, como dice el epílogo 05.hueco+tomos_devueltos: líneas tomos / tomos_c14). Sin place; when día ≥ 10.",
   "id": "END.F4",
   "when": {"day": {"gte": 10}},
   "origin": "S.END.F4",
   "lines": [
     {"id": "times", "who": "lisle", "text": "Vie. 6 de abril. El [[times|Times]] trae la detención de un coronel retirado en una casa vacía de [[baker_street|Baker Street]], y el nombre del [[lestrade|inspector Lestrade]]."},
-    {"id": "lupa", "who": "lisle", "text": "La leo dos veces con la [[lupa|lupa]]. No dice nada que no haya estado sobre mi mesa estos diez días."},
+    {"id": "lupa", "who": "lisle", "text": "La leo dos veces, con la nariz pegada al papel. No dice nada que no haya estado sobre mi mesa estos diez días."},
     {"id": "park_lane", "who": "lisle", "text": "Ayer, en [[park_lane|Park Lane]], un médico de luto le tiró los libros a un librero viejo, a dos pasos de mí, y yo seguí explicando mi teoría."},
-    {"id": "contrato", "who": "lisle", "text": "El chico de Pell no vuelve. El contrato pedía seis asientos pasados en limpio; no los tuve, y nadie sube a reclamarme la diferencia."},
+    {"id": "contrato", "who": "lisle", "text": "El chico de Pell no vuelve. El contrato pedía seis conclusiones confirmadas; no las tuve, y nadie sube a reclamarme la diferencia."},
     {"id": "tomos", "who": "lisle", "when": {"not": {"sealed": "C14"}}, "text": "Los [[tomos|cinco tomos]] siguen en la mesa, con sus notas a lápiz. Mañana se los bajo a Crane, que paga al peso."},
     {"id": "tomos_c14", "who": "lisle", "when": {"sealed": "C14"}, "text": "Los [[tomos|cinco tomos]] siguen en la mesa, con sus notas a lápiz. El sábado los llevo a [[kensington|Kensington]], sin nombre: de todo lo de estos diez días, es lo único que sé dónde va."}
   ]

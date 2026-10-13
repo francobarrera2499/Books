@@ -58,6 +58,9 @@ func _fs(base: float) -> int:
 	var k: float = 1.0 if ti == null else float(ti.text_scale)
 	return maxi(8, int(round(base * px_per_mm * k)))
 
+# GDD_v2 §C.3: las zonas de color de Booth bajan al 30 % de lo que eran (0,30 -> 0,09): sabor de fondo, no información.
+const BOOTH_ALPHA := 0.09
+
 func _draw() -> void:
 	var hc := Paper.hc_on()
 	var r := Rect2(Vector2.ZERO, size)
@@ -78,7 +81,7 @@ func _draw() -> void:
 			_hatch(poly, Color(0, 0, 0, 0.25), 7.0, 0.6)
 		else:
 			var col := Color(String(colors.get(cls, "c8b89a")))
-			col.a = 0.30
+			col.a = BOOTH_ALPHA
 			draw_colored_polygon(poly, col)
 	# parques
 	for pk in mapdata.get("parks", []):

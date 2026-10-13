@@ -426,8 +426,22 @@ static func area_open(repo, place: String, area: String, flags := {}) -> int:
 			m &= cond_mask(repo, ad.needs, flags)
 		if place != HUB:
 			m &= outing_days_mask(repo)
+		m &= reveal_mask(repo, place, area)
 	cm[key] = m
 	return m
+
+# GDD_v2 §B.5/§B.8: garantía de revelado del lugar (schedule.reveal.<L>.by), limitada a `areas` si las nombra. Sólo la
+# garantía: los disparadores anticipados (leer, oír, recortar el nombre) sólo suman franjas y la invariante es
+# antimonótona en los cortes, así que el grafo los ignora.
+static func reveal_mask(repo, place: String, area: String) -> int:
+	var rv = repo.schedule().get("reveal", {})
+	if typeof(rv) != TYPE_DICTIONARY or typeof(rv.get(place)) != TYPE_DICTIONARY:
+		return full_mask()
+	var spec: Dictionary = rv[place]
+	var areas = spec.get("areas", [])
+	if typeof(areas) == TYPE_ARRAY and not areas.is_empty() and not areas.has(area):
+		return full_mask()
+	return from_mask(TimeKey.idx_at_or_after(spec.get("by", "")))
 
 # Contrato: horario del lugar/área con flags base.
 static func open_mask(repo, place: String, area: String) -> int:

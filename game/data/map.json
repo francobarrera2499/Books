@@ -1,5 +1,5 @@
 {
- "_nota": "W3-SHELL (ARCHITECTURE §4.17, §6.7). Plano de Londres dibujado por código, en milímetros sobre una hoja de 600×420 (proyección simple; Londres de 1894: sin Kingsway ni Aldwych). booth_zones: clases de Charles Booth (A–G, mapa de la pobreza de 1889–1891), aproximadas y sólo de sabor; booth_colors: sus tintas. objects: qué hace cada objeto 3D al tocarlo (ui/desk/objects.gd); clave = lugar o lámina (id de data/places o data/plates), nodo con comodín final «*». places.<L>.show: condición (DSL §4.18) para que el marcador aparezca.",
+ "_nota": "W3-SHELL (ARCHITECTURE §4.17, §6.7). Plano de Londres dibujado por código, en milímetros sobre una hoja de 600×420 (proyección simple; Londres de 1894: sin Kingsway ni Aldwych). booth_zones: clases de Charles Booth (A–G, mapa de la pobreza de 1889–1891), aproximadas y sólo de sabor; booth_colors: sus tintas. objects: qué hace cada objeto 3D al tocarlo (ui/desk/objects.gd); clave = lugar o lámina (id de data/places o data/plates), nodo con comodín final «*». places.<L>.hours: una línea de horario (GDD_v2 §C.3, se ve al pasar el mouse). Qué lugares aparecen lo decide schedule.reveal (GDD_v2 §B.3; antes places.L8.show).",
  "size_mm": [
   600,
   420
@@ -17,7 +17,8 @@
    "label_off": [
     9,
     -7
-   ]
+   ],
+   "hours": "La tienda de Crane abre todos los días, salvo el domingo."
   },
   "L2": {
    "xy": [
@@ -28,7 +29,8 @@
    "label_off": [
     9,
     -6
-   ]
+   ],
+   "hours": "Sala de Lectura: de 9 a 20, salvo el domingo."
   },
   "L3": {
    "xy": [
@@ -40,7 +42,8 @@
     -9,
     -8
    ],
-   "align": "right"
+   "align": "right",
+   "hours": "La calle, siempre. La casa y la agencia, de 9 a 18."
   },
   "L4": {
    "xy": [
@@ -51,18 +54,20 @@
    "label_off": [
     9,
     -6
-   ]
+   ],
+   "hours": "Consultorio: por la mañana. Domingo: visitas de 16 a 18."
   },
   "L5": {
    "xy": [
     390.0,
     208.3
    ],
-   "label": "Pall Mall",
+   "label": "Club Diógenes",
    "label_off": [
     9,
     8
-   ]
+   ],
+   "hours": "Portería: a toda hora. Sala de Visitas: de 16:45 a 19:40."
   },
   "L6": {
    "xy": [
@@ -73,7 +78,8 @@
    "label_off": [
     9,
     9
-   ]
+   ],
+   "hours": "De 10 a 15, salvo el domingo. Un chelín por búsqueda."
   },
   "L7": {
    "xy": [
@@ -85,7 +91,8 @@
     -9,
     -6
    ],
-   "align": "right"
+   "align": "right",
+   "hours": "La casa se mira desde la vereda, a toda hora."
   },
   "L8": {
    "xy": [
@@ -98,12 +105,7 @@
     9,
     7
    ],
-   "show": {
-    "tk": {
-     "gte": "7.T"
-    }
-   },
-   "_show": "Camden House aparece en el mapa cuando el chico del agente la ofrece (desde 7.T); antes no es un lugar para Lisle. Cond DSL §4.18."
+   "hours": "Con el chico de la agencia, de 9 a 18."
   }
  },
  "streets": [
@@ -1210,7 +1212,11 @@
  },
  "world_events": {
   "_nota": "Lo que ve y oye Lisle de un evento_mundo de las reacciones (Effects.world_events): on = salida (la primera vez que sale a la calle desde que ocurrió) o amanecer; sound = id de data/audio.json (su subtítulo lo describe); veil = velo breve sobre la lámina (polvo). Sin entrada: el evento no tiene forma propia en pantalla (lo cuentan sus cartas o líneas). GDD §9.7 M2: el ladrillo cae a un paso al salir, «sonido y polvo».",
-  "ladrillo": {"on": "salida", "sound": "evt.ladrillo", "veil": "polvo"}
+  "ladrillo": {
+   "on": "salida",
+   "sound": "evt.ladrillo",
+   "veil": "polvo"
+  }
  },
  "objects": {
   "L1": {

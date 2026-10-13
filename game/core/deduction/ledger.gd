@@ -281,5 +281,20 @@ static func entry_view(st, repo, id: String) -> Dictionary:
 	var lines: Array = []
 	for ln in e.lines:
 		lines.append({"fields": ln.fields.duplicate(), "support": ln.support.duplicate()})
+	# v2 (§B.7): mientras la práctica del día 1 no se hizo, el borrador se mira con el chequeo de la práctica (pasajes,
+	# no orígenes): las dos fechas de REDH salen del mismo papel y el libro no debe marcar «Una sola fuente» justo antes de
+	# «Confirmar práctica» (confirmar de verdad pide la práctica hecha: PlayerActions «practica_pendiente»).
+	var pr := bool(e.get("practice", false)) or not _practice_done(st)
 	return {"id": id, "folio": String(e.folio), "template": String(e.template), "ink": String(e.ink), "lines": lines,
-		"formal": formal_codes(st, repo, e, bool(e.get("practice", false))), "practice": bool(e.get("practice", false))}
+		"formal": formal_codes(st, repo, e, pr), "practice": bool(e.get("practice", false))}
+
+static func _practice_done(st) -> bool:
+	var t = st.world.get("tutorial", {}) if typeof(st.world) == TYPE_DICTIONARY else {}
+	if typeof(t) != TYPE_DICTIONARY:
+		return true
+	var d1 = t.get("d1", {})
+	if typeof(d1) != TYPE_DICTIONARY:
+		return true
+	if t.is_empty():
+		return true
+	return d1.has("practice")

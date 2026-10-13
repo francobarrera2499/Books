@@ -4,18 +4,20 @@
 #   open(view_id) -> bool        Game.sim.q_view(view_id); sin partida (Game.sim == null) y fallback_repo: ViewModel.from_repo
 #   open_view(view)              una vista ya armada (forma de q_view, §3.7)
 #   close()                      oculta, restaura el cursor, emite closed
-# Señales: closed · clipped(result) (clip_text/clip_measure aceptado) · plate_requested(plate) · tijera_changed(on) ·
-#   page_changed(idx).
+# Señales: closed · clipped(result) (clip_text aceptado) · plate_requested(plate) · tijera_changed(on) · page_changed(idx).
 # Config: act_fn (Callable(a: Dictionary) -> Dictionary; por defecto Game.act) · handle_back (true: fe_volver cierra el
 #   lector; Shell lo pone en false si maneja su pila y escucha closed) · sounds · fallback_repo · strip_target ·
-#   measure_always.
+#   emit_read (true: la primera vez que muestra cada hoja en la sesión emite la acción libre `read`, GDD_v2 §B.4).
 # Interacción (mouse primero, §6.1): rueda = zoom 80–300 % en el puntero (fe_zoom_*); arrastrar el papel (fuera de la
 #   tijera) o con el botón medio = desplazar; C (fe_tijera) = modo tijera: arrastrar sobre palabras y soltar ->
 #   SelectionMapper.map -> Game.act({"t":"clip_text","src":{"kind":"doc","ref":view,"part":<hoja>,"block":<i>},...})
 #   (part = índice int de la hoja en q_view.pages, block = índice del bloque en la hoja);
-#   error -> línea de Lisle (ui_text clip.<err>); éxito -> la tira vuela al cuaderno. Lupa 3×, regla en mm (y «Anotar la
-#   medida» -> clip_measure si el documento tiene measure). ←/→ hojas; ↑/↓ desplazan; Esc / clic derecho = volver
-#   (con la tijera en la mano, primero la deja; después cierra el lector si handle_back).
+#   error -> línea de Lisle (ui_text clip.<err>); éxito -> la tira vuela al cuaderno. ←/→ hojas; ↑/↓ desplazan;
+#   Esc / clic derecho = volver (con la tijera en la mano, primero la deja; después cierra el lector si handle_back).
+# GDD_v2 §C.3 (revelado progresivo): al principio sólo el papel, la ficha (título y origen) y «Volver». «Tijera» aparece
+#   con la bandera desk.tijera (q_ui); las flechas ‹ n/N ›, sólo si hay más de una hoja; el zoom va con la rueda y un
+#   indicador «130 %» aparece sólo si el zoom no es el de lectura (clic = volver). Sin lupa ni regla (§C.5): la medida, el
+#   papel y la mano los dice la línea de DESCRIPCIÓN FÍSICA que todo documento trae al principio (recortable).
 # Sin brillos, contadores ni pistas: el lector no distingue lo importante (§6.1). Animaciones ≤0,4 s.
 extends CanvasLayer
 
@@ -29,8 +31,7 @@ const L = preload("res://core/util/log.gd")
 const Paper = preload("res://ui/kit/paper.gd")
 const Widgets = preload("res://ui/kit/widgets.gd")
 const PageView = preload("res://ui/reader/page_view.gd")
-const Ruler = preload("res://ui/reader/ruler.gd")
-const Lens = preload("res://ui/reader/lens.gd")
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
 const ViewModel = preload("res://ui/reader/view_model.gd")
 const SelectionMapper = preload("res://ui/reader/selection_mapper.gd")
 const TextBuilder = preload("res://ui/reader/text_builder.gd")
@@ -49,16 +50,15 @@ var act_fn: Callable = Callable()
 var handle_back := true
 var sounds := true
 var fallback_repo := true
-var measure_always := false     # §6.1 vs §6.4: ofrecer «Anotar la medida» en todo papel (decisión del orquestador)
+var emit_read := true
 var strip_target := Vector2(-1, -1)  # adónde vuela la tira recortada (canvas); por defecto abajo a la izquierda (el cuaderno)
 
 var view := {}
 var page_idx := 0
 var zoom := 1.0
 var tijera := false
-var lupa := false
-var regla := false
 var px_per_mm := 3.0
+var fit_zoom := 1.0             # zoom de lectura (el que pone _fit_view): el indicador sólo aparece fuera de él
 var page: Control = null        # PageView visible
 
 var _ui_built := false
@@ -66,24 +66,21 @@ var _root: Control
 var _back: Control
 var _area: Control
 var _stage: Control
-var _ruler_h: Control
-var _ruler_v: Control
-var _lens: Control
 var _header: PanelContainer
 var _title: Label
 var _src: Label
 var _tools: PanelContainer
 var _b_tijera: Button
-var _b_lupa: Button
-var _b_regla: Button
-var _b_measure: Button
 var _b_plate: Button
 var _b_zoom: Button
+var _b_close: Button
+var _tijera_ok := true          # bandera desk.tijera (se relee al abrir)
 var _pager: PanelContainer
 var _page_label: Label
 var _b_prev: Button
 var _b_next: Button
 var _note: PanelContainer
+var _tij_help: Label = null
 var _note_label: Label
 var _note_tw: Tween = null
 var _fly: Control
@@ -93,7 +90,7 @@ var _pan_start := Vector2.ZERO
 var _mouse := Vector2(-10000, -10000)
 var _cursor_set := false
 var _busy := false
-var _measure_ok := false
+static var _read_sent := {}     # "vista|hoja" ya emitidas en la sesión (la acción read es libre; esto sólo evita repetirla)
 
 class Backdrop extends Control:
 	var lamp: GradientTexture2D
@@ -128,6 +125,11 @@ func _ready() -> void:
 	var ti := _ti()
 	if ti != null and not ti.theme_changed.is_connected(_on_theme_changed):
 		ti.theme_changed.connect(_on_theme_changed)
+	var game := _autoload("Game")
+	if game != null and game.has_signal("sim_changed") and not game.sim_changed.is_connected(_on_sim_changed):
+		game.sim_changed.connect(_on_sim_changed)
+	if game != null and game.has_signal("session_started") and not game.session_started.is_connected(reset_read_memory):
+		game.session_started.connect(reset_read_memory)
 	if view.is_empty():
 		visible = false
 	else:
@@ -170,18 +172,14 @@ func open_view(v: Dictionary) -> bool:
 	page_idx = 0
 	if tijera:
 		set_tijera(false)
-	lupa = false
-	_lens.clear()
-	_lens.visible = false
-	regla = false
-	_ruler_h.visible = false
-	_ruler_v.visible = false
 	for c in _fly.get_children():
 		c.queue_free()
-	_measure_ok = _has_measure()
+	_tijera_ok = UiFlags.on(UiFlags.now(), "desk.tijera")
 	_header_text()
 	_compute_scale()
 	_show_page(0, true)
+	# la lectura de la primera hoja (acción `read`) puede encender banderas: en el prólogo, abrir el encargo trae la tijera
+	_tijera_ok = UiFlags.on(UiFlags.now(), "desk.tijera")
 	_sync_tools()
 	visible = true
 	_sfx("sfx.papel")
@@ -193,10 +191,6 @@ func close() -> void:
 	if tijera:
 		set_tijera(false)
 	_set_cursor(false)
-	lupa = false
-	regla = false
-	_lens.visible = false
-	_lens.clear()
 	visible = false
 	if page != null:
 		page.queue_free()
@@ -207,6 +201,8 @@ func close() -> void:
 	closed.emit()
 
 func set_tijera(on: bool) -> void:
+	if on and not _tijera_ok:
+		return   # la tijera todavía no está en la mano (prólogo, antes del paso «recortar»)
 	if tijera == on:
 		return
 	tijera = on
@@ -215,35 +211,6 @@ func set_tijera(on: bool) -> void:
 	_set_cursor(on)
 	_sync_tools()
 	tijera_changed.emit(on)
-
-func set_lupa(on: bool) -> void:
-	lupa = on
-	if on and page != null:
-		_lens.setup(view, page_idx, px_per_mm, page)
-		_lens.follow(_mouse, zoom)
-	else:
-		_lens.clear()
-	_lens.visible = on
-	_sync_tools()
-
-func set_regla(on: bool) -> void:
-	regla = on
-	_ruler_h.visible = on
-	_ruler_v.visible = on
-	if on and page != null:
-		_ruler_h.reset()
-		_ruler_v.reset()
-		# la hoja entera y las dos reglas a la vista (para leer el largo sin desplazar), sin bajar de 80 %
-		var ar := _read_rect()
-		var rpx := Ruler.WIDTH_MM * px_per_mm
-		var need: Vector2 = page.size + Vector2(rpx, rpx) + Vector2(24.0, 24.0)
-		var z := clampf(minf(zoom, minf((ar.size.x - 24.0) / need.x, (ar.size.y - 24.0) / need.y)), ZOOM_MIN, ZOOM_MAX)
-		zoom = z
-		_stage.scale = Vector2(z, z)
-		_stage.position = Vector2(ar.position.x + (ar.size.x - (page.size.x + rpx) * z) * 0.5 + rpx * z, rpx * z + 18.0)
-		_ensure_rulers_visible()
-		_clamp_pan()
-	_sync_tools()
 
 func set_zoom(z: float, focus := Vector2(-1, -1)) -> void:
 	z = clampf(z, ZOOM_MIN, ZOOM_MAX)
@@ -268,14 +235,23 @@ func go_page(i: int) -> void:
 func page_count() -> int:
 	return view.get("pages", []).size()
 
-# Mueve la lámpara/lupa como si el mouse estuviera en canvas_pos (capturas y tests).
+# Mueve la lámpara como si el mouse estuviera en canvas_pos (capturas y tests).
 func point_at(canvas_pos: Vector2) -> void:
 	_pointer_moved(canvas_pos)
 
 func debug_state() -> Dictionary:
 	return {"view": view.get("view", ""), "page": page_idx, "pages": page_count(), "zoom": zoom, "tijera": tijera,
-		"lupa": lupa, "regla": regla, "px_per_mm": px_per_mm, "measure": _measure_ok,
-		"paper_px": (page.size if page != null else Vector2.ZERO)}
+		"px_per_mm": px_per_mm, "paper_px": (page.size if page != null else Vector2.ZERO), "tools": tool_names()}
+
+# Controles a la vista en el panel de útiles (revelado progresivo; tests y capturas): nombres de nodo visibles.
+func tool_names() -> Array:
+	var out: Array = []
+	if not _ui_built:
+		return out
+	for b in [_b_tijera, _b_zoom, _pager, _b_plate, _b_close]:
+		if b != null and b.visible:
+			out.append(String(b.name))
+	return out
 
 # Rectángulo (canvas) del bloque i de la hoja visible (tests, drivers).
 func block_rtl(i: int) -> RichTextLabel:
@@ -320,15 +296,6 @@ func _build_ui() -> void:
 	_stage.name = "Escenario"
 	_stage.mouse_filter = Control.MOUSE_FILTER_PASS
 	_area.add_child(_stage)
-	_ruler_h = Ruler.new()
-	_ruler_v = Ruler.new()
-	_ruler_h.visible = false
-	_ruler_v.visible = false
-	_stage.add_child(_ruler_h)
-	_stage.add_child(_ruler_v)
-	_lens = Lens.new()
-	_lens.name = "Lupa"
-	_root.add_child(_lens)
 	# --- ficha del documento (arriba a la izquierda)
 	_header = Widgets.paper_panel("cuaderno", null, {"margin": 16, "margin_v": 11, "shadow_size": 6})
 	_header.position = Vector2(22, 20)
@@ -351,28 +318,24 @@ func _build_ui() -> void:
 	tv.add_theme_constant_override("separation", 8)
 	_tools.add_child(tv)
 	_b_tijera = _toggle(_t("reader.tool.tijera"), func(on): set_tijera(on))
-	_b_lupa = _toggle(_t("reader.tool.lupa"), func(on): set_lupa(on))
-	_b_regla = _toggle(_t("reader.tool.regla"), func(on): set_regla(on))
-	for b in [_b_tijera, _b_lupa, _b_regla]:
-		tv.add_child(b)
-	tv.add_child(Widgets.rule())
-	var zh := HBoxContainer.new()
-	zh.add_theme_constant_override("separation", 4)
-	var bm := Widgets.button(_t("reader.zoom.menos"), func(): set_zoom(zoom / ZOOM_STEP))
-	var bp := Widgets.button(_t("reader.zoom.mas"), func(): set_zoom(zoom * ZOOM_STEP))
-	for b in [bm, bp]:
-		b.custom_minimum_size = Vector2(34, 0)
-		b.add_theme_constant_override("h_separation", 0)
+	_b_tijera.name = "Tijera"
+	tv.add_child(_b_tijera)
+	# ayuda de una línea (§C.1) mientras la tijera está en la mano y todavía no se recortó nada
+	_tij_help = Widgets.label(_t("reader.tijera_ayuda"), "SmallLabel")
+	_tij_help.name = "TijeraAyuda"
+	_tij_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_tij_help.custom_minimum_size = Vector2(TOOLS_W - 48.0, 0)
+	_tij_help.add_theme_color_override("font_color", Paper.ink("tenue"))
+	_tij_help.visible = false
+	tv.add_child(_tij_help)
+	# indicador de zoom: sólo fuera del zoom de lectura; clic = volver a él (la rueda es el zoom)
 	_b_zoom = Widgets.ink_button("", func(): _fit_view())
-	_b_zoom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_b_zoom.clip_text = true
-	_b_zoom.custom_minimum_size = Vector2(62, 0)
-	zh.add_child(bm)
-	zh.add_child(_b_zoom)
-	zh.add_child(bp)
-	tv.add_child(zh)
+	_b_zoom.name = "Zoom"
+	_b_zoom.tooltip_text = _t("v2d.reader.zoom_volver")
+	tv.add_child(_b_zoom)
 	# --- hojas (sólo si hay más de una)
 	_pager = PanelContainer.new()
+	_pager.name = "Hojas"
 	_pager.add_theme_stylebox_override("panel", Paper.empty([0, 0, 0, 0]))
 	var ph := HBoxContainer.new()
 	ph.add_theme_constant_override("separation", 2)
@@ -387,13 +350,12 @@ func _build_ui() -> void:
 	ph.add_child(_b_next)
 	_pager.add_child(ph)
 	tv.add_child(_pager)
-	_b_measure = Widgets.ink_button(_t("reader.measure"), func(): _do_measure())
-	_b_measure.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_b_plate = Widgets.ink_button(_t("reader.plate"), func(): plate_requested.emit(String(view.get("plate", ""))))
-	tv.add_child(_b_measure)
+	_b_plate.name = "Lamina"
 	tv.add_child(_b_plate)
-	tv.add_child(Widgets.rule())
-	tv.add_child(Widgets.ink_button(_t("reader.close"), func(): close()))
+	_b_close = Widgets.ink_button(_t("reader.close"), func(): close())
+	_b_close.name = "Volver"
+	tv.add_child(_b_close)
 	_tools.custom_minimum_size = Vector2(TOOLS_W - 24.0, 0)
 	_root.add_child(_tools)
 	# --- nota de Lisle (abajo a la izquierda)
@@ -439,8 +401,8 @@ func _restyle_chrome() -> void:
 		_title.add_theme_color_override("font_color", Paper.ink("negra"))
 	if _back != null:
 		_back.queue_redraw()
-	if _b_measure != null:
-		_b_measure.add_theme_font_size_override("font_size", 17 if ti == null else ti.px("small") + 1)
+	if _b_zoom != null:
+		_b_zoom.add_theme_font_size_override("font_size", 17 if ti == null else ti.px("small") + 1)
 	_layout_chrome()
 
 func _layout_chrome() -> void:
@@ -481,22 +443,6 @@ func _header_text() -> void:
 	_header.visible = t != "" or s != ""
 	_header.reset_size()
 
-func _has_measure() -> bool:
-	if measure_always:
-		return true
-	var m = view.get("measure")
-	if typeof(m) == TYPE_DICTIONARY and not m.is_empty():
-		return true
-	var data := _autoload("Data")
-	if data == null:
-		return false
-	var pages: Array = view.get("pages", [])
-	if pages.is_empty() or pages[0].is_empty():
-		return false
-	var did := String(pages[0][0].get("doc", view.get("doc", "")))
-	var d: Dictionary = data.repo().doc(did) if data.repo() != null else {}
-	return typeof(d.get("measure")) == TYPE_DICTIONARY
-
 # Todas las hojas de una vista usan la misma px_per_mm (la mayor que pida alguna), así el papel no cambia de tamaño.
 func _compute_scale() -> void:
 	var best := 0.0
@@ -528,20 +474,14 @@ func _show_page(i: int, refit: bool) -> void:
 	page.set_tijera(tijera)
 	if page.overflow:
 		L.w("reader", "%s hoja %d: el texto no cabe en el papel (%s mm)" % [view.get("view", ""), i, str(view.paper_mm)])
-	_ruler_h.setup(px_per_mm, Vector2(view.paper_mm[0], view.paper_mm[1]), false)
-	_ruler_v.setup(px_per_mm, Vector2(view.paper_mm[0], view.paper_mm[1]), true)
-	_ruler_h.visible = regla
-	_ruler_v.visible = regla
 	if refit:
 		_fit_view()
 	else:
 		_stage.position.y = 36.0
 		_clamp_pan()
-	if lupa:
-		_lens.setup(view, page_idx, px_per_mm, page)
-		_lens.follow(_mouse, zoom)
 	_sync_pager()
 	_pointer_moved(_mouse)
+	_emit_read(i)
 
 func _fit_view() -> void:
 	if page == null:
@@ -554,21 +494,12 @@ func _fit_view() -> void:
 	if ps.y * z > avail.y and ps.y * ZOOM_MIN <= avail.y:
 		z = maxf(ZOOM_MIN, minf(z, avail.y / ps.y))
 	zoom = z
+	fit_zoom = z
 	_stage.scale = Vector2(z, z)
 	var x := ar.position.x + (ar.size.x - ps.x * z) * 0.5
 	var y := (ar.size.y - ps.y * z) * 0.5 if ps.y * z <= avail.y else 36.0
 	_stage.position = Vector2(x, maxf(y, 24.0))
-	if regla:
-		_ensure_rulers_visible()
 	_sync_tools()
-
-func _ensure_rulers_visible() -> void:
-	var need := Ruler.WIDTH_MM * px_per_mm * zoom + 12.0
-	var left := _read_rect().position.x
-	if _stage.position.y < need:
-		_stage.position.y = need
-	if _stage.position.x < left + need:
-		_stage.position.x = left + need
 
 func _clamp_pan() -> void:
 	if page == null:
@@ -585,11 +516,13 @@ func _sync_tools() -> void:
 		return
 	_busy = true
 	_b_tijera.button_pressed = tijera
-	_b_lupa.button_pressed = lupa
-	_b_regla.button_pressed = regla
 	_busy = false
-	_b_zoom.text = _t("reader.zoom.pct", {"n": int(round(zoom * 100.0))})
-	_b_measure.visible = regla and _measure_ok
+	_b_tijera.visible = _tijera_ok
+	if _tij_help != null:
+		_tij_help.visible = tijera and not UiFlags.on(UiFlags.now(), "hud.cuaderno")
+	# relativo al tamaño de lectura: «100 %» es como se abrió el papel (el indicador sólo aparece fuera de él)
+	_b_zoom.text = _t("reader.zoom.pct", {"n": int(round(zoom / maxf(0.01, fit_zoom) * 100.0))})
+	_b_zoom.visible = absf(zoom - fit_zoom) > 0.01
 	_b_plate.visible = String(view.get("plate", "")) != ""
 	_layout_chrome.call_deferred()
 
@@ -649,7 +582,8 @@ func _unhandled_input(ev: InputEvent) -> void:
 	if not visible or view.is_empty():
 		return
 	if ev.is_action_pressed("fe_tijera"):
-		set_tijera(not tijera)
+		if _tijera_ok:
+			set_tijera(not tijera)
 		get_viewport().set_input_as_handled()
 	elif ev.is_action_pressed("fe_volver") and tijera:
 		set_tijera(false)
@@ -701,8 +635,31 @@ func _pointer_moved(pos: Vector2) -> void:
 	_mouse = pos
 	if page != null:
 		page.set_light(pos, zoom)
-	if lupa:
-		_lens.follow(pos, zoom)
+
+# GDD_v2 §B.4: la primera vez que se muestra cada hoja en la sesión, la acción libre `read` (Lisle se entera de lo que
+# nombra esa hoja; el mapa crece leyendo). Sin partida, o si la partida ya la tiene anotada, no se emite.
+func _emit_read(i: int) -> void:
+	if not emit_read:
+		return
+	var vid := String(view.get("view", ""))
+	if vid == "":
+		return
+	var key := "%s|%d" % [vid, i]
+	if _read_sent.has(key):
+		return
+	var game := _autoload("Game")
+	var sim = game.get("sim") if game != null else null
+	if not act_fn.is_valid() and sim == null:
+		return
+	if sim != null and sim.has_method("q_read") and (sim.q_read(vid) as Array).has(i):
+		_read_sent[key] = true
+		return
+	var res := _act({"t": "read", "view": vid, "part": i})
+	if bool(res.get("ok", false)):
+		_read_sent[key] = true
+
+static func reset_read_memory() -> void:
+	_read_sent.clear()
 
 # ------------------------------------------------------------------ tijera
 func _on_block_pressed(_idx: int, pos: Vector2) -> void:
@@ -735,17 +692,6 @@ func _try_clip(idx: int, pos: Vector2) -> void:
 		if txt == "":
 			txt = SelectionMapper.preview(pt, int(m.from), int(m.len)).text
 		_fly_strip(txt, pos)
-		clipped.emit(res)
-	else:
-		_say(_err_text(String(res.get("err", ""))))
-
-func _do_measure() -> void:
-	var a := {"t": "clip_measure", "src": {"kind": "doc", "ref": String(view.get("view", ""))}}
-	var res := _act(a)
-	if bool(res.get("ok", false)):
-		_sfx("sfx.tijera")
-		var at: Vector2 = _ruler_h.get_global_transform_with_canvas() * (_ruler_h.size * Vector2(0.3, 0.5))
-		_fly_strip(_clip_text_of(res), at)
 		clipped.emit(res)
 	else:
 		_say(_err_text(String(res.get("err", ""))))
@@ -894,6 +840,17 @@ func _on_theme_changed() -> void:
 	_stage.position = keep_pos
 	_clamp_pan()
 	_sync_tools()
+
+# Una bandera puede encenderse con el lector abierto (prólogo: leer el encargo -> paso «recortar» -> aparece «Tijera»).
+func _on_sim_changed(_kind: String, _payload: Dictionary) -> void:
+	if not visible or not _ui_built:
+		return
+	var ok := UiFlags.on(UiFlags.now(), "desk.tijera")
+	if ok != _tijera_ok:
+		_tijera_ok = ok
+		_sync_tools()
+	elif _tij_help != null and _tij_help.visible:
+		_sync_tools()   # el primer recorte se lleva la ayuda de la tijera
 
 func _on_vp_resized() -> void:
 	_layout_chrome()

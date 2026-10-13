@@ -1,0 +1,12 @@
+{
+  "_nota": "CÁMARA v2 (GDD_v2 §E.3). Buhardilla calibrada con capturas (v2cam_pose): de pie sobre la alfombra, el escritorio grande al centro; girando, el plano (izquierda), la puerta a la tienda (a la espalda) y la cama (derecha): «yaw» 180 = se da la vuelta entera (playtest v2: con ±100° la puerta quedaba fuera). La propuesta del GDD quedaba parada sobre la cama, con el escritorio chico (<36 px lo usable) y los barrotes de la cama en cuadro. Vista general por «<lugar>.<área>», «<lugar>» o «*»: overview {pos, look, fov, yaw, pitch} o \"first_frame\" (el primer encuadre del área, con la órbita de ese encuadre acotada a un arco de 1,8 m; yaw_min/pitch de «*» no se usan: cada encuadre es una estación y empujar contra el borde pasa a la vecina). zones: id de nodo -> id de encuadre de places/*.json (clic en el nodo desde la vista general lleva a esa zona). Vive en world/ y no en data/ porque DataRepo rechaza archivos desconocidos en data/ (dueño: PROGRESIÓN).",
+  "L1.buhardilla": {"overview": {"pos": [0.6, 1.58, 0.75], "look": [-0.15, 0.92, -1.75], "fov": 56, "yaw": 180, "pitch": 14},
+                    "zones": {"escritorio": "escritorio", "atril": "escritorio", "ventana": "ventana",
+                              "mapa": "pared", "estante": "pared", "percha": "pared"}},
+  "L1.tienda":     {"overview": {"pos": [1.4, -4.75, -1.7], "look": [-0.6, -5.1, 1.6], "fov": 62, "yaw": 180, "pitch": 12},
+                    "zones": {"mostrador": "mostrador", "estantes_libros": "estantes", "estantes_revistas": "estantes",
+                              "escaparate": "escaparate"}},
+  "PRO": {"zones": {"escritorio": "escritorio", "atril": "escritorio", "ventana": "ventana"}},
+  "M7": {"zones": {"escritorio": "escritorio", "atril": "escritorio", "ventana": "ventana"}},
+  "*": {"overview": "first_frame", "yaw_min": 35, "pitch": 12}
+}

@@ -9,6 +9,7 @@
   "lines": [
     {"id": "encargo", "who": "pell", "text": "Una fe de erratas de las crónicas, señor Lisle, en debida forma, <i>in extenso</i>."},
     {"id": "cace_india", "who": "harris", "text": "{{#cace_india a:tirador f:secreto_camden e:india|Cacé tigres en [[india|la India]], señor.}} Allí se aprende a esperar arriba."},
+    {"id": "t_read", "who": "pell", "text": "Lea usted el encargo, si es tan amable."},
     {"id": "t_clip", "who": "pell", "text": "Recorte usted una línea del encargo, si es tan amable."},
     {"id": "t_link", "who": "pell", "text": "Ahora junte dos recortes que no digan lo mismo."},
     {"id": "t_folio", "who": "pell", "text": "Abra un folio con el recorte que más le inquiete."},

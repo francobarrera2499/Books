@@ -76,7 +76,7 @@ static func label(d: Dictionary, sim = null) -> String:
 				if sim.repo != null:
 					var en: Dictionary = sim.repo.entity(id)
 					if not en.is_empty():
-						return String(en.get("index", en.get("name", id)))
+						return preload("res://core/deduction/index.gd").display(sim.repo, id)
 			return id
 	return id
 

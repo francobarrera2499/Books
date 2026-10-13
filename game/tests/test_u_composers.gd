@@ -244,7 +244,7 @@ func test_final_report_modes():
 	var r: Dictionary = Composers.act_report_submit(st, rp, {"mode": "errata", "items": []})
 	ok(r.ok, str(r))
 	eq(st.flags.informe_final, "errata")
-	ok(String(r.text).contains("El jueves por la noche estará en su ventana."))
+	ok(String(r.text).contains("El jueves a la noche va a estar en su ventana."))
 	eq(st.pending_events[0].final, true)
 	eq(st.pending_events[0].items, [])
 	eq(st.scenes.final.mode, "errata")

@@ -142,7 +142,7 @@ static func topics(st, repo, char_id: String) -> Array:
 			continue
 		var label := String(k.get("label", "")) if typeof(k) == TYPE_DICTIONARY else ""
 		if label == "":
-			label = String(repo.entity(id).get("index", id))
+			label = Deps.index().display(repo, id)
 		out.append({"id": id, "label": label})
 	out.sort_custom(func(x, y): return String(x.label).naturalnocasecmp_to(String(y.label)) < 0)
 	return out

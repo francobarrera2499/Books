@@ -13,14 +13,15 @@
    "desc": "vestíbulo y salita de Mrs. Hudson en el 221B"
   },
   "agente": {
-   "desc": "oficina del agente de fincas, junto al 221B"
+   "desc": "agencia de alquileres, junto al 221B"
   }
  },
  "observers": [
   "mrs_hudson",
   "parker"
  ],
- "epigraph": "—¿Cuartos, sir? Éstos no se alquilan, sir.",
+ "epigraph": "—¿Cuartos, sir? Estos no se alquilan, sir.",
+ "epigraph_by_area": {"agente": "—Si busca casa, señor, vino al lugar indicado."},
  "frames": [
   {
    "id": "vestibulo",
@@ -331,7 +332,7 @@
     "bays": 3,
     "seed": 223,
     "shop": {
-     "sign": "AGENCIA DE FINCAS · ALQUILERES",
+     "sign": "AGENCIA DE ALQUILERES",
      "door_bay": 2,
      "letters": "CASAS · CUARTOS · LLAVES"
     }
@@ -1229,7 +1230,7 @@
      0.35
     ]
    },
-   "examine": "Sobre la persiana iluminada de una ventana del primer piso del [[221b|221B]] se recorta la [[sombra|sombra]] de un hombre sentado.",
+   "examine": "La [[sombra|sombra]] de un hombre sentado se recorta sobre la persiana iluminada de una ventana del primer piso del [[221b|221B]].",
    "tags": [
     "e:ventana_de_holmes",
     "e:221b",
@@ -1269,7 +1270,7 @@
      0.3
     ]
    },
-   "examine": "Enfrente, [[camden_house|Camden House]]: ventanas sucias en todos los pisos, sin una cortina ni una persiana.",
+   "examine": "[[camden_house|Camden House]], enfrente: ventanas sucias en todos los pisos, sin una cortina ni una persiana.",
    "tags": [
     "e:camden_house",
     "e:casa_vacia"
@@ -1294,7 +1295,7 @@
      0.16
     ]
    },
-   "examine": "En el patio de [[camden_house|Camden House]], un [[cartel_se_alquila|cartel]] en lo alto de un poste: «SE ALQUILA. Razón: agencia de fincas, en esta calle».",
+   "examine": "Un [[cartel_se_alquila|cartel]] en lo alto de un poste, en el patio de [[camden_house|Camden House]]: «SE ALQUILA. Informes: agencia de alquileres, en esta calle».",
    "tags": [
     "e:cartel_se_alquila",
     "e:camden_house"
@@ -1319,7 +1320,7 @@
      0.35
     ]
    },
-   "examine": "La [[oficina_del_agente|oficina del agente de fincas]], con [[planos_de_casas|planos de casas]] y [[avisos_de_alquiler|avisos de alquiler]] en la vidriera.",
+   "examine": "La [[oficina_del_agente|agencia de alquileres]], con [[planos_de_casas|planos de casas]] y [[avisos_de_alquiler|avisos de alquiler]] en la vidriera.",
    "tags": [
     "e:oficina_del_agente",
     "e:agente_de_fincas"
@@ -1344,7 +1345,7 @@
      0.5
     ]
    },
-   "examine": "Un farol de gas en el bordillo de la acera, frente al [[221b|221B]].",
+   "examine": "Un farol de gas en el cordón de la vereda, frente al [[221b|221B]].",
    "tags": [
     "e:luz_de_gas"
    ],
@@ -1368,7 +1369,7 @@
      0.6
     ]
    },
-   "examine": "En la acera de enfrente, un [[hombrecito_del_arpa|hombrecito agachado]] toca un [[arpa_de_boca|arpa de boca]] sin mirar a nadie.",
+   "examine": "Un [[hombrecito_del_arpa|hombrecito agachado]] en la vereda de enfrente toca un [[arpa_de_boca|arpa de boca]] sin mirar a nadie.",
    "tags": [
     "e:hombrecito_del_arpa",
     "e:arpa_de_boca",
@@ -1424,7 +1425,7 @@
      0.3
     ]
    },
-   "examine": "Arriba, en el descanso, una [[puerta_entreabierta|puerta]] queda entreabierta sobre un cuarto en penumbra.",
+   "examine": "Una [[puerta_entreabierta|puerta]] entreabierta arriba, en el descanso, sobre un cuarto en penumbra.",
    "tags": [
     "e:puerta_entreabierta",
     "e:221b"
@@ -1449,7 +1450,7 @@
      0.24
     ]
    },
-   "examine": "Sobre la mesa del vestíbulo hay una libra de [[shag]] todavía envuelta, y la casa entera huele a tabaco fuerte y fresco.",
+   "examine": "Un paquete con una libra de [[shag|tabaco shag]], todavía envuelto, sobre la mesa del vestíbulo; la casa entera huele a tabaco fuerte y fresco.",
    "tags": [
     "a:preparativos_221b",
     "e:shag",
@@ -1480,7 +1481,7 @@
      0.8
     ]
    },
-   "examine": "En el vestíbulo, un [[cajon_de_grenoble|cajón]] con etiqueta de gran velocidad: «Grenoble — [[oscar_meunier|O. Meunier]], mouleur — pour M. [[mycroft|Mycroft Holmes]], 221B Baker Street — NE PAS OUVRIR — [[cera|cire]]».",
+   "examine": "Un [[cajon_de_grenoble|cajón]] en el vestíbulo, con etiqueta de envío rápido: «Grenoble — [[oscar_meunier|O. Meunier]], mouleur — pour M. [[mycroft|Mycroft Holmes]], 221B Baker Street — NE PAS OUVRIR — [[cera|cire]]» (en francés: «moldeador», «no abrir», «cera»).",
    "tags": [
     "a:preparativos_221b",
     "a:refuta_meunier",
@@ -1516,7 +1517,7 @@
      0.95
     ]
    },
-   "examine": "En la mesa del vestíbulo, una [[bandeja_de_tarjetas|bandeja]] de plata para tarjetas de visita, vacía.",
+   "examine": "La mesa del vestíbulo, con una [[bandeja_de_tarjetas|bandeja]] de plata para tarjetas de visita, vacía.",
    "tags": [
     "e:bandeja_de_tarjetas"
    ],
@@ -1540,7 +1541,7 @@
      1.4
     ]
    },
-   "examine": "En la salita, una chimenea de mármol con el fuego apagado, un [[reloj_de_repisa|reloj de repisa]] y un retrato en su marco.",
+   "examine": "Una chimenea de mármol en la salita, con el fuego apagado, un [[reloj_de_repisa|reloj de repisa]] y un retrato en su marco.",
    "tags": [
     "e:reloj_de_repisa"
    ],
@@ -1564,7 +1565,7 @@
      0.36
     ]
    },
-   "examine": "Sobre el escritorio de la salita, un [[libro_de_recibos|libro de recibos]] abierto en las cuentas del trimestre.",
+   "examine": "Un [[libro_de_recibos|libro de recibos]] abierto sobre el escritorio de la salita, en las cuentas del trimestre.",
    "tags": [
     "e:libro_de_recibos",
     "e:alquiler"
@@ -1618,7 +1619,7 @@
      0.36
     ]
    },
-   "examine": "Sobre el mostrador, abierto, el [[libro_de_llaves|libro de llaves]] del agente, con un renglón por cada llave prestada.",
+   "examine": "El [[libro_de_llaves|libro de llaves]] de la agencia, abierto sobre el mostrador, con un renglón por cada llave prestada.",
    "tags": [
     "e:libro_de_llaves",
     "e:agente_de_fincas"
@@ -1643,7 +1644,7 @@
      0.12
     ]
    },
-   "examine": "Detrás del mostrador, un [[tablero_de_llaves|tablero]] con llaves colgadas de ganchos, cada una con su rótulo de cartón.",
+   "examine": "Un [[tablero_de_llaves|tablero]] detrás del mostrador, con llaves colgadas de ganchos, cada una con su rótulo de cartón.",
    "tags": [
     "e:tablero_de_llaves"
    ],
@@ -1667,7 +1668,7 @@
      1.55
     ]
    },
-   "examine": "En la pared, [[planos_de_casas|planos de casas]] en alquiler clavados con chinches.",
+   "examine": "[[planos_de_casas|Planos de casas]] en alquiler, clavados con chinches en la pared.",
    "tags": [
     "e:planos_de_casas"
    ],
@@ -1678,7 +1679,7 @@
   {
    "id": "agente_fincas",
    "prop": "agente_p",
-   "noun": "agente de fincas",
+   "noun": "empleado de la agencia",
    "anchor": {
     "c": [
      8.7,
@@ -1691,7 +1692,7 @@
      0.7
     ]
    },
-   "examine": "Sentado a su escritorio, el [[agente_de_fincas|agente de fincas]] anota alquileres en un libro y no levanta la vista.",
+   "examine": "El [[agente_de_fincas|empleado de la agencia]], sentado a su escritorio, anota alquileres en un libro y no levanta la vista.",
    "tags": [
     "e:agente_de_fincas"
    ],

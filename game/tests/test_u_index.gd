@@ -68,7 +68,8 @@ func test_known_sorted_by_index_label():
 	Index.add_entities(st, r, ["watson", "abejas", "fina", "holmes", "baston", "reichenbach", "trichinopolis", "a_pique"])
 	eq(Index.known(st, r), ["a_pique", "abejas", "baston", "fina", "holmes", "reichenbach", "trichinopolis", "watson"])
 	var rows := Index.rows(st, r)
-	eq(rows[3], {"id": "fina", "label": "«El problema final» (Strand, dic. 1893)", "kind": "documento"})
+	eq(rows[3], {"id": "fina", "label": "«El problema final»", "kind": "documento", "index": "«El problema final» (Strand, dic. 1893)"}, "a la vista, el nombre natural (playtest v2)")
+	eq(Index.index_label(st, r, "fina"), "«El problema final» (Strand, dic. 1893)", "la forma de índice sólo ordena")
 
 func test_sort_key_folds_accents_and_enye():
 	ok(Index.sort_key("«Ávila»").begins_with("avila"), Index.sort_key("«Ávila»"))
@@ -78,5 +79,6 @@ func test_sort_key_folds_accents_and_enye():
 func test_kind_and_label_of_data_entities():
 	var st = _st()
 	eq(Index.kind(r, "watson"), "persona")
-	eq(Index.label(st, r, "watson"), "Watson, John H., doctor")
+	eq(Index.label(st, r, "watson"), "Doctor Watson")
+	eq(Index.index_label(st, r, "watson"), "Watson, John H., doctor")
 	eq(Index.label(st, r, "nada"), "nada")

@@ -49,14 +49,14 @@ func drive(p_tool, scene) -> void:
 		var v2: Dictionary = ViewModel.from_repo(repo, "D30@L3")
 		reader.open_view(v2)
 		await tool.frames(4)
-		reader.set_lupa(true)
+		pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 		var at := _word_pos(0, "Recibos")
 		if at != Vector2.ZERO:
 			Input.warp_mouse(at)
 			reader.point_at(at)
 			await tool.frames(4)
 			await tool.snap("d30_lupa")
-		reader.set_lupa(false)
+		pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 		reader.close()
 		await tool.frames(2)
 

@@ -50,7 +50,7 @@ const CONTRACT := {
 	"C4": ["D03#a_mycroft", "D18#calendars", "D19#indice", "D30#recibo", "D29b#surcos", "L:mrs_hudson.mycroft_paga"],
 	"C5": ["D09#desague", "D11#desague", "D09#cruel", "D10#cruel", "R:D28.anglo", "D10#portada", "D09#nota_redactor", "D10#frontispicio"],
 	"C6": ["J:go", "N:*.sil_wiggins", "AD:prologo", "R:HC10.texto", "AD:*", "R:HB1.col", "S:HC06.b_kbm", "S:HC06.b_kw", "S:HC06.b_kh", "R:HA1.*", "R:HB1.carta", "R:HB4.carta", "L:mrs_hudson.ordenes"],
-	"C7": ["M:HA1.carta", "M:HA0.carta", "M:D46", "R:HC04.tarjeta", "S:HC06.b_*", "D31#para_mholmes", "R:HA0.*", "R:HA1.*", "D30#recibo", "N:L2.cotter_canastilla", "N:L2.cesto_tiras", "D01.GREE#founders", "L:watson.escribi_mycroft", "R:HB5.recibo", "R:HB1.carta", "R:HC01.sobre", "D01.GREE#pall_mall", "L:wiggins.vieja_tarifa", "D01.GREE#whitehall", "R:HA1.giro", "S:HC06.a"],
+	"C7": ["R:HA1.fisica", "R:HA0.fisica", "D46#fisica", "R:HA1.fisica", "R:HC04.tarjeta", "S:HC06.b_*", "D31#para_mholmes", "R:HA0.*", "R:HA1.*", "D30#recibo", "N:L2.cotter_canastilla", "N:L2.cesto_tiras", "D01.GREE#founders", "L:watson.escribi_mycroft", "R:HB5.recibo", "R:HB1.carta", "R:HC01.sobre", "D01.GREE#pall_mall", "L:wiggins.vieja_tarifa", "D01.GREE#whitehall", "R:HA1.giro", "S:HC06.a"],
 	"C8": ["D13#muestra97", "D12#n97", "D14#opusculo", "D44#oficios_mano", "S:HC06.c", "D31#telegramas", "R:HC01.no_lo_es", "D12#dedicatoria", "D13#jartum", "D34#ruinas", "D35#califa"],
 	"C9": ["S:HC05.jueves_a", "N:L3.ventanas_abiertas", "N:L3.shag", "S:HC06.e", "N:L3.cajon", "R:HB*.col", "D31#ruta"],
 	"C10": ["N:PRO.harris", "D16#moran", "S:M7.inteligente", "D10#adjetivos", "D23#cruel", "L:wiggins.conduit", "D17#moran_conduit", "D10#cabrito_atado", "S:M6.donde", "D11#no_bala", "S:M7.donde_duerme", "R:HB7.col", "R:M2.nota", "R:HB9.carta", "D11#hacerlo_balar"],
@@ -897,6 +897,9 @@ func _r_ref_ok(ref: String) -> bool:
 		return false
 	for r in rs:
 		if sel == "*":
+			return true
+		# GDD_v2 §C.5: R:<rid>.fisica = la descripción física del papel que entrega (plantilla de data/fisica.json)
+		if sel == "fisica" and typeof(r.get("doc")) == TYPE_DICTIONARY and _rp.has_method("fisica") 				and _rp.fisica().get("plantillas", {}).has(String(r.doc.get("entity", ""))):
 			return true
 		var ops: Array = []
 		for e in r.get("efecto", []):

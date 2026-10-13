@@ -1,0 +1,55 @@
+# Sonda con ventana del quad de afordancias (CÁMARA v2): con el look por defecto, antes y después de pasar el mouse por la
+# silla, con lo usable marcado, «mirar alrededor» y los códigos en gris (debug_view 1).
+# ./godot.sh -s devtools/shot.gd --resolution 1600x900 -- res://devtools/blank.tscn v2aff res://devtools/drivers/v2cam_affprobe.gd
+extends RefCounted
+const WR = preload("res://world/world_root.gd")
+func drive(tool, _scene) -> void:
+	tool.root.size = Vector2i(1600, 900)
+	var wr = WR.new()
+	tool.root.add_child(wr)
+	wr.set_fast(true)
+	wr.hover_enabled = false
+	var fr := OS.get_environment("AFF_FRAME")
+	wr.show_hub(fr if fr != "" else "escritorio", "M")
+	await tool.frames(10)
+	var ap = wr.aff_post()
+	await tool.snap("a_nada")
+	wr.set_usable({"n:cuaderno": true, "n:tintero": true, "n:bandeja": true, "n:calendario": true, "n:libro_mayor": true, "n:tijera": true}, {})
+	await tool.frames(5)
+	await tool.snap("b_usable")
+	var hp: Vector2 = wr.camera().unproject_position(wr.node_body("silla").global_position)
+	print("AFFP hover silla en ", hp, " -> ", wr.hover_at(hp), " hover=", wr.hover_kind, "/", wr.hover_id, " meta=", wr.diorama.get_meta("aff_hover", "?"))
+	var AFF0 = load("res://world/affordance/affordance.gd")
+	print("AFFP códigos silla: ", (wr.diorama.get_meta("aff")["n:silla"] as Array).map(func(g): return AFF0.code_of(g)).slice(0, 8))
+	await tool.frames(5)
+	await tool.snap("c_hover_silla")
+	ap.set_param("debug_view", 1)
+	await tool.frames(3)
+	await tool.snap("c2_codigos_hover")
+	ap.set_param("debug_view", 0)
+	ap.set_param("hover_fill", 0.0)
+	await tool.frames(3)
+	await tool.snap("c3_hover_sin_relleno")
+	ap.visible = false
+	await tool.frames(3)
+	await tool.snap("c4_hover_sin_quad")
+	ap.visible = true
+	ap.set_param("hover_fill", 0.06)
+	await tool.frames(3)
+	wr.hover_at(wr.camera().unproject_position(wr.node_body("cuaderno").global_position))
+	await tool.frames(5)
+	await tool.snap("d_hover_cuaderno")
+	wr.hover_at(Vector2(-10, -10))
+	wr.set_reveal_all(true)
+	await tool.frames(5)
+	await tool.snap("e_mirar")
+	wr.set_reveal_all(false)
+	ap.set_param("debug_view", 1)
+	await tool.frames(5)
+	await tool.snap("f_codigos")
+	ap.set_param("debug_view", 0)
+	var owners: Dictionary = wr.diorama.get_meta("aff", {})
+	var AFF = load("res://world/affordance/affordance.gd")
+	for k in owners:
+		var lst: Array = owners[k]
+		print("AFFP ", k, " mallas=", lst.size())

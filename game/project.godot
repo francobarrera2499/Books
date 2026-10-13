@@ -1,11 +1,11 @@
-; Fe de erratas — Godot 4.7.2 (Forward+). Contrato: docs/ARCHITECTURE.md §2 y §11.
+; What the Ink Says — Godot 4.7.2 (Forward+). Contrato: docs/ARCHITECTURE.md §2 y §11.
 ; Autoloads registrados = sólo scripts existentes (stubs válidos). Agregar uno nuevo exige tocar este archivo (dueño: W1-ENG).
 config_version=5
 
 [application]
 
-config/name="Fe de erratas"
-config/description="Londres, 1894. Un corrector de pruebas coteja las crónicas de Sherlock Holmes y, cada mañana, alguien le contesta."
+config/name="What the Ink Says"
+config/description="Londres, 1894. Un corrector de pruebas compara las crónicas del doctor Watson y, cada mañana, alguien le contesta."
 run/main_scene="res://main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="fe_de_erratas"

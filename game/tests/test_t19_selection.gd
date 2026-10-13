@@ -96,6 +96,8 @@ func test_selection_rasante_and_typed() -> void:
 
 # ------------------------------------------------------------------ integración (sin ventana)
 func fake_act(a: Dictionary) -> Dictionary:
+	if a.t == "read":
+		return {"ok": true}   # GDD_v2 §B.4: el lector anota la lectura de cada hoja (acción libre); aquí sólo cuentan los recortes
 	acts.append(a)
 	if a.t != "clip_text":
 		return {"ok": false, "err": "desconocido"}
@@ -260,7 +262,8 @@ func test_end_to_end_with_game_sim() -> void:
 	rd = Reader.new()
 	rd.sounds = false
 	rd.act_fn = func(a):
-		acts.append(a)
+		if a.t != "read":
+			acts.append(a)
 		return sim.apply(a)
 	tree.root.add_child(rd)
 	ok(rd.open_view(v), "abre la vista del sim")

@@ -4,6 +4,10 @@
 #  - si el primer impacto es un oclusor del prop P y detrás (≤ 1,5 m) hay un nodo con prop == P → ese nodo;
 #  - si es el cuerpo de un personaje C y detrás (≤ 0,6 m) hay un nodo con prop == C → ese nodo;
 #  - entre nodos anidados casi a la misma profundidad (≤ 0,3 m) gana el de menor volumen.
+# v2 (CÁMARA + AFORDANCIAS): el ancla de un nodo es una caja gruesa (la de la silla tapa medio escritorio detrás de su
+# respaldo): si detrás hay otro nodo MÁS CHICO, un impacto en el ancla de un nodo con mallas (meta "aff" del diorama,
+# world/affordance/affordance.gd) sólo cuenta si el rayo pasa por la caja de alguna de sus mallas; si no, se sigue al
+# impacto siguiente. Nodos sin malla (sólo ancla) cuentan como siempre.
 extends RefCounted
 
 const LAYER_OCC := 1
@@ -35,6 +39,19 @@ static func pick(cam: Camera3D, screen_pos: Vector2, exclude: Array = []) -> Dic
 	var dir := cam.project_ray_normal(screen_pos)
 	var hits := ray_all(space, from, from + dir * 200.0, MASK_ALL, exclude, 12)
 	if hits.is_empty(): return none
+	# saltear el ancla gruesa de un nodo atravesada sin tocar ninguna de sus mallas, si detrás hay un nodo más chico (el
+	# cuaderno detrás del respaldo de la silla); un papel sobre el escritorio no se saltea a favor del escritorio
+	while hits.size() > 1:
+		var c0: Object = hits[0]["collider"]
+		if not c0.has_meta("node_id") or c0.has_meta("silhouette"): break
+		var nxt: Object = null
+		for h in hits.slice(1):
+			if (h["collider"] as Object).has_meta("node_id"):
+				nxt = h["collider"]
+				break
+		if nxt == null or _vol(nxt) >= _vol(c0): break
+		if mesh_hit(c0, "n:" + str(c0.get_meta("node_id")), from, dir): break
+		hits.remove_at(0)
 	var first: Dictionary = hits[0]
 	var col: Object = first["collider"]
 	if col.has_meta("node_id"):
@@ -66,6 +83,24 @@ static func pick(cam: Camera3D, screen_pos: Vector2, exclude: Array = []) -> Dic
 			if c4.has_meta("prop_id") and str(c4.get_meta("prop_id")) != pid:
 				break
 	return none
+
+# ¿El rayo pasa por la caja de alguna malla del dueño? (true si el dueño no tiene mallas: nodo de sólo ancla)
+static func mesh_hit(body: Object, owner: String, from: Vector3, dir: Vector3) -> bool:
+	var n := body as Node
+	if n == null: return true
+	var root: Node = n.get_parent().get_parent() if n.get_parent() != null else null
+	if root == null or not root.has_meta("aff"): return true
+	var lst: Array = (root.get_meta("aff") as Dictionary).get(owner, [])
+	if lst.is_empty(): return true
+	for g in lst:
+		if not is_instance_valid(g): continue
+		var gi := g as GeometryInstance3D
+		if not gi.is_visible_in_tree(): continue
+		var inv := gi.global_transform.affine_inverse()
+		var a := gi.get_aabb().grow(0.01)
+		if a.intersects_ray(inv * from, (inv.basis * dir)) != null:
+			return true
+	return false
 
 static func pick_character(cam: Camera3D, screen_pos: Vector2, exclude: Array = []) -> String:
 	var r := pick(cam, screen_pos, exclude)

@@ -21,6 +21,7 @@ const TimeKey = preload("res://core/util/timekey.gd")
 const J = preload("res://core/util/j.gd")
 const Av = preload("res://core/graph/availability.gd")
 const RouteDB = preload("res://core/graph/route_db.gd")
+const Fisica = preload("res://core/text/fisica.gd")
 
 static func has_soft(repo, rid: String) -> bool:
 	return typeof(repo.reaction(rid).get("variante_blanda")) == TYPE_DICTIONARY
@@ -491,6 +492,10 @@ static func _rastro_tags(repo, r: Dictionary) -> Array:
 		for tg in d.measure.get("tags", []):
 			var s := String(tg)
 			out.append(s if s.contains(":") else "a:" + s)
+	# GDD_v2 §C.5: la descripción física del papel que entrega (plantilla de data/fisica.json por doc.entity) es parte
+	# del rastro: reemplaza a la medida de la regla (los campos measure se borran de los datos).
+	if typeof(d) == TYPE_DICTIONARY and repo.has_method("fisica"):
+		out.append_array(Fisica.tags(Fisica.spec_tpl(repo.fisica(), String(d.get("entity", "")))))
 	return RouteDB.uniq(out)
 
 # Ley de la huella: Holmes (lado holmes/mycroft) que corta → etiquetas de C6/C7/C8; Moran que corta → C10/C13.

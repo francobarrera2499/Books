@@ -1,12 +1,14 @@
-# ui/map/map_screen.gd — el mapa de época con su página de horarios (GDD§5 «Viaje», ARCHITECTURE §6.7). Dueño: W3-SHELL.
-# Panel de la capa 50 (Shell.open_panel("map")). Plano dibujado (map_draw.gd) con un marcador por lugar de map.json;
-# estado por franja de Game.sim.q_places(): abierto -> clic; cerrado -> persiana baja, SIN clic (T26: ningún clic
-# gasta una franja en un lugar cerrado); el motivo se lee al pasar el mouse. Lugares con varias áreas: tarjeta de
-# áreas. Viajar: confirmación en dos pasos (lugar, área, franja; en la Sala de Lectura, el asiento) -> Game.act(go)
-# (comprometida: se escribe antes de animar) -> trayecto del coche con cascos (≈3 s, clic para saltar) -> visita.
-# Página Baedeker pegada a la derecha (schedule.baedeker): clic -> lector. Debajo, «Láminas de lo visto»: las láminas
-# archivadas de visitas y escenas (GDD§5: se vuelven a mirar y recortar), más recientes primero; clic -> la lámina en el
-# 3D (Shell.open_plate). open() · close() · back() · señal closed.
+# ui/map/map_screen.gd — el mapa de época (GDD§5 «Viaje», ARCHITECTURE §6.7; GDD_v2 §B.3 y §C.3). Dueño: PROGRESIÓN.
+# Panel de la capa 50 (Shell.open_panel("map")). Plano dibujado (map_draw.gd) con un marcador por lugar QUE LISLE YA
+# CONOCE (Game.sim.q_places() sólo lista lo revelado; la casa siempre): abierto -> clic; cerrado -> persiana baja, SIN
+# clic (T26: ningún clic gasta una franja en un lugar cerrado). Al pasar el mouse: el horario del lugar en una línea
+# (map.json places.<L>.hours) y, si está cerrado, «Cerrado ahora». Sello «Nuevo» (uniforme, no marca pistas) el día en
+# que el lugar entra al plano. Lugares con varias áreas: tarjeta de áreas. Viajar: confirmación (lugar, área, franja)
+# -> Game.act(go) (comprometida: se escribe antes de animar; en la Sala de Lectura lleva el último asiento usado o 214,
+# q_seat: el selector de asiento pasó al catálogo) -> trayecto del coche (≈3 s, clic para saltar) -> visita.
+# v2: sin página Baedeker (baedeker_view() queda como hoja «Horarios» de lo conocido, para el lector); «Recuerdos» (las
+# láminas archivadas, más recientes primero; clic -> la lámina en el 3D) sólo con q_ui()["map.recuerdos"].
+# open() · close() · back() · señal closed.
 extends Control
 
 signal closed
@@ -15,7 +17,7 @@ signal traveled(place: String, area: String)
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
 const MapDraw = preload("res://ui/map/map_draw.gd")
-const Cond = preload("res://core/util/cond.gd")
+const Markup = preload("res://core/text/markup.gd")
 
 const TRAVEL_S := 3.0
 const MARK_R := 7.0
@@ -24,7 +26,6 @@ var shell = null
 var board: Control
 var map: Control                # MapDraw
 var markers: Control
-var baedeker: PanelContainer
 var plates_tab: PanelContainer
 var header: Label
 var status: Label
@@ -108,8 +109,6 @@ func _ready() -> void:
 	close_btn.name = "CerrarMapa"
 	close_strip.add_child(close_btn)
 	board.add_child(close_strip)
-	baedeker = _make_baedeker()
-	board.add_child(baedeker)
 	plates_tab = _make_plates_tab()
 	board.add_child(plates_tab)
 	_hover = Widgets.label("", "SmallLabel")
@@ -136,12 +135,11 @@ func open() -> void:
 	if shell != null:
 		shell.play("sfx.papel")
 
-# La página Baedeker (texto con autowrap) mide su alto recién con el ancho puesto: se reacomoda dos cuadros después.
+# Los rótulos miden su alto recién con el ancho puesto: se reacomoda dos cuadros después.
 func _process(_dt: float) -> void:
 	if _remeasure > 0:
 		_remeasure -= 1
 		if _remeasure == 0:
-			baedeker.size = Vector2.ZERO
 			_layout()
 			set_process(false)
 
@@ -190,14 +188,11 @@ func _layout() -> void:
 	hb.size = Vector2.ZERO
 	hb.reset_size()
 	hb.position = Vector2((map.size.x - hb.size.x) * 0.5, -hb.size.y - 12.0).floor()
-	baedeker.custom_minimum_size = Vector2(bw, 0)
-	baedeker.reset_size()
-	baedeker.position = Vector2(map.size.x + 24.0, 30.0)
 	close_strip.reset_size()
 	close_strip.position = Vector2(map.size.x + 24.0 + bw - close_strip.size.x, -close_strip.size.y - 12.0).floor()
 	plates_tab.custom_minimum_size = Vector2(bw * 0.8, 0)
 	plates_tab.reset_size()
-	plates_tab.position = Vector2(map.size.x + 24.0 + bw * 0.12, minf(baedeker.position.y + baedeker.size.y + 22.0, map.size.y - plates_tab.size.y))
+	plates_tab.position = Vector2(map.size.x + 24.0 + bw * 0.12, 30.0)
 	_place_markers()
 
 func _refresh() -> void:
@@ -213,6 +208,7 @@ func _refresh() -> void:
 		header.text = ht.substr(0, 1).to_upper() + ht.substr(1)
 		status.text = _status_text(c)
 		status.visible = status.text != ""
+		plates_tab.visible = bool(sim.q_ui().get("map.recuerdos", false)) if sim.has_method("q_ui") else true
 		if is_inside_tree():
 			_layout.call_deferred()
 	_build_markers()
@@ -242,11 +238,16 @@ func by_place() -> Dictionary:
 		out[id].append(p)
 	return out
 
-# Estado de un lugar del mapa: {open: algún área elegible, areas:[…], reason: motivo del primero cerrado, home}.
+# Estado de un lugar del mapa: {open: algún área elegible, areas:[…], reason: motivo del primero cerrado, home, new, hours}.
 func place_state(id: String) -> Dictionary:
 	var bp := by_place()
 	var areas: Array = []
+	var is_new := false
+	var hours := ""
 	for p in bp.get(id, []):
+		is_new = is_new or bool(p.get("new", false))
+		if hours == "":
+			hours = String(p.get("hours", ""))
 		if bool(p.get("free", false)):
 			continue
 		areas.append(p)
@@ -257,7 +258,7 @@ func place_state(id: String) -> Dictionary:
 			any = true
 		elif reason == "" and not bool(p.get("open", false)):
 			reason = String(p.get("reason", ""))
-	return {"open": any, "areas": areas, "reason": reason, "home": areas.is_empty()}
+	return {"open": any, "areas": areas, "reason": reason, "home": areas.is_empty(), "new": is_new, "hours": hours}
 
 func _build_markers() -> void:
 	for c in markers.get_children():
@@ -277,23 +278,21 @@ func _build_markers() -> void:
 		m.state = place_state(String(id))
 		m.home = bool(mp[id].get("home", false))
 		m.label_text = String(mp[id].get("label", id))
+		m.is_new = bool(m.state.get("new", false)) and not m.home
+		m.new_text = Widgets.t("prog.map.nuevo")
 		m.pressed_cb = _on_marker
 		m.hover_cb = _on_hover
 		markers.add_child(m)
 	_place_markers()
 
-# map.json places.<L>.show (DSL §4.18) decide si el marcador existe ya para Lisle; sin show, siempre.
+# GDD_v2 §B.4: el marcador existe si Lisle ya conoce el lugar (q_places sólo lista lo revelado); la casa, siempre.
 func shown(id: String) -> bool:
 	var repo = _repo()
 	if repo == null:
 		return false
-	var spec = repo.map().get("places", {}).get(id, {})
-	if typeof(spec) != TYPE_DICTIONARY or not spec.has("show"):
+	if bool(repo.map().get("places", {}).get(id, {}).get("home", false)):
 		return true
-	var sim = _sim()
-	if sim == null:
-		return false
-	return Cond.eval(spec.show, {"st": sim.st, "repo": sim.repo})
+	return by_place().has(id)
 
 func _place_markers() -> void:
 	for m in markers.get_children():
@@ -305,37 +304,6 @@ func marker(id: String) -> Control:
 		if m is Marker and (m as Marker).place_id == id:
 			return m
 	return null
-
-func _make_baedeker() -> PanelContainer:
-	var p := PanelContainer.new()
-	p.name = "Baedeker"
-	p.mouse_filter = Control.MOUSE_FILTER_STOP
-	p.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	p.rotation_degrees = -1.5
-	Widgets.restyle(p, func(): p.add_theme_stylebox_override("panel", Paper.style("strand", {"margin": 16, "shadow": true, "shadow_size": 8})))
-	var v := VBoxContainer.new()
-	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.add_theme_constant_override("separation", 4)
-	p.add_child(v)
-	var t := Widgets.label(Widgets.t("shell.map.baedeker"), "SourceLine")
-	t.uppercase = true
-	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.add_child(t)
-	var body := Widgets.rich("DocBody")
-	body.name = "Text"
-	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	body.add_theme_font_size_override("normal_font_size", 14)
-	v.add_child(body)
-	p.gui_input.connect(func(ev):
-		if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
-			p.accept_event()
-			open_baedeker())
-	p.ready.connect(func():
-		var repo = _repo()
-		if repo != null:
-			body.clear()
-			body.add_text(String(repo.parse_text(String(repo.schedule().get("baedeker", ""))).get("plain", ""))))
-	return p
 
 # Una tira de papel con «Láminas de lo visto» (sin número: nada de contadores).
 func _make_plates_tab() -> PanelContainer:
@@ -406,12 +374,24 @@ func plate_label(pl: Dictionary) -> String:
 		when += ", " + Widgets.t("core.slot." + String(pl.slot))
 	return name_s if when == "" else "%s — %s" % [name_s, when]
 
+# Hoja «Horarios» para el lector (antes la página Baedeker): una línea por lugar que Lisle ya conoce (map.json hours).
+# No tiene botón en el mapa (el horario se ve al pasar el mouse); queda para quien quiera abrirla como documento.
 func baedeker_view() -> Dictionary:
 	var repo = _repo()
 	if repo == null:
 		return {}
-	var parsed: Dictionary = repo.parse_text(String(repo.schedule().get("baedeker", "")))
-	return {"view": "baedeker", "doc": "baedeker", "title": Widgets.t("shell.map.baedeker_t"), "src_line": Widgets.t("shell.map.baedeker_src"),
+	var sim = _sim()
+	var mp: Dictionary = repo.map().get("places", {})
+	var ids: Array = mp.keys()
+	ids.sort()
+	var lines := PackedStringArray()
+	for id in ids:
+		var known: bool = sim == null or not sim.has_method("q_place_known") or sim.q_place_known(String(id))
+		var h := String(mp[id].get("hours", ""))
+		if known and h != "":
+			lines.append("%s. — %s" % [String(mp[id].get("label", id)).to_upper(), h])
+	var parsed: Dictionary = repo.parse_text(Markup.escape(String.chr(10).join(lines)))
+	return {"view": "baedeker", "doc": "baedeker", "title": Widgets.t("prog.map.horarios_t"), "src_line": Widgets.t("prog.map.horarios_src"),
 		"paper": "strand", "paper_mm": [120, 190], "font": "imprenta", "machine": null,
 		"pages": [[{"doc": "baedeker", "origin": "", "copy": "baedeker", "part": "p1", "parsed": parsed}]]}
 
@@ -426,10 +406,18 @@ func _on_hover(m, on: bool) -> void:
 		return
 	var st: Dictionary = m.state
 	var txt := ""
+	var nl := String.chr(10)
 	if bool(m.home):
 		txt = Widgets.t("shell.map.casa")
-	elif not bool(st.open):
-		txt = _closed_text(st)
+		if String(st.get("hours", "")) != "":
+			txt += nl + String(st.hours)
+	else:
+		# GDD_v2 §C.3: el horario del lugar en una línea; si está cerrado, «Cerrado ahora» (o el motivo, si no es la hora)
+		txt = String(st.get("hours", ""))
+		if not bool(st.open):
+			var why := _closed_text(st)
+			var head := why if why != "" and why != Widgets.t("sim.cerrado.horario") else Widgets.t("prog.map.cerrado_ahora")
+			txt = head + (nl + txt if txt != "" else "")
 	if txt == "":
 		_hover.visible = false
 		return
@@ -528,21 +516,6 @@ func _confirm_go(p: Dictionary) -> void:
 		"dia": String(c.get("date_label", ""))}))
 	txt.custom_minimum_size = Vector2(440, 0)
 	body.add_child(txt)
-	var seat_box: HBoxContainer = null
-	var seat_edit: SpinBox = null
-	if bool(p.get("needs_seat", false)):
-		seat_box = HBoxContainer.new()
-		seat_box.add_theme_constant_override("separation", 10)
-		seat_box.add_child(Widgets.label(Widgets.t("shell.map.asiento"), "SourceLine"))
-		seat_edit = SpinBox.new()
-		seat_edit.min_value = 1
-		seat_edit.max_value = 999
-		seat_edit.step = 1
-		seat_edit.rounded = true
-		seat_edit.value = seat if seat > 0 else default_seat(sim)
-		seat_edit.custom_minimum_size = Vector2(110, 0)
-		seat_box.add_child(seat_edit)
-		body.add_child(seat_box)
 	var cf := Widgets.confirm(body, Widgets.t("shell.map.ir"), Widgets.t("kit.confirm.back"), Widgets.t("shell.map.ir_t"))
 	add_child(cf)
 	_popup = cf
@@ -553,16 +526,19 @@ func _confirm_go(p: Dictionary) -> void:
 		cf.queue_free()
 		_popup = null
 		if ok:
-			var s := int(seat_edit.value) if seat_edit != null else 0
+			var s := default_seat(sim) if bool(p.get("needs_seat", false)) else 0
 			travel(String(p.get("id", "")), String(p.get("area", "")), s))
 
-# Asiento por defecto: el último que eligió; si no, uno sembrado por la partida (sin azar global).
+# Asiento por defecto (GDD_v2 §C.3): el último usado; la primera vez, 214. El catálogo de la Sala lo deja cambiar.
 static func default_seat(sim) -> int:
+	# «Asiento 214 · cambiar» del catálogo (Catalog.seat_pref) manda sobre el último usado
+	var C = load("res://ui/desk/catalog.gd")
+	if C != null and int(C.seat_pref) > 0:
+		return int(C.seat_pref)
+	if sim != null and sim.has_method("q_seat"):
+		return int(sim.q_seat())
 	var s := int(sim.st.world.get("seat", 0)) if sim != null and sim.get("st") != null else 0
-	if s > 0:
-		return s
-	var seed_v: int = int(sim.st.seed) if sim != null and sim.get("st") != null else 1894
-	return 101 + absi(seed_v) % 380
+	return s if s > 0 else 214
 
 # go (comprometida) y trayecto del coche. Devuelve el resultado de Game.act.
 func travel(place: String, area: String, p_seat := 0) -> Dictionary:
@@ -633,6 +609,9 @@ class Marker extends Control:
 	var state := {}
 	var home := false
 	var label_text := ""
+	var is_new := false
+	var new_text := "Nuevo"
+	var _label_above := true
 	var enabled := true
 	var pressed_cb: Callable
 	var hover_cb: Callable
@@ -653,6 +632,7 @@ class Marker extends Control:
 		var tw := f.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 		var off_v = data.get("label_off", [9, -6])
 		var off := Vector2(float(off_v[0]), float(off_v[1])) * px_per_mm
+		_label_above = off.y < 0.0
 		var right := String(data.get("align", "left")) == "right"
 		var lp := off + (Vector2(-tw, 0) if right else Vector2.ZERO)
 		_label_rect = Rect2(lp + Vector2(-4, -fs), Vector2(tw + 8, fs + 8))
@@ -736,8 +716,24 @@ class Marker extends Control:
 		if not home:
 			draw_rect(lr, Color(Paper.paper("carta"), 0.72))
 		draw_string(f, lp, label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col if not home else red)
+		if is_new:
+			_draw_new_stamp(o, r, red)
 		if _hot and open:
 			draw_line(lp + Vector2(0, 3), lp + Vector2(_label_rect.size.x - 8, 3), Color(col, 0.7), 1.0)
+
+	# Sello «Nuevo»: un rectángulo de tinta roja, un poco torcido, sobre el marcador (igual para todo lugar nuevo).
+	func _draw_new_stamp(o: Vector2, r: float, red: Color) -> void:
+		var f := _font()
+		var fs := maxi(10, int(_fs() * 0.62))
+		var tw := f.get_string_size(new_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		# del lado opuesto al rótulo (no lo tapa)
+		var c := o + (Vector2(0, r + fs * 0.5 + 8) if _label_above else Vector2(0, -r - fs * 0.5 - 8))
+		draw_set_transform(c, deg_to_rad(-6.0), Vector2.ONE)
+		var box := Rect2(Vector2(-tw * 0.5 - 4, -fs * 0.5 - 3), Vector2(tw + 8, fs + 6))
+		draw_rect(box, Color(Paper.paper("carta"), 0.85))
+		draw_rect(box, Color(red, 0.85), false, 1.2)
+		draw_string(f, box.position + Vector2(4, fs + 1), new_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(red, 0.95))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 class Shutter extends Control:
 	func _init() -> void:

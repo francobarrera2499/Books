@@ -157,3 +157,21 @@ func dialogue(char_id: String) -> Dictionary:
 
 func dialogues() -> Dictionary:
 	return base.dialogues()
+
+# v2 (GDD_v2 §C.5): descripción física (RouteDB R:<rid>.fisica) y tramos de documento.
+func fisica() -> Dictionary:
+	return base.fisica() if base.has_method("fisica") else {}
+
+func doc_tramo(doc_id: String, tid: String) -> Dictionary:
+	if not _ov("docs").has(doc_id):
+		return base.doc_tramo(doc_id, tid)
+	for p in doc(doc_id).get("parts", []):
+		for t in parsed(doc_id, String(p.get("id", ""))).get("tramos", []):
+			if String(t.id) == tid:
+				var r: Dictionary = t.duplicate()
+				r["part"] = p.id
+				return r
+	return {}
+
+func map() -> Dictionary:
+	return base.map() if base.has_method("map") else {}

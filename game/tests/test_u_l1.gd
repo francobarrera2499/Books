@@ -17,10 +17,10 @@ const BUILDERS := ["marker", "reading_stand", "notebook", "thick_book", "spectac
 	"drawer_out", "footprint", "rug", "washstand", "peg_rail", "gas_bracket", "counter_lamp", "shop_window", "shop_door", "paper_lot",
 	"photo_box", "newspaper_bundle", "magazine_stack", "book_table", "stair_glimpse", "own_front", "holywell_row", "reflection", "trunk"]
 
-# GDD §5, L1: escritorio (lector, cuaderno, libro mayor, tijera, lupa, regla, sello «Visto»), bandeja, cinco tomos, cajón con la
+# GDD §5, L1 (GDD_v2 §C.4: sin lupa ni regla): escritorio (lector, cuaderno, libro de conclusiones, tijera, sello), bandeja, cinco tomos, cajón con la
 # galerada, concordancia, mapa con horarios, calendario de escritorio, estufa, ventana a la calle (aleros salientes), y la tienda:
 # estantes, libro de ventas, mostrador. Más lo que pide el resto del GDD (mechero bajo de la tienda, monedas sobre la mesa).
-const GDD5_L1 := ["escritorio", "atril", "cuaderno", "libro_mayor", "tijera", "lupa", "regla", "sello", "bandeja", "tomos", "cajon",
+const GDD5_L1 := ["escritorio", "atril", "cuaderno", "libro_mayor", "tijera", "sello", "bandeja", "tomos", "cajon",
 	"concordancia", "mapa", "calendario", "estufa", "ventana", "enfrente", "monedas", "estantes_libros", "estantes_revistas",
 	"libro_ventas", "mostrador", "mechero", "papel_peso", "fotografias", "diarios", "revistas", "escaparate"]
 
@@ -84,6 +84,8 @@ func test_l1_gdd_objects_and_frames() -> void:
 	var ids := PLC.node_ids(pl)
 	for nid in GDD5_L1:
 		has(ids, nid, "L1 tiene el nodo %s (GDD §5)" % nid)
+	for nid in ["lupa", "regla"]:
+		no(ids.has(nid), "GDD_v2 §C.4: sin el nodo %s" % nid)
 	var fr := {}
 	for f in pl.frames: fr[str(f.id)] = str(f.get("area", "*"))
 	eq(fr.get("escritorio"), "buhardilla"); eq(fr.get("ventana"), "buhardilla"); eq(fr.get("pared"), "buhardilla")
@@ -210,7 +212,7 @@ func test_hub_show_and_frames() -> void:
 	wr.show_hub("escritorio", "M")
 	await tree.physics_frame
 	ok(wr.diorama != null, "hub L1")
-	no(wr.orbit_enabled, "sin órbita en el hub")
+	ok(wr.orbit_enabled, "v2 (GDD_v2 §E): en casa también se mira alrededor")
 	eq(PLC.sorted(wr.frames()), ["escritorio", "pared", "ventana"], "encuadres del hub (buhardilla)")
 	wr.show_hub("mostrador", "T")
 	await tree.physics_frame

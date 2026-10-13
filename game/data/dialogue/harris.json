@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-B. El «mayor Harris» = el coronel Sebastian Moran (GDD §4): seco, cortés, metáforas de caza, exige «la forma debida»; chistera de ópera y bigote canoso. Habla en las escenas fijas PRO y M7. Su tic de los adjetivos repetidos va SIEMPRE dentro de un tramo con a:harris_es_moran e:adjetivos_repetidos (PRO.fresco, M7.inteligente, M7.exactitud); por eso estas respuestas de respaldo no lo usan. Nunca menciona Camden House ni a Adair.",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A.3: conserva la caza y «la forma debida»). El «mayor Harris» = el coronel Sebastian Moran (GDD §4): seco, cortés, metáforas de caza, exige «la forma debida»; chistera de ópera y bigote canoso. Habla en las escenas fijas PRO y M7. Su tic de los adjetivos repetidos va SIEMPRE dentro de un tramo con a:harris_es_moran e:adjetivos_repetidos (PRO.fresco, M7.inteligente, M7.exactitud); por eso estas respuestas de respaldo no lo usan. Nunca menciona Camden House ni a Adair.",
   "char": "harris",
   "label": "el mayor Harris",
   "intro": "El mayor Harris",
@@ -10,7 +10,7 @@
   "closing": "Se pone la chistera. —Buenas noches, señor. El monte no espera.",
   "ask_phrase": {"default": "¿Qué me dice de ${topic}, ${addr}?"},
   "lines": [
-    {"id": "af.todas", "layer": "afirmacion", "match": {"assertion": ["cebo", "vive", "canario"]}, "text": "Deja escapar un pequeño suspiro de satisfacción. —Eso, señor, póngalo por escrito, en la forma debida."},
+    {"id": "af.todas", "layer": "afirmacion", "match": {"assertion": ["cebo", "vive", "canario"]}, "text": "Suelta un breve suspiro de satisfacción. —Eso, señor, póngalo por escrito, en la forma debida."},
     {"id": "tigre", "layer": "tema", "match": {"topic": ["tigre", "india", "cazador", "heavy_game", "shikari"]}, "text": "—Al tigre no se lo busca, señor: se lo espera. Lo demás es paseo."},
     {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes", "watson", "fina", "suceso_reichenbach"]}, "text": "—Para eso le pagamos, señor: para que me diga lo que el doctor no supo ver."},
     {"id": "gen.1", "layer": "generica", "text": "Se retuerce el bigote. —La forma debida, señor; siempre la forma debida."},

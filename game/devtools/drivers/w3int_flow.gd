@@ -327,16 +327,15 @@ func _day1_books() -> void:
 	_check(shell.top() == null, "libros cerrados; nada abierto")
 
 func _day1_map() -> void:
-	# el mapa de la pared: a la vista con los chevrones; si no, la tecla M
+	# el mapa de la pared: a la vista girando con el borde izquierdo (v2: sin chevrones); si no, la tecla M
 	var mp := Vector2(-1, -1)
 	for i in 4:
 		mp = _node_pos("mapa")
 		if mp.x >= 0.0 and String(shell.world.pick(mp).get("id", "")) == "mapa":
 			break
 		mp = Vector2(-1, -1)
-		await _click(_c(gs()._chev_r))
-		await _wait(0.9)
-		await _snap("dia1_encuadre_" + String(gs().frame))
+		await _look_step()
+		await _snap("dia1_mirada_%d" % i)
 	await _snap("dia1_pared")
 	if mp.x >= 0.0:
 		await _click(mp)
@@ -955,6 +954,14 @@ func _key(code: Key) -> void:
 	u.pressed = false
 	Input.parse_input_event(u)
 	await tool.frames(4)
+
+# v2 (GDD_v2 §E): girar la vista con el mouse en el borde izquierdo (1,2 s) y volver al centro.
+func _look_step(dir := -1) -> void:
+	var at := Vector2(6, 470) if dir < 0 else Vector2(1594, 470)
+	await _sync_mouse(at)
+	await _wait(1.2)
+	await _sync_mouse(Vector2(800, 450))
+	await _wait(0.2)
 
 func _wait(sec: float) -> void:
 	await tool.create_timer(sec).timeout

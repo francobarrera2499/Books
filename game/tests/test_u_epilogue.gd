@@ -203,7 +203,7 @@ func test_pencil_wrong_entries_get_notes() -> void:
 		rows.append_array(pg.rows.filter(func(r): return bool(r.wrong)))
 	eq(rows.size(), int(v.wrong_n))
 	for r in rows:
-		ok(String(r.note).begins_with("Dele"), "nota «Dele: …»: %s" % r.note)
+		ok(String(r.note).begins_with("Corríjalo"), "nota «Corríjalo: …»: %s" % r.note)
 	var bp = BluePencil.new()
 	bp.fast = true
 	tree.root.add_child(bp)

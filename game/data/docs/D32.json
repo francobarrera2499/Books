@@ -2,7 +2,7 @@
   "_nota": "W3-CT-MORAN. D32, libro de llaves del agente de fincas de Baker Street (GDD §2.3 lun. 2-abr, §6 D32, §10.4 C13.R3). Clase C: M5 arranca la página (efecto arrancar D32@L3). Sobre el mostrador de la oficina (L3, área agente, días hábiles M y T). La hoja de abril (p2) sólo existe desde el lunes 2 (when día ≥ 7): «Harris» pidió la llave esa mañana y no la devolvió. La llave de Holmes no salió de aquí (GDD §2.2). Contrato §4.8: #llave_harris (escondite_preparado + f:secreto_camden; claves camden_house y harris: enlaza con N:PRO.harris). Sin «Sáb. 24.» con punto: la fecha no corta la oración. La hoja de abril lleva también una entrada de ruido (Mr. Baines, Dorset Street, «Ídem» sin punto) para que la de Harris no quede sola en la página.",
   "id": "D32",
   "entity": "libro_de_llaves",
-  "title": "Libro de llaves del agente de fincas de Baker Street",
+  "title": "Libro de llaves de la agencia de alquileres de Baker Street",
   "src_type": "registro",
   "class": "C",
   "date": "1894-04-02",
@@ -16,5 +16,5 @@
     {"id": "p1", "text": "<sc>Llaves prestadas</sc>\n{{#pyke e:york_place|Sáb. 24 mar. — 9, [[york_place|York Place]]: [[reverendo_pyke|Rev. Mr. Pyke]]; devuelta.}}"},
     {"id": "p2", "when": {"day": {"gte": 7}}, "text": "{{#llave_harris a:escondite_preparado f:secreto_camden e:camden_house d:1894-04-02 h:F.camden_preparada|Lun. 2 abr. — [[camden_house|Camden House]]: al [[harris|mayor Harris]], para ver la casa; no devuelta.}}\n{{#baines e:dorset_street|Ídem — 31, [[dorset_street|Dorset Street]]: [[baines_dorset|Mr. Baines]]; devuelta.}}"}
   ],
-  "words": 30
+  "words": 55
 }

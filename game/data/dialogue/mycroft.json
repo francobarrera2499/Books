@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-B. Mycroft Holmes (GDD §4; GREE, EMPT): afable, suave, irónico; ahorra esfuerzo físico, no palabras; rapé y pañuelo de seda roja. Sala de Forasteros del Diógenes, días 8–9 (T, N). Sus líneas (a)–(g) son la escena automática scenes/HC06.json; aquí, lo que contesta si Lisle le pregunta o le presenta algo. Nunca afirma que su hermano vive: habla de él en pasado salvo el lapsus deliberado de HC06 (c). No lee lo que toca Camden House (§2.4, T22): finge no haber oído. Respuestas de HB12 (Dialogue: ids del efecto linea de la reacción): hb12_exito, hb12_error_1, hb12_error_2; sus tramos llevan a:vinculo_mycroft e:mycroft como declara el rastro de HB12 (C7, ley de la huella). «Mi hermano no necesitaba más motivos para volver antes de tiempo» = GDD HC06 (si pregunta por Watson o su duelo). W4 (playtest «novato»): addr y ask_phrase dicen «señor», sin el apellido: el panel lo rotula «caballero corpulento» hasta que Dialogue lo presenta, y la pregunta no debe darle el nombre antes que la interfaz.",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A: «Le ahorraré el trabajo» se conserva; la errata a medida se dice «una corrección a medida para el mayor»; «conclusión» en vez de «asiento»; maquina suma papel_crema_grueso, alias de papel_corto, §C.5.4). Mycroft Holmes (GDD §4; GREE, EMPT): afable, suave, irónico; ahorra esfuerzo físico, no palabras; rapé y pañuelo de seda roja. Sala de Visitas del Diógenes, días 8–9 (T, N). Sus líneas (a)–(g) son la escena automática scenes/HC06.json; aquí, lo que contesta si Lisle le pregunta o le presenta algo. Nunca afirma que su hermano vive: habla de él en pasado salvo el lapsus deliberado de HC06 (c). No lee lo que toca Camden House (§2.4, T22): finge no haber oído. Respuestas de HB12 (Dialogue: ids del efecto linea de la reacción): hb12_exito, hb12_error_1, hb12_error_2; sus tramos llevan a:vinculo_mycroft e:mycroft como declara el rastro de HB12 (C7, ley de la huella). «Mi hermano no necesitaba más motivos para volver antes de tiempo» = GDD HC06 (si pregunta por Watson o su duelo). W4 (playtest «novato»): addr y ask_phrase dicen «señor», sin el apellido: el panel lo rotula «caballero corpulento» hasta que Dialogue lo presenta, y la pregunta no debe darle el nombre antes que la interfaz.",
   "char": "mycroft",
   "label": "el señor Mycroft Holmes",
   "intro": "Mycroft Holmes",
@@ -7,29 +7,29 @@
   "sensor": null,
   "max_questions": 3,
   "trait": "esfera_panuelo",
-  "closing": "Le ahorraré el trabajo de preguntar más, señor Lisle: por hoy he dicho lo que pensaba decir.",
+  "closing": "Le ahorraré el trabajo de preguntar más, señor Lisle: por hoy ya dije lo que pensaba decir.",
   "ask_phrase": {
     "default": "¿Qué me puede decir de ${topic}, ${addr}?",
     "holmes": "¿Cómo es su hermano, señor?",
-    "watson": "¿Sabe usted que el doctor Watson está de luto, señor?",
-    "lisle": "¿Qué más sabe usted de mí, señor?"
+    "watson": "¿Sabe que el doctor Watson está de luto, señor?",
+    "lisle": "¿Qué más sabe de mí, señor?"
   },
   "lines": [
-    {"id": "af.vive", "layer": "afirmacion", "match": {"assertion": ["vive"]}, "text": "Toma rapé sin prisa. —Eso, señor Lisle, no se dice en este club, ni en ningún otro que yo frecuente."},
-    {"id": "af.otras", "layer": "afirmacion", "match": {"assertion": ["cebo", "canario"]}, "text": "—Mi hermano le habría corregido eso con lápiz azul, señor Lisle. Yo no traigo lápiz."},
+    {"id": "af.vive", "layer": "afirmacion", "match": {"assertion": ["vive"]}, "text": "Toma rapé sin apuro. —Eso, señor Lisle, no se dice en este club, ni en ningún otro que yo frecuente."},
+    {"id": "af.otras", "layer": "afirmacion", "match": {"assertion": ["cebo", "canario"]}, "text": "—Mi hermano le habría corregido eso con lápiz azul, señor Lisle. Yo no traje lápiz."},
 
-    {"id": "hb12_exito", "layer": "tema", "reaction": "HB12", "text": "Mira el asiento sin tocarlo, como quien lee una lápida bien grabada. —{{#exito a:vinculo_mycroft e:mycroft|Su último informe, señor Lisle: ¿me permite dictarle una errata?}} Dicto muy bien; pregúnteselo a mi escribiente."},
+    {"id": "hb12_exito", "layer": "tema", "reaction": "HB12", "text": "Mira la conclusión sin tocarla, como quien lee una lápida bien grabada. —{{#exito a:vinculo_mycroft e:mycroft|Su último informe, señor Lisle: ¿me permite dictarle una corrección a medida para el mayor?}} Dicto muy bien; pregúntele a mi escribiente."},
     {"id": "hb12_error_1", "layer": "tema", "reaction": "HB12", "text": "Aparta el papel con dos dedos, sin leerlo. —{{#error1 a:vinculo_mycroft e:mycroft|Otra vez, señor Lisle: no tengo toda la tarde, y mi escribiente tampoco.}}"},
-    {"id": "hb12_error_2", "layer": "tema", "reaction": "HB12", "text": "Se pone de pie, lo que en él es un acontecimiento. —Ha confundido usted mi pereza con mi ignorancia. {{#error2 a:vinculo_mycroft e:mycroft|Buenas tardes; lo demás se lo dirá la máquina, como siempre.}}"},
+    {"id": "hb12_error_2", "layer": "tema", "reaction": "HB12", "text": "Se pone de pie, lo que en él es todo un acontecimiento. —Usted confundió mi pereza con mi ignorancia. {{#error2 a:vinculo_mycroft e:mycroft|Buenas tardes; lo demás se lo dirá la máquina, como siempre.}}"},
 
     {"id": "duelo", "layer": "tema", "match": {"topic": ["watson", "duelo", "mary_watson", "muerte_de_mary", "crespon", "esposa"]}, "text": "Se queda callado, con el pañuelo rojo en la mano. —{{#volver c:holmes_vive c:watson_privado e:mary_watson|[[holmes|Mi hermano]] no necesitaba más motivos para volver antes de tiempo.}}"},
-    {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes"]}, "text": "Hable de mi hermano en pasado, señor Lisle, como todo Londres. Es más prudente, y mucho menos cansado."},
+    {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes"]}, "text": "Hable de mi hermano en pasado, señor Lisle, como todo Londres. Es más prudente, y mucho menos trabajoso."},
     {"id": "jueves", "layer": "tema", "match": {"topic": ["jueves", "221b", "baker_street", "mrs_hudson"]}, "text": "Un compromiso de familia, señor Lisle. Ya se lo dije una vez, y decir dos veces lo mismo es trabajo."},
-    {"id": "maquina", "layer": "tema", "match": {"topic": ["cotter", "cartas_a_maquina", "remington", "remington_s_alzada", "amigo_de_la_exactitud", "giro_ahorrare", "papel_corto", "matasellos_sw", "hombre_de_la_canastilla"]}, "text": "{{#dicto a:vinculo_mycroft e:mycroft|Yo no escribo a máquina, señor Lisle: dicto, que es más descansado.}} Lo que usted lea después es asunto de la máquina."},
-    {"id": "camden", "layer": "tema", "match": {"topic": ["camden_house", "casa_vacia", "guillotina", "polvo_removido", "libro_de_llaves", "llave", "militar"]}, "text": "Mira hacia [[pall_mall|Pall Mall]] por el mirador, como si usted no hubiera dicho nada, y vuelve al rapé."},
-    {"id": "patron", "layer": "tema", "match": {"topic": ["harris", "moran", "pell", "chico_de_pell", "billetes_de_cinco_libras"]}, "text": "Su mayor paga por adelantado, señor Lisle. Quien paga por adelantado sabe lo que compra: pregúntese qué compró."},
+    {"id": "maquina", "layer": "tema", "match": {"topic": ["cotter", "cartas_a_maquina", "remington", "remington_s_alzada", "amigo_de_la_exactitud", "giro_ahorrare", "papel_corto", "papel_crema_grueso", "matasellos_sw", "hombre_de_la_canastilla"]}, "text": "{{#dicto a:vinculo_mycroft e:mycroft|Yo no escribo a máquina, señor Lisle: dicto, que es más descansado.}} Lo que usted lea después es asunto de la máquina."},
+    {"id": "camden", "layer": "tema", "match": {"topic": ["camden_house", "casa_vacia", "guillotina", "polvo_removido", "libro_de_llaves", "llave", "militar"]}, "text": "Mira hacia [[pall_mall|Pall Mall]] por la ventana, como si usted no hubiera dicho nada, y vuelve al rapé."},
+    {"id": "patron", "layer": "tema", "match": {"topic": ["harris", "moran", "pell", "chico_de_pell", "billetes_de_cinco_libras"]}, "text": "Su mayor paga por adelantado, señor Lisle. El que paga por adelantado sabe lo que compra: pregúntese qué compró."},
     {"id": "lisle", "layer": "tema", "match": {"topic": ["lisle", "galerada", "carta_de_enero"]}, "text": "Usted leyó a mi hermano antes que el público, señor Lisle. Eso tiene un precio, y no siempre lo paga el que lee."},
-    {"id": "pruebas", "layer": "tema", "match": {"topic": ["fina", "pruebas_americanas", "pruebas_de_watson", "raspadura", "pared", "a_pique"]}, "text": "Lo impreso es lo que cuenta, señor Lisle. Lo demás son pruebas, y las pruebas se corrigen."},
+    {"id": "pruebas", "layer": "tema", "match": {"topic": ["fina", "pruebas_americanas", "pruebas_de_watson", "raspadura", "pared", "a_pique"]}, "text": "Lo impreso es lo que cuenta, señor Lisle. Lo demás son pruebas de imprenta, y las pruebas se corrigen."},
     {"id": "club", "layer": "tema", "match": {"topic": ["club_diogenes", "sala_de_forasteros", "pall_mall", "whitehall", "portero"]}, "text": "Vivo enfrente y trabajo a la vuelta de la esquina, señor Lisle. El mundo, para mí, es una calle corta."},
 
     {"id": "gen.1", "layer": "generica", "text": "Toma rapé. —Siga, señor Lisle; lo escucho mejor con los ojos cerrados."},

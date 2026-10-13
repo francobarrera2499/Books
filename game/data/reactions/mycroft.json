@@ -10,7 +10,7 @@
       "ancla": ["seat", "title", "hour"],
       "latencia": {"tipo": "voz_a"},
       "efecto": [{"op": "carta", "entrega": "correo", "plantilla_por": "topic"}],
-      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
         {"tpl": "holmes_prensa_1891", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: los [[guias|guías]] hablaron al [[journal_de_geneve|Journal]], el Journal a [[reuter|Reuter]] y el doctor no habló con nadie.}} {{#tres_fuentes f:refutado a:falsa_reuter e:despacho_reuter|Tres fuentes que son una.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: lea a Reuter.}}"},
         {"tpl": "holmes_cronicas", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: el doctor se equivoca dos veces por página.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: no pierda la vista con la tercera.}}"},
@@ -43,7 +43,7 @@
       "ancla": ["streets", "hour"],
       "latencia": {"tipo": "voz_a"},
       "efecto": [{"op": "carta", "entrega": "correo"}],
-      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
         {"tpl": "calles", "texto": "{{#ancla a:ancla_ks a:me_vigila_de_cerca|[[@act|${itinerario}]]: un hombre de su vista no debería caminar tanto.}}"}
       ],
@@ -58,7 +58,7 @@
       "ancla": ["phrase", "text"],
       "latencia": {"tipo": "voz_a"},
       "efecto": [{"op": "carta", "entrega": "correo"}],
-      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
         {"tpl": "K-T", "when": {"anchor": {"channel": "K-T"}}, "texto": "{{#ancla a:ancla_kt a:me_vigila_de_cerca|[[@act|Su aviso del ${act_day}]]: nadie devuelve lo que no se perdió, señor.}}"},
         {"tpl": "lisle_mudanza.kh", "when": {"anchor": {"channel": "K-H", "topic": "lisle_mudanza"}}, "texto": "{{#ancla a:ancla_kh a:me_vigila_de_cerca|[[@act|Chelsea]] es húmeda para sus ojos, señor.}}"},
@@ -84,7 +84,7 @@
         {"op": "carta", "entrega": "correo", "si_n": [1]},
         {"op": "cerrar", "target": "L4.consulta", "dias": 2, "flag": "consulta_cerrada_hasta", "si_n": [2]}
       ],
-      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
         {"tpl": "1", "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|[[@act|Lo de Kensington, el ${act_day}]]: a un hombre de luto no se le habla de eso.}} {{#duelo a:me_vigila_de_cerca e:duelo h:F.mary_muerte|Deje al doctor su duelo.}}"}
       ],
@@ -162,7 +162,7 @@
         {"op": "flag", "name": "wiggins_quemado", "value": true},
         {"op": "silueta", "who": "muchacho_sin_gorra", "reemplaza": "wiggins"}
       ],
-      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
         {"tpl": "chelin", "texto": "{{#ancla a:ancla_ks a:me_vigila_de_cerca|[[@act|Lo que le contó usted al muchacho de la gorra el ${act_day}]] llegó, y no era cierto.}} {{#chelin a:me_vigila_de_cerca|Un chelín compra a un chico, señor; no compra un hecho.}}"}
       ],
@@ -183,7 +183,7 @@
         {"op": "flag", "name": "watson_avisado", "value": true, "si_n": [1]},
         {"op": "flag", "name": "watson_expuesto", "value": true, "si_n": [2]}
       ],
-      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
         {"tpl": "1", "texto": "{{#hombres a:me_vigila_de_cerca a:busca_a_holmes e:hombres_de_moran|Desde el ${act_day} hay dos hombres frente a la puerta del [[watson|doctor]], y no esperan al doctor.}} {{#aviso a:me_vigila_de_cerca|Puede usted leer lo que él imprimió.}} Lo que no imprimió no es suyo."},
         {"tpl": "2", "texto": "{{#hombres a:me_vigila_de_cerca a:busca_a_holmes e:hombres_de_moran|Los dos hombres siguen frente a la puerta del [[watson|doctor]].}} Se lo dije."}
@@ -221,7 +221,7 @@
         {"op": "carta", "entrega": "correo"},
         {"op": "cerrar", "target": "canal:*", "dias": null}
       ],
-      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
         {"tpl": "K-H", "texto": "{{#ancla a:ancla_kh a:me_vigila_de_cerca|Su experimento con [[@act|Mrs. Hudson]] fue elegante.}} No lo repita."},
         {"tpl": "K-W", "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|Su experimento con [[@act|el doctor]] fue elegante.}} No lo repita."},
@@ -269,7 +269,7 @@
       "ancla": [],
       "latencia": {"tipo": "voz_a"},
       "efecto": [{"op": "carta", "entrega": "correo"}],
-      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}, "firma": "Un amigo de la exactitud"},
+      "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
         {"tpl": "empuje_salir", "texto": "{{#empuje a:me_vigila_de_cerca|Un hombre que no sale no es leído, señor.}}"},
         {"tpl": "empuje_doctor", "texto": "{{#empuje a:me_vigila_de_cerca|El doctor acostumbra equivocarse dos veces en la misma página.}}"},

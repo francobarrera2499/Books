@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-B. Final F2 «El informe fiel» (GDD §12.1): el informe final entregó a Moran datos verdaderos de regreso, lugar o Camden House, sin coordinación. Moran cae igual; Lestrade encuentra los informes de Lisle en Conduit Street; lo interrogan y lo sueltan «a pedido de un caballero que prefiere no figurar» (Mycroft). Lestrade es un cameo sin diálogo: lo narra Lisle. Sin place; when día ≥ 10.",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A). Final F2 «El informe fiel» (GDD §12.1): el informe final entregó a Moran datos verdaderos de regreso, lugar o Camden House, sin coordinación. Moran cae igual; Lestrade encuentra los informes de Lisle en Conduit Street; lo interrogan y lo sueltan «a pedido de un caballero que prefiere no figurar» (Mycroft). Lestrade es un cameo sin diálogo: lo narra Lisle. Sin place; when día ≥ 10.",
   "id": "END.F2",
   "when": {"day": {"gte": 10}},
   "origin": "S.END.F2",
@@ -8,6 +8,6 @@
     {"id": "informes", "who": "lisle", "text": "A mediodía sube [[lestrade|un inspector de cara afilada]] con mis cuatro informes en la mano. Estaban en un cajón de [[conduit_street|Conduit Street]], ordenados por fecha."},
     {"id": "leer", "who": "lisle", "text": "Me pregunta si sé leer. Le digo que es mi oficio."},
     {"id": "suelto", "who": "lisle", "text": "Paso la noche en un banco de [[scotland_yard|Scotland Yard]]. Al alba me sueltan, «a pedido de un caballero que prefiere no figurar»."},
-    {"id": "fiel", "who": "lisle", "text": "Lo que escribí era verdad, y le sirvió al que no debía. Una errata se corrige; un informe fiel, no."}
+    {"id": "fiel", "who": "lisle", "text": "Lo que escribí era verdad, y le sirvió al que no debía. Un error se corrige; un informe fiel, no."}
   ]
 }

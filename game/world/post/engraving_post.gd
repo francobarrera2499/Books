@@ -1,12 +1,19 @@
-# Post-proceso de grabado (W1-POST). Contrato: docs/ARCHITECTURE.md §7.8 · GDD §14.5.
-# Un MeshInstance3D con QuadMesh 2x2 que cuelga de la Camera3D activa y dibuja engraving.gdshader a pantalla
+# Post-proceso del 3D (W1-POST; nombre histórico «grabado»). Contrato: docs/ARCHITECTURE.md §7.8 · GDD §14.5.
+# Un MeshInstance3D con QuadMesh 2x2 que cuelga de la Camera3D activa y dibuja el shader del LOOK activo a pantalla
 # completa (vértice en el plano cercano: POSITION = vec4(VERTEX.xy, 1, 1)). Sólo afecta al 3D: toda CanvasLayer
 # (lector, HUD, libros, subtítulos) se dibuja después y queda intacta.
+# Looks (world/post/looks.gd): el quad nace con Looks.current() y cambia de shader solo cuando cambia la selección
+# (Looks.serial: Opciones «Estilo de imagen», --look=<id>). Por defecto 'aguada' (looks/aguada.gdshader + aguada.json);
+# 'grabado' = looks/grabado.gdshader con DEFAULTS/LOOK_KEYS/PAPER/INK de aquí y Lighting.look (alternativa en Opciones).
+# set_look_id(id) fija otro look en este quad · set_preset(preset, slot) = Looks.params del look. Recién creado (sin
+# preset), el quad usa el papel de tarde y la tinta de su look (Looks.params(id, "tarde", "T")).
 #
 # API (sin class_name; usar con preload):
 #   const EngravingPost = preload("res://world/post/engraving_post.gd")
 #   var post = EngravingPost.attach(camera)        # crea o reutiliza el hijo "EngravingPost" de la cámara
-#   post.set_look(Lighting.look(preset, slot))     # papel por franja + parámetros del preset
+#   post.set_look(Lighting.look(preset, slot))     # papel por franja + parámetros del preset (en otro look: se
+#                                                  # traduce a Looks.params(look_id, preset, slot))
+#   post.set_preset(preset, slot) · post.set_look_id(id) · post.look_id
 #   post.set_slot(slot, preset := "")              # sólo la franja: conserva el preset actual (o el de la franja)
 #   post.set_palette(paper, ink) · post.set_paper(c) · post.set_style("dos_tintas"|"sepia")
 #   post.set_high_contrast(on) · post.set_enabled(on) · post.reanchor() · post.set_param(n, v) / post.param(n)
@@ -28,7 +35,8 @@
 extends MeshInstance3D
 
 const Lighting = preload("res://world/lighting.gd")
-const SHADER_PATH := "res://world/post/engraving.gdshader"
+const Looks = preload("res://world/post/looks.gd")
+const SHADER_PATH := "res://world/post/looks/grabado.gdshader"   # look 'grabado'
 const NODE_NAME := "EngravingPost"
 const LAYER := 1 << 19
 const PAPER := Color("efe6d2")
@@ -38,7 +46,7 @@ const PALETTES := {
 	"sepia": {"paper": Color("f1e3c6"), "ink": Color("4a2f1c")},
 	"alto_contraste": {"paper": Color("ffffff"), "ink": Color("000000")},
 }
-# valores por defecto del shader (los presets de Lighting.look pisan algunos)
+# valores por defecto del shader del look 'grabado' (los presets de Lighting.look pisan algunos)
 const DEFAULTS := {
 	"edge_depth": 0.08, "edge_normal": 0.35, "cell_px": 2.0, "grain": 0.05,
 	"exposure": 1.0, "contrast": 1.5, "hatch": 1.0, "hatch_below": 0.4, "hatch_period": 3.0, "white_line": 0.16,
@@ -58,6 +66,11 @@ var _ink := INK
 var _last_basis := Basis.IDENTITY
 var _have_last := false
 var _look := {}
+var look_id := ""
+var _keys: Array = LOOK_KEYS
+var _defaults: Dictionary = DEFAULTS
+var _base := {"paper": PAPER, "ink": INK}   # papel/tinta del look antes de conocer el preset (tarde)
+var _serial := -1
 
 static func attach(cam: Camera3D) -> MeshInstance3D:
 	var ex := cam.get_node_or_null(NODE_NAME) as MeshInstance3D
@@ -89,12 +102,10 @@ func _init() -> void:
 	ignore_occlusion_culling = true
 	layers = LAYER
 	mat = ShaderMaterial.new()
-	mat.shader = load(SHADER_PATH)
 	mat.render_priority = Material.RENDER_PRIORITY_MAX
 	material_override = mat
-	for k in DEFAULTS:
-		mat.set_shader_parameter(k, DEFAULTS[k])
-	_apply_palette()
+	_serial = Looks.serial
+	_use_look(Looks.current())
 	# El ancla se actualiza con NOTIFICATION_TRANSFORM_CHANGED (la misma notificación con la que la Camera3D manda su
 	# pose al RenderingServer): sigue a la cámara aunque la mueva un Tween (corre después de los _process) o la física.
 	# _process queda de respaldo (p. ej. si sólo cambia el FOV o se reparenta).
@@ -119,7 +130,55 @@ func _notification(what: int) -> void:
 		update_anchor()
 
 func _process(_dt: float) -> void:
+	if _serial != Looks.serial:
+		_serial = Looks.serial
+		if Looks.current() != look_id:
+			set_look_id(Looks.current())
 	update_anchor()
+
+# Cambia el shader del quad al del look `id` (desconocido -> Looks.DEFAULT) y fija sus defaults.
+func _use_look(id: String) -> void:
+	if not Looks.has(id):
+		id = Looks.DEFAULT
+	look_id = id
+	var path := Looks.shader_path(id)
+	if mat.shader == null or mat.shader.resource_path != path:
+		mat.shader = load(path)
+	if path == SHADER_PATH:
+		_keys = LOOK_KEYS
+		_defaults = DEFAULTS
+	else:
+		_keys = []
+		for k in Looks.uniforms(id):
+			if not Looks.RESERVED.has(k):
+				_keys.append(k)
+		_defaults = Looks.defaults(id)
+	for k in _keys:
+		mat.set_shader_parameter(k, _defaults.get(k, null))  # null: el default del shader
+	for k in _defaults:
+		mat.set_shader_parameter(k, _defaults[k])
+	mat.set_shader_parameter("anchor_rad", anchor_rad)
+	var bp := Looks.params(id, "tarde", "T")
+	_base = {"paper": bp.get("paper", PAPER), "ink": bp.get("ink", INK)}
+	if not _look.has("paper"):
+		_paper = _base.paper
+		_ink = _base.ink
+	_apply_palette()
+
+# Fija el look de este quad (sin esperar a la selección global) y rehace los parámetros de su preset y franja.
+func set_look_id(id: String) -> void:
+	_use_look(id)
+	var p := str(_look.get("preset", ""))
+	if p != "":
+		set_look(Looks.params(look_id, p, str(_look.get("slot", "M"))))
+	else:
+		var lk := _look.duplicate()
+		lk.erase("look")
+		set_look(lk)
+
+# preset de Lighting + franja -> parámetros del look activo de este quad
+func set_preset(preset: String, slot: String) -> void:
+	set_look(Looks.params(look_id, preset, slot))
 
 # Acumula el giro incremental de la cámara desde el último frame (en el espacio de la cámara anterior).
 func update_anchor() -> void:
@@ -175,8 +234,8 @@ func set_style(s: String) -> void:
 		_paper = PALETTES[s].paper
 		_ink = PALETTES[s].ink
 	else:
-		_paper = _look.get("paper", PAPER)
-		_ink = _look.get("ink", INK)
+		_paper = _look.get("paper", _base.paper)
+		_ink = _look.get("ink", _base.ink)
 	_apply_palette()
 
 # Sólo la franja (WorldRoot la llama cuando todavía no conoce el preset del lugar): conserva el preset del look
@@ -187,13 +246,20 @@ func set_slot(slot: String, preset := "") -> void:
 		p = str(_look.get("preset", ""))
 	if p == "" or not Lighting.has(p):
 		p = str(Lighting.SLOT_PRESET.get(slot, "tarde"))
-	set_look(Lighting.look(p, slot))
+	set_look(Looks.params(look_id, p, slot))
 
-# look = Lighting.look(preset, slot): {paper, ink, exposure, contrast, haze, ...}
+# look = Looks.params(id, preset, slot) o Lighting.look(preset, slot): {paper, ink, exposure, contrast, haze, ...}.
+# Con "look" distinto del de este quad, cambia de shader; un Lighting.look (con preset, sin "look") en un look que no
+# es de base lighting se traduce a Looks.params de ese look. Un diccionario suelto (sin preset) se aplica tal cual.
 func set_look(look: Dictionary) -> void:
+	var want := str(look.get("look", ""))
+	if want != "" and want != look_id and Looks.has(want):
+		_use_look(want)
+	elif want == "" and look.has("preset") and not Looks.is_base(look_id) and Looks.has(look_id):
+		look = Looks.params(look_id, str(look.preset), str(look.get("slot", "M")))
 	_look = look.duplicate()
-	for k in LOOK_KEYS:
-		mat.set_shader_parameter(k, look.get(k, DEFAULTS[k]))
+	for k in _keys:
+		mat.set_shader_parameter(k, look.get(k, _defaults.get(k, null)))
 	if look.has("paper"):
 		_paper = look.paper
 	if look.has("ink"):
@@ -211,13 +277,14 @@ func _apply_palette() -> void:
 	if mat == null:
 		return
 	if high_contrast:
-		mat.set_shader_parameter("paper", PALETTES.alto_contraste.paper)
-		mat.set_shader_parameter("ink", PALETTES.alto_contraste.ink)
-		mat.set_shader_parameter("grain", 0.0)
+		var hc := Looks.high_contrast(look_id) if look_id != "" and not Looks.is_base(look_id) else PALETTES.alto_contraste
+		mat.set_shader_parameter("paper", hc.paper)
+		mat.set_shader_parameter("ink", hc.ink)
+		mat.set_shader_parameter("grain", float(hc.get("grain", 0.0)))
 	else:
 		mat.set_shader_parameter("paper", _paper)
 		mat.set_shader_parameter("ink", _ink)
-		mat.set_shader_parameter("grain", _look.get("grain", DEFAULTS.grain))
+		mat.set_shader_parameter("grain", _look.get("grain", _defaults.get("grain", null)))
 
 func current_paper() -> Color:
 	return mat.get_shader_parameter("paper")

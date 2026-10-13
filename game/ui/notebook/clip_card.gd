@@ -2,7 +2,8 @@
 # Fila de página: [margen (día de la crónica, a lápiz)] [tira de papel + epígrafe + línea de fuente].
 #   La tira es del ancho de una columna (GDD§8.1): texto con la letra y el papel del documento de origen (la Remington
 #   conserva sus defectos: TextBuilder con machine), miniatura de lámina (Notebook.thumbs[id] o un grabado de reemplazo
-#   que se entiende igual) o la medida. El epígrafe lista TODAS las entidades (Clipper.visible), sin destacar ninguna.
+#   que se entiende igual) o la medida. El pie lista hasta tres entidades (Clipper.visible, en su orden, sin destacar
+#   ninguna) y «+n» con todas al pasar el mouse (GDD_v2 §C.3: nada abrumador a la vista; nada se oculta).
 # Arrastre (DnD nativo, §6.3): datos {"kind":"clip","id"}; vista previa = Chip. Soltar otro recorte (o un par) encima ->
 #   nb.request_link(otro, este) (el par/anidado lo decide el sim). Doble clic -> nb.source_requested(id, copy).
 # Una tarjeta de par (Cotejos) usa ClipCard.strip_for(nb, clip, ancho) para sus dos tiras.
@@ -14,6 +15,7 @@ const TextBuilder = preload("res://ui/reader/text_builder.gd")
 const Model = preload("res://ui/notebook/notebook_model.gd")
 
 const PREVIEW_CHARS := 38
+const FOOT_ENTS := 3
 const SIZE_K := 0.86
 const THUMB_W := 250.0
 
@@ -102,8 +104,17 @@ func _init(p_nb, p_clip: Dictionary, wide := true) -> void:
 	var cap_text := Model.caption_text(clip)
 	if cap_text == "" and String(clip.get("kind", "")) == "plate":
 		cap_text = nb.t("nb.lamina.vacia")
+	var full := cap_text
+	var labels := entity_labels(clip)
+	if labels.size() > FOOT_ENTS and String(clip.get("kind", "text")) != "plate":
+		cap_text = "; ".join(PackedStringArray(labels.slice(0, FOOT_ENTS))) + "  " + nb.t("v2d.nb.mas", {"n": labels.size() - FOOT_ENTS})
+		full = "; ".join(PackedStringArray(labels))
 	var cap := Widgets.caption(cap_text)
+	cap.name = "Pie"
 	cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if full != cap_text:
+		cap.tooltip_text = full
+		cap.mouse_filter = Control.MOUSE_FILTER_PASS   # el arrastre sigue siendo de la tarjeta (sube por PASS)
 	notes.add_child(cap)
 	var src := Widgets.source_line(String(clip.get("src_line", "")))
 	src.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -137,6 +148,14 @@ func _init(p_nb, p_clip: Dictionary, wide := true) -> void:
 
 func set_margin(text: String) -> void:
 	margin_label.text = text
+
+static func entity_labels(c: Dictionary) -> Array:
+	var labels: Array = []
+	for e in c.get("ents", []):
+		var lb := String(e.get("label", "")) if typeof(e) == TYPE_DICTIONARY else ""
+		if lb != "" and not labels.has(lb):
+			labels.append(lb)
+	return labels
 
 # Tira de papel del recorte (también la usan los pares). Ancho fijo = ancho de una columna.
 static func strip_for(p_nb, c: Dictionary, w: float) -> PanelContainer:

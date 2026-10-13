@@ -60,6 +60,32 @@ static func prologue() -> Array:
 		{"t": "sleep"},
 	]
 
+# Prólogo v2 (GDD_v2 §B.7): abrir el encargo, recortar, el aviso y dormir. Deja RC0001 (encargo) y RC0002 (tomo); sin
+# práctica (la primera conclusión es del día 1).
+static func prologue_v2() -> Array:
+	return [
+		{"t": "read", "view": "D23@L1", "part": 0},
+		{"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": 0, "block": 0}, "from": 0, "len": 41},
+		{"t": "clip_text", "src": {"kind": "doc", "ref": "D03@tomo", "part": 0, "block": 0}, "from": 0, "len": 42},
+		{"t": "compose_ad", "form": "testigo", "fields": {"suceso": "suceso_reichenbach"}},
+		{"t": "sleep"},
+	]
+
+# Día 1, primera conclusión con los recortes del prólogo v2 (juntar, hoja, conclusión con sus pruebas, práctica).
+# entry = id que recibirá la conclusión nueva (AS001 si no hay otras).
+static func day1_practice(entry := "", folio := "") -> Array:
+	var e := entry if entry != "" else "AS001"
+	var f := folio if folio != "" else "FO001"
+	return [
+		{"t": "link", "a": "RC0001", "b": "RC0002", "note": "contradice"},
+		{"t": "folio_open", "clip": "RC0002"},
+		{"t": "entry_new", "folio": f, "template": "T1"},
+		{"t": "entry_set", "entry": e, "line": 0, "field": "fuente_a", "value": "fina"},
+		{"t": "entry_support_add", "entry": e, "line": 0, "item": "RC0001"},
+		{"t": "entry_support_add", "entry": e, "line": 0, "item": "RC0002"},
+		{"t": "practice", "entry": e},
+	]
+
 # Avanza sólo con acciones de reloj (quedarse en casa, informes «sin novedad», dormir, salir de escenas) hasta
 # (day, slot) en fase desk. Devuelve "" o el error.
 static func advance_to(sim, day: int, slot: String, max_steps := 200) -> String:

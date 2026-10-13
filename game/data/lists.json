@@ -7,26 +7,26 @@
     {"id": "consultorio", "label": "el consultorio de Watson", "ch": "kw", "entities": ["watson"]},
     {"id": "221b", "label": "221B", "ch": "kh", "entities": ["mrs_hudson"]},
     {"id": "la_calle", "label": "la calle", "ch": "ks", "entities": ["muchacho_de_gorra"]},
-    {"id": "columna", "label": "la columna del Times", "ch": "kt", "entities": ["times"]}
+    {"id": "columna", "label": "los avisos del Times", "ch": "kt", "entities": ["times"]}
   ],
   "estados": ["vivo", "muerto", "desconocido"],
-  "_templates_nota": "GDD §8.4. Rótulos «Campo: ___» con el artículo dentro del rótulo; ninguno presupone un hecho. accept.kinds = tipos de entidad del índice; accept.list = lista cerrada de este archivo (para medios valen también sus entities). Cada línea llena lleva su «según». Ids de campo: T1 fuente_a/dice_a/fuente_b/dice_b · T2 fuente/calla/consta_en · T3 persona/es · T4 documento/redacto · T5 persona/hizo/que/a/con/donde/cuando · T6 persona/relacion/a_quien/por_medio/y_de · T7 persona/estado · T8 persona/lugar/dia · T9 persona/usa_a/como/para/a_quien.",
+  "_templates_nota": "GDD §8.4. Rótulos «Campo: ___» con el artículo dentro del rótulo; ninguno presupone un hecho. accept.kinds = tipos de entidad del índice; accept.list = lista cerrada de este archivo (para medios valen también sus entities). Cada línea llena lleva sus «pruebas». Ids de campo: T1 fuente_a/dice_a/fuente_b/dice_b · T2 fuente/calla/consta_en · T3 persona/es · T4 documento/redacto · T5 persona/hizo/que/a/con/donde/cuando · T6 persona/relacion/a_quien/por_medio/y_de · T7 persona/estado · T8 persona/lugar/dia · T9 persona/usa_a/como/para/a_quien.",
   "templates": {
-    "T1": {"name": "Errata", "lines": [
+    "T1": {"name": "Contradicción", "lines": [
       {"fields": [{"id": "fuente_a", "label": "Fuente A: ___", "accept": {"kinds": ["documento", "persona"]}}, {"id": "dice_a", "label": "Dice: ___", "accept": {"kinds": ["concepto", "objeto", "fecha", "persona", "lugar", "suceso", "documento"]}}]},
       {"fields": [{"id": "fuente_b", "label": "Fuente B: ___", "accept": {"kinds": ["documento", "persona"]}}, {"id": "dice_b", "label": "Dice: ___", "accept": {"kinds": ["concepto", "objeto", "fecha", "persona", "lugar", "suceso", "documento"]}}]}
     ]},
     "T2": {"name": "Omisión", "lines": [
-      {"fields": [{"id": "fuente", "label": "Fuente: ___", "accept": {"kinds": ["documento", "persona"]}}, {"id": "calla", "label": "Calla: ___", "accept": {"kinds": ["concepto", "objeto", "fecha", "persona", "lugar", "suceso"]}}]},
-      {"fields": [{"id": "consta_en", "label": "Consta en: ___", "accept": {"kinds": ["documento", "persona"]}}]}
+      {"fields": [{"id": "fuente", "label": "Fuente: ___", "accept": {"kinds": ["documento", "persona"]}}, {"id": "calla", "label": "No dice: ___", "accept": {"kinds": ["concepto", "objeto", "fecha", "persona", "lugar", "suceso"]}}]},
+      {"fields": [{"id": "consta_en", "label": "Sí aparece en: ___", "accept": {"kinds": ["documento", "persona"]}}]}
     ]},
     "T3": {"name": "Identidad", "lines": [
       {"fields": [{"id": "persona", "label": "Persona: ___", "accept": {"kinds": ["persona"]}}]},
-      {"fields": [{"id": "es", "label": "Es, en verdad: ___", "accept": {"kinds": ["persona"]}}]}
+      {"fields": [{"id": "es", "label": "En realidad es: ___", "accept": {"kinds": ["persona"]}}]}
     ]},
     "T4": {"name": "Autoría", "lines": [
       {"fields": [{"id": "documento", "label": "Documento: ___", "accept": {"kinds": ["documento"]}}]},
-      {"fields": [{"id": "redacto", "label": "Lo redactó: ___", "accept": {"kinds": ["persona"]}}]}
+      {"fields": [{"id": "redacto", "label": "Lo escribió: ___", "accept": {"kinds": ["persona"]}}]}
     ]},
     "T5": {"name": "Hecho", "lines": [
       {"fields": [{"id": "persona", "label": "Persona: ___", "accept": {"kinds": ["persona"]}}, {"id": "hizo", "label": "Hizo: ___", "accept": {"list": "verbos"}}, {"id": "que", "label": "Qué o a quién: ___", "accept": {"kinds": ["persona", "objeto", "documento", "concepto", "lugar"]}}]},
@@ -105,7 +105,7 @@
     "go": {"text": "${fecha}, ${franja}: [[@act|${lugar}]].", "tags": ["a:acto_ks"]},
     "go.L3": {"text": "${fecha}, ${franja}: [[@act|Baker Street]], visita al 221B.", "tags": ["a:acto_ks", "a:acto_kh"]},
     "go.L3.calle": {"text": "${fecha}, ${franja}: [[@act|Baker Street]], la calle.", "tags": ["a:acto_ks"]},
-    "go.L3.agente": {"text": "${fecha}, ${franja}: [[@act|Baker Street]], la oficina del agente de fincas.", "tags": ["a:acto_ks"]},
+    "go.L3.agente": {"text": "${fecha}, ${franja}: [[@act|Baker Street]], la agencia de alquileres.", "tags": ["a:acto_ks"]},
     "stay": {"text": "${fecha}, ${franja}: en casa.", "tags": []},
     "slip": {"text": "${fecha}, ${franja}: Sala de Lectura, [[@act|asiento ${seat}]]; pedí ${titulo}.", "tags": ["a:acto_kbm"]},
     "say": {"text": "${fecha}, ${franja}: ${lugar}; le dije a ${quien}: [[@act|«${frase}»]]", "tags": []},
@@ -137,5 +137,15 @@
     {"cat": "falso_verificable", "entry_template_values": {"T8": {"lugar": ["@londres_falso"]}}},
     {"cat": "respuesta_s", "clip_voice": ["B"]}
   ],
-  "_report_cats_nota": "Lo que Moran ve en cada elemento de un informe (GDD §7.3, §9.7): un asiento por lo que DICEN sus campos visibles, nunca por la respuesta oculta de una conclusión (si no, Moran sería un oráculo de corrección: §9.4, §11). entry_match = [{tpl ('*' = cualquiera), all: {campo ('*' = cualquiera): [valores]}}], basta una forma con TODOS sus campos; entry_template_values = algún campo de una plantilla con uno de esos valores; entry_conclusions (sólo verdadero) = los valores coinciden con los de esa conclusión y, con entry_ink, el asiento está en tinta (sellado: un lápiz sin fundamento no da crédito); un recorte por sus etiquetas c:, por las visible_cats de su doc o por la clase de su ejemplar. M1 original_p · M2 holmes_vive · M3 watson_privado · M4 moran_autor · M5 camden/regreso_jueves · M9 falso_verificable (@londres_falso = lugar de london_places que no es el verdadero) · M12 paradero_extranjero · crédito: verdadero · F2: holmes_vive/regreso_jueves/baker_street/camden · respuesta_s: recorte de una respuesta firmada «—S.» (voz B, procedencia visible), variante de M8."
+  "_report_cats_nota": "Lo que Moran ve en cada elemento de un informe (GDD §7.3, §9.7): un asiento por lo que DICEN sus campos visibles, nunca por la respuesta oculta de una conclusión (si no, Moran sería un oráculo de corrección: §9.4, §11). entry_match = [{tpl ('*' = cualquiera), all: {campo ('*' = cualquiera): [valores]}}], basta una forma con TODOS sus campos; entry_template_values = algún campo de una plantilla con uno de esos valores; entry_conclusions (sólo verdadero) = los valores coinciden con los de esa conclusión y, con entry_ink, el asiento está en tinta (sellado: un lápiz sin fundamento no da crédito); un recorte por sus etiquetas c:, por las visible_cats de su doc o por la clase de su ejemplar. M1 original_p · M2 holmes_vive · M3 watson_privado · M4 moran_autor · M5 camden/regreso_jueves · M9 falso_verificable (@londres_falso = lugar de london_places que no es el verdadero) · M12 paradero_extranjero · crédito: verdadero · F2: holmes_vive/regreso_jueves/baker_street/camden · respuesta_s: recorte de una respuesta firmada «—S.» (voz B, procedencia visible), variante de M8.",
+  "preguntas": [
+    {"id": "q.pell.1", "src": "D23#punto_uno", "who": "pell"},
+    {"id": "q.pell.2", "src": "D23#punto_dos", "who": "pell"},
+    {"id": "q.pell.3", "src": "D23#punto_tres", "who": "pell"},
+    {"id": "q.m6", "src": "S:M6.donde"},
+    {"id": "q.m7", "src": "S:M7.donde_duerme"},
+    {"id": "q.hc06", "src": "S:HC06.g"},
+    {"id": "q.m8", "src": "R:M8.*", "who": "pell"}
+  ],
+  "_preguntas_nota": "GDD_v2 §B.5/§B.6.1 (PROGRESIÓN): página «Lo que me preguntaron» y la línea 6 de Pendientes. Son CITAS de personajes (el juego no redacta preguntas propias): doc#tramo (aparece cuando el documento está en casa), S:escena.línea (cuando se dijo), R:reacción.* (cuando se entregó). who: quién la dijo si la fuente no lo trae. Nunca se marcan resueltas ni pendientes."
 }

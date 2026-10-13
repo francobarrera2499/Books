@@ -51,7 +51,8 @@ static func build_book_pile(p: Dictionary) -> Node3D:
 
 # ======================================================================================
 # tome_set(n): juego de n tomos iguales encuadernados en piel, en pie entre sujetalibros; números en los lomos.
-# Extras: numbers (def true), mat, h, t, missing (índices 0-based que faltan → hueco).
+# Extras: numbers (def true), first (número del primer tomo, def 1: los de la Strand de Lisle van del II al VI), mat, h,
+# t, missing (índices 0-based que faltan → hueco).
 static func build_tome_set(p: Dictionary) -> Node3D:
 	var root := M.root("tome_set")
 	var n := clampi(M.pi_(p, "n", 5), 1, 20)
@@ -69,7 +70,7 @@ static func build_tome_set(p: Dictionary) -> Node3D:
 			M.box(root, Vector3(t - 0.002, 0.006, 0.004), Vector3(cx, h * yy, d / 2 + 0.001), "laton")
 		M.box(root, Vector3(t - 0.012, 0.05, 0.003), Vector3(cx, h * 0.72, d / 2 + 0.001), "madera_negra")
 		if M.pb(p, "numbers", true):
-			M.label3d(root, romans[i], Vector3(cx, h * 0.5, d / 2 + 0.003), 0.00055, 48, Color("a08040"))
+			M.label3d(root, romans[clampi(i + M.pi_(p, "first", 1) - 1, 0, romans.size() - 1)], Vector3(cx, h * 0.5, d / 2 + 0.003), 0.00055, 48, Color("a08040"))
 	for sx: float in [-1.0, 1.0]:
 		var bx := sx * (n * t / 2 + 0.012)
 		M.box(root, Vector3(0.018, 0.18, 0.14), Vector3(bx, 0.09, 0), "bronce")
@@ -214,7 +215,10 @@ static func build_stamp(p: Dictionary) -> Node3D:
 static func build_ink_pot(p: Dictionary) -> Node3D:
 	var root := M.root("ink_pot")
 	M.box(root, Vector3(0.06, 0.05, 0.06), Vector3(0, 0.025, 0), "vidrio")
-	M.box(root, Vector3(0.045, 0.035, 0.045), Vector3(0, 0.0185, 0), "tinta")
+	# la tinta llena el frasco hasta el cuello y un collarín de latón lleva la tapa: el vidrio no escribe profundidad y, con
+	# la tinta baja, la tapa parecía flotar (playtest v2)
+	M.box(root, Vector3(0.045, 0.044, 0.045), Vector3(0, 0.023, 0), "tinta")
+	M.cyl(root, 0.012, 0.012, 0.006, Vector3(0, 0.048, 0), "laton", Vector3.ZERO, 12)
 	M.cyl(root, 0.014, 0.016, 0.018, Vector3(0, 0.058, 0), "laton", Vector3.ZERO, 12)
 	M.cyl(root, 0.004, 0.004, 0.16, Vector3(0.06, 0.006, 0.02), "madera_negra", Vector3(0, 20, 90), 8)
 	M.cyl(root, 0.0, 0.004, 0.02, Vector3(-0.015, 0.006, 0.05), "laton", Vector3(0, 20, 90), 6)
@@ -270,7 +274,8 @@ static func build_coins(p: Dictionary) -> Node3D:
 static func build_tray(p: Dictionary) -> Node3D:
 	var root := M.root("tray")
 	var w := M.pf(p, "w", 0.34); var d := M.pf(p, "d", 0.26)
-	var mat := M.ps(p, "mat", "madera_media")
+	# v2 (GDD_v2 §D.4): madera clara para que la bandeja se despegue del cuero oscuro del escritorio con la aguada
+	var mat := M.ps(p, "mat", "madera_clara")
 	for lvl in 2:
 		var y := lvl * 0.09
 		M.box(root, Vector3(w, 0.008, d), Vector3(0, y + 0.004, 0), mat)

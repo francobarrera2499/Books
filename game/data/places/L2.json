@@ -678,7 +678,7 @@
      0.8
     ]
    },
-   "examine": "Junto a la canastilla de las papeletas, en el mostrador, un hombre delgado con un [[fajo_de_papel|fajo de papel]] bajo el brazo lee cada [[papeleta|papeleta]] (título y número de [[asiento|asiento]]) antes de pasársela al mozo.",
+   "examine": "Un hombre delgado, con un [[fajo_de_papel|fajo de papel]] bajo el brazo, junto a la canastilla de los pedidos del mostrador: lee cada [[papeleta|pedido]] (título y número de [[asiento|asiento]]) antes de pasárselo al empleado.",
    "tags": [
     "a:me_vigila_de_cerca",
     "e:hombre_de_la_canastilla",
@@ -707,7 +707,7 @@
      0.42
     ]
    },
-   "examine": "Al lado de un puesto vacío, un [[cesto|cesto]] lleno de [[tiras_de_papel|tiras]] cortadas del borde de arriba de pliegos de carta; en una se lee, impreso: «…GENES CLUB · [[pall_mall|PALL MALL]]…».",
+   "examine": "Un [[cesto|cesto]] junto a un puesto vacío, lleno de [[tiras_de_papel|tiras]] de un centímetro cortadas del borde de arriba de hojas de [[papel_crema_grueso|papel crema grueso]]; en una se lee, en letras grabadas: «…GENES CLUB · [[pall_mall|PALL MALL]]…».",
    "tags": [
     "a:vinculo_mycroft",
     "e:cesto",
@@ -735,7 +735,7 @@
      0.62
     ]
    },
-   "examine": "Un puesto ocupado sin nadie: una resma de papel de cartas a la que le falta el borde de arriba, tiras sueltas, una tijera abierta y un tintero.",
+   "examine": "Un puesto ocupado sin nadie: una resma de [[papel_crema_grueso|papel crema grueso]] a la que le falta el borde de arriba, tiras sueltas de un centímetro, una tijera abierta y un tintero.",
    "tags": [
     "e:membrete_recortado",
     "e:tijera"
@@ -784,7 +784,7 @@
      1.25
     ]
    },
-   "examine": "El mostrador circular del centro: ahí se dejan las papeletas y se devuelven los libros.",
+   "examine": "El mostrador circular del centro: ahí se dejan los pedidos y se devuelven los libros.",
    "tags": [
     "e:canastilla"
    ],
@@ -808,7 +808,7 @@
      0.9
     ]
    },
-   "examine": "En el centro, sobre una tarima con baranda de latón, el escritorio del [[superintendente_bm|superintendente]].",
+   "examine": "Una tarima con baranda de latón en el centro de la sala; sobre ella, el escritorio del [[superintendente_bm|superintendente]].",
    "tags": [
     "e:superintendente_bm"
    ],
@@ -843,7 +843,7 @@
   {
    "id": "papeletas",
    "prop": "centro",
-   "noun": "papeletas",
+   "noun": "pedidos",
    "anchor": {
     "c": [
      1.197,
@@ -856,7 +856,7 @@
      0.42
     ]
    },
-   "examine": "Formularios en blanco sobre el atril del catálogo: blancos para libros impresos, verdes para manuscritos. En cada uno se anota la signatura y el número de [[asiento|asiento]].",
+   "examine": "Formularios de pedido sobre el atril del catálogo: blancos para libros impresos, verdes para manuscritos. En cada uno se anota el número del libro y el número de [[asiento|asiento]].",
    "tags": [
     "e:papeleta",
     "e:asiento"
@@ -978,7 +978,7 @@
      1.7
     ]
    },
-   "examine": "[[lectores_bm|Lectores]] inclinados sobre sus libros; nadie levanta la vista. Sólo se oye una pluma.",
+   "examine": "[[lectores_bm|Lectores]] inclinados sobre sus libros; nadie levanta la vista. Solo se oye una pluma.",
    "tags": [
     "e:lectores_bm"
    ],
@@ -989,7 +989,7 @@
   {
    "id": "mozo",
    "prop": "mozo",
-   "noun": "mozo",
+   "noun": "empleado",
    "anchor": {
     "c": [
      -1.75,
@@ -1002,7 +1002,7 @@
      1.3
     ]
    },
-   "examine": "Un [[mozo|mozo]] empuja un carrito de libros por el pasillo, de puesto en puesto.",
+   "examine": "Un [[mozo|empleado]] empuja un carrito de libros por el pasillo, de puesto en puesto.",
    "tags": [
     "e:mozo"
    ],
@@ -1050,7 +1050,7 @@
      0.8
     ]
    },
-   "examine": "Arriba, el tambor de la [[cupula_bm|cúpula]], con ventanas entre los nervios; más arriba, el casquete y un óculo de vidrio.",
+   "examine": "La [[cupula_bm|cúpula]], arriba: un anillo de ventanas y, en lo más alto, una claraboya redonda de vidrio.",
    "tags": [
     "e:cupula_bm"
    ],
@@ -1096,7 +1096,7 @@
      0.7
     ]
    },
-   "examine": "La puerta de la [[sala_de_lectura|Sala de Lectura]], de dos hojas forradas de cuero; los visitantes sin billete sólo pueden mirar desde ahí.",
+   "examine": "La puerta de la [[sala_de_lectura|Sala de Lectura]], de dos hojas forradas de cuero; los visitantes sin carnet solo pueden mirar desde ahí.",
    "tags": [
     "e:sala_de_lectura"
    ],

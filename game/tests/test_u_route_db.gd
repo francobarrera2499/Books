@@ -162,7 +162,11 @@ func test_measure_refs_follow_clipper():
 	eq(m.origin, "S.HC06")
 	eq(m.exemplar, "scene:HC06")
 	eq(m.mask, Av.open_mask(r, "L5", "forasteros"))
-	var ha1 := RouteDB.resolve(r, "M:HA1.papel")
+	# M: de una reacción: lee doc.measure (GDD_v2 §C.5.6: sin uso en el contrato; los datos lo pierden). Con un doc parcheado.
+	var ha1r: Dictionary = r.reaction("HA1").duplicate(true)
+	ha1r.doc["measure"] = {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}
+	ha1r.doc["paper_mm"] = [203, 244]
+	var ha1 := RouteDB.resolve(PatchRepo.new(r, {"reactions": {"HA1": ha1r}}), "M:HA1.papel")
 	eq(ha1.missing, "", "doc de la reacción con measure y paper_mm")
 
 func test_missing_refs():
@@ -221,3 +225,22 @@ func test_all_frags_universe():
 	ok(refs.has("S:HC06.b_kh"))
 	ok(refs.has("L:wiggins.conduit"))
 	ok(refs.has("R:HB2.pared.3"))
+
+# GDD_v2 §C.5: la descripción física se cita como D#fisica (documento estático; DataRepo inyecta el tramo) y como
+# R:<rid>.fisica (papel que entrega la reacción; plantilla de data/fisica.json por doc.entity).
+func test_fisica_refs():
+	var r = repo()
+	var d := RouteDB.resolve(r, "D46#fisica", "D46@L5")
+	eq(String(d.missing), "", "D46#fisica se resuelve")
+	ok((d.tags as Array).has("a:vinculo_mycroft"), str(d.tags))
+	ok((d.ents as Array).has("papel_crema_grueso"), str(d.ents))
+	var h := RouteDB.resolve(r, "R:HA1.fisica")
+	eq(String(h.missing), "", "R:HA1.fisica se resuelve")
+	eq(h.tags, ["a:me_vigila_de_cerca"])
+	ok((h.ents as Array).has("papel_crema_grueso"), str(h.ents))
+	eq(String(h.origin), "R.HA1")
+	eq(String(h.cls), "P", "la carta original es clase P")
+	ok(int(h.mask) != 0, "se puede obtener")
+	var x := RouteDB.resolve(r, "R:HB3.fisica")
+	ok(String(x.missing) != "" or (x.tags as Array).is_empty(), "un papel sin etiquetas no aporta a ninguna conclusión")
+

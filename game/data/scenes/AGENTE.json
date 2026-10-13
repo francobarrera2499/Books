@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-A. AGENTE: la oficina del agente de fincas de Baker Street (L3, área agente) desde el lunes 2 de abril (día 7), cuando está el chico (no el domingo; el área cierra después del día 9). Escena automática: el chico recibe a Lisle como a un inquilino y le repite lo único que sabe (canon_bible F.camden_preparada: la casa de enfrente la anda viendo un militar que se llevó una llave el lunes; en el libro de llaves figura «mayor Harris», D32). Contrato §4.8: S:AGENTE.militar (C13.R2/R2b con S:PRO.cace_india: a:escondite_preparado + f:secreto_camden; e:harris enlaza por clave con S:PRO.cace_india, camden_house con los nodos de L8 y cheroot con D10#apostarse (C13.R2b) y con la ceniza de L8). La variante del día 7 sólo cambia «el lunes» por «esta mañana» y conserva el tramo (§12.2 D7); la de la mañana del 7 manda volver a la tarde, porque L8 abre desde 7.T (schedule). Línea inmutable (GDD §9.8: «la línea del chico del agente»). Origen real del recorte = la visita; S.AGENTE es el origen del modelo de rutas.",
+  "_nota": "W3-CT-DLG-A; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A.1: «agencia de alquileres», «vereda»; el tramo #militar no cambia de etiquetas). AGENTE: la oficina de la agencia de alquileres de Baker Street (L3, área agente) desde el lunes 2 de abril (día 7), cuando está el chico (no el domingo; el área cierra después del día 9). Escena automática: el chico recibe a Lisle como a un inquilino y le repite lo único que sabe (canon_bible F.camden_preparada: la casa de enfrente la anda viendo un militar que se llevó una llave el lunes; en el libro de llaves figura «mayor Harris», D32). Contrato §4.8: S:AGENTE.militar (C13.R2/R2b con S:PRO.cace_india: a:escondite_preparado + f:secreto_camden; e:harris enlaza por clave con S:PRO.cace_india, camden_house con los nodos de L8 y cheroot con D10#apostarse (C13.R2b) y con la ceniza de L8). La variante del día 7 sólo cambia «el lunes» por «esta mañana» y conserva el tramo (§12.2 D7); la de la mañana del 7 manda volver a la tarde, porque L8 abre desde 7.T (schedule). Línea inmutable (GDD §9.8: «la línea del chico del agente»). Origen real del recorte = la visita; S.AGENTE es el origen del modelo de rutas.",
   "id": "AGENTE",
   "place": "L3",
   "area": "agente",
@@ -7,13 +7,13 @@
   "when": {"all": [{"day": {"gte": 7, "lte": 9}}, {"not": {"weekday": "dom"}}]},
   "origin": "S.AGENTE",
   "lines": [
-    {"id": "pregon", "who": "chico_del_agente", "text": "Se levanta de un salto detrás del mostrador, como le han enseñado. —¿Busca casa, señor? Las tenemos todas, de [[portman_square|Portman Square]] para arriba."},
-    {"id": "militar", "who": "chico_del_agente", "text": "Señala con la barbilla la acera de enfrente. —Esa de ahí la anda viendo un militar. {{#militar a:escondite_preparado f:secreto_camden e:camden_house e:harris|Un tal [[harris|mayor Harris]], con un [[cheroot|cheroot]] en la boca, se llevó el lunes la llave de [[camden_house|Camden House]] para ver la casa, y todavía no la ha devuelto.}}"},
+    {"id": "pregon", "who": "chico_del_agente", "text": "Se levanta de un salto detrás del mostrador, como le enseñaron. —¿Busca casa, señor? Las tenemos todas, de [[portman_square|Portman Square]] para arriba."},
+    {"id": "militar", "who": "chico_del_agente", "text": "Señala con el mentón la vereda de enfrente. —Esa de ahí la anda viendo un militar. {{#militar a:escondite_preparado f:secreto_camden e:camden_house e:harris|Un tal [[harris|mayor Harris]], con un [[cheroot|cheroot]] en la boca, se llevó el lunes la llave de [[camden_house|Camden House]] para ver la casa, y todavía no la devolvió.}}"},
     {"id": "otra_llave", "who": "chico_del_agente", "text": "Si quiere verla por dentro, el patrón tiene otra llave y yo lo acompaño, señor. Es cruzar la calle."}
   ],
   "variants": [
     {"when": {"day": 7}, "replace": {
-      "militar": "Señala con la barbilla la acera de enfrente. —Esa de ahí la anda viendo un militar. {{#militar a:escondite_preparado f:secreto_camden e:camden_house e:harris|Un tal [[harris|mayor Harris]], con un [[cheroot|cheroot]] en la boca, se llevó esta mañana la llave de [[camden_house|Camden House]] para ver la casa, y todavía no la ha devuelto.}}"
+      "militar": "Señala con el mentón la vereda de enfrente. —Esa de ahí la anda viendo un militar. {{#militar a:escondite_preparado f:secreto_camden e:camden_house e:harris|Un tal [[harris|mayor Harris]], con un [[cheroot|cheroot]] en la boca, se llevó esta mañana la llave de [[camden_house|Camden House]] para ver la casa, y todavía no la devolvió.}}"
     }},
     {"when": {"all": [{"day": 7}, {"slot": ["M"]}]}, "replace": {
       "otra_llave": "Si quiere verla por dentro, el patrón tiene otra llave; vuelva esta tarde y yo lo acompaño, señor."

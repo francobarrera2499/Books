@@ -1,0 +1,26 @@
+{
+  "_nota": "DESPEJE-UI (GDD_v2 §C). Textos nuevos del revelado progresivo de las vistas (lector, cuaderno, libro de conclusiones, escena, bandeja, catálogo). Interfaz en infinitivo, botones de ≤3 palabras, ayudas de una línea (≤12 palabras) que se muestran sólo hasta el primer uso de su control. Español neutro (GDD_v2 §A.3). TEXTOS-UI los revisa por estilo.",
+  "text": {
+    "v2d.reader.zoom_volver": "Volver al tamaño de lectura",
+    "v2d.nb.mas": "+${n}",
+    "v2d.lg.mas_tipos": "Más tipos…",
+    "v2d.lg.como": "Cómo se anota una conclusión",
+    "v2d.lg.ayuda.hoja": "Para empezar, soltar un recorte en «Nueva hoja».",
+    "v2d.lg.ayuda.conclusion": "Elegir un tipo y llenar sus campos con lo recortado.",
+    "v2d.lg.ayuda.pruebas": "Arrastrar acá el recorte o el par que lo prueba.",
+    "v2d.lg.sello.tinta": "El sello tiene tinta.",
+    "v2d.lg.sello.seco": "El sello no tiene tinta hasta el próximo turno.",
+    "v2d.sc.conversacion": "De esta conversación",
+    "v2d.sc.recientes": "Recientes",
+    "v2d.sc.todo": "Todo el índice",
+    "v2d.tray.anteriores": "Días anteriores",
+    "v2d.cat.recientes": "Recientes",
+    "v2d.cat.ayuda": "Elegir una entrada para ver sus fichas.",
+    "v2d.cat.cambiar": "cambiar",
+    "v2d.cat.cambiar_t": "Asiento",
+    "v2d.cat.asiento_q": "Asiento para la próxima visita:",
+    "v2d.cat.proxima": "la próxima vez, ${n}",
+    "v2d.cat.pedidos": "Pedidos que quedan para esta visita (tres por visita).",
+    "v2d.cat.sin_indice": "Nada en mi índice con «${que}»: primero tengo que recortarlo."
+  }
+}

@@ -43,7 +43,7 @@ func drive(_tool, _scene) -> void:
 	print("SIN ÍNDICE (C2,C3,C4,C11): %s" % str(Integ.unreachable_answers(repo, ["C2", "C3", "C4", "C11"])))
 
 const MINE := ["D02", "D03", "D04", "D05", "D06", "D07", "D08", "D29a", "D29b", "D29c"]
-const KEEP_ENT := ["core.json", "struct.json", "places_a.json", "places_b.json", "places_c.json", "ct_reich.json"]
+const KEEP_ENT := ["core.json", "struct.json", "places_a.json", "places_b.json", "places_c.json", "ct_reich.json", "v2_fisica.json"]
 const SKIP_DIRS := ["docs", "dialogue", "scenes", "catalog"]
 
 func _build_iso() -> String:

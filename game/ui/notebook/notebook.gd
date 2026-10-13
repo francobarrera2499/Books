@@ -19,6 +19,10 @@
 #   si maneja su pila y llama a back()) · handle_keys (fe_tijera en la pestaña Diario) · backdrop (velo que oscurece el
 #   3D; clic en el velo cierra) · sounds.
 # Todo texto sale de ui_text (data/ui_text/notebook.json, prefijo nb.) o de las consultas q_* del sim.
+# GDD_v2 §C.3 (revelado progresivo, banderas de q_ui): al principio no hay pestañas, sólo la lista de recortes. Cada
+#   pestaña aparece con su bandera (Índice nb.indice · Pares nb.pares · Diario nb.diario · Curiosidades nb.curiosidades);
+#   con una sola pestaña posible no se dibuja la fila de pestañas. La búsqueda, los filtros y la agrupación por mes los
+#   decide tab_clips con nb.buscar / nb.filtros / nb.agrupar. Lo que apareció no vuelve a desaparecer (lo asegura q_ui).
 extends Control
 
 signal opened
@@ -38,6 +42,9 @@ const TabIndex = preload("res://ui/notebook/tab_index.gd")
 const TabPairs = preload("res://ui/notebook/tab_pairs.gd")
 const TabDiary = preload("res://ui/notebook/tab_diary.gd")
 const TabMarginalia = preload("res://ui/notebook/tab_marginalia.gd")
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
+# pestaña -> bandera de q_ui que la muestra ("" = siempre)
+const TAB_FLAG := {"recortes": "", "indice": "nb.indice", "cotejos": "nb.pares", "diario": "nb.diario", "marginalia": "nb.curiosidades"}
 
 const TABS := ["recortes", "indice", "cotejos", "diario", "marginalia"]
 # Lo que cambia algo del cuaderno (los asientos y folios no: el libro mayor puede estar abierto al lado sin rehacerlo).
@@ -94,6 +101,7 @@ var _fly: Control
 var _fade_tw: Tween = null
 var _refresh_pending := false
 var _cache_look := {}
+var flags := {}                   # q_ui() del último refresco (revelado progresivo)
 
 func _init() -> void:
 	name = "Cuaderno"
@@ -140,6 +148,9 @@ func open(p_tab := "") -> void:
 	var was := _open
 	_open = true
 	visible = true
+	_sync_flags()
+	if not tab_available(tab):
+		tab = "recortes"
 	_sync_with_shell()
 	_layout()
 	show_tab(tab)
@@ -177,7 +188,7 @@ func is_open() -> bool:
 
 func show_tab(p_tab: String) -> void:
 	_build()
-	if not TABS.has(p_tab):
+	if not TABS.has(p_tab) or not tab_available(p_tab):
 		return
 	var changed := p_tab != tab
 	if changed and tab == "diario":
@@ -228,8 +239,37 @@ func clear_filters() -> void:
 
 func refresh() -> void:
 	mark_all_dirty()
+	_sync_flags()
 	if _open:
 		_refresh_tab(tab)
+
+# ¿Esta pestaña ya existe? (GDD_v2 §C.2; sin partida, todas)
+func tab_available(tb: String) -> bool:
+	var f := String(TAB_FLAG.get(tb, ""))
+	return f == "" or UiFlags.on(flags, f)
+
+func available_tabs() -> Array:
+	var out: Array = []
+	for tb in TABS:
+		if tab_available(tb):
+			out.append(tb)
+	return out
+
+func flag(name: String) -> bool:
+	return UiFlags.on(flags, name)
+
+# Relee q_ui y muestra sólo las pestañas que existen; con una sola, sin fila de pestañas (queda «Volver»).
+func _sync_flags() -> void:
+	flags = UiFlags.of(sim())
+	if not _built:
+		return
+	var av := available_tabs()
+	for tb in TABS:
+		(_tab_buttons[tb] as Button).visible = av.size() > 1 and av.has(tb)
+	if not av.has(tab):
+		show_tab("recortes")
+	_place_ledger_ribbon()
+	_fit_tabs.call_deferred()
 
 func mark_all_dirty() -> void:
 	for tb in TABS:
@@ -332,10 +372,14 @@ func toggle_tijera() -> void:
 				if p != null and p.has_method("toggle_tijera"):
 					p.toggle_tijera()
 					return
+	if not tab_available("diario") or not flag("desk.tijera"):
+		return
 	show_tab("diario")
 	_set_scissors(true)
 
 func set_tijera(on: bool) -> void:
+	if on and not tab_available("diario"):
+		return
 	if on and tab != "diario":
 		show_tab("diario")
 	_set_scissors(on)
@@ -347,8 +391,14 @@ static func store_thumb(clip_id: String, tex: Texture2D) -> void:
 		thumbs[clip_id] = tex
 
 func debug_state() -> Dictionary:
+	var vis_tabs: Array = []
+	if _built:
+		for tb in TABS:
+			if (_tab_buttons[tb] as Button).visible:
+				vis_tabs.append(tb)
 	var out := {"open": _open, "tab": tab, "layout": layout, "filters": filters.duplicate(), "overlay": _overlay_panel != null,
-		"note": _note_label.text if _note != null and _note.visible else "", "wide": is_wide()}
+		"note": _note_label.text if _note != null and _note.visible else "", "wide": is_wide(), "tabs": vis_tabs,
+		"ribbon": _ledger_ribbon != null and _ledger_ribbon.visible}
 	for tb in TABS:
 		if _pages.has(tb):
 			out[tb] = _pages[tb].debug_state()
@@ -417,7 +467,7 @@ func ent_label(id: String) -> String:
 	if r != null and id != "":
 		var e: Dictionary = r.entity(id)
 		if not e.is_empty():
-			return String(e.get("index", e.get("name", id)))
+			return preload("res://core/deduction/index.gd").display(r, id)
 	return id
 
 func known_ids() -> Dictionary:
@@ -737,6 +787,8 @@ func fly_strip(text: String, from_canvas: Vector2) -> void:
 	strip.position = inv * from_canvas - sz * 0.5
 	strip.rotation_degrees = -1.5
 	var tb: Button = _tab_buttons["recortes"]
+	if not tb.visible:
+		tb = _close_btn
 	var target: Vector2 = inv * (tb.get_global_transform_with_canvas() * (tb.size * 0.5)) - sz * 0.5
 	var tw := strip.create_tween()
 	tw.set_parallel(true)
@@ -903,7 +955,7 @@ func _open_ledger(drop: Dictionary) -> void:
 func _place_ledger_ribbon() -> void:
 	if _ledger_ribbon == null:
 		return
-	var want: bool = _open and shell != null and shell.has_method("is_open") and not bool(shell.is_open("ledger"))
+	var want: bool = _open and shell != null and shell.has_method("is_open") and not bool(shell.is_open("ledger")) and flag("hud.libro")
 	_ledger_ribbon.visible = want
 	if not want:
 		return
@@ -941,16 +993,22 @@ func _fit_tabs() -> void:
 		return
 	var btns: Array = []
 	for tb in TABS:
-		btns.append(_tab_buttons[tb])
+		if (_tab_buttons[tb] as Button).visible:
+			btns.append(_tab_buttons[tb])
 	btns.append(_close_btn)
 	for b in btns:
 		if b.has_theme_font_size_override("font_size"):
 			b.remove_theme_font_size_override("font_size")
 	var bw := book_rect().size.x
 	var sep := float(_tabs_row.get_theme_constant("separation"))
-	var fixed := sep * float(_tabs_row.get_child_count() - 1)
+	var fixed := 0.0
+	var shown := 0
 	for c in _tabs_row.get_children():
-		if c != _tabs_lead and not btns.has(c):
+		if (c as Control).visible:
+			shown += 1
+	fixed = sep * float(maxi(0, shown - 1))
+	for c in _tabs_row.get_children():
+		if c != _tabs_lead and not btns.has(c) and (c as Control).visible:
 			fixed += (c as Control).custom_minimum_size.x
 	var widths := 0.0
 	var texts := 0.0
@@ -994,6 +1052,7 @@ func _queue_refresh() -> void:
 
 func _do_refresh() -> void:
 	_refresh_pending = false
+	_sync_flags()
 	if _open and _dirty.get(tab, false):
 		_refresh_tab(tab)
 

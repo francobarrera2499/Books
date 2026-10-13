@@ -1,5 +1,5 @@
 {
-  "_nota": "W4 (corrector de contenido; playtest «lector»). La visita del domingo a casa del doctor (GDD §3.2 «respiro emocional», §4): escena automática del estudio de L4, día 6 (T), que se dice al entrar, antes de cualquier pregunta. Sin etiquetas: es el gesto del personaje, no una prueba. Variante: si HB4 cerró la consulta hasta el domingo o después (consulta_cerrada_hasta ≥ 6: Watson le pidió «dos días» antes de volver), abre igual —el estudio no se cierra— pero pone la condición antes de dejarlo pasar. La copa y «los domingos esta casa es muy grande» eran la genérica gen.domingo de dialogue/watson.json, que casi nunca se oía (las tipo.* cubren todos los kinds).",
+  "_nota": "W4 (corrector de contenido; playtest «lector»); redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A). La visita del domingo a casa del doctor (GDD §3.2 «respiro emocional», §4): escena automática del estudio de L4, día 6 (T), que se dice al entrar, antes de cualquier pregunta. Sin etiquetas: es el gesto del personaje, no una prueba. Variante: si HB4 cerró la consulta hasta el domingo o después (consulta_cerrada_hasta ≥ 6: Watson le pidió «dos días» antes de volver), abre igual —el estudio no se cierra— pero pone la condición antes de dejarlo pasar. La copa y «los domingos esta casa es muy grande» eran la genérica gen.domingo de dialogue/watson.json, que casi nunca se oía (las tipo.* cubren todos los kinds).",
   "id": "DOMINGO",
   "place": "L4",
   "area": "estudio",
@@ -11,6 +11,6 @@
     {"id": "copa", "who": "watson", "text": "Le sirve una copa sin preguntarle. —Quédese un rato. Los domingos esta casa es muy grande."}
   ],
   "variants": [
-    {"when": {"flag_gte": {"consulta_cerrada_hasta": 6}}, "replace": {"puerta": "Abre él mismo la puerta, sin cuello duro, y tarda un momento en apartarse. —Pase, señor Lisle. Hoy no hablaremos de ella."}}
+    {"when": {"flag_gte": {"consulta_cerrada_hasta": 6}}, "replace": {"puerta": "Abre él mismo la puerta, sin cuello duro, y tarda un momento en apartarse. —Pase, señor Lisle. Hoy no vamos a hablar de ella."}}
   ]
 }

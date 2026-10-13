@@ -21,6 +21,7 @@ const Diary = preload("res://core/sim/diary.gd")
 const Tutorial = preload("res://core/sim/tutorial.gd")
 const Confrontation = preload("res://core/scenes/confrontation.gd")
 const Composers = preload("res://core/scenes/composers.gd")
+const Reveal = preload("res://core/sim/reveal.gd")
 
 const HOME := "L1"
 const SEAT_MAX := 999
@@ -135,11 +136,14 @@ static func _window_ok(w: Dictionary, day: int, slot: String) -> bool:
 		return false
 	return true
 
-# {open, reason}. reason ∈ "" | "sin_horario" | "dia" (no hay franja ese día) | "horario" | "needs" | "cerrado" | "orden".
+# {open, reason}. reason ∈ "" | "sin_horario" | "desconocido" (todavía no está en el mapa, GDD_v2 §B.4) | "dia" (no hay
+# franja ese día) | "horario" | "needs" | "cerrado" | "orden".
 static func place_open(repo, st, place: String, area: String, day: int, slot: String) -> Dictionary:
 	var sp = area_spec(repo, place, area)
 	if sp.is_empty():
 		return {"open": false, "reason": "sin_horario"}
+	if st != null and not Reveal.place_known(st, repo, place):
+		return {"open": false, "reason": "desconocido"}
 	if not day_slots(repo, day).has(slot):
 		return {"open": false, "reason": "dia"}
 	var ok := false

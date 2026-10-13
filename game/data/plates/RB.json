@@ -35,7 +35,7 @@
       "_epigraph": "«…con una pared a pique a un lado y un precipicio a pique al otro.»",
       "add_nodes": [
         {"id": "pared", "prop": "garganta", "noun": "pared", "anchor": {"c": [-4.0, 6.2, 0.12], "s": [14.0, 12.0, 0.24]}, "examine": "A un lado, la [[pared|pared]] de roca sube lisa y [[a_pique|a pique]], sin un saliente ni una grieta.", "tags": ["e:fina"], "cls": "I", "area": "*", "when": {}},
-        {"id": "baston", "prop": "garganta", "noun": "bastón", "anchor": {"c": [1.97, 0.74, 0.36], "s": [0.4, 1.5, 0.66]}, "examine": "Un [[baston|bastón]] herrado, apoyado contra la [[roca|roca]] donde termina el sendero.", "tags": ["e:fina"], "cls": "I", "area": "*", "when": {}}
+        {"id": "baston", "prop": "garganta", "noun": "bastón", "anchor": {"c": [1.97, 0.74, 0.36], "s": [0.4, 1.5, 0.66]}, "examine": "Un [[baston|bastón]] con punta de hierro, apoyado contra la [[roca|roca]] donde termina el sendero.", "tags": ["e:fina"], "cls": "I", "area": "*", "when": {}}
       ]
     },
     "journal": {
@@ -54,7 +54,7 @@
         {"id": "cornisa", "prop": "garganta_j", "noun": "cornisa", "anchor": {"c": [-1.1, 6.93, -0.25], "s": [7.0, 1.4, 2.5]}, "examine": "Por encima del saliente, una [[cornisa|cornisa]] honda, de varios pies, cubierta de musgo.", "tags": ["a:cornisa_existe", "e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}},
         {"id": "roca_alta", "prop": "garganta_j", "noun": "roca", "anchor": {"c": [-4.0, 11.0, 0.2], "s": [14.0, 3.6, 0.4]}, "examine": "Arriba, la roca desnuda sigue hasta el borde de la garganta.", "tags": ["e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}},
         {"id": "marca", "prop": "garganta_j", "noun": "marca", "anchor": {"c": [0.75, 1.46, 0.15], "s": [0.6, 0.26, 0.3]}, "examine": "En la [[pared|pared]], a la altura del hombro, una [[raspadura|raspadura]] clara y reciente, de un palmo.", "tags": ["a:raspadura_registrada", "e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}},
-        {"id": "baston", "prop": "garganta_j", "noun": "bastón", "anchor": {"c": [1.97, 0.74, 0.36], "s": [0.4, 1.5, 0.66]}, "examine": "Un [[baston|bastón]] herrado, apoyado contra la [[roca|roca]] donde termina el sendero.", "tags": ["e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}}
+        {"id": "baston", "prop": "garganta_j", "noun": "bastón", "anchor": {"c": [1.97, 0.74, 0.36], "s": [0.4, 1.5, 0.66]}, "examine": "Un [[baston|bastón]] con punta de hierro, apoyado contra la [[roca|roca]] donde termina el sendero.", "tags": ["e:journal_de_geneve"], "cls": "I", "area": "*", "when": {}}
       ]
     },
     "foto": {

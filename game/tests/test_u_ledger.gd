@@ -125,6 +125,23 @@ func test_support_add_remove_delete_and_ink():
 	ok(Ledger.act_entry_delete(st, r, {"entry": e2}).ok)
 	no(st.ded.entries.has(e2))
 
+# v2 (playtest, §B.7): mientras la práctica del día 1 está pendiente, el borrador se mira como práctica (pasajes, no
+# orígenes) y el libro no muestra «Una sola fuente» antes de «Confirmar práctica»; hecha la práctica, vuelve el chequeo
+# normal (dos recortes del mismo papel = una fuente). Confirmar de verdad sigue usando el chequeo normal.
+func test_practice_pending_checks_passages():
+	var st = _st()
+	var a := _clip(st, "D03@Crane", "p7", "Fue la vista de aquel bastón lo que me heló la sangre.")
+	var b := _clip(st, "D03@Crane", "p7", "Era un sendero de tres pies")
+	Index.add_entities(st, r, ["fina", "raspadura"])
+	var e := _new(st)
+	_esup(st, e, 0, a)
+	_esup(st, e, 1, b)
+	st.world["tutorial"] = {"step": 4, "done": true, "taught": {}, "d1": {}}
+	no(Ledger.entry_view(st, r, e).formal.has("una_fuente"), "práctica pendiente: dos pasajes del mismo papel alcanzan para verla")
+	eq(Ledger.formal_codes(st, r, st.ded.entries[e], false).has("una_fuente"), true, "el chequeo de confirmar no cambia")
+	st.world.tutorial.d1["practice"] = 5
+	ok(Ledger.entry_view(st, r, e).formal.has("una_fuente"), "práctica hecha: vuelve «una sola fuente»")
+
 func test_formal_check_codes():
 	var st = _st()
 	var sheer := _clip(st, "D03@Crane", "p7", "Era un sendero de tres pies")

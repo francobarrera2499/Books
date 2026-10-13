@@ -1,7 +1,7 @@
 {
  "_nota": "W2-PLACES-A. Lámina del prólogo (GDD §3.2, §5): Pell y Harris en la buhardilla; en el vidrio, el reflejo de Lisle; por la ventana, Parker junto a la puerta y, enfrente, Cotter. Nodo del contrato §4.8: N:PRO.harris (C10 Ia, C13.R3). Escrito con un generador de trabajo no versionado (.work/w2placesa/): este JSON es la fuente de verdad; la buhardilla es la de places/L1.json.",
  "id": "PRO",
- "name": "Lámina del prólogo: el encargo",
+ "name": "Recuerdo del prólogo: el encargo",
  "fixed": true,
  "origin": "PL.prologo",
  "place": "L1",
@@ -202,7 +202,8 @@
    ],
    "rot": 0.0,
    "p": {
-    "n": 5
+    "n": 5,
+    "first": 2
    }
   },
   {
@@ -290,16 +291,6 @@
     -1.52
    ],
    "rot": -35.0
-  },
-  {
-   "id": "lupa",
-   "type": "small.lens",
-   "pos": [
-    0.12,
-    0.76,
-    -1.55
-   ],
-   "rot": 70.0
   },
   {
    "id": "monedas",
@@ -893,7 +884,7 @@
      0.08
     ]
    },
-   "examine": "El [[sello_visto|sello «Visto»]], de goma, y su tampón de lata.",
+   "examine": "Un [[sello_visto|sello de goma]] que dice «Confirmado», con su almohadilla de tinta en una caja de lata.",
    "tags": [
     "e:sello_visto"
    ],
@@ -976,7 +967,7 @@
   {
    "id": "libro_mayor",
    "prop": "libro_mayor",
-   "noun": "libro mayor",
+   "noun": "libro de conclusiones",
    "anchor": {
     "c": [
      0.38,
@@ -989,7 +980,7 @@
      0.36
     ]
    },
-   "examine": "Un libro mayor abierto, de renglones y columnas rojas; en la primera hoja, a pluma: «Fe de erratas».",
+   "examine": "Un libro grande, de renglones y columnas rojas: el libro de conclusiones. En la primera hoja, a pluma: «Correcciones».",
    "tags": [
     "e:libro_mayor"
    ],
@@ -1016,30 +1007,6 @@
    "examine": "Una [[tijera|tijera]] de corrector, de hojas largas y punta roma.",
    "tags": [
     "e:tijera"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "lupa",
-   "prop": "lupa",
-   "noun": "lupa",
-   "anchor": {
-    "c": [
-     0.12,
-     0.772,
-     -1.55
-    ],
-    "s": [
-     0.18,
-     0.04,
-     0.12
-    ]
-   },
-   "examine": "Una [[lupa|lupa]] de aro de latón con el mango de ébano gastado.",
-   "tags": [
-    "e:lupa"
    ],
    "cls": "I",
    "area": "buhardilla",
@@ -1116,7 +1083,7 @@
   {
    "id": "concordancia",
    "prop": "concordancia",
-   "noun": "cuaderno",
+   "noun": "notas de lectura",
    "anchor": {
     "c": [
      -1.74,
@@ -1129,7 +1096,7 @@
      0.32
     ]
    },
-   "examine": "Un cuaderno grueso de tapas de hule, cerrado con una cinta: la [[concordancia|concordancia]] de E. L., llena de fichas sujetas con alfileres.",
+   "examine": "Un cuaderno grueso de tapas de hule, cerrado con una cinta: las [[concordancia|notas de lectura]] de E. L., llenas de fichas sujetas con alfileres.",
    "tags": [
     "e:concordancia"
    ],
@@ -1225,7 +1192,7 @@
      1.12
     ]
    },
-   "examine": "Un estante bajo con diccionarios, un [[baedeker|Baedeker]] de Londres y pruebas viejas atadas con cordel.",
+   "examine": "Un estante bajo con diccionarios, una guía [[baedeker|Baedeker]] de Londres y pruebas de imprenta viejas atadas con cordel.",
    "tags": [
     "e:baedeker"
    ],
@@ -1273,7 +1240,7 @@
      5.4
     ]
    },
-   "examine": "[[holywell_street|Holywell Street]]: calzada de adoquines, aceras angostas y librerías de viejo a los dos lados.",
+   "examine": "[[holywell_street|Holywell Street]]: calzada de adoquines, veredas angostas y librerías de viejo a los dos lados.",
    "tags": [
     "e:holywell_street"
    ],
@@ -1322,7 +1289,7 @@
      0.2
     ]
    },
-   "examine": "Sobre una tienda de enfrente hay un letrero antiguo: una media luna de latón con cara.",
+   "examine": "Un letrero antiguo sobre una tienda de enfrente: una media luna de latón con cara.",
    "tags": [
     "e:media_luna"
    ],
@@ -1346,7 +1313,7 @@
      0.85
     ]
    },
-   "examine": "En la acera de enfrente, un caballete con libros de a penique, bajo un toldo de hule.",
+   "examine": "Un caballete con libros de a penique en la vereda de enfrente, bajo un toldo de hule.",
    "tags": [
     "e:puesto_de_libros"
    ],
@@ -1435,7 +1402,7 @@
   {
    "id": "pell",
    "prop": "pell",
-   "noun": "procurador",
+   "noun": "abogado",
    "anchor": {
     "c": [
      1.4,
@@ -1448,7 +1415,7 @@
      0.55
     ]
    },
-   "examine": "El señor [[pell|Pell]], procurador, se seca la frente con un pañuelo; lleva una [[cartera|cartera]] de cuero gastada.",
+   "examine": "El señor [[pell|Pell]], abogado, se seca la frente con un pañuelo; lleva una [[cartera|cartera]] de cuero gastada.",
    "tags": [
     "e:pell",
     "e:cartera"
@@ -1473,7 +1440,7 @@
      0.08
     ]
    },
-   "examine": "En el vidrio negro de la ventana se refleja un hombre alto y delgado, de [[anteojos_azules|anteojos de color]].",
+   "examine": "Un hombre alto y delgado, de [[anteojos_azules|anteojos de color]], reflejado en el vidrio negro de la ventana.",
    "tags": [
     "e:reflejo_en_el_vidrio",
     "e:anteojos_azules",
@@ -1499,7 +1466,7 @@
      0.62
     ]
    },
-   "examine": "Abajo, junto a la puerta de la tienda, un hombrecito agachado espera con las manos en la boca; se oye, muy bajo, un [[arpa_de_boca|arpa de boca]].",
+   "examine": "Un hombrecito agachado abajo, junto a la puerta de la tienda, espera con las manos en la boca; se oye, muy bajo, un [[arpa_de_boca|arpa de boca]].",
    "tags": [
     "e:hombrecito_del_arpa",
     "e:arpa_de_boca"
@@ -1524,7 +1491,7 @@
      0.62
     ]
    },
-   "examine": "Enfrente, en el portal de una tienda cerrada, un hombre delgado con un [[fajo_de_papel|fajo de papel]] bajo el brazo mira hacia esta ventana.",
+   "examine": "Un hombre delgado con un [[fajo_de_papel|fajo de papel]] bajo el brazo, en el portal de una tienda cerrada de enfrente, mira hacia esta ventana.",
    "tags": [
     "a:me_vigila_de_cerca",
     "e:fajo_de_papel"
@@ -1549,7 +1516,7 @@
      0.2
     ]
    },
-   "examine": "Sobre el escritorio, un fajo de [[billetes_de_cinco_libras|billetes de cinco libras]], numerados, atado con una cinta.",
+   "examine": "Dos [[billetes_de_cinco_libras|billetes de cinco libras]] sobre el escritorio, numerados, sujetos con una cinta.",
    "tags": [
     "e:billetes_de_cinco_libras"
    ],
@@ -1585,7 +1552,7 @@
   {
    "id": "encargo",
    "prop": "encargo",
-   "noun": "pliego",
+   "noun": "encargo",
    "anchor": {
     "c": [
      -0.28,
@@ -1598,7 +1565,7 @@
      0.3
     ]
    },
-   "examine": "Un pliego de condiciones escrito a pluma, firmado por Josiah Pell, con fechas de entrega subrayadas.",
+   "examine": "Unas hojas del encargo, escritas a máquina y a pluma, firmadas por Josiah Pell, con fechas de entrega subrayadas.",
    "tags": [
     "e:encargo"
    ],

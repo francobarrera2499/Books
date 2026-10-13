@@ -1,4 +1,5 @@
 // Grabado de la Strand (W1-POST; calibración W4-STYLE). Contrato: docs/ARCHITECTURE.md §7.8 · GDD §14.5.
+// Look 'grabado' del registro world/post/looks.gd (parámetros: looks/grabado.json -> base lighting).
 // Quad 2x2 colgado de la Camera3D (engraving_post.gd). Lee color, profundidad y normales del 3D y escribe
 // mix(paper, ink, máscara): contornos (profundidad + normales, 4 vecinos) + trama anclada a la esfera de la cámara
 // (hatch=1, «talla»: rayado por cara cuyas filas se reparten con los umbrales Bayer 8x8 -> cobertura 1 − t en toda la

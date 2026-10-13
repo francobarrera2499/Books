@@ -4,7 +4,7 @@
     {"id": "narbona", "kind": "lugar", "name": "Narbona", "index": "Narbona", "noun": "ciudad", "_ruido": true},
     {"id": "nimes", "kind": "lugar", "name": "Nimes", "index": "Nimes", "noun": "ciudad", "_ruido": true},
     {"id": "lowther_arcade", "kind": "lugar", "name": "la Lowther Arcade", "index": "Lowther Arcade", "noun": "galería", "_ruido": true},
-    {"id": "brougham_de_la_arcade", "kind": "objeto", "name": "un brougham", "index": "brougham (Lowther Arcade)", "noun": "coche", "_ruido": true},
+    {"id": "brougham_de_la_arcade", "kind": "objeto", "name": "un carruaje cerrado", "index": "carruaje cerrado (Lowther Arcade)", "noun": "coche", "_ruido": true},
     {"id": "furgon_de_welbeck", "kind": "objeto", "name": "un furgón de dos caballos", "index": "furgón de dos caballos (Welbeck Street)", "noun": "furgón", "_ruido": true},
     {"id": "rufian_del_garrote", "kind": "persona", "name": "un rufián con un garrote", "index": "rufián del garrote", "noun": "rufián", "_ruido": true},
     {"id": "familia_real_escandinava", "kind": "persona", "name": "la familia real de Escandinavia", "index": "Escandinavia, familia real de", "noun": "familia real", "_ruido": true},

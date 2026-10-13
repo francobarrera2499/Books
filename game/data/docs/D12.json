@@ -15,14 +15,14 @@
     {"id": "D12@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
   ],
   "parts": [
-    {"id": "p1", "text": "{{#titulo q:titulo e:ceniza|<sc>Sobre la distinción entre las cenizas de los diversos tabacos</sc>}}\n\n{{#formas q:formas e:ceniza|Donde se enumeran ciento cuarenta formas de tabaco de cigarro, de cigarrillo y de pipa, con láminas en color que ilustran la diferencia de la ceniza.}}\n\n{{#autor a:identidad_holmes e:holmes|Por [[holmes|Sherlock Holmes]].}}\n[[londres|Londres]]: impreso para el autor, 1879.\n\n{{#indicio q:indicio e:ceniza|Es un punto que surge sin cesar en los juicios criminales y que a veces tiene una importancia suprema como indicio.}}\n\n{{#dedicatoria a:identidad_holmes a:rasgo_holmes e:letra e:holmes|<f=manuscrito><ink=lapiz>Al [[museo_britanico|Museo Británico]], con los cumplidos del autor, S. H.</ink></f>}}"},
+    {"id": "p1", "text": "{{#titulo q:titulo e:ceniza|<sc>Sobre la distinción entre las cenizas de los diversos tabacos</sc>}}\n\n{{#formas q:formas e:ceniza|Donde se enumeran ciento cuarenta formas de tabaco de cigarro, de cigarrillo y de pipa, con ilustraciones en color que muestran la diferencia de la ceniza.}}\n\n{{#autor a:identidad_holmes e:holmes|Por [[holmes|Sherlock Holmes]].}}\n[[londres|Londres]]: impreso para el autor, 1879.\n\n{{#indicio q:indicio e:ceniza|Es un punto que surge sin cesar en los juicios criminales y que a veces tiene una importancia suprema como indicio.}}\n\n{{#dedicatoria a:identidad_holmes a:rasgo_holmes e:letra e:holmes|<f=manuscrito><ink=lapiz>Al [[museo_britanico|Museo Británico]], con los cumplidos del autor, S. H.</ink></f>}}"},
     {"id": "p2", "text": "<sc>Cap. IX</sc>: tabacos de Oriente.\n\n{{#n96 e:lunkah|N.º 96: [[lunkah|lunkah]] de la India, torcido en su propia hoja; ceniza parda, de grano grueso.}}\n{{#n97 a:identidad_holmes e:holmes e:numero_97|[[numero_97|N.º 97]]: [[te_en_ladrillo|té en ladrillo]] del [[tibet|Tíbet]], que los arrieros de las caravanas fuman cuando les falta el tabaco — sin muestra.}}\n{{#n98 e:latakia|N.º 98: [[latakia|latakia]] de Siria, curado al humo de leña; ceniza gris, fina como la harina.}}"},
-    {"id": "p3", "text": "<sc>Lámina IV</sc>.\n\n{{#lamina_iv e:ceniza_negra e:cheroot|La ceniza negra y en escamas del [[cheroot|cheroot]] de la India meridional, junto a la pelusa blanca del [[birds_eye|bird's-eye]], aumentadas cuatro veces.}}"}
+    {"id": "p3", "text": "<sc>Ilustración IV</sc>.\n\n{{#lamina_iv e:ceniza_negra e:cheroot|La ceniza negra y en escamas del [[cheroot|cheroot]] de la India meridional, junto a la pelusa blanca del [[birds_eye|bird's-eye]], aumentadas cuatro veces.}}"}
   ],
   "src_en": {
     "titulo": "Upon the Distinction between the Ashes of the Various Tobaccoes",
     "formas": "a hundred and forty forms of cigar-, cigarette-, and pipe-tobacco, with coloured plates illustrating the difference in the ash",
     "indicio": "It is a point which is continually turning up in criminal trials, and which is sometimes of supreme importance as a clue."
   },
-  "words": 150
+  "words": 182
 }

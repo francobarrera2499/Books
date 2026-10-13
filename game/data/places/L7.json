@@ -7,11 +7,11 @@
  ],
  "areas": {
   "exterior": {
-   "desc": "la acera frente al 427 de Park Lane, con el parque enfrente"
+   "desc": "la vereda frente al 427 de Park Lane, con el parque enfrente"
   }
  },
  "observers": [],
- "epigraph": "—Ésa es la ventana, señor. Veinte pies, dicen.",
+ "epigraph": "—Esa es la ventana, señor. Veinte pies, dicen.",
  "frames": [
   {
    "id": "acera",
@@ -557,7 +557,7 @@
      2.85
     ]
    },
-   "examine": "Bajo la ventana, un macizo de [[azafranes|azafranes]] en flor, sin una pisada en la tierra ni un tallo quebrado.",
+   "examine": "Un macizo de [[azafranes|azafranes]] en flor bajo la ventana, sin una pisada en la tierra ni un tallo quebrado.",
    "tags": [
     "a:disparo_desde_fuera",
     "a:refuta_anarquistas",
@@ -584,7 +584,7 @@
      1.6
     ]
    },
-   "examine": "Entre el macizo y el murete corre una [[franja_de_cesped|franja angosta de césped]], pareja, sin una sola marca.",
+   "examine": "Una [[franja_de_cesped|franja angosta de césped]] entre el macizo y el murete, pareja, sin una sola marca.",
    "tags": [
     "a:disparo_desde_fuera",
     "e:franja_de_cesped",
@@ -610,7 +610,7 @@
      1.9
     ]
    },
-   "examine": "Un [[murete|murete]] con [[reja|reja]] y un portillo separa el jardín de la acera; el conjunto no pasa de cinco pies.",
+   "examine": "Un [[murete|murete]] con [[reja|reja]] y una puertita separa el jardín de la vereda; el conjunto no pasa de cinco pies.",
    "tags": [
     "e:murete",
     "e:reja",
@@ -635,7 +635,7 @@
      0.3
     ]
    },
-   "examine": "Desde la acera del parque se ve entera la ventana del segundo piso del 427, por encima de la reja; entre una y otra no hay rama ni cornisa.",
+   "examine": "La ventana del segundo piso del 427, vista desde la vereda del parque: se ve entera, por encima de la reja, y entre una y otra no hay rama ni cornisa.",
    "tags": [
     "a:disparo_desde_fuera",
     "e:linea_de_tiro",
@@ -688,7 +688,7 @@
      3.2
     ]
    },
-   "examine": "Una docena de [[curiosos|curiosos]] en la acera, con la cabeza levantada hacia la misma ventana.",
+   "examine": "Una docena de [[curiosos|curiosos]] en la vereda, con la cabeza levantada hacia la misma ventana.",
    "tags": [
     "e:curiosos",
     "e:park_lane_427"
@@ -740,7 +740,7 @@
      6.0
     ]
    },
-   "examine": "Al otro lado de la calzada, tras la verja, los [[platanos|plátanos]] de [[hyde_park|Hyde Park]] apenas echan brotes.",
+   "examine": "Los [[platanos|plátanos]] de [[hyde_park|Hyde Park]], al otro lado de la calzada y tras la verja, apenas echan brotes.",
    "tags": [
     "e:hyde_park",
     "e:platanos"

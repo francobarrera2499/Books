@@ -4,11 +4,14 @@
 #   renglones de asiento: en el margen la casilla «Al sello» (a lápiz, no práctica) o el «Visto» chico (en tinta);
 #   «Asiento n · Plantilla» y el resumen de lo escrito (lápiz gris a mano / tinta negra de imprenta). Clic = abrir en
 #   la página derecha; arrastrar = presentar el asiento (datos {"kind":"entry","id"}) · «Nuevo asiento».
+# GDD_v2 §C.3: la casilla «Al sello» sólo existe con el panel del sello (bandera lg.sello); debajo de «Nueva conclusión»,
+#   una ayuda de una línea hasta que se escribe la primera.
 extends RefCounted
 
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
 const Model = preload("res://ui/ledger/ledger_model.gd")
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
 
 class EntryRow extends PanelContainer:
 	signal clicked
@@ -68,7 +71,22 @@ static func build(host, pinfo: Dictionary, rows: Array, selected: String, lot: A
 	sp.custom_minimum_size = Vector2(0, 4)
 	v.add_child(sp)
 	v.add_child(host.indent(add))
+	if sim != null and _no_entries(sim):
+		var hl := Widgets.marginal(host.plain(Model.tx(sim, "v2d.lg.ayuda.conclusion")))
+		hl.name = "AyudaConclusion"
+		hl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		hl.add_theme_color_override("font_color", Paper.ink("tenue"))
+		v.add_child(host.indent(hl))
 	return v
+
+static func _no_entries(sim) -> bool:
+	var q: Dictionary = sim.q_ledger()
+	if not (q.get("varios", []) as Array).is_empty() or not (q.get("erratas", []) as Array).is_empty():
+		return false
+	for fo in q.get("folios", []):
+		if not (fo.get("entries", []) as Array).is_empty():
+			return false
+	return true
 
 static func _row(host, r: Dictionary, sel: bool, lot: Array) -> Control:
 	var sim = host.sim_ref()
@@ -93,7 +111,7 @@ static func _row(host, r: Dictionary, sel: bool, lot: Array) -> Control:
 		st.name = "Visto"
 		m.add_child(st)
 		host.maybe_animate_stamp(eid, st)
-	elif not bool(vm.practice):
+	elif not bool(vm.practice) and UiFlags.on(host.flags if "flags" in host else {}, "lg.sello"):
 		var cb := CheckBox.new()
 		cb.name = "AlSello"
 		cb.focus_mode = Control.FOCUS_NONE

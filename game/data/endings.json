@@ -4,7 +4,7 @@
   "endings": [
     {"id": "F1", "order": 1, "rank": 1, "name": "Al menos un lector",
      "cond": {"all": [{"sealed_all": ["C6", "C7", "C10"]}, {"sealed_count": {"of": "mandatory", "gte": 8}}, {"flag_eq": {"informe_final": "errata"}}, {"not": {"flag": "watson_expuesto"}}, {"flag": "moran_credito"}, {"not": {"flag": "moran_credito_perdido"}}, {"not": {"flag": "holmes_entregado"}}]},
-     "card": "Lisle, Edmund. Lector. Sabe dónde se esconde la gente en una errata.", "scene": "END.F1"},
+     "card": "Lisle, Edmund. Lector. Sabe dónde se esconde la gente en un error de imprenta.", "scene": "END.F1"},
     {"id": "F4", "order": 2, "rank": 5, "name": "Ve, pero no observa",
      "cond": {"sealed_count": {"of": "mandatory", "lt": 6}},
      "card": "Ve, pero no observa.", "scene": "END.F4"},

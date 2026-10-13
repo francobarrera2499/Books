@@ -241,29 +241,48 @@ func test_sample_cutaway_and_frames() -> void:
 	await tree.physics_frame
 	ok(ws.visible, "desde adentro se ven todos los muros")
 
+# v2 (GDD_v2 §E): en un lugar (sin vista general propia en world/camera.json) cada encuadre es una estación con la órbita
+# corta de siempre alrededor de su pivote (±orbit.yaw/±orbit.pitch); el primero del área es la general y los otros
+# zonas; FOV entre base −18° y base +4°; la pila de poses baja de a un nivel.
 func test_sample_orbit_limits_and_examine() -> void:
 	var place := _sample()
 	var wr = await _world(place, _full_snap(place, "estudio", "M", "puerta"))
 	wr.set_frame("puerta", true)
+	eq(wr.rig.mode(), "overview", "el primer encuadre del área es la vista general")
+	no(wr.rig.inplace(), "un diorama orbita alrededor de su pivote")
 	var cam: Camera3D = wr.camera()
 	var p0 := cam.global_position
 	wr.rig.orbit_by(100.0, 100.0)
-	near(wr.rig.yaw_off, 25.0, 0.001, "yaw acotado")
-	near(wr.rig.pitch_off, 10.0, 0.001, "pitch acotado")
+	# límites del encuadre (±25°/±10°), con el arco acotado a 1,8 m si el pivote está lejos (CÁMARA v2)
+	var d: float = p0.distance_to(Vector3(0, 1, 0))
+	var cap := rad_to_deg(1.8 / d)
+	near(wr.rig.yaw_off, minf(25.0, cap), 0.001, "yaw acotado")
+	near(wr.rig.pitch_off, minf(10.0, cap), 0.001, "pitch acotado")
 	ok(cam.global_position.distance_to(p0) > 0.5, "la cámara orbitó")
+	ok(cam.global_position.distance_to(p0) <= 1.8 * sqrt(2.0) + 0.05, "sin trasladarse más de 1,8 m por eje")
 	near(cam.global_position.distance_to(Vector3(0, 1, 0)), p0.distance_to(Vector3(0, 1, 0)), 0.01, "órbita alrededor del pivote")
 	wr.rig.zoom_by(20.0)
-	near(cam.fov, 60.0, 0.001, "FOV +10 como máximo")
+	near(cam.fov, 54.0, 0.001, "FOV +4 como máximo")
+	wr.rig.zoom_by(-20.0)
+	near(cam.fov, 32.0, 0.001, "FOV −18 como mínimo")
 	wr.set_orbit_enabled(false)
 	wr.set_frame("puerta", true)
 	wr.rig.orbit_by(10.0, 0.0)
-	near(wr.rig.yaw_off, 0.0, 0.001, "sin órbita en el hub")
+	near(wr.rig.yaw_off, 0.0, 0.001, "sin mirar alrededor si está apagado")
 	ok(cam.global_position.is_equal_approx(p0), "set_frame restituye el encuadre")
+	wr.set_orbit_enabled(true)
+	wr.set_frame("escritorio", true)
+	eq(wr.rig.mode(), "zone", "otro encuadre es una zona (estación)")
+	eq(wr.rig.depth(), 2, "general → zona")
 	ok(wr.examine("lupa"), "examinar")
 	ok(wr.is_examining(), "examinando")
+	eq(wr.rig.depth(), 3, "general → zona → examen")
 	ok(wr.back(), "volver consume")
 	no(wr.is_examining(), "ya no examina")
-	no(wr.back(), "sin examen no consume")
+	eq(wr.rig.mode(), "zone", "vuelve a la zona")
+	ok(wr.back(), "volver de la zona")
+	eq(wr.rig.mode(), "overview", "vuelve a la vista general")
+	no(wr.back(), "en la vista general no consume")
 
 # ---------------------------------------------------------------------------------------------
 # Lugares reales (data/places/*.json, W2-PLACES-*)
@@ -570,9 +589,12 @@ func test_worldroot_show_hub_without_data_does_not_crash() -> void:
 		_wr.show_hub("escritorio", "M")
 		await tree.physics_frame
 		ok(_wr.diorama != null, "hub L1 construido")
-		no(_wr.orbit_enabled, "sin órbita en el hub")
+		ok(_wr.orbit_enabled, "v2: en casa también se mira alrededor")
+		eq(_wr.rig.mode(), "zone", "el escritorio es una zona de la buhardilla")
+		_wr.show_hub("general", "M")
+		await tree.physics_frame
+		eq(_wr.rig.mode(), "overview", "vista general de la buhardilla (world/camera.json)")
 		return
 	_wr.show_hub("escritorio", "M")
 	await tree.physics_frame
 	ok(_wr.diorama != null, "hub de reemplazo mientras no exista data/places/L1.json")
-	no(_wr.orbit_enabled, "sin órbita en el hub")

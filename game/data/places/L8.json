@@ -7,7 +7,7 @@
  ],
  "areas": {
   "interior": {
-   "desc": "el cuarto delantero vacío de la planta baja, con el chico del agente"
+   "desc": "el cuarto delantero vacío de la planta baja, con el chico de la agencia"
   }
  },
  "observers": [],
@@ -633,7 +633,7 @@
      1.3
     ]
    },
-   "examine": "En el [[alfeizar|alféizar]] de esa ventana, el [[polvo_removido|polvo]] de meses está barrido en un tramo del ancho de dos antebrazos.",
+   "examine": "El [[alfeizar|alféizar]] de esa ventana: el [[polvo_removido|polvo]] de meses está barrido en un tramo del ancho de dos antebrazos.",
    "tags": [
     "a:escondite_preparado",
     "e:alfeizar",
@@ -662,7 +662,7 @@
      0.4
     ]
    },
-   "examine": "En las tablas, junto a la ventana, hay [[ceniza_negra|ceniza negra]] y la [[colilla|colilla]] de un [[cheroot|cheroot]].",
+   "examine": "[[ceniza_negra|Ceniza negra]] en las tablas, junto a la ventana, y la [[colilla|colilla]] de un [[cheroot|cheroot]].",
    "tags": [
     "a:escondite_preparado",
     "e:ceniza_negra",
@@ -721,7 +721,7 @@
      1.6
     ]
    },
-   "examine": "Enfrente, en el primer piso del [[221b|221B]], la otra ventana ancha está abierta de par en par, con la cortina afuera.",
+   "examine": "La otra ventana ancha del primer piso del [[221b|221B]], enfrente, está abierta de par en par, con la cortina afuera.",
    "tags": [
     "a:preparativos_221b",
     "e:ventanas_abiertas",

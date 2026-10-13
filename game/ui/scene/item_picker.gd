@@ -7,6 +7,9 @@
 # Las tarjetas también se arrastran (DnD §6.3: {"kind","id"}; vista previa = Chip).
 # Extras (tests/drivers): cards() -> [{kind, id, node}], pick(kind, id), set_tab(kind), set_query(text).
 # fit_height(max_h): achica la lista para que el panel entero no pase de max_h (la confrontación: no tapar la afirmación).
+# GDD_v2 §C.1/§C.3: las pestañas sólo si las dos tienen algo; el buscador sólo con más de siete tarjetas. open(..., {merged:
+#   true}) (confrontación): una sola lista, primero las conclusiones confirmadas (en tinta), después los recortes y al final
+#   los borradores, cada grupo del más reciente al más viejo.
 extends PanelContainer
 
 signal picked(item: Dictionary)
@@ -19,6 +22,7 @@ const SimLink = preload("res://ui/scene/sim_link.gd")
 const BODY_CHARS := 150
 const LIST_H := 300.0
 const LIST_MIN_H := 140.0
+const SEARCH_MIN := 7
 
 class Card extends PanelContainer:
 	signal chosen(item: Dictionary)
@@ -57,6 +61,8 @@ var _list: VBoxContainer
 var _scroll: ScrollContainer
 var _empty: Label
 var _cards: Array = []
+var merged := false
+var _bar: HBoxContainer
 
 func _init(p_link = null) -> void:
 	link = p_link if p_link != null else SimLink.new()
@@ -81,6 +87,7 @@ func _init(p_link = null) -> void:
 	head.add_child(back)
 	v.add_child(head)
 	var bar := HBoxContainer.new()
+	_bar = bar
 	bar.add_theme_constant_override("separation", 4)
 	var group := ButtonGroup.new()
 	for k in ["clip", "entry"]:
@@ -113,17 +120,23 @@ func _init(p_link = null) -> void:
 	_empty.visible = false
 	_list.add_child(_empty)
 
-func open(title: String, p_kinds: Array = ["clip", "entry"]) -> void:
+func open(title: String, p_kinds: Array = ["clip", "entry"], opts := {}) -> void:
 	kinds = p_kinds.duplicate()
+	merged = bool(opts.get("merged", false))
 	_title.text = title
 	_search.text = ""
+	var has_clips: bool = not link.qa("q_clips").is_empty()
+	var has_entries: bool = not _entry_ids().is_empty()
+	var both: bool = kinds.has("clip") and kinds.has("entry") and has_clips and has_entries
 	for k in _tabs:
-		_tabs[k].visible = kinds.has(k) and kinds.size() > 1
+		_tabs[k].visible = not merged and both and kinds.has(k)
 	if not kinds.has(tab):
 		tab = String(kinds[0])
 	# primera vez: la pestaña con material (recortes si hay)
-	if kinds.has("clip") and link.qa("q_clips").is_empty() and kinds.has("entry") and not _entry_ids().is_empty():
+	if kinds.has("clip") and not has_clips and kinds.has("entry") and has_entries:
 		tab = "entry"
+	elif kinds.has("entry") and not has_entries and kinds.has("clip"):
+		tab = "clip"
 	_tabs[tab].button_pressed = true
 	visible = true
 	_fill()
@@ -188,7 +201,22 @@ func _fill() -> void:
 	_cards.clear()
 	var q := _search.text.strip_edges().to_lower()
 	var items: Array = []
-	if tab == "clip":
+	if merged:
+		var drafts: Array = []
+		if kinds.has("entry"):
+			for e in _entry_ids():
+				var ink := String(link.qd("q_entry", [e]).get("ink", "lapiz"))
+				if ink == "tinta":
+					items.append({"kind": "entry", "id": e})
+				else:
+					drafts.append({"kind": "entry", "id": e})
+		if kinds.has("clip"):
+			var cl0: Array = link.qa("q_clips")
+			cl0.reverse()
+			for c in cl0:
+				items.append({"kind": "clip", "id": String(c.get("id", ""))})
+		items.append_array(drafts)
+	elif tab == "clip":
 		var cl: Array = link.qa("q_clips")
 		cl.reverse()
 		for c in cl:
@@ -196,6 +224,8 @@ func _fill() -> void:
 	else:
 		for e in _entry_ids():
 			items.append({"kind": "entry", "id": e})
+	_search.visible = items.size() > SEARCH_MIN or q != ""
+	_bar.visible = _search.visible or _tabs["clip"].visible or _tabs["entry"].visible
 	for it in items:
 		var info: Dictionary = link.item_info(it)
 		if not bool(info.get("ok", false)):

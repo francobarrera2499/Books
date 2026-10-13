@@ -3,6 +3,9 @@
 # los filtros activos se ven como chips que se quitan con un clic (y un chip del índice soltado en la barra filtra).
 # Abajo: los recortes agrupados por el calendario de la crónica (mes y año; lo que no trae fecha, al final), cada uno
 # con el día de la crónica en el margen. Filtrar sólo oculta tarjetas (no reconstruye). Sin contadores (§6.1).
+# GDD_v2 §C.2 (revelado progresivo): la búsqueda aparece con nb.buscar (≥10 recortes), los filtros con nb.filtros (≥20; y
+#   cada filtro sólo si tiene ≥2 opciones), los encabezados por mes con nb.agrupar (≥2 meses de crónica). Con pocos
+#   recortes la página es sólo la lista.
 extends VBoxContainer
 
 const Paper = preload("res://ui/kit/paper.gd")
@@ -127,8 +130,17 @@ func refresh() -> void:
 			_labels[String(o.id)] = String(o.label)
 	var wide: bool = nb.is_wide()
 	_layout_bar(wide)
-	# sin un solo recorte no hay nada que buscar ni filtrar: la página sólo dice cómo se recorta
-	_bar_row.visible = not _clips.is_empty()
+	# sin un solo recorte no hay nada que buscar ni filtrar: la página sólo dice cómo se recorta. Después, la búsqueda y
+	# los filtros aparecen con sus banderas (y un filtro con una sola opción no se ofrece)
+	var any_menu := false
+	for k in MENU_KEYS:
+		var on: bool = not _clips.is_empty() and nb.flag("nb.filtros") and (_menu_opts.get(k, []) as Array).size() >= 2
+		(_menus[k] as Control).visible = on
+		any_menu = any_menu or on
+	_search.visible = not _clips.is_empty() and nb.flag("nb.buscar")
+	_bar_row.visible = _search.visible or any_menu
+	_row2.visible = _row2.visible and any_menu
+	var grouped: bool = nb.flag("nb.agrupar")
 	for g in Model.groups(_clips):
 		var head := Widgets.label(Model.month_label(nb.text_fn(), String(g.key)), "DocTitle")
 		head.add_theme_font_size_override("font_size", int(round(nb._px("ui") * 1.18)))
@@ -143,7 +155,7 @@ func refresh() -> void:
 		var hrow: HBoxContainer = nb.margin_row(null, hv)
 		hrow.name = "Mes_" + (String(g.key) if String(g.key) != "" else "sin_fecha")
 		_list.add_child(hrow)
-		var grp := {"key": String(g.key), "head": hrow, "cards": []}
+		var grp := {"key": String(g.key), "head": hrow, "cards": [], "grouped": grouped}
 		for c in g.clips:
 			var card := ClipCard.new(nb, c, wide)
 			_list.add_child(card)
@@ -193,7 +205,7 @@ func _apply() -> void:
 				var d := String(card.clip.get("chron_date", ""))
 				card.set_margin(str(d.substr(8, 2).to_int()) if d.length() >= 10 and d != last_date else "")
 				last_date = d
-		g.head.visible = shown > 0
+		g.head.visible = shown > 0 and bool(g.get("grouped", true))
 		any = any or shown > 0
 	if _empty != null:
 		_empty.get_parent().visible = not any
@@ -285,8 +297,12 @@ func debug_state() -> Dictionary:
 	for g in _groups:
 		if g.head.visible:
 			heads.append(String(g.key))
+	var menus: Array = []
+	for k in MENU_KEYS:
+		if (_menus[k] as Control).visible:
+			menus.append(k)
 	return {"cards": _cards.keys(), "visible": visible_ids(), "groups": heads, "empty": _empty.text if _empty != null and _empty.get_parent().visible else "",
-		"chips": _chips.get_child_count()}
+		"chips": _chips.get_child_count(), "search": _search.visible and _bar_row.visible, "menus": menus}
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_VISIBILITY_CHANGED:

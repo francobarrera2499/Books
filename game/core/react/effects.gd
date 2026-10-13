@@ -73,6 +73,7 @@ static func apply(st, repo, inst: Dictionary, soft: bool) -> void:
 			var how := Latency.how_for(st, repo, rule, inst, de)
 			var text := instance_text(st, repo, inst)
 			var tpl := doc_tpl(st, repo, rule, inst, de, how, text)
+			_fisica_hook(repo, tpl, inst)
 			var meta := {"iid": String(inst.iid), "rid": String(inst.rid), "act": String(inst.get("anchor", {}).get("act", "")),
 				"how": how, "tk": int(inst.get("due_tk", 0)), "day": day, "channel": String(inst.get("channel", "")),
 				"voice": String(inst.get("voice", "")), "lado": RDB.lado(rule), "origin": String(tpl.get("origin", inst.iid)),
@@ -388,7 +389,7 @@ static func doc_tpl(st, repo, rule: Dictionary, inst: Dictionary, de: Dictionary
 		elif how == "mostrador_crane":
 			title = "Tarjeta a máquina, en el mostrador de Crane"
 		t = {"title": title, "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter",
-			"paper": "diogenes_recortado", "paper_mm": [203, 244], "measure": {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]},
+			"paper": "diogenes_recortado", "paper_mm": [203, 244],
 			"entity": "respuestas_s" if b else "cartas_a_maquina"}
 	else:
 		t = {"title": "Carta", "src_type": "carta_recibida", "class": "P", "font": "maquina", "paper": "carta", "paper_mm": [210, 270],
@@ -429,6 +430,27 @@ static func doc_tpl(st, repo, rule: Dictionary, inst: Dictionary, de: Dictionary
 	t["src_en"] = {}
 	t["firma"] = _firma(st, repo, rule, inst)
 	return t
+
+# GDD_v2 §C.5.2 (gancho de PROGRESIÓN): un documento generado que llega como papel propio (carta, nota, tarjeta,
+# telegrama, copia) lleva al principio la línea de descripción física de su plantilla (data/fisica.json plantillas, por
+# doc.entity), igual que los documentos estáticos. Lo que se inserta en un número del Times (columna, noticias) no: ese
+# papel ya tiene la suya. La nota «en persona» del día 10 (a lápiz) no usa la plantilla de las cartas a máquina.
+static func _fisica_hook(repo, tpl: Dictionary, inst: Dictionary) -> void:
+	if repo == null or not repo.has_method("fisica_tpl_line") or bool(inst.get("en_persona", false)):
+		return
+	if typeof(tpl.get("insert")) == TYPE_DICTIONARY and not (tpl.insert as Dictionary).is_empty():
+		return
+	var parts = tpl.get("parts", [])
+	if typeof(parts) != TYPE_ARRAY or parts.is_empty() or typeof(parts[0]) != TYPE_DICTIONARY:
+		return
+	var ent := String(tpl.get("entity", ""))
+	var ln := String(repo.fisica_tpl_line(ent, tpl.get("paper_mm", [])))
+	if ln == "":
+		return
+	parts[0]["text"] = ln + "\n" + String(parts[0].get("text", ""))
+	var spec = repo.fisica().get("plantillas", {}).get(ent, {})
+	if typeof(spec) == TYPE_DICTIONARY and typeof(spec.get("mm")) == TYPE_ARRAY and (spec.mm as Array).size() == 2:
+		tpl["paper_mm"] = (spec.mm as Array).duplicate()
 
 static func _instantiate(st, repo, tpl: Dictionary, vars: Dictionary, meta: Dictionary) -> String:
 	if sink != null:

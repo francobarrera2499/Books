@@ -423,7 +423,7 @@ func test_flow_prologue_visit_night_dawn() -> void:
 	c = g.sim.q_clock()
 	eq([String(c.phase), bool(c.outing_done)], ["desk", true], "de vuelta en el escritorio")
 	eq(gs.state().mode, "hub")
-	eq(gs.state().frame, "escritorio", "al volver, el encuadre del escritorio")
+	eq(gs.state().frame, "general", "v2 (GDD_v2 §E): al volver, la vista general de la buhardilla")
 	no(gs.back(), "en el escritorio no hay nada que volver")
 	# láminas archivadas (GDD§5): se vuelven a mirar y a recortar desde el mapa
 	var ap: Array = sh.archived_plates().map(func(x): return String(x.id))
@@ -524,7 +524,9 @@ func test_sunday_shutters() -> void:
 	no(l2.is_open(), "la Sala de Lectura cierra el domingo")
 	ms._on_hover(l2, true)
 	ok(ms._hover.visible, "el motivo se lee al pasar el mouse")
-	eq(ms._hover.text, Widgets.t("sim.cerrado.horario"))
+	# GDD_v2 §C.3 (mapa, PROGRESIÓN): «Cerrado ahora» y el horario del lugar en una línea
+	ok(ms._hover.text.begins_with(Widgets.t("prog.map.cerrado_ahora")), ms._hover.text)
+	ok(ms._hover.text.contains(String(g.sim.repo.map().places.L2.hours)), "el horario de la Sala: " + ms._hover.text)
 	var r: Dictionary = await ms.travel("L2", "sala", 214)
 	no(bool(r.get("ok", true)), "el sim rechaza el viaje a un lugar cerrado")
 	eq(g.sim.actions_log().size(), n0, "y no queda registrado")
@@ -535,6 +537,12 @@ func test_esc_options_and_typing() -> void:
 	var gs = sh.game_screen
 	gs.speech.clear()
 	gs.exam.hide_card()
+	# v2 (GDD_v2 §E.2): Esc baja primero un nivel de la pila de poses (la nota del prólogo lleva la vista a la zona del
+	# escritorio); en la vista general, sin nada que cerrar, abre las Opciones
+	if sh.world.rig.depth() > 1:
+		sh.router._unhandled_input(key(KEY_ESCAPE))
+		eq(sh.world.rig.mode(), "overview", "Esc en una zona: vuelve a la vista general")
+		eq(sh.top_kind(), "", "y no abre menús")
 	sh.router._unhandled_input(key(KEY_ESCAPE))
 	eq(sh.top_kind(), "options", "Esc sin nada que cerrar: Opciones (con «Volver al título»)")
 	sh.router._unhandled_input(key(KEY_ESCAPE))

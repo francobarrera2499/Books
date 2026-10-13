@@ -355,6 +355,8 @@ func send() -> void:
 	cf.grow_vertical = Control.GROW_DIRECTION_BOTH
 	root.add_child(cf)
 	_confirm = cf
+	# mientras se confirma, los botones del compositor no se repiten debajo (playtest v2: dos «Volver» y dos «Enviar»)
+	_set_foot_visible(false)
 	cf.decided.connect(func(ok):
 		_close_confirm()
 		if ok:
@@ -413,6 +415,13 @@ func _close_confirm() -> void:
 	if _confirm != null:
 		_confirm.queue_free()
 		_confirm = null
+	_set_foot_visible(true)
+
+func _set_foot_visible(on: bool) -> void:
+	for b in [send_button, back_button]:
+		if b != null and is_instance_valid(b):
+			b.modulate.a = 1.0 if on else 0.0
+			b.mouse_filter = Control.MOUSE_FILTER_STOP if on else Control.MOUSE_FILTER_IGNORE
 
 func _on_sim_changed(kind: String, _p: Dictionary) -> void:
 	if visible and ["index", "clock", "clip", "entry", "report"].has(kind) and not _refresh_queued:

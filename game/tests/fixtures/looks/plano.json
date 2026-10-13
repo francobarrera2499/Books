@@ -1,0 +1,14 @@
+{
+  "_nota": "Fixture de test_u_looks.gd (look sin base: papel/tinta propios, defaults, presets por preset de Lighting y '*').",
+  "name": "Plano de prueba",
+  "order": 5,
+  "ink": "#203040",
+  "paper": {"manana": "#f0f0f0", "noche": [0.9, 0.8, 0.6]},
+  "defaults": {"exposure": 1.2, "tone_range": [0.1, 0.9], "steps": 4},
+  "presets": {
+    "*": {"grain": 0.03},
+    "gas": {"exposure": 1.6, "steps": 6},
+    "dorada_parklane": {"paper": {"tint": "#ffcc66", "mix": 0.5}}
+  },
+  "high_contrast": {"paper": "#ffffee", "ink": "#000011"}
+}

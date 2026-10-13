@@ -9,6 +9,9 @@
 #   lote de cero (reason «nada»: todo lo que cuenta ya está sellado) tampoco hay ranuras: lo dice Lisle.
 # press(inked): golpe del sello (≤0,4 s, sin rebote); la impresión (roja con tinta, pálida en seco) cae sobre los
 #   papelitos de los asientos que se pasaron: mientras dura, las ranuras los conservan (holding()) y después se vacían.
+# GDD_v2 §C.3: el tampón dibujado se fue; el estado de la tinta se lee en UNA línea bajo el sello («Con tinta.» / «El
+#   sello no tiene tinta hasta el próximo turno.»). El panel entero aparece recién con la bandera lg.sello (lo decide el
+#   libro).
 extends PanelContainer
 
 signal stamp_pressed
@@ -31,6 +34,7 @@ var _tw: Tween = null
 var _hold := false              # la impresión está sobre los papelitos: no se rehacen las ranuras
 var _pending := false           # hubo un sync durante la impresión
 var _imp: Control = null
+var ink_line: Label
 
 class Pad extends Control:
 	var dry := true
@@ -97,7 +101,14 @@ func _init() -> void:
 	_stamp.minimum_size_changed.connect(_center_stamp)
 	pad = Pad.new()
 	pad.name = "Tampon"
+	pad.visible = false
 	v.add_child(pad)
+	ink_line = Widgets.label("", "SourceLine")
+	ink_line.name = "Tinta"
+	ink_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ink_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ink_line.custom_minimum_size = Vector2(176, 0)
+	v.add_child(ink_line)
 	v.add_child(Widgets.rule())
 	_caption = Widgets.label(Widgets.t("ledger.sello.lote"), "SourceLine")
 	_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -143,6 +154,10 @@ func sync(p_state: Dictionary, p_cards: Array) -> void:
 		_:
 			pad.tooltip_text = Widgets.t("ledger.tampon.seco" if dry else "ledger.tampon.tinta")
 	pad.mouse_filter = Control.MOUSE_FILTER_PASS
+	ink_line.text = Widgets.t("v2d.lg.sello.seco" if dry else "v2d.lg.sello.tinta")
+	ink_line.add_theme_color_override("font_color", Paper.ink("tenue" if dry else "lapiz"))
+	ink_line.add_theme_font_size_override("font_size", _small_px())
+	ink_line.visible = String(state.get("reason", "")) != "practica"
 	_center_stamp.call_deferred()
 	if _hold:
 		_pending = true

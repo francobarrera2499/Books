@@ -17,6 +17,9 @@ class FIndex:
 		var ks: Array = st.ded.get("index", {}).keys()
 		ks.sort()
 		return ks
+	static func display(repo, id: String) -> String:
+		var e: Dictionary = repo.entity(id)
+		return String(e.get("index", e.get("name", id))) if not e.is_empty() else id
 	static func add_entities(st, repo, ents: Array) -> void:
 		if not st.ded.has("index"):
 			st.ded["index"] = {}

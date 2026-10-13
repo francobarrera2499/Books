@@ -3,6 +3,12 @@
 # obras de época sin relación (q_catalog). Pedir = papeleta (acción comprometida «slip»: confirmación en dos pasos con
 # el asiento a la vista). Tres papeletas por visita: se ven como tres tiras de papel en la mesa (sin número). Lo pedido
 # queda «sobre su mesa» y se lee en el lector. open() · close() · señales closed, read_requested(view).
+# GDD_v2 §C.3 (revelado progresivo): al principio, el buscador y «Recientes» (≤8 entradas del índice, lo último que entró);
+#   la lista entera del índice ya no se despliega como menú (escribir en el buscador la recorre). Las fichas aparecen al
+#   elegir una entrada; «Sobre mi mesa» después del primer pedido (bandera cat.mesa). En el encabezado, «Asiento 214 ·
+#   cambiar»: el asiento lo sigue llevando el `go` (no cambia el sim); cambiarlo vale para la próxima visita
+#   (Catalog.seat_pref, que el mapa usa como asiento por defecto; sin elección, el último usado o 214).
+# Dueño desde v2: DESPEJE-UI.
 extends Control
 
 signal closed
@@ -12,7 +18,18 @@ const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
 const SLIPS := 3
 const RES_MIN_H := 140.0
+const RECENT_N := 8
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
 var _remeasure := 0
+static var seat_pref := 0       # asiento elegido con «cambiar» para la próxima visita (sesión; 0 = sin elección)
+
+# Asiento por defecto para el próximo `go` a la Sala de Lectura: la elección de «cambiar», o el último usado, o 214.
+static func next_seat(sim) -> int:
+	if seat_pref > 0:
+		return seat_pref
+	if sim != null and sim.has_method("q_seat"):
+		return int(sim.q_seat())
+	return 214
 
 var shell = null
 var seat := 0
@@ -26,6 +43,11 @@ var head_seat: Label
 var _entity := ""
 var _confirm: Control = null
 var _res_scroll: ScrollContainer
+var _mid: VBoxContainer
+var _right: VBoxContainer
+var _recent_label: Label
+var _help: Label
+var _seat_btn: Button
 
 func _init() -> void:
 	name = "Catalog"
@@ -49,9 +71,21 @@ func _ready() -> void:
 	var h := Widgets.heading(Widgets.t("shell.cat.title"))
 	h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(h)
+	slips_row = HBoxContainer.new()
+	slips_row.add_theme_constant_override("separation", 6)
+	top.add_child(slips_row)
 	head_seat = Widgets.label("", "SourceLine")
 	head_seat.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	top.add_child(head_seat)
+	_seat_btn = Widgets.ink_button(Widgets.t("v2d.cat.cambiar"), _ask_seat)
+	_seat_btn.name = "CambiarAsiento"
+	Widgets.restyle(_seat_btn, func():
+		var tin := Widgets.ti()
+		_seat_btn.add_theme_font_size_override("font_size", 15 if tin == null else tin.px("small")))
+	top.add_child(_seat_btn)
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(10, 0)
+	top.add_child(gap)
 	top.add_child(Widgets.ink_button(Widgets.t("kit.close"), close))
 	v.add_child(Widgets.rule())
 	var cols := HBoxContainer.new()
@@ -63,11 +97,18 @@ func _ready() -> void:
 	left.custom_minimum_size = Vector2(250, 0)
 	left.add_theme_constant_override("separation", 6)
 	cols.add_child(left)
-	left.add_child(Widgets.label(Widgets.t("shell.cat.buscar"), "SourceLine"))
 	filter_edit = LineEdit.new()
+	filter_edit.name = "Buscar"
 	filter_edit.placeholder_text = Widgets.t("shell.cat.filtro")
+	filter_edit.clear_button_enabled = true
 	filter_edit.text_changed.connect(func(_t): _fill_index())
 	left.add_child(filter_edit)
+	_help = Widgets.marginal(Widgets.t("v2d.cat.ayuda"))
+	_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_help.custom_minimum_size = Vector2(250, 0)
+	left.add_child(_help)
+	_recent_label = Widgets.label(Widgets.t("v2d.cat.recientes"), "SourceLine")
+	left.add_child(_recent_label)
 	var sc := ScrollContainer.new()
 	sc.custom_minimum_size = Vector2(250, 300)
 	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -77,6 +118,7 @@ func _ready() -> void:
 	sc.add_child(index_list)
 	# resultados
 	var mid := VBoxContainer.new()
+	_mid = mid
 	mid.custom_minimum_size = Vector2(340, 0)
 	mid.add_theme_constant_override("separation", 8)
 	cols.add_child(mid)
@@ -93,13 +135,11 @@ func _ready() -> void:
 	_res_scroll.add_child(results)
 	# mesa: papeletas y lo pedido
 	var right := VBoxContainer.new()
+	_right = right
 	right.custom_minimum_size = Vector2(230, 0)
 	right.add_theme_constant_override("separation", 8)
 	cols.add_child(right)
 	right.add_child(Widgets.label(Widgets.t("shell.cat.mesa"), "SourceLine"))
-	slips_row = HBoxContainer.new()
-	slips_row.add_theme_constant_override("separation", 6)
-	right.add_child(slips_row)
 	desk_list = VBoxContainer.new()
 	desk_list.add_theme_constant_override("separation", 6)
 	right.add_child(desk_list)
@@ -167,6 +207,11 @@ func refresh() -> void:
 	if sim == null:
 		return
 	head_seat.text = Widgets.t("shell.cat.asiento", {"n": seat}) if seat > 0 else ""
+	if seat_pref > 0 and seat_pref != seat:
+		head_seat.text += " · " + Widgets.t("v2d.cat.proxima", {"n": seat_pref})
+	if seat > 0:
+		head_seat.text += " ·"
+	_seat_btn.visible = seat > 0
 	_fill_index()
 	_fill_results()
 	_fill_desk()
@@ -178,7 +223,9 @@ func _fill_index() -> void:
 	if sim == null:
 		return
 	var f := filter_edit.text.strip_edges().to_lower() if filter_edit != null else ""
-	for x in sim.q_index():
+	_recent_label.visible = f == ""
+	_help.visible = _entity == ""
+	for x in (sim.q_index() if f != "" else recent_rows(sim)):
 		if String(x.get("kind", "")) == "act_ref":
 			continue
 		var lab := String(x.get("label", x.get("id", "")))
@@ -191,6 +238,41 @@ func _fill_index() -> void:
 		b.toggle_mode = true
 		b.button_pressed = id == _entity
 		index_list.add_child(b)
+	# buscar algo que no está en el índice: decirlo (playtest v2: la lista quedaba vacía sin explicación)
+	if f != "" and index_list.get_child_count() == 0:
+		var nl := Widgets.marginal(Widgets.t("v2d.cat.sin_indice", {"que": filter_edit.text.strip_edges()}))
+		nl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		nl.custom_minimum_size = Vector2(220, 0)
+		index_list.add_child(nl)
+
+# «Recientes»: las entradas del índice que entraron último (las entidades de los recortes, del más nuevo al más viejo);
+# si no alcanzan, las demás en el orden del índice. Hasta RECENT_N.
+static func recent_rows(sim) -> Array:
+	var rows := {}
+	var order: Array = []
+	for x in sim.q_index():
+		if String(x.get("kind", "")) == "act_ref":
+			continue
+		rows[String(x.get("id", ""))] = x
+		order.append(String(x.get("id", "")))
+	var out: Array = []
+	var seen := {}
+	var cl: Array = sim.q_clips()
+	for k in range(cl.size() - 1, -1, -1):
+		for e in cl[k].get("ents", []):
+			var id := String(e.get("id", "")) if typeof(e) == TYPE_DICTIONARY else String(e)
+			if rows.has(id) and not seen.has(id):
+				seen[id] = true
+				out.append(rows[id])
+				if out.size() >= RECENT_N:
+					return out
+	for id in order:
+		if not seen.has(id):
+			seen[id] = true
+			out.append(rows[id])
+			if out.size() >= RECENT_N:
+				break
+	return out
 
 func _search(entity: String) -> void:
 	_entity = entity
@@ -221,10 +303,10 @@ func _fill_results() -> void:
 		_place.call_deferred()
 		_remeasure = 2
 		set_process(true)
+	_mid.visible = _entity != ""
 	if sim == null:
 		return
 	if _entity == "":
-		results.add_child(_note(Widgets.t("shell.cat.elija")))
 		return
 	var desk := _on_desk(sim)
 	var rs: Array = sim.q_catalog(_entity)
@@ -268,9 +350,15 @@ func _fill_desk() -> void:
 	if sim == null:
 		return
 	var desk := _on_desk(sim)
+	_right.visible = UiFlags.on(UiFlags.of(sim), "cat.mesa") or not desk.is_empty()
 	var used: int = int(sim.q_slips_used()) if sim.has_method("q_slips_used") else desk.size()
-	for i in maxi(0, SLIPS - used):
-		slips_row.add_child(Slip.new())
+	var left := maxi(0, SLIPS - used)
+	for i in left:
+		var sl := Slip.new()
+		# qué son: los pedidos que quedan en esta visita (playtest v2: las tres fichas no se explicaban)
+		sl.tooltip_text = Widgets.t("v2d.cat.pedidos")
+		sl.mouse_filter = Control.MOUSE_FILTER_PASS
+		slips_row.add_child(sl)
 	for did in desk:
 		var view := String(desk[did])
 		var title := String(sim.repo.doc(String(did)).get("title", view))
@@ -339,6 +427,41 @@ func _do_slip(did: String, label := "") -> void:
 			shell.note(Widgets.t("shell.cat.no_esta"))
 		return
 	read_requested.emit(view)
+
+# «cambiar»: el asiento para la próxima visita (el de hoy ya lo llevó el `go`). Dos pasos, como todo lo que cuenta.
+func _ask_seat() -> void:
+	if _confirm != null and is_instance_valid(_confirm):
+		_confirm.queue_free()
+	var box := HBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	box.add_child(Widgets.label(Widgets.t("v2d.cat.asiento_q"), ""))
+	var sp := SpinBox.new()
+	sp.name = "Asiento"
+	sp.min_value = 1
+	sp.max_value = 999
+	sp.step = 1
+	sp.rounded = true
+	sp.value = seat_pref if seat_pref > 0 else (seat if seat > 0 else 214)
+	sp.custom_minimum_size = Vector2(110, 0)
+	box.add_child(sp)
+	var c := Widgets.confirm(box, Widgets.t("kit.confirm.ok"), Widgets.t("kit.confirm.back"), Widgets.t("v2d.cat.cambiar_t"))
+	var wrap := Control.new()
+	wrap.name = "CambioAsiento"
+	wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+	wrap.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var cc := CenterContainer.new()
+	cc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	wrap.add_child(cc)
+	cc.add_child(c)
+	_confirm = wrap
+	add_child(wrap)
+	c.decided.connect(func(ok):
+		wrap.queue_free()
+		_confirm = null
+		if ok:
+			seat_pref = int(sp.value)
+			refresh())
 
 # Papeleta en blanco (dibujada).
 class Slip extends Control:

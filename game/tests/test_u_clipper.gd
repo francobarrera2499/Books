@@ -358,8 +358,8 @@ func test_visible_hides_hidden_tags():
 	var labels := {}
 	for e in v.ents:
 		labels[e.id] = e.label
-	eq(labels.get("raspadura"), "raspadura")
-	eq(labels.get("journal_de_geneve"), "Journal de Genève (6-may-1891)")
+	eq(labels.get("raspadura"), "Raspadura", "nombre natural (playtest v2), no la forma de índice")
+	eq(labels.get("journal_de_geneve"), "Journal de Genève")
 	eq(Clipper.visible(st, "RC9999"), {})
 
 func test_get_clip_is_a_copy():

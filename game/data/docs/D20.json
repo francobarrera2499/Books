@@ -16,7 +16,7 @@
     {"id": "D20@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
   ],
   "parts": [
-    {"id": "p1", "text": "<sc>The Times</sc>, miércoles 10 de enero de 1894. — Ventas en subasta.\n\n{{#hobday e:hobday_y_lark|Los señores [[hobday_y_lark|Hobday y Lark]] venderán en la casa, por cuenta de un caballero que se muda.}} {{#subasta a:tomos_de_watson e:tomos e:subasta_de_paddington e:enero_1894 d:1894-01-17 p:paddington c:verdadero h:F.subasta_paddington|El miércoles 17 de enero, a la una en punto, rematarán en [[paddington|Paddington]], cerca de [[praed_street|Praed Street]], el menaje de un consultorio médico, con libros, entre ellos [[tomos|la Strand Magazine, vols. II a VI, encuadernados]].}}\n\n{{#clerigo e:islington|Por orden de los albaceas, el viernes 12, en [[islington|Islington]]: la biblioteca de un clérigo difunto.}}"}
+    {"id": "p1", "text": "<sc>The Times</sc>, miércoles 10 de enero de 1894. — Ventas en subasta.\n\n{{#hobday e:hobday_y_lark|Los señores [[hobday_y_lark|Hobday y Lark]] venderán en la casa, por cuenta de un caballero que se muda.}} {{#subasta a:tomos_de_watson e:tomos e:subasta_de_paddington e:enero_1894 d:1894-01-17 p:paddington c:verdadero h:F.subasta_paddington|El miércoles 17 de enero, a la una en punto, rematarán en [[paddington|Paddington]], cerca de [[praed_street|Praed Street]], los muebles y enseres de un consultorio médico, con libros, entre ellos [[tomos|la Strand Magazine, vols. II a VI, encuadernados]].}}\n\n{{#clerigo e:islington|Por orden de los albaceas, el viernes 12, en [[islington|Islington]]: la biblioteca de un clérigo difunto.}}"}
   ],
-  "words": 70
+  "words": 94
 }

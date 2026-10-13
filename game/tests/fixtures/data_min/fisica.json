@@ -1,0 +1,22 @@
+{
+ "_nota": "Fixture mínimo de data/fisica.json (GDD_v2 §C.5; esquema abierto: dict). Sin docs a propósito: data_min lo cargan otros tests con offsets fijos (T19) y la línea física se antepondría a sus textos.",
+ "papeles": {
+  "carta": {
+   "ent": "papel_de_carta",
+   "txt": "Papel de carta"
+  }
+ },
+ "medios": {
+  "impreso": "impreso"
+ },
+ "docs": {},
+ "plantillas": {
+  "cartas_a_maquina": {
+   "papel": "carta",
+   "medio": [
+    "impreso"
+   ],
+   "estado": "doblada"
+  }
+ }
+}

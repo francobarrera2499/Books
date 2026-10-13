@@ -17,7 +17,7 @@ const RELACIONES := ["lee_a", "paga_a", "vigila_a", "obedece_a", "usa_a", "busca
 const ESTADOS := ["vivo", "muerto", "desconocido"]
 const MEDIOS := ["sala_lectura", "consultorio", "221b", "la_calle", "columna"]
 const EXPECTED := {
-	"T1": {"name": "Errata", "lines": [["fuente_a", "dice_a"], ["fuente_b", "dice_b"]], "opt": [false, false]},
+	"T1": {"name": "Contradicción", "lines": [["fuente_a", "dice_a"], ["fuente_b", "dice_b"]], "opt": [false, false]},
 	"T2": {"name": "Omisión", "lines": [["fuente", "calla"], ["consta_en"]], "opt": [false, false]},
 	"T3": {"name": "Identidad", "lines": [["persona"], ["es"]], "opt": [false, false]},
 	"T4": {"name": "Autoría", "lines": [["documento"], ["redacto"]], "opt": [false, false]},

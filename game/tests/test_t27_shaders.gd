@@ -1,10 +1,21 @@
 # T27 (W1-POST) — parte headless: todos los shaders compilan (el renderer dummy de 4.7 reporta errores de shader
-# al Logger) y el quad de grabado cumple el contrato de §7.8. La calibración con ventana está en test_t27_window.gd.
+# al Logger) y el quad de post-proceso cumple el contrato de §7.8 con cada look (world/post/looks.gd): 'aguada' (por
+# defecto, elegido por el usuario) y 'grabado' (alternativa en Opciones). La calibración con ventana está en
+# test_t27_window.gd.
 extends "res://tests/test_base.gd"
 
 const EngravingPost = preload("res://world/post/engraving_post.gd")
 const Lighting = preload("res://world/lighting.gd")
-const SHADER := "res://world/post/engraving.gdshader"
+const Looks = preload("res://world/post/looks.gd")
+const SHADER := "res://world/post/looks/grabado.gdshader"   # look 'grabado' (world/post/looks.gd)
+const AGUADA := "res://world/post/looks/aguada.gdshader"    # look 'aguada' (por defecto)
+
+var _saved := {}
+
+func before_each() -> void:
+	_saved = {"override": Looks._override, "choice": Looks._choice}
+	Looks._override = ""
+	Looks._choice = ""
 
 class ShaderLog extends Logger:
 	var errs: Array = []
@@ -25,6 +36,8 @@ func after_each() -> void:
 		if is_instance_valid(n):
 			n.queue_free()
 	_nodes.clear()
+	Looks._override = str(_saved.get("override", ""))
+	Looks._choice = str(_saved.get("choice", ""))
 
 static func _shader_files(dir: String, out: Array) -> void:
 	var d := DirAccess.open(dir)
@@ -54,6 +67,7 @@ func test_all_shaders_compile() -> void:
 	var files: Array = []
 	_shader_files("res://", files)
 	ok(files.has(SHADER), "falta " + SHADER)
+	ok(files.has(AGUADA), "falta " + AGUADA)
 	for p in files:
 		var errs := _compile(p)
 		ok(errs.is_empty(), "%s no compila: %s" % [p, str(errs)])
@@ -99,10 +113,20 @@ func test_post_attach_contract() -> void:
 	eq(post.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "sin sombras")
 	eq(post.layers, EngravingPost.LAYER, "capa propia")
 	var m = post.material_override
-	ok(m is ShaderMaterial and m.shader != null and m.shader.resource_path == SHADER, "ShaderMaterial(engraving)")
+	eq(Looks.DEFAULT, "aguada", "look por defecto: aguada (elección del usuario)")
+	eq(str(post.look_id), "aguada", "el quad nace con el look por defecto")
+	ok(m is ShaderMaterial and m.shader != null and m.shader.resource_path == AGUADA, "ShaderMaterial(aguada)")
 	eq(m.render_priority, Material.RENDER_PRIORITY_MAX, "se dibuja último en la pasada transparente")
-	ok(post.param("paper").is_equal_approx(Color("efe6d2")), "papel por defecto #efe6d2")
-	ok(post.param("ink").is_equal_approx(Color("1b1712")), "tinta #1b1712")
+	var base := Looks.params("aguada", "tarde", "T")
+	ok(post.param("paper").is_equal_approx(base.paper), "aguada: papel de tarde del look %s" % str(post.param("paper")))
+	ok(post.param("ink").is_equal_approx(base.ink), "aguada: tinta sepia del look")
+	# grabado (alternativa): mismo quad, su shader y su paleta de dos tintas
+	post.set_look_id("grabado")
+	ok(m.shader.resource_path == SHADER, "ShaderMaterial(grabado)")
+	ok(post.param("paper").is_equal_approx(Color("efe6d2")), "grabado: papel por defecto #efe6d2")
+	ok(post.param("ink").is_equal_approx(Color("1b1712")), "grabado: tinta #1b1712")
+	post.set_look_id("aguada")
+	ok(m.shader.resource_path == AGUADA and post.param("paper").is_equal_approx(base.paper), "vuelve a la aguada")
 	ok(EngravingPost.attach(cam) == post, "attach reutiliza")
 	eq(cam.get_child_count(), 1, "un solo quad")
 	ok(EngravingPost.find(cam) == post, "find")
@@ -151,22 +175,29 @@ func test_anchor_follows_rotation() -> void:
 	ok((post.param("anchor_rad") as Vector2).is_equal_approx(post.anchor_rad), "uniform actualizado")
 
 # WorldRoot (W1-3D) llama set_slot(slot) cuando aún no conoce el preset del lugar: el papel sigue a la franja
-# y se conserva el preset del look anterior.
+# y se conserva el preset del look anterior. Con cada look: los valores son los de Looks.params del look (en 'grabado',
+# además, idénticos a Lighting: papel de la franja y post del preset).
 func test_set_slot_keeps_preset_and_follows_paper() -> void:
-	var cam := Camera3D.new()
-	tree.root.add_child(cam)
-	_nodes.append(cam)
-	var post = EngravingPost.attach(cam)
-	post.set_slot("N")
-	ok(post.param("paper").is_equal_approx(Lighting.paper_for("N")), "noche: papel ámbar de gas")
-	eq(str(post._look.get("preset", "")), "gas", "sin preset previo: el de la franja")
-	post.set_look(Lighting.look("electrica_fria", "M"))
-	post.set_slot("T")
-	eq(str(post._look.get("preset", "")), "electrica_fria", "conserva el preset del lugar")
-	ok(post.param("paper").is_equal_approx(Lighting.paper_for("T")), "papel de tarde")
-	near(post.param("exposure"), Lighting.PRESETS.electrica_fria.post.exposure, 1e-6, "exposición del preset")
-	post.set_slot("M", "dorada_parklane")
-	eq(str(post._look.get("preset", "")), "dorada_parklane", "preset explícito")
+	for id in Looks.ids():
+		var cam := Camera3D.new()
+		tree.root.add_child(cam)
+		_nodes.append(cam)
+		var post = EngravingPost.attach(cam)
+		post.set_look_id(str(id))
+		post.set_slot("N")
+		ok(post.param("paper").is_equal_approx(Looks.params(str(id), "gas", "N").paper), "%s noche: papel de gas del look" % id)
+		eq(str(post._look.get("preset", "")), "gas", "%s: sin preset previo, el de la franja" % id)
+		post.set_look(Lighting.look("electrica_fria", "M"))
+		post.set_slot("T")
+		eq(str(post._look.get("preset", "")), "electrica_fria", "%s: conserva el preset del lugar" % id)
+		var want := Looks.params(str(id), "electrica_fria", "T")
+		ok(post.param("paper").is_equal_approx(want.paper), "%s: papel de tarde (tinte del preset)" % id)
+		near(post.param("exposure"), want.exposure, 1e-6, "%s: exposición del preset" % id)
+		if str(id) == "grabado":
+			ok(post.param("paper").is_equal_approx(Lighting.paper_for("T")), "grabado: papel de tarde de Lighting")
+			near(post.param("exposure"), Lighting.PRESETS.electrica_fria.post.exposure, 1e-6, "grabado: post de Lighting")
+		post.set_slot("M", "dorada_parklane")
+		eq(str(post._look.get("preset", "")), "dorada_parklane", "%s: preset explícito" % id)
 
 # El ancla sigue a la cámara por NOTIFICATION_TRANSFORM_CHANGED (el rig la mueve con Tween, después de _process).
 func test_anchor_updates_on_transform_notification() -> void:
@@ -186,6 +217,7 @@ func test_look_palette_and_modes() -> void:
 	tree.root.add_child(cam)
 	_nodes.append(cam)
 	var post = EngravingPost.attach(cam)
+	post.set_look_id("grabado")
 	post.set_look({"paper": Color("e8e6e0"), "exposure": 1.3, "haze": 0.2})
 	ok(post.param("paper").is_equal_approx(Color("e8e6e0")), "papel del look")
 	ok(absf(post.param("exposure") - 1.3) < 1e-6, "exposure del look")
@@ -202,3 +234,49 @@ func test_look_palette_and_modes() -> void:
 	ok(post.current_paper().is_equal_approx(Color.WHITE), "set_palette")
 	post.set_enabled(false)
 	ok(not post.visible, "set_enabled(false)")
+	# aguada: alto contraste del look (papel blanco, tinta negra, sin grano) y vuelta a su papel por franja
+	post.set_enabled(true)
+	post.set_look_id("aguada")
+	post.set_preset("gas", "N")
+	var g := Looks.params("aguada", "gas", "N")
+	ok(post.param("paper").is_equal_approx(g.paper) and post.param("ink").is_equal_approx(g.ink), "aguada: papel y tinta del preset")
+	near(post.param("grain"), float(g.grain), 1e-6, "aguada: grano de papel de acuarela")
+	post.set_high_contrast(true)
+	var hc := Looks.high_contrast("aguada")
+	ok(post.param("paper").is_equal_approx(hc.paper) and post.param("ink").is_equal_approx(hc.ink), "aguada: alto contraste")
+	eq(float(post.param("grain")), 0.0, "aguada: alto contraste sin grano")
+	post.set_high_contrast(false)
+	ok(post.param("paper").is_equal_approx(g.paper), "aguada: vuelve al papel de la franja")
+
+# Contrato del shader de la aguada (§7.8): quad de pantalla, profundidad y normales, estático (sin TIME), uniforms del
+# registro (paper, ink, grain, anchor_rad, debug_view) y cada parámetro de looks/aguada.json es un uniform del shader
+# (un nombre mal escrito en el JSON se ignoraría en silencio).
+func test_aguada_contract_text() -> void:
+	var code := FileAccess.get_file_as_string(AGUADA)
+	ok(code.contains("shader_type spatial;"), "shader_type spatial")
+	for rm in ["unshaded", "cull_disabled", "depth_test_disabled", "depth_draw_never"]:
+		ok(code.contains(rm), "render_mode " + rm)
+	ok(code.contains("POSITION = vec4(VERTEX.xy, 1.0, 1.0);"), "vértice en el plano cercano")
+	for h in ["hint_screen_texture", "hint_depth_texture", "hint_normal_roughness_texture", "INV_PROJECTION_MATRIX"]:
+		ok(code.contains(h), "usa " + h)
+	var no_comments := ""
+	for line in code.split("\n"):
+		var i := line.find("//")
+		no_comments += (line.substr(0, i) if i >= 0 else line) + "\n"
+	ok(RegEx.create_from_string("\\bTIME\\b").search(no_comments) == null, "estático: sin TIME")
+	var names := Looks.uniforms("aguada")
+	for u in ["paper", "ink", "grain", "anchor_rad", "debug_view"]:
+		ok(names.has(u), "uniform " + u)
+	var inf := Looks.info("aguada")
+	var keys := {}
+	for k in (inf.get("defaults", {}) as Dictionary):
+		keys[k] = "defaults"
+	for p in (inf.get("presets", {}) as Dictionary):
+		ok(p == "*" or Lighting.has(str(p)), "preset de Lighting: %s" % p)
+		for k in (inf.presets[p] as Dictionary):
+			if k != "paper":
+				keys[k] = p
+	for k in keys:
+		ok(names.has(k), "aguada.json (%s): %s es uniform del shader" % [keys[k], k])
+	for p in Lighting.names():
+		ok((inf.get("presets", {}) as Dictionary).has(p), "aguada.json calibra el preset %s" % p)

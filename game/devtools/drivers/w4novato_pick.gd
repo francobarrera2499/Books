@@ -44,7 +44,7 @@ func drive(tool, scene) -> void:
 		var size: Vector3 = b.get_meta("size", Vector3.ZERO)
 		print("PICK %s proy=%s en_pantalla=%s pick_en_proy=%s alcanzable=%s tam=%s" % [id, pr.round(), on, at, found.round() if found.x >= 0 else "NO", size])
 	var gs = shell.game_screen
-	print("PICK chevrones izq=%s der=%s encuadres=%s salir=%s" % [gs._chev_l.visible, gs._chev_r.visible, str(gs.frames()), gs._leave_btn.visible])
+	print("PICK pose=%s encuadres=%s salir=%s" % [shell.world.rig.mode(), str(gs.frames()), gs._leave_btn.visible])
 	for f in ["escritorio", "ventana"]:
 		gs.go_frame(f)
 		await tool.create_timer(1.5).timeout

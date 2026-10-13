@@ -5,6 +5,8 @@
 # links = [{text, cb: Callable, disabled?: bool}]. Pocos enlaces van en una fila; muchos (los tomos de la Strand, un
 # estante) van en lista, uno por renglón, bajo un encabezado (head) y en un desplazable de alto acotado: la tarjeta
 # nunca se sale de la pantalla.
+# v2 (GDD_v2 §C.1/§C.3): note = una línea chica no recortable bajo el examen (la cuenta de las monedas); la lista de los
+# tomos va en dos niveles (GameScreen) y nunca pasa de ≤7 renglones a la vista.
 extends PanelContainer
 
 signal clipped(result: Dictionary)
@@ -25,6 +27,7 @@ var links_box: HFlowContainer
 var links_head: Label
 var links_scroll: ScrollContainer
 var links_list: VBoxContainer
+var note_label: Label
 var node_id := ""
 var bottom_inset := 0.0:        # alto que tapa una banda de abajo (panel de escena): la tarjeta va encima
 	set(v):
@@ -52,6 +55,10 @@ func _ready() -> void:
 	body.custom_minimum_size = Vector2(MAX_W - 40.0, 0)
 	body.clipped.connect(func(r): clipped.emit(r))
 	v.add_child(body)
+	note_label = Widgets.label("", "Caption")
+	note_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	note_label.visible = false
+	v.add_child(note_label)
 	links_box = HFlowContainer.new()
 	links_box.add_theme_constant_override("h_separation", 18)
 	links_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -88,12 +95,14 @@ func _place() -> void:
 	size.x = w
 	position = Vector2((vs.x - w) * 0.5, maxf(TOP_GAP, vs.y - size.y - 34.0 - bottom_inset))
 
-func show_card(p_title: String, parsed: Dictionary, links: Array, src := {}, p_node := "", head := "") -> void:
+func show_card(p_title: String, parsed: Dictionary, links: Array, src := {}, p_node := "", head := "", note := "") -> void:
 	node_id = p_node
 	title_label.text = p_title
 	title_label.visible = p_title != ""
 	(body as ClipLabel).setup(parsed, src)
 	body.visible = String(parsed.get("plain", "")) != ""
+	note_label.text = note
+	note_label.visible = note != ""
 	for c in links_box.get_children() + links_list.get_children():
 		c.get_parent().remove_child(c)
 		c.queue_free()

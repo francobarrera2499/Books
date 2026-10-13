@@ -1,7 +1,7 @@
 # W3-SHELL: acciones de prueba (una por línea)
-{"from":0,"len":77,"src":{"block":0,"kind":"doc","part":0,"ref":"D23@L1"},"t":"clip_text"}
-{"from":0,"len":71,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.REDH@tomo"},"t":"clip_text"}
-{"from":144,"len":86,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.REDH@tomo"},"t":"clip_text"}
+{"from":124,"len":77,"src":{"block":0,"kind":"doc","part":0,"ref":"D23@L1"},"t":"clip_text"}
+{"from":86,"len":71,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.REDH@tomo"},"t":"clip_text"}
+{"from":230,"len":86,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.REDH@tomo"},"t":"clip_text"}
 {"a":"RC0002","b":"RC0003","note":"","t":"link"}
 {"clip":"RC0002","t":"folio_open"}
 {"folio":"FO001","t":"entry_new","template":"T1"}

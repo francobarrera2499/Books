@@ -153,11 +153,19 @@ func test_builds_every_tab_from_real_sim() -> void:
 	make()
 	nb.open("recortes")
 	await frames()
+	# GDD_v2 §C.2: cada pestaña existe sólo con su bandera; la que no existe no se muestra ni se puede abrir
+	var fl: Dictionary = sim.q_ui()
 	for t in Notebook.TABS:
+		var want: bool = t == "recortes" or bool(fl.get(Notebook.TAB_FLAG[t], false))
+		eq(nb.tab_available(t), want, "pestaña %s según su bandera" % t)
 		nb.show_tab(t)
 		await frames(1)
-		eq(nb.tab, t, "pestaña " + t)
+		if want:
+			eq(nb.tab, t, "pestaña " + t)
+		else:
+			ok(nb.tab != t, "sin bandera no se abre: " + t)
 		eq(nb._tab_buttons[t].text, ui_text("nb.tab." + t), "rótulo de la pestaña sin contadores: " + t)
+	eq(nb.debug_state().tabs, nb.available_tabs() if nb.available_tabs().size() > 1 else [], "a la vista, las pestañas que existen")
 	var st: Dictionary = nb.debug_state()
 	eq(st.recortes.cards.size(), sim.q_clips().size(), "una tarjeta por recorte")
 	eq(st.indice.entries.size(), sim.q_index().size(), "una entrada por entidad del índice")
@@ -166,8 +174,8 @@ func test_builds_every_tab_from_real_sim() -> void:
 	var arrivals: int = sim.q_diary().filter(func(e): return String(e.kind) == "arrival").size()
 	ok(arrivals > 0, "hay llegadas en el recorrido")
 	eq(st.diario.stamps, arrivals, "cada llegada lleva su sello «Recibido»")
-	eq(st.marginalia.notes, [], "sin huevos hallados, Marginalia vacía")
-	eq(nb._tab_buttons["cotejos"].text, "Cotejos", "la pestaña de los pares se llama Cotejos")
+	eq(st.marginalia.notes, [], "sin huevos hallados, Curiosidades vacía")
+	no(nb._tab_buttons["marginalia"].visible, "sin huevos hallados, la pestaña de Curiosidades no está a la vista")
 
 func test_clips_grouped_and_margin_dates() -> void:
 	make()
@@ -369,7 +377,10 @@ func test_unlink_needs_confirmation() -> void:
 		eq(nb.debug_state().note, ui_text("nb.err.en_tinta"), "Lisle lo dice")
 	else:
 		eq(sim.q_pairs().size(), 0, "separado")
-		eq(nb.page("cotejos").debug_state().empty, ui_text("nb.vacio.cotejos"), "página vacía explica la forma")
+		if nb.tab_available("cotejos"):
+			eq(nb.page("cotejos").debug_state().empty, ui_text("nb.vacio.cotejos"), "página vacía explica la forma")
+		else:
+			eq(nb.tab, "recortes", "sin pares (bandera apagada): vuelve a Recortes")
 
 func _line_by(who: String, text: String) -> String:
 	for e in sim.q_diary():
@@ -445,6 +456,11 @@ func test_diary_scissors_by_mouse_drag() -> void:
 	await frames(3)
 	var d = nb.page("diario")
 	ok(d.scissors, "tijera en la mano")
+	# los días anteriores están plegados (GDD_v2 §C.3): se despliegan todos para encontrar el renglón
+	for dd in d.debug_state().days:
+		d._open_days[int(dd)] = true
+	d.refresh()
+	await frames(3)
 	var eid := _line_with("Era un sendero")
 	var rt: RichTextLabel = d.rtl_of(eid)
 	d._scroll.ensure_control_visible(rt)
@@ -542,7 +558,8 @@ func test_layouts_and_theme() -> void:
 	var rl: Rect2 = nb.book_rect()
 	ok(rl.end.x <= 800.0, "a la izquierda, junto al libro mayor (dos paneles como mucho)")
 	no(nb.is_wide(), "angosto")
-	ok(nb.page("recortes")._row2.visible, "los filtros pasan al segundo renglón")
+	var pst: Dictionary = nb.page("recortes").debug_state()
+	eq(nb.page("recortes")._row2.visible, not (pst.menus as Array).is_empty(), "los filtros (si existen) pasan al segundo renglón")
 	# angosto: las tiras del par una bajo la otra, y el sujetapapeles en el margen (se ve qué dos tiras forman el par)
 	nb.show_tab("cotejos")
 	await frames()
@@ -601,9 +618,11 @@ func test_empty_and_without_sim() -> void:
 	nb.open("recortes")
 	await frames()
 	eq(nb.debug_state().recortes.empty, ui_text("nb.vacio.recortes"), "cuaderno vacío: Lisle explica la tijera")
+	eq(nb.debug_state().tabs, [], "partida nueva: sin pestañas, sólo la lista")
+	no(nb.page("recortes").debug_state().search, "sin buscador")
 	nb.show_tab("cotejos")
 	await frames()
-	eq(nb.debug_state().cotejos.empty, ui_text("nb.vacio.cotejos"), "Cotejos vacío")
+	eq(nb.tab, "recortes", "sin pares no hay pestaña de pares")
 	nb.free()
 	# sin partida (pantalla de título): nada se rompe
 	nb = Notebook.new()
@@ -813,6 +832,8 @@ func test_ui_text_keys_exist() -> void:
 	for k in keys:
 		if String(k).ends_with("."):
 			continue
+		if Notebook.TAB_FLAG.values().has(k) or ["nb.buscar", "nb.filtros", "nb.agrupar"].has(k) and not texts.has(k):
+			continue   # banderas de q_ui (GDD_v2 §C.2), no claves de texto
 		ok(texts.has(k), "ui_text tiene " + String(k))
 
 # Doble de Shell con un panel de escena (banda al pie, capa 40) y su tijera.

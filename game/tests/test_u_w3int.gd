@@ -146,15 +146,10 @@ func test_two_books_by_mouse() -> void:
 	no(rb.visible, "con el libro abierto la cinta se va")
 	ok(sh.panel("ledger").find_child("Pestana_cuaderno", true, false) == null, "con el cuaderno abierto el libro no ofrece su pestaña")
 	ok(sh.stack.size() <= 2, "nunca más de dos paneles")
-	# se cierra el cuaderno: el libro ofrece la pestaña «Cuaderno»
+	# GDD_v2 §C.3: el «Cuaderno» ya no es una pestaña del libro (queda la cinta del HUD)
 	sh.close_kind("notebook")
 	await frames(4)
-	var tab: Control = sh.panel("ledger").find_child("Pestana_cuaderno", true, false)
-	ok(tab != null and tab.is_visible_in_tree(), "pestaña «Cuaderno» en el libro mayor")
-	if tab != null:
-		click(tab)
-		await frames(4)
-	ok(sh.is_open("notebook") and sh.is_open("ledger"), "la pestaña abre el cuaderno al lado")
+	ok(sh.panel("ledger").find_child("Pestana_cuaderno", true, false) == null, "el libro no tiene pestaña «Cuaderno»")
 
 func test_hud_covered_by_docked_notebook() -> void:
 	await boot_desk()

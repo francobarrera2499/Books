@@ -239,7 +239,8 @@ static func index_sections(rows: Array, text_fn: Callable, q := "") -> Array:
 	for r in rows:
 		if typeof(r) != TYPE_DICTIONARY:
 			continue
-		var lb := String(r.get("label", r.get("id", "")))
+		# la pestaña «Índice» ordena y agrupa por la forma de catálogo («Watson, John H., doctor»)
+		var lb := String(r.get("index", r.get("label", r.get("id", ""))))
 		if not ws.is_empty():
 			var h := fold(lb)
 			var ok := true

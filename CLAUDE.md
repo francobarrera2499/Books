@@ -12,3 +12,5 @@ Fuente de verdad del usuario: `design.md` (leerlo). Resumen de reglas duras:
 Layout: `game/` proyecto Godot 4.7 · `docs/` diseño · `tools/` Godot exe (ignorado) · `.work/` temporales (ignorado).
 
 Fuentes (aprobadas por el usuario, en `game/assets/fonts/`, con licencias): IMFeENrm28P.ttf / IMFeENit28P.ttf (IM Fell English, imprenta), SpecialElite-Regular.ttf (máquina de escribir), HomemadeApple-Regular.ttf (manuscrito). Cubren español completo. PROHIBIDO SystemFont (leería C:\Windows\Fonts).
+
+TÍTULO DEL JUEGO (decisión del usuario, prevalece sobre cualquier prompt o doc anterior): **What the Ink Says** — SIEMPRE en inglés, aunque el juego esté en español (pantalla de título, ventana, créditos, epílogo, docs). «Fe de erratas» queda obsoleto como título. Evitar la palabra «errata» en textos visibles (pedido del usuario: vocabulario simple).

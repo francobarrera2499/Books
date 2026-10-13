@@ -38,6 +38,7 @@ const Diary = preload("res://core/sim/diary.gd")
 const Clipper = preload("res://core/deduction/clipper.gd")
 const Effects = preload("res://core/react/effects.gd")
 const Composers = preload("res://core/scenes/composers.gd")
+const Reveal = preload("res://core/sim/reveal.gd")
 
 const HOME := "L1"
 # holder de un ejemplar (§4.4) -> lugar donde se lee. Los holders L2..L8 son su propio lugar.
@@ -351,12 +352,15 @@ static func insert_units(parsed: Dictionary, how: String) -> Array:
 		if b <= a:
 			continue
 		var has_tramo := false
+		var fisica := false
 		for tr in parsed.get("tramos", []):
 			if int(tr.from) < b and int(tr.to) > a:
 				has_tramo = true
+				if String(tr.get("id", "")) == "fisica":
+					fisica = true
 				break
-		if not has_tramo:
-			continue   # encabezado («Anuncios personales») o renglón sin contenido propio
+		if not has_tramo or fisica:
+			continue   # encabezado («Anuncios personales»), renglón sin contenido propio o descripción física (GDD_v2 §C.5.2)
 		if how == "noticias":
 			var opens_sc := false
 			for s in parsed.get("styles", []):
@@ -931,6 +935,7 @@ static func say_line(st, repo, ln: Dictionary) -> String:
 	st.world.lines[uid] = rec
 	if not v.is_empty():
 		v.lines.append(uid)
+	Reveal.hear(st, repo, rec.text, rec.act)
 	Diary.on_line(st, repo, rec)
 	st.note("line", {"uid": uid})
 	return uid
@@ -969,6 +974,7 @@ static func sync_scene_lines(st, repo) -> void:
 			"origin": String(rec.get("origin", v.get("id", ""))), "tk": int(rec.get("tk", _now(st))), "act": String(rec.get("act", ""))}
 		if r2.text.strip_edges() == "":
 			continue   # línea sin texto (contenido pendiente): nada que mostrar ni recortar
+		Reveal.hear(st, repo, r2.text, r2.act)
 		Diary.on_line(st, repo, r2)
 		if not v.is_empty():
 			v.lines.append(String(uid))

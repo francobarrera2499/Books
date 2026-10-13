@@ -19,6 +19,9 @@
 #   confirm(body, ok_text="", back_text="", title="") -> Confirm (ui/kit/confirm.gd; señal decided(ok))
 #   fade(node, to_alpha, seconds=0.25) -> Tween
 #   restyle(node, fn) -> void                      llama fn ahora y en cada theme_changed (hijo Restyler)
+#   fold(title, key="", open=false) -> VBoxContainer  sección plegada (GDD_v2 §C: lo que no hace falta, plegado): un
+#     renglón «› Título» que despliega («– Título» desplegado; los glifos ▸▾ no están en las fuentes); meta "content" = VBoxContainer donde va lo plegado, meta "header" = el botón;
+#     key != "" recuerda abierto/cerrado en la sesión (no es estado de la partida)
 extends RefCounted
 
 const Paper = preload("res://ui/kit/paper.gd")
@@ -26,6 +29,8 @@ const Sheet = preload("res://ui/kit/sheet.gd")
 const Confirm = preload("res://ui/kit/confirm.gd")
 const Restyler = preload("res://ui/kit/restyler.gd")
 const MAX_ANIM_S := 0.4
+const FOLD_CLOSED := "› "
+const FOLD_OPEN := "– "
 
 static func _root_node(n: String) -> Node:
 	var ml = Engine.get_main_loop()
@@ -232,3 +237,40 @@ static func fade(node: CanvasItem, to_alpha: float, seconds := 0.25) -> Tween:
 static func restyle(node: Control, fn: Callable) -> void:
 	fn.call()
 	node.add_child(Restyler.new(fn), false, Node.INTERNAL_MODE_BACK)
+
+static var _folds := {}
+
+static func fold(title: String, key := "", open := false) -> VBoxContainer:
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 4)
+	v.name = "Plegado"
+	var on: bool = bool(_folds.get(key, open)) if key != "" else open
+	var hb := ink_button("")
+	hb.name = "Desplegar"
+	hb.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	hb.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	var c := VBoxContainer.new()
+	c.name = "Contenido"
+	c.add_theme_constant_override("separation", 6)
+	var sync := func(o: bool):
+		hb.text = (FOLD_OPEN if o else FOLD_CLOSED) + title
+		c.visible = o
+		v.set_meta("open", o)
+	hb.pressed.connect(func():
+		var o := not bool(v.get_meta("open", false))
+		if key != "":
+			_folds[key] = o
+		sync.call(o))
+	v.add_child(hb)
+	v.add_child(c)
+	v.set_meta("content", c)
+	v.set_meta("header", hb)
+	sync.call(on)
+	return v
+
+# Abre o cierra un plegado desde fuera (tests, drivers).
+static func set_fold(v: Control, open: bool) -> void:
+	if v == null or not v.has_meta("header"):
+		return
+	if bool(v.get_meta("open", false)) != open:
+		(v.get_meta("header") as Button).pressed.emit()

@@ -16,6 +16,8 @@ const SPEC := {
 	"clip_text": {"args": {"src": TYPE_DICTIONARY, "from": TYPE_INT, "len": TYPE_INT}, "opt": {}, "commit": false, "phases": FREE},
 	"clip_plate": {"args": {"plate": TYPE_STRING, "hits": TYPE_ARRAY, "touched": TYPE_ARRAY, "area_frac": TYPE_FLOAT}, "opt": {"touched": [], "area_frac": 0.0}, "commit": false, "phases": FREE},
 	"clip_measure": {"args": {"src": TYPE_DICTIONARY}, "opt": {}, "commit": false, "phases": FREE},
+	# GDD_v2 §B.4: el lector la emite la primera vez que muestra cada hoja en la sesión. Libre y ciega (sin evento).
+	"read": {"args": {"view": TYPE_STRING, "part": TYPE_INT}, "opt": {"part": 0}, "commit": false, "phases": FREE},
 	"link": {"args": {"a": TYPE_STRING, "b": TYPE_STRING, "note": TYPE_STRING}, "opt": {"note": ""}, "commit": false, "phases": FREE},
 	"unlink": {"args": {"pair": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
 	"folio_open": {"args": {"clip": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},

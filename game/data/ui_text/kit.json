@@ -1,10 +1,10 @@
 {
-  "_nota": "W1-THEME. Textos del kit de UI (ui/kit/widgets.gd). Claves con prefijo kit.",
+  "_nota": "W1-THEME; redacción v2: TEXTOS-UI (GDD_v2 §A). Textos del kit de UI (ui/kit/widgets.gd). Claves con prefijo kit. kit.segun = rótulo de la ranura de pruebas (antes «según»); kit.stamp.visto = sello de lo confirmado (antes «Visto»).",
   "text": {
     "kit.confirm.ok": "Confirmar",
     "kit.confirm.back": "Volver",
     "kit.close": "Cerrar",
-    "kit.segun": "según",
-    "kit.stamp.visto": "Visto"
+    "kit.segun": "pruebas",
+    "kit.stamp.visto": "Confirmado"
   }
 }

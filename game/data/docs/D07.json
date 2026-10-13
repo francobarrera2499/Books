@@ -2,7 +2,7 @@
   "_nota": "W3-CT-REICH. Fotografía-recuerdo del Reichenbach (GDD §6): el cartón con el epígrafe impreso del fotógrafo; la imagen es la lámina RB.foto (W2-PLACES-C), cuyo nodo #linea lleva cornisa_existe (C3.R2). El epígrafe no dice qué es la línea.",
   "id": "D07",
   "entity": "fotografia_reichenbach",
-  "title": "Fotografía-recuerdo de la cascada del Reichenbach",
+  "title": "Foto de recuerdo de la cascada del Reichenbach",
   "src_type": "fotografia",
   "class": "I",
   "date": "1890-08-01",
@@ -29,5 +29,5 @@
       "text": "<sc>Recuerdo de [[meiringen|Meiringen]]</sc>\n{{#epigrafe e:reichenbach p:reichenbach|La cascada superior del [[reichenbach|Reichenbach]], vista desde la otra orilla.}}\n<i>[[fotografo|Fotografía Alpina]], Meiringen. Verano de 1890.</i>\nSerie del [[oberland|Oberland bernés]], n.º 14. Se vende en los hoteles."
     }
   ],
-  "words": 30
+  "words": 46
 }

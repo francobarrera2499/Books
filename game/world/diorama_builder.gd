@@ -9,9 +9,13 @@
 #  - variants[v]: add_nodes, move{prop:{pos,rot}}, add_props, remove_props (ids).
 #  - meta "occ" admite AABB o Transform3D (caja orientada: escala del basis = tamaño).
 #  - grupos de corte (cuartos): meta cut_n/cut_p/occ → WorldRoot los oculta si la cámara queda afuera.
+#  - v2 afordancias (GDD_v2 §D.3): al final, world/affordance/affordance.gd reparte las mallas de cada nodo (su prop dentro
+#    de su ancla, el maniquí de siluetas y personajes) y les pone el código 1 (examinable) en la rugosidad; el 2 (usable)
+#    lo pone WorldRoot.set_usable. Meta "aff" = {"n:<nodo>"|"c:<personaje>": [GeometryInstance3D]}.
 extends RefCounted
 
 const M = preload("res://world/materials.gd")
+const AFF = preload("res://world/affordance/affordance.gd")
 const MQ = preload("res://world/characters/mannequin.gd")
 
 const LAYER_OCC := 1
@@ -257,6 +261,7 @@ static func build(place: Dictionary, snap: Dictionary) -> Node3D:
 	root.set_meta("prop_bodies", prop_bodies)
 	root.set_meta("nodes_index", nodes_index)
 	root.set_meta("chars_index", chars_index)
+	AFF.tag(root)
 	return root
 
 static func _cut_groups(n: Node) -> Array:

@@ -97,11 +97,11 @@ func drive(p_tool, scene) -> void:
 	await tool.frames(12)
 	_check(not gs.tray.visible, "«Cerrar» la bandeja")
 	await tool.snap("05_escritorio")
-	# ---- encuadres con los chevrones (clic)
+	# ---- v2 (GDD_v2 §E): sin chevrones; un clic en la ventana lleva a su zona
 	var f0 := String(gs.frame)
-	await _click(_c(gs._chev_r))
+	await _click(_node_pos("ventana"))
 	await tool.frames(40)
-	_check(String(gs.frame) != f0, "chevrón: otro encuadre (%s -> %s)" % [f0, gs.frame])
+	_check(String(gs.frame) != f0, "clic en la ventana: otro encuadre (%s -> %s)" % [f0, gs.frame])
 	await tool.snap("06_encuadre")
 	# el mapa de la pared (3D) si está en este encuadre; si no, M
 	var mp := _node_pos("mapa")

@@ -55,14 +55,14 @@ func drive(p_tool, scene) -> void:
 		await tool.frames(3)
 		reader.go_page(1)
 		await tool.frames(4)
-		reader.set_lupa(true)
+		pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 		var at := _word_pos(0, "cabrito")
 		if at != Vector2.ZERO:
 			Input.warp_mouse(at)
 			reader.point_at(at)
 			await tool.frames(4)
 			await tool.snap("d10_lupa")
-		reader.set_lupa(false)
+		pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 		reader.close()
 		await tool.frames(2)
 

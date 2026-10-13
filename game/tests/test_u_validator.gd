@@ -495,6 +495,7 @@ func test_through_game_sim():
 	sim.st.clock.day = 4
 	sim.st.clock.slot = "M"
 	sim.st.clock.phase = "desk"
+	sim.st.world.tutorial.d1["practice"] = 41   # GDD_v2 §B.7: confirmar pide la práctica (aquí se salta el día 1)
 	var p2: String = r.parsed("D02", "p1").plain
 	var k := p2.find("En la roca")
 	var res := sim.apply({"t": "clip_text", "src": {"kind": "doc", "ref": "D02@L1", "part": "p1", "block": 0}, "from": k, "len": p2.find("arriba.") + 7 - k}) as Dictionary

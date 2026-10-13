@@ -26,9 +26,10 @@ func test_initial_state():
 	for l in s.q_scene().lines:
 		ids.append(l.id)
 	ok(ids.has("encargo") and ids.has("cace_india"), str(ids))
-	ok(ids.has("t_clip"), "línea del primer paso")
-	no(ids.has("t_link"), "línea de un paso futuro")
-	eq(s.q_tutorial().step.id, "clip")
+	ok(ids.has("t_read"), "línea del primer paso (GDD_v2 §B.7: abrir el encargo)")
+	no(ids.has("t_clip"), "línea de un paso futuro")
+	no(ids.has("t_link"), "línea que ya no existe en el prólogo")
+	eq(s.q_tutorial().step.id, "read")
 	eq(s.actions_log(), [])
 	eq(s.st.events, [])
 
@@ -224,3 +225,18 @@ func test_preview_mail_and_report_real_modules():
 			eq(pv, String(r.get("text", "")), "vista previa = texto final de " + t)
 			seen[t] = true
 	ok(seen.has("compose_telegram") and seen.has("report_submit"), str(seen))
+
+# GDD_v2 §C.5.6: la regla ya no está en la interfaz; `clip_measure` (partidas viejas) se resuelve como el recorte de la
+# línea de descripción física (tramo #fisica) de la primera hoja. Datos reales.
+func test_clip_measure_is_fisica_clip():
+	var s = GameSim.new(repo(), 7)
+	var v: Dictionary = s.q_view("D23@L1")
+	var first: Dictionary = v.pages[0][0].parsed.tramos[0]
+	eq(String(first.id), "fisica", "la primera línea de todo documento es su descripción física")
+	var r: Dictionary = s.apply({"t": "clip_measure", "src": {"kind": "doc", "ref": "D23@L1"}})
+	ok(r.ok, str(r))
+	var c: Dictionary = s.q_clip(String(r.get("clip", "")))
+	var plain: String = v.pages[0][0].parsed.plain
+	eq(String(c.text), plain.substr(int(first.from), int(first.to) - int(first.from)), "el recorte es la línea física")
+	ok((c.ents as Array).any(func(e): return String(e.id) == "papel_de_carta"), "con la entidad del papel en el pie")
+

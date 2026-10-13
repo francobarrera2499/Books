@@ -7,11 +7,11 @@ const J = preload("res://core/util/j.gd")
 const ALL := ["clip_text", "clip_plate", "clip_measure", "link", "unlink", "folio_open", "entry_new", "entry_set",
 	"entry_support_add", "entry_support_remove", "entry_delete", "practice", "pass_clean", "go", "slip", "order_copy",
 	"ask", "assert", "present", "pay", "task", "leave", "end_slot", "compose_ad", "compose_telegram", "compose_letter",
-	"report_submit", "sleep", "confront", "night_choice", "publish_errata"]
+	"report_submit", "sleep", "confront", "night_choice", "publish_errata", "read"]
 const COMMITTED := ["pass_clean", "go", "slip", "order_copy", "ask", "assert", "present", "pay", "task", "leave", "end_slot",
 	"compose_ad", "compose_telegram", "compose_letter", "report_submit", "sleep", "confront", "night_choice", "publish_errata"]
 const FREE_T := ["clip_text", "clip_plate", "clip_measure", "link", "unlink", "folio_open", "entry_new", "entry_set",
-	"entry_support_add", "entry_support_remove", "entry_delete", "practice"]
+	"entry_support_add", "entry_support_remove", "entry_delete", "practice", "read"]
 
 func test_spec_covers_table():
 	var ks: Array = Actions.types()
@@ -80,3 +80,11 @@ func test_shape_errors():
 	eq(Actions.shape_error(Actions.normalize({"t": "confront", "step": 1})), "", "item opcional = callar")
 	eq(Actions.shape_error(Actions.normalize({"t": "publish_errata", "yes": "si"})), "tipo:yes")
 	eq(Actions.shape_error(Actions.normalize({"t": "leave"})), "")
+
+# GDD_v2 §B.4: `read` {view, part} libre (no comprometida), part opcional (0).
+func test_read_action_shape():
+	eq(Actions.shape_error({"t": "read", "view": "D23@L1"}), "")
+	eq(Actions.normalize({"t": "read", "view": "D23@L1"}), {"part": 0, "t": "read", "view": "D23@L1"})
+	eq(Actions.normalize({"t": "read", "view": "D23@L1", "part": 2.0}).part, 2)
+	eq(Actions.shape_error({"t": "read"}), "falta:view")
+	no(Actions.is_commit("read"))

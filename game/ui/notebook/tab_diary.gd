@@ -5,6 +5,8 @@
 # renglón y soltar -> SelectionMapper.map -> clip_text {src:{kind:"diary", ref:<id del renglón>}} (el sim conserva el
 # origen: escena para una línea dicha, D36 para un acto). Error -> línea de Lisle; éxito -> la tira vuela a Recortes.
 # Ningún renglón se distingue por su clase (act/private/line): los actos ciegos van «sin marca alguna» (GDD§7.4).
+# GDD_v2 §C.3: el día de hoy abierto; los anteriores, plegados (un renglón con la fecha que los despliega).
+# La tijera del diario aparece con desk.tijera.
 extends VBoxContainer
 
 const Paper = preload("res://ui/kit/paper.gd")
@@ -25,6 +27,8 @@ var _rows := {}          # id del renglón -> {rtl, parsed, entry}
 var _order: Array = []
 var _empty: Label
 var _count_before := -1
+var _day_sync: Array = []
+static var _open_days := {}      # día -> desplegado (sesión; no es estado de la partida)
 
 func _init(p_nb) -> void:
 	nb = p_nb
@@ -80,18 +84,43 @@ func refresh() -> void:
 	var known: Dictionary = nb.known_ids()
 	var tf: Callable = nb.text_fn()
 	var size := int(round(float(TextBuilder.slot_size("imprenta")) * SIZE_K))
+	var today := int(nb.q("q_clock").get("day", 0)) if nb.q("q_clock") is Dictionary else 0
+	_b_tijera.visible = nb.flag("desk.tijera")
 	for d in Model.diary_days(entries, sched):
-		var head := Widgets.label(String(d.label), "DocTitle")
-		head.add_theme_font_size_override("font_size", int(round(nb._px("ui") * 1.12)))
-		head.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var hrow: HBoxContainer = nb.margin_row(null, head)
-		hrow.name = "Dia_%d" % int(d.day)
-		if _list.get_child_count() > 0:
+		var day_rows: Array = []
+		var folded := int(d.day) < today
+		if _list.get_child_count() > 0 and not folded:
 			var gap := Control.new()
 			gap.custom_minimum_size = Vector2(0, 8)
 			gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_list.add_child(gap)
-		_list.add_child(hrow)
+		if folded:
+			# un día anterior: plegado (un renglón con la fecha lo despliega; se recuerda en la sesión)
+			var dkey := int(d.day)
+			var hb := Widgets.ink_button("")
+			hb.name = "Desplegar"
+			hb.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			hb.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+			var hrow0: HBoxContainer = nb.margin_row(null, hb)
+			hrow0.name = "Dia_%d" % dkey
+			_list.add_child(hrow0)
+			var lab := String(d.label)
+			var sync := func():
+				var o := bool(_open_days.get(dkey, false))
+				hb.text = (Widgets.FOLD_OPEN if o else Widgets.FOLD_CLOSED) + lab
+				for rw in day_rows:
+					(rw as Control).visible = o
+			hb.pressed.connect(func():
+				_open_days[dkey] = not bool(_open_days.get(dkey, false))
+				sync.call())
+			_day_sync.append(sync)
+		else:
+			var head := Widgets.label(String(d.label), "DocTitle")
+			head.add_theme_font_size_override("font_size", int(round(nb._px("ui") * 1.12)))
+			head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			var hrow: HBoxContainer = nb.margin_row(null, head)
+			hrow.name = "Dia_%d" % int(d.day)
+			_list.add_child(hrow)
 		for e in d.entries:
 			var eid := String(e.get("id", ""))
 			var kind := String(e.get("kind", ""))
@@ -119,8 +148,12 @@ func refresh() -> void:
 			var row: HBoxContainer = nb.margin_row(margin, rtl)
 			row.name = "Fila_" + eid.replace(".", "_")
 			_list.add_child(row)
+			day_rows.append(row)
 			_rows[eid] = {"rtl": rtl, "parsed": parsed, "entry": e}
 			_order.append(eid)
+	for sy in _day_sync:
+		sy.call()
+	_day_sync.clear()
 	if _order.is_empty():
 		_empty = nb.empty_line(nb.t("nb.vacio.diario"))
 		_list.add_child(nb.margin_row(null, _empty))
@@ -218,4 +251,15 @@ func debug_state() -> Dictionary:
 	for eid in _order:
 		if String(_rows[eid].entry.get("kind", "")) == "arrival":
 			stamps += 1
-	return {"rows": _order.duplicate(), "days": days, "stamps": stamps, "scissors": scissors, "empty": _empty.text if _empty != null else ""}
+	var shown: Array = []
+	for eid in _order:
+		var rt: RichTextLabel = _rows[eid].rtl
+		if rt.is_visible_in_tree() or (rt.get_parent() != null and (rt.get_parent() as Control).visible):
+			shown.append(eid)
+	return {"rows": _order.duplicate(), "days": days, "stamps": stamps, "scissors": scissors, "empty": _empty.text if _empty != null else "",
+		"shown": shown, "tijera_btn": _b_tijera.visible}
+
+# Despliega o pliega un día anterior (tests y drivers).
+func set_day_open(day: int, open: bool) -> void:
+	_open_days[day] = open
+	refresh()

@@ -1,0 +1,89 @@
+{
+ "_nota": "DESPEJE-UI (GDD_v2 §C.5). Entidades de papel de la descripción física (data/fisica.json): el tramo #fisica de cada documento lleva e:<papel>.",
+ "entities": [
+  {
+   "id": "papel_de_diario",
+   "kind": "objeto",
+   "name": "el papel de diario",
+   "index": "papel de diario",
+   "noun": "papel"
+  },
+  {
+   "id": "papel_de_revista",
+   "kind": "objeto",
+   "name": "el papel de revista",
+   "index": "papel de revista",
+   "noun": "papel"
+  },
+  {
+   "id": "papel_de_libro",
+   "kind": "objeto",
+   "name": "la hoja de libro",
+   "index": "hoja de libro",
+   "noun": "hoja"
+  },
+  {
+   "id": "papel_de_pruebas",
+   "kind": "objeto",
+   "name": "el papel de pruebas de imprenta",
+   "index": "papel de pruebas de imprenta",
+   "noun": "papel"
+  },
+  {
+   "id": "papel_crema_grueso",
+   "kind": "objeto",
+   "name": "el papel crema grueso",
+   "index": "papel crema grueso",
+   "noun": "papel"
+  },
+  {
+   "id": "papel_de_carta",
+   "kind": "objeto",
+   "name": "el papel de carta",
+   "index": "papel de carta",
+   "noun": "papel"
+  },
+  {
+   "id": "papel_rayado",
+   "kind": "objeto",
+   "name": "el papel rayado",
+   "index": "papel rayado",
+   "noun": "papel"
+  },
+  {
+   "id": "papel_de_telegrama",
+   "kind": "objeto",
+   "name": "el formulario de telégrafo",
+   "index": "formulario de telégrafo",
+   "noun": "formulario"
+  },
+  {
+   "id": "papel_de_cuaderno",
+   "kind": "objeto",
+   "name": "la hoja de cuaderno",
+   "index": "hoja de cuaderno",
+   "noun": "hoja"
+  },
+  {
+   "id": "papel_de_registro",
+   "kind": "objeto",
+   "name": "la hoja de libro de registro",
+   "index": "hoja de libro de registro",
+   "noun": "hoja"
+  },
+  {
+   "id": "carton",
+   "kind": "objeto",
+   "name": "la tarjeta de cartulina",
+   "index": "tarjeta de cartulina",
+   "noun": "tarjeta"
+  },
+  {
+   "id": "papel_fotografico",
+   "kind": "objeto",
+   "name": "la fotografía en cartón",
+   "index": "fotografía en cartón",
+   "noun": "fotografía"
+  }
+ ]
+}

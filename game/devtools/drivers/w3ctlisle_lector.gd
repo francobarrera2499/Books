@@ -60,7 +60,7 @@ func drive(p_tool, scene) -> void:
 	await tool.frames(2)
 	await _show(ViewModel.from_repo(repo, "D38@L1"), 1, "d38_p2")
 	await _show(ViewModel.from_repo(repo, "D38@L1"), 0, "d38")
-	reader.set_lupa(true)
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 	var at := _word_pos(0, "anteojos")
 	if at != Vector2.ZERO:
 		var e := InputEventMouseMotion.new()
@@ -70,7 +70,7 @@ func drive(p_tool, scene) -> void:
 		reader.point_at(at)
 		await tool.frames(4)
 		await tool.snap("d38_lupa")
-	reader.set_lupa(false)
+	pass  # GDD_v2 §C.4: el lector ya no tiene lupa ni regla
 	reader.close()
 	await tool.frames(2)
 	# Demostración del arreglo propuesto a W1-THEME / W2-READER (sólo en este driver; no toca sus archivos): en Homemade

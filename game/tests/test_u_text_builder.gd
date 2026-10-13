@@ -304,10 +304,6 @@ func test_reader_open_zoom_pages_close() -> void:
 	near(rd.px_per_mm, p0, 1e-6, "las hojas de una vista comparten px/mm")
 	rd.go_page(5)
 	eq(rd.page_idx, 1, "no pasa de la última")
-	rd.set_regla(true)
-	ok(rd.regla, "regla")
-	rd.set_lupa(true)
-	ok(rd.lupa, "lupa")
 	rd.set_tijera(true)
 	ok(rd.page.blocks[0].selection_enabled, "tijera llega a la hoja")
 	rd.close()
@@ -329,21 +325,37 @@ func test_reader_rebuilds_on_high_contrast() -> void:
 	ok(rd.page.has_rasante(), "vuelve el shader")
 	rd.free()
 
-func test_reader_measure_offer() -> void:
+# GDD_v2 §C.3–C.5: el lector no tiene lupa, regla, «Anotar la medida» ni botones de zoom; el indicador de zoom aparece sólo
+# fuera del zoom de lectura; la acción libre `read` sale una vez por hoja en la sesión.
+func test_reader_minimal_tools_and_read() -> void:
+	ok(not FileAccess.file_exists("res://ui/reader/lens.gd") and not FileAccess.file_exists("res://ui/reader/ruler.gd"), "sin lupa ni regla")
+	Reader.reset_read_memory()
 	var rd = Reader.new()
 	rd.sounds = false
 	var acts: Array = []
-	rd.act_fn = func(a): acts.append(a); return {"ok": true, "clip": "RC0009", "text": "Mide 219 por 178 milímetros."}
+	rd.act_fn = func(a): acts.append(a); return {"ok": true}
 	tree.root.add_child(rd)
-	rd.open_view(ViewModel.from_repo(fixture_repo("reader"), "D25@L1"))
-	ok(rd.debug_state().measure, "la carta tiene measure")
-	rd.set_regla(true)
-	rd._do_measure()
-	eq(acts.size(), 1, "una acción")
-	eq(acts[0], {"t": "clip_measure", "src": {"kind": "doc", "ref": "D25@L1"}}, "clip_measure del ejemplar")
+	for m in ["set_lupa", "set_regla", "_do_measure"]:
+		no(rd.has_method(m), "no existe %s" % m)
 	rd.open_view(ViewModel.from_repo(fixture_repo("data_min"), "D05@BM"))
-	no(rd.debug_state().measure, "D05 sin measure: no se ofrece (§6.4)")
+	var tools: Array = rd.tool_names()
+	no(tools.has("Zoom"), "al abrir no hay indicador de zoom: %s" % str(tools))
+	no(tools.has("Hojas"), "una sola hoja: sin flechas")
+	ok(tools.has("Volver"), "Volver")
+	rd.set_zoom(rd.zoom * 1.3)
+	ok(rd.tool_names().has("Zoom"), "fuera del zoom de lectura aparece el indicador")
+	rd._fit_view()
+	no(rd.tool_names().has("Zoom"), "clic en el indicador: vuelve y se va")
+	eq(acts, [{"t": "read", "view": "D05@BM", "part": 0}], "read de la hoja 1")
+	rd.open_view(ViewModel.from_repo(fixture_repo("data_min"), "D03@BM"))
+	ok(rd.tool_names().has("Hojas"), "dos hojas: flechas")
+	rd.go_page(1)
+	rd.go_page(0)
+	rd.open_view(ViewModel.from_repo(fixture_repo("data_min"), "D05@BM"))
+	eq(acts.size(), 3, "una vez por hoja en la sesión: %s" % str(acts))
+	eq(acts[2], {"t": "read", "view": "D03@BM", "part": 1}, "la segunda hoja")
 	rd.free()
+	Reader.reset_read_memory()
 
 func test_reader_plate_only_view() -> void:
 	var rd = Reader.new()
@@ -391,12 +403,4 @@ func test_reader_open_before_tree_lays_out() -> void:
 	ok(rd.visible, "visible")
 	rd.free()
 
-func test_ruler_last_number_fits() -> void:
-	var Ruler = load("res://ui/reader/ruler.gd")
-	var r = Ruler.new()
-	holder.add_child(r)
-	r.setup(3.0, Vector2(178, 219), false)
-	var span_mm: float = r.length_mm - Ruler.LEAD_MM - Ruler.TAIL_MM
-	ok(fmod(span_mm, 10.0) == 0.0 and span_mm >= 178.0 + 10.0, "marcas hasta un cm entero más allá del papel")
-	ok(r.size.x >= (span_mm + Ruler.LEAD_MM + 3.0) * 3.0, "queda cola para el último número")
-	r.free()
+

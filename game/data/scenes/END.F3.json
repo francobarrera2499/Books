@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-B. Final F3 «El silencio» (GDD §12.1; F3a y F3b comparten escena): al día siguiente los hombres de Moran buscan el cuaderno; Wiggins (o, si Holmes lo retiró, el muchacho sin gorra de Cotter) está en la puerta. F3a: el informe final fue «Sin novedad» o se quemó (informe_final nada | quemar). F3b: datos falsos o irrelevantes sin coordinación, o F1 sin crédito ante Moran o tras entregar a Holmes antes. Cierre: callar (nada/quemar), mentir (datos falsos, sin coordinación) o errata (la errata a medida entregada sin cumplir el resto de F1: «mentí solo» sería falso). Sin place; when día ≥ 10.",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A: «informe trampa»). Final F3 «El silencio» (GDD §12.1; F3a y F3b comparten escena): al día siguiente los hombres de Moran buscan el cuaderno; Wiggins (o, si Holmes lo retiró, el muchacho sin gorra de Cotter) está en la puerta. F3a: el informe final fue «Sin novedad» o se quemó (informe_final nada | quemar). F3b: datos falsos o irrelevantes sin coordinación, o F1 sin crédito ante Moran o tras entregar a Holmes antes. Cierre: callar (nada/quemar), mentir (datos falsos, sin coordinación) o errata (la errata a medida entregada sin cumplir el resto de F1: «mentí solo» sería falso). Sin place; when día ≥ 10.",
   "id": "END.F3",
   "when": {"day": {"gte": 10}},
   "origin": "S.END.F3",
@@ -10,7 +10,7 @@
     {"id": "sin_gorra", "who": "lisle", "when": {"flag": "wiggins_quemado"}, "text": "En la puerta, [[muchacho_sin_gorra|un muchacho sin gorra]] que no conozco silba tres notas hacia la calle."},
     {"id": "se_van", "who": "lisle", "text": "Los dos hombres se miran y bajan sin decir palabra."},
     {"id": "callar", "who": "lisle", "when": {"any": [{"flag_eq": {"informe_final": "nada"}}, {"flag_eq": {"informe_final": "quemar"}}]}, "text": "No encontraron nada. Lo que no se escribe no se roba, y lo que se quema no se lee."},
-    {"id": "mentir", "who": "lisle", "when": {"not": {"any": [{"flag_eq": {"informe_final": "nada"}}, {"flag_eq": {"informe_final": "quemar"}}, {"flag_eq": {"informe_final": "errata"}}]}}, "text": "Lo que les escribí no era verdad, y nadie me corrigió las pruebas. Mentí bien, pero mentí solo."},
-    {"id": "errata", "who": "lisle", "when": {"flag_eq": {"informe_final": "errata"}}, "text": "La errata del jueves era buena; me la corrigió una mano mejor que la mía. No bastó, y la culpa no fue de la errata."}
+    {"id": "mentir", "who": "lisle", "when": {"not": {"any": [{"flag_eq": {"informe_final": "nada"}}, {"flag_eq": {"informe_final": "quemar"}}, {"flag_eq": {"informe_final": "errata"}}]}}, "text": "Lo que les escribí no era verdad, y nadie me lo corrigió. Mentí bien, pero mentí solo."},
+    {"id": "errata", "who": "lisle", "when": {"flag_eq": {"informe_final": "errata"}}, "text": "El informe trampa del jueves era bueno; me lo corrigió una mano mejor que la mía. No alcanzó, y la culpa no fue del informe."}
   ]
 }

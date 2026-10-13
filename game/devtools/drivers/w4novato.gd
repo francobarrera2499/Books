@@ -177,19 +177,19 @@ func _explore_prologue() -> void:
 	await _wait(0.4)
 	await _clear_top()
 
-# El novato busca el objeto pasando de encuadre con los chevrones (clic real) hasta que el mouse lo «encuentra».
+# El novato busca el objeto girando la vista con el borde de la pantalla (v2: sin chevrones) hasta que el mouse lo
+# «encuentra».
 func _find_frame_with(id: String) -> void:
 	await _clear_top()
 	for i in 4:
 		var p := _node_pos(id)
 		if p.x >= 0.0 and String(shell.world.pick(p).get("id", "")) == id:
-			print("NOV «%s» alcanzable en el encuadre %s tras %d clics de chevrón" % [id, gs().frame, i])
+			print("NOV «%s» alcanzable en el encuadre %s tras %d giros" % [id, gs().frame, i])
 			await _snap("encuadre_con_" + id)
 			return
 		print("NOV «%s» no se alcanza en el encuadre %s (pick=%s)" % [id, gs().frame, str(shell.world.pick(p)) if p.x >= 0 else "-"])
-		await _click(_c(gs()._chev_r))
-		await _wait(1.2)
-		await _snap("chevron_%d_%s" % [i, gs().frame])
+		await _look_step()
+		await _snap("giro_%d_%s" % [i, gs().frame])
 
 # Prólogo trabado (el aviso no se pudo componer): recorte del borrador del aviso y aviso por la API; si no, dormir.
 func _unstick_prologue() -> void:

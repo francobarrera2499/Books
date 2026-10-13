@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-B. Portero del Club Diógenes (L5, portería, días 1–9; GREE: nadie habla salvo en la Sala de Forasteros; tres faltas y expulsión). Voz baja, ceremonioso y breve; no da señas de nadie. Desde el día 8 admite a Lisle por su nombre porque Mycroft lo dejó dicho (la tarjeta HC04 es la invitación, no la llave); con forasteros_cerrada (HB12, 2.º error) ya no. El libro de telegramas (D31) está abierto hacia él: Lisle lo lee del revés. Todo es ruido (sin etiquetas de conclusión): #papel dice lo observable (escribientes de socios se llevan papel de la casa) sin nombrar a ningún socio; un portero del Diógenes no delata a un miembro, y el vínculo con Mycroft lo da el contrato (C7), no un chisme.",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A: «Sala de Visitas»; papel suma papel_crema_grueso, alias de papel_corto, §C.5.4). Portero del Club Diógenes (L5, portería, días 1–9; GREE: nadie habla salvo en la Sala de Visitas; tres faltas y expulsión). Voz baja, ceremonioso y breve; no da señas de nadie. Desde el día 8 admite a Lisle por su nombre porque Mycroft lo dejó dicho (la tarjeta HC04 es la invitación, no la llave); con forasteros_cerrada (HB12, 2.º error) ya no. El libro de telegramas (D31) está abierto hacia él: Lisle lo lee del revés. Todo es ruido (sin etiquetas de conclusión): #papel dice lo observable (escribientes de socios se llevan papel de la casa) sin nombrar a ningún socio; un portero del Diógenes no delata a un miembro, y el vínculo con Mycroft lo da el contrato (C7), no un chisme.",
   "char": "portero",
   "label": "el portero",
   "intro": "El portero del club",
@@ -7,7 +7,7 @@
   "sensor": null,
   "max_questions": 3,
   "trait": "",
-  "closing": "Se lleva un dedo a los labios: para la casa, ya ha hablado demasiado.",
+  "closing": "Se lleva un dedo a los labios: para esta casa, ya habló demasiado.",
   "ask_phrase": {
     "default": "¿Qué me puede decir de ${topic}, ${addr}?",
     "mycroft": "¿Está el señor Mycroft Holmes, portero?",
@@ -17,15 +17,15 @@
     {"id": "af.todas", "layer": "afirmacion", "match": {"assertion": ["cebo", "vive", "canario"]}, "text": "No mueve un músculo. —Aquí no se habla de los ausentes, señor. Ni de los presentes."},
 
     {"id": "cerrada", "layer": "tema", "match": {"topic": ["mycroft", "sala_de_forasteros", "lisle", "tarjeta_de_mycroft"]}, "when": {"flag": "forasteros_cerrada"}, "text": "—El señor Holmes no recibe más visitas, señor. Me lo dijo él mismo, que en esta casa es mucho decir."},
-    {"id": "recibe", "layer": "tema", "match": {"topic": ["mycroft", "sala_de_forasteros", "lisle", "tarjeta_de_mycroft"]}, "when": {"day": {"gte": 8, "lte": 9}}, "text": "—Con tarjeta o sin ella, señor Lisle: su nombre está en mi lista. El señor Holmes recibe en la Sala de Forasteros."},
+    {"id": "recibe", "layer": "tema", "match": {"topic": ["mycroft", "sala_de_forasteros", "lisle", "tarjeta_de_mycroft"]}, "when": {"day": {"gte": 8, "lte": 9}}, "text": "—Con tarjeta o sin ella, señor Lisle: su nombre está en mi lista. El señor Holmes recibe en la Sala de Visitas."},
     {"id": "mycroft", "layer": "tema", "match": {"topic": ["mycroft"]}, "text": "—El señor Holmes llega a las cinco menos cuarto y se va a las ocho menos veinte, señor. No recuerdo que haya faltado un solo día."},
     {"id": "forasteros", "layer": "tema", "match": {"topic": ["sala_de_forasteros", "lisle", "tarjeta_de_mycroft"]}, "text": "—Sin un socio que lo reciba no se pasa, señor, y su nombre no está en mi lista."},
-    {"id": "club", "layer": "tema", "match": {"topic": ["club_diogenes"]}, "text": "—Aquí no se habla, señor, salvo en la Sala de Forasteros. Tres faltas, y el socio se va; yo llevo la cuenta."},
-    {"id": "telegramas", "layer": "tema", "match": {"topic": ["libro_de_telegramas", "telegrama"]}, "text": "—El libro es para que los socios firmen el recibo, señor. No es para leerlo, y menos del revés."},
-    {"id": "papel", "layer": "tema", "match": {"topic": ["papel_del_club", "papel_corto"]}, "text": "{{#papel e:papel_del_club e:club_diogenes|El papel de la casa es para los socios, señor, y algunos lo mandan buscar con sus escribientes.}} De quién es cada escribiente no lo apunto: no es asunto del libro."},
+    {"id": "club", "layer": "tema", "match": {"topic": ["club_diogenes"]}, "text": "—Aquí no se habla, señor, salvo en la Sala de Visitas. Tres faltas, y el socio se va; yo llevo la cuenta."},
+    {"id": "telegramas", "layer": "tema", "match": {"topic": ["libro_de_telegramas", "telegrama"]}, "text": "—El libro es para que los socios firmen el recibo, señor. No es para leerlo, y menos al revés."},
+    {"id": "papel", "layer": "tema", "match": {"topic": ["papel_del_club", "papel_corto", "papel_crema_grueso"]}, "text": "{{#papel e:papel_del_club e:club_diogenes|El papel de la casa es para los socios, señor, y algunos lo mandan a buscar con sus escribientes.}} De quién es cada escribiente no lo anoto: no es asunto del libro."},
     {"id": "maquina", "layer": "tema", "match": {"topic": ["cartas_a_maquina", "remington", "remington_s_alzada", "cotter", "hombre_de_la_canastilla"]}, "text": "—En esta casa no suena una máquina de escribir, señor. Los socios escriben a mano, cuando escriben, y no siempre."},
 
     {"id": "gen.1", "layer": "generica", "text": "Baja todavía más la voz. —Le ruego que hable más bajo, señor."},
-    {"id": "gen.2", "layer": "generica", "text": "—Eso no consta en mi libro, señor."}
+    {"id": "gen.2", "layer": "generica", "text": "—Eso no figura en mi libro, señor."}
   ]
 }

@@ -105,7 +105,7 @@ func _rebuild_list() -> void:
 		flow.mouse_filter = Control.MOUSE_FILTER_PASS
 		for r in s.rows:
 			var id := String(r.get("id", ""))
-			var ch := EntChip.new(nb, id, String(r.get("label", id)))
+			var ch := EntChip.new(nb, id, String(r.get("index", r.get("label", id))))
 			flow.add_child(ch)
 			_chips[id] = ch
 		var letter: Label = nb.margin_text(String(s.letter), "DocTitle")

@@ -17,5 +17,5 @@
   "parts": [
     {"id": "p1", "text": "{{#titulo e:binomio|<sc>Tratado sobre el teorema del binomio</sc>, con su extensión a los exponentes fraccionarios y negativos.}}\n\n{{#autor e:profesor_moriarty|Por [[profesor_moriarty|James Moriarty]], bachiller en artes.}}\n\n{{#pie_imprenta e:londres|[[londres|Londres]], 1867.}}\n\n{{#sello e:museo_britanico|<ink=roja>[[museo_britanico|Museo Británico]], 14 de marzo de 1867.</ink>}}"}
   ],
-  "words": 30
+  "words": 44
 }

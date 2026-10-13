@@ -1,5 +1,5 @@
 @echo off
-rem Lanza "Fe de erratas". Partidas y config del jugador en .work\jugador (separadas de las pruebas automaticas), dentro de esta carpeta por la regla del proyecto.
+rem Lanza "What the Ink Says". Partidas y config del jugador en .work\jugador (separadas de las pruebas automaticas), dentro de esta carpeta por la regla del proyecto.
 set "ROOT=%~dp0"
 set "APPDATA=%ROOT%.work\jugador\appdata"
 set "LOCALAPPDATA=%ROOT%.work\jugador\localappdata"

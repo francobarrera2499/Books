@@ -806,7 +806,20 @@ static func select_rastro(st, repo, rule: Dictionary, inst: Dictionary) -> Dicti
 		if ["texto", "default"].has(String(r.get("tpl", ""))):
 			return r
 	var day := TimeKey.day_of(int(inst.get("due_tk", anchor.get("tk", 0))))
-	return Det.pick(int(st.seed), [String(rule.get("id", "")), String(inst.get("iid", "")), day], cands)
+	# plantilla al azar (Det) sin repetir la última de la misma reacción, entregada o en cola (playtest v2: HB13 mandó la
+	# misma carta dos días seguidos)
+	var last := ""
+	if typeof(st.react) == TYPE_DICTIONARY:
+		for lst in [st.react.get("delivered", []), st.react.get("queue", [])]:
+			for x in lst:
+				if typeof(x) == TYPE_DICTIONARY and String(x.get("rid", "")) == String(rule.get("id", "")) and String(x.get("iid", "")) != String(inst.get("iid", "")) and String(x.get("tpl", "")) != "":
+					last = String(x.tpl)
+	var pool := cands
+	if last != "" and cands.size() > 1:
+		pool = cands.filter(func(r): return String(r.get("tpl", "")) != last)
+		if pool.is_empty():
+			pool = cands
+	return Det.pick(int(st.seed), [String(rule.get("id", "")), String(inst.get("iid", "")), day], pool)
 
 # Rastros que son fragmentos del mundo (nodo: "N:L1.ceniza", "S:M7.x", "L:char.línea", "M:…"): todos los que pasan `when`.
 static func nodo_rastros(st, repo, rule: Dictionary, inst: Dictionary) -> Array:

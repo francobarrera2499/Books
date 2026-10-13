@@ -3,6 +3,8 @@
 # clic en un renglón -> chosen(id, opt); clic fuera, clic derecho o Esc -> dismissed. Con más de FILTER_MIN opciones
 # muestra «Buscar…» (filtra por texto y subtítulo, sin tildes). Sin brillos: el renglón bajo el mouse sólo se sombrea
 # como un botón del kit. No toma el foco salvo que el jugador haga clic en «Buscar…».
+# GDD_v2 §C.1: ≤7 renglones a la vista; con más, «Buscar…». Una opción {expand: true} («Más tipos…») despliega las
+#   opciones {folded: true}, que hasta entonces no se ven (no se elige: sólo despliega).
 extends Control
 
 signal chosen(id: String, opt: Dictionary)
@@ -11,7 +13,7 @@ signal dismissed
 const Paper = preload("res://ui/kit/paper.gd")
 const Widgets = preload("res://ui/kit/widgets.gd")
 
-const FILTER_MIN := 10
+const FILTER_MIN := 7
 const MAX_H := 620.0
 const MIN_W := 340.0
 const MAX_W := 560.0
@@ -28,6 +30,7 @@ var _scroll: ScrollContainer
 var _rows: Array = []      # [{row, opt, key}]
 var _empty: Label
 var _done := false
+var _expanded := false
 
 class Row extends PanelContainer:
 	signal picked
@@ -69,7 +72,11 @@ func _ready() -> void:
 		var t := Widgets.label(title_text, "Caption")
 		t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		v.add_child(t)
-	if options.size() > FILTER_MIN:
+	var shown_n := 0
+	for o in options:
+		if not bool(o.get("folded", false)):
+			shown_n += 1
+	if shown_n > FILTER_MIN:
 		filter = LineEdit.new()
 		filter.placeholder_text = filter_hint
 		filter.clear_button_enabled = true
@@ -108,6 +115,11 @@ func _ready() -> void:
 			s.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			rv.add_child(s)
 		row.picked.connect(_pick.bind(o))
+		row.name = "Opcion_" + String(o.get("id", ""))
+		row.visible = not bool(o.get("folded", false))
+		if bool(o.get("expand", false)):
+			l.add_theme_color_override("font_color", Paper.ink("lapiz"))
+			l.add_theme_font_override("font", _ti_font("ui", true))
 		list.add_child(row)
 		_rows.append({"row": row, "opt": o, "key": fold(String(o.get("text", "")) + " " + sub)})
 	_empty = Widgets.label(empty_text, "SmallLabel")
@@ -133,6 +145,10 @@ func _on_filter(q: String) -> void:
 	var any := false
 	for r in _rows:
 		var vis: bool = f == "" or String(r.key).contains(f) or bool(r.opt.get("clear", false))
+		if f == "" and bool(r.opt.get("folded", false)) and not _expanded:
+			vis = false
+		if bool(r.opt.get("expand", false)):
+			vis = f == "" and not _expanded
 		r.row.visible = vis
 		if vis and not bool(r.opt.get("clear", false)):
 			any = true
@@ -165,8 +181,29 @@ func _place() -> void:
 func _pick(o: Dictionary) -> void:
 	if _done:
 		return
+	if bool(o.get("expand", false)):
+		expand()
+		return
 	_done = true
 	chosen.emit(String(o.get("id", "")), o)
+
+# Despliega lo plegado («Más tipos…»).
+func expand() -> void:
+	_expanded = true
+	for r in _rows:
+		if bool(r.opt.get("folded", false)):
+			r.row.visible = true
+		if bool(r.opt.get("expand", false)):
+			r.row.visible = false
+	_place.call_deferred()
+
+# Ids de las opciones a la vista (tests, drivers).
+func visible_ids() -> Array:
+	var out: Array = []
+	for r in _rows:
+		if r.row.visible:
+			out.append(String(r.opt.get("id", "")))
+	return out
 
 func dismiss() -> void:
 	if _done:

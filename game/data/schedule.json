@@ -74,6 +74,21 @@
   "voice_b": {"1": "4.dawn", "2": "5.dawn", "3": "7.dawn", "4": "8.dawn", "5": "8.dawn", "6": "10.dawn", "7": "10.dawn", "8": "10.dawn", "9": "10.M"},
   "_voice_b_nota": "GDD §9.3: día del acto (o de publicación del anuncio) → entrega de la voz B. Día 6 sin Times ni correo; día 9 sin voz B (el viajero está en camino) y su respuesta es en persona a las 9:30 del 10 (HC07).",
   "voice_a": {"default_days": 1, "sunday": "en_mano"},
-  "money_d": {"guinea": 252, "media_guinea": 126, "chelin": 12, "ad": 30, "telegram_word": 3, "telegram_min": 6, "letter": 1, "cab_min": 12, "cab_max": 24, "somerset": 12},
-  "baedeker": "HORARIOS ÚTILES (Baedeker, Londres, 1894).\nSALA DE LECTURA DEL MUSEO BRITÁNICO, Great Russell Street. — De 9 a 20 h; cerrada el domingo. Los libros se piden por papeleta, con el número del asiento; tres papeletas por visita. La Sala de Periódicos está en el mismo edificio.\nSOMERSET HOUSE, el Strand. — Índices de sucesiones y de defunciones, de 10 a 15 h, salvo el domingo; un chelín por búsqueda. De los testamentos no se permiten extractos: se pide copia oficial, que llega por correo.\nCLUB DIÓGENES, Pall Mall. — La portería recibe tarjetas a toda hora. Los socios no se hablan; con forasteros, sólo en la Sala de Forasteros.\nBAKER STREET. — Casas particulares; el agente de fincas abre de 9 a 18 h, salvo el domingo.\nKENSINGTON. — Los médicos reciben por la mañana; el domingo, visitas de 16 a 18 h.\nPARK LANE. — Frente a Hyde Park; parada de coches a cien yardas.\nEL DOMINGO no hay correo ni Times; la Sala de Lectura, Somerset House y las tiendas están cerradas."
+  "reveal": {
+    "L2": {"by": "1.dawn"},
+    "L4": {"by": "1.dawn"},
+    "L3": {"by": "2.dawn", "ents": ["baker_street", "221b"]},
+    "L6": {"by": "3.dawn", "ents": ["somerset_house"]},
+    "L5": {"by": "8.dawn", "ents_all": ["club_diogenes", "pall_mall"], "areas": ["porteria"]},
+    "L7": {"by": "5.dawn"},
+    "L8": {"by": "7.T"}
+  },
+  "_reveal_nota": "GDD_v2 §B.3–§B.5 (PROGRESIÓN). Un lugar entra al mapa cuando Lisle lee, oye o recorta su nombre (ents: cualquiera; ents_all: todas) y, si no, a su hora garantizada (by). El grafo (Availability) usa SÓLO by; areas limita la garantía a esas áreas (la Sala de Visitas conserva su ventana). L1 no figura: siempre está. Lo revelado no se vuelve a cerrar.",
+  "stock": [
+    {"tk": "2.dawn", "copies": ["D04@Crane", "D07@Crane"], "line": "pend.crane.s1"},
+    {"tk": "3.dawn", "copies": ["D09@Crane", "D10@Crane", "D42@Crane"], "line": "pend.crane.s2"},
+    {"tk": "4.dawn", "copies": ["D43@Crane", "D44@Crane"], "line": "pend.crane.s3"}
+  ],
+  "_stock_nota": "GDD_v2 §B.3 (S1–S3): novedades de la tienda de Crane. DataRepo atrasa al cargar el from de esos ejemplares a la franja siguiente a tk (una sola fuente de verdad para WorldModel, Availability y bots). line = clave de ui_text para Pendientes.",
+  "money_d": {"guinea": 252, "media_guinea": 126, "chelin": 12, "ad": 30, "telegram_word": 3, "telegram_min": 6, "letter": 1, "cab_min": 12, "cab_max": 24, "somerset": 12}
 }

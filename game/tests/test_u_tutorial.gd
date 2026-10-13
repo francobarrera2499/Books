@@ -22,59 +22,96 @@ func test_steps_shape_and_lines_exist():
 			if String(ln.id) == lid.get_slice(".", 1):
 				found = true
 		ok(found, "la línea del instructor existe en el fixture: " + lid)
-	eq(ids, ["clip", "link", "folio", "entry", "practice", "ad", "sleep"])
+	eq(ids, ["read", "clip", "ad", "sleep"], "GDD_v2 §B.7: el prólogo enseña leer, recortar, el aviso y dormir")
+	eq(Tutorial.DAY1.map(func(x): return x.id), ["d1_clip", "d1_link", "d1_folio", "d1_entry", "d1_practice"])
+	for x in Tutorial.DAY1:
+		ok(String(x.line_key).begins_with("tut.d1."), "las notas de Lisle son ui_text tut.d1.*")
+		eq(x.instructor, "lisle")
 	var s = Kit.new_sim()
 	var stp: Dictionary = Tutorial.step(s.st)
 	for k in ["id", "instructor", "line_id", "verb"]:
 		ok(stp.has(k), k)
 	eq(stp.instructor, "pell")
+	eq(stp.id, "read")
+
+func _read_d23(s) -> Dictionary:
+	return s.apply({"t": "read", "view": "D23@L1", "part": 0})
 
 func test_one_verb_per_step():
 	var s = Kit.new_sim()
 	var p: Array = Kit.prologue()
-	no(Tutorial.allowed(s.st, {"t": "link"}), "vincular antes de recortar")
+	no(Tutorial.allowed(s.st, {"t": "link"}), "juntar antes de recortar")
+	no(Tutorial.allowed(s.st, {"t": "folio_open"}))
 	no(Tutorial.allowed(s.st, {"t": "compose_ad"}))
 	no(Tutorial.allowed(s.st, {"t": "sleep"}))
 	no(Tutorial.allowed(s.st, {"t": "go"}), "lo que no es del tutorial")
+	ok(Tutorial.allowed(s.st, {"t": "read"}))
+	# leer otra cosa no completa «abrir el encargo»
+	ok(s.apply({"t": "read", "view": "D03@tomo", "part": 0}).ok)
+	eq(Tutorial.step(s.st).id, "read")
+	ok(_read_d23(s).ok)
+	eq(Tutorial.step(s.st).id, "clip")
+	ok(_said_ids(s).has("t_clip"), "la línea del paso nuevo se dice al empezar")
 	ok(Tutorial.allowed(s.st, {"t": "clip_measure"}), "cualquier recorte en el paso de recortar")
+	ok(Tutorial.allowed(s.st, {"t": "link"}), "desde recortar, la primera conclusión no se traba (no la enseña el prólogo)")
+	no(Tutorial.allowed(s.st, {"t": "sleep"}))
 	ok(s.apply(p[0]).ok)
-	eq(Tutorial.step(s.st).id, "link")
-	ok(_said_ids(s).has("t_link"), "la línea del paso nuevo se dice al empezar")
-	ok(Tutorial.allowed(s.st, {"t": "clip_text"}), "lo ya enseñado sigue permitido")
-	ok(s.apply(p[1]).ok, "recortar de nuevo no avanza ni falla")
-	eq(Tutorial.step(s.st).id, "link")
-	for i in range(2, 5):
-		ok(s.apply(p[i]).ok, str(p[i]))
-	eq(Tutorial.step(s.st).id, "entry")
-	ok(s.apply(p[5]).ok)
-	eq(Tutorial.step(s.st).id, "entry", "falta el según")
-	ok(s.apply(p[6]).ok)
-	eq(Tutorial.step(s.st).id, "practice")
-	ok(s.apply(p[7]).ok, "otro según: ya en el paso de practicar")
-	eq(Tutorial.step(s.st).instructor, "pell")
-	ok(s.apply(p[8]).ok)
-	eq(Tutorial.step(s.st).id, "ad", "practicar avanza aunque no entinte")
+	eq(Tutorial.step(s.st).id, "ad")
 	eq(Tutorial.step(s.st).instructor, "harris")
 	no(Tutorial.complete(s.st))
-	ok(s.apply(p[9]).ok)
+	ok(s.apply({"t": "compose_ad", "form": "testigo", "fields": {"suceso": "suceso_reichenbach"}}).ok)
 	eq(Tutorial.step(s.st).id, "sleep")
 	ok(Tutorial.complete(s.st))
-	ok(s.apply(p[10]).ok)
-	eq(Tutorial.step(s.st), {}, "fuera del prólogo no hay paso")
+	no(Tutorial.practice_done(s.st), "el prólogo no practica")
+	ok(s.apply({"t": "sleep"}).ok)
+	eq(Tutorial.step(s.st), {}, "fuera del prólogo no hay paso que bloquee")
 	ok(Tutorial.allowed(s.st, {"t": "go"}), "fuera del prólogo todo pasa por las fases")
+
+# Recortar el encargo en el paso «read» lo da por abierto (no se recorta lo que no se tiene delante).
+func test_clip_completes_read():
+	var s = Kit.new_sim()
+	ok(Tutorial.allowed(s.st, {"t": "clip_text"}))
+	ok(s.apply(Kit.prologue()[0]).ok)
+	eq(Tutorial.step(s.st).id, "ad")
+	has(Tutorial.verbs_taught(s.st), "read")
+	has(Tutorial.verbs_taught(s.st), "clip_text")
+
+# Día 1: la primera conclusión guía sin bloquear; confirmar pide la práctica (practica_pendiente).
+func test_day1_first_conclusion():
+	var s = Kit.new_sim()
+	for a in Kit.prologue_v2():
+		ok(s.apply(a).ok, str(a))
+	eq(s.q_clock().phase, "desk")
+	eq(s.q_clock().day, 1)
+	var d1: Dictionary = s.q_tutorial().day1
+	eq(d1.get("id", ""), "d1_link", "dos recortes del prólogo: el paso actual es juntar")
+	eq(d1.get("line_key", ""), "tut.d1.link")
+	has(Tutorial.verbs_taught(s.st), "link", "el paso actual enseña su verbo")
+	no(Tutorial.verbs_taught(s.st).has("pass_clean"))
+	ok(s.apply({"t": "entry_new", "folio": "varios", "template": "T1"}).ok, "no bloquea: se puede adelantar")
+	eq(s.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]}).err, "practica_pendiente")
+	eq(s.q_clock().passes_left, 1, "no gasta")
+	ok(s.apply({"t": "go", "place": "L2", "area": "sala", "seat": 214}).ok, "se puede salir antes")
+	ok(s.apply({"t": "leave"}).ok)
+	for a in Kit.day1_practice("AS002"):
+		ok(s.apply(a).ok, str(a))
+	ok(Tutorial.practice_done(s.st))
+	eq(s.q_tutorial().day1, {}, "primera conclusión hecha")
+	has(Tutorial.verbs_taught(s.st), "pass_clean")
+	ok(s.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]}).ok, "con la práctica hecha, confirma")
 
 func test_verbs_taught_in_context():
 	var s = Kit.new_sim()
 	eq(Tutorial.verbs_taught(s.st), [])
 	Kit.run(s, Kit.prologue())
 	var v: Array = Tutorial.verbs_taught(s.st)
-	for x in ["clip_text", "link", "folio_open", "entry_new", "practice", "pass_clean", "compose_ad", "sleep", "go", "end_slot"]:
+	for x in ["read", "clip_text", "link", "folio_open", "entry_new", "practice", "pass_clean", "compose_ad", "sleep", "go", "end_slot"]:
 		has(v, x)
 	no(v.has("slip"))
 	no(v.has("report_submit"))
 	eq(v.find("clip_text") < v.find("go"), true, "orden de enseñanza")
 	ok(s.apply({"t": "go", "place": "L2", "area": "sala", "seat": 3}).ok)
-	has(Tutorial.verbs_taught(s.st), "slip", "el ujier enseña la papeleta al llegar")
+	has(Tutorial.verbs_taught(s.st), "slip", "el bibliotecario enseña el pedido al llegar")
 	ok(s.apply({"t": "leave"}).ok)
 	ok(s.apply({"t": "go", "place": "L1", "area": "tienda"}).ok)
 	for x in ["ask", "assert", "present"]:
@@ -156,7 +193,8 @@ func test_w4_prologue_never_blocks_real_data():
 		if _w4_clip(sim, "D23@L1", t) == "":
 			continue   # un tramo que no es recortable solo (no es un recorte que el novato pueda hacer)
 		_w4_rest_and_finish(sim, rp, redh, "D23#" + String(t.id))
-	# sólo la línea del instructor (Pell, t_clip) como primer recorte
+	# sólo la línea del instructor (Pell, t_clip; se dice al abrir el encargo) como primer recorte
 	var s2 = GameSimR.new(rp, 7)
+	ok(s2.apply({"t": "read", "view": "D23@L1", "part": 0}).ok, "abrir el encargo")
 	ok(_w4_clip_line(s2, "t_clip", "suceso_reichenbach") != "", "la línea t_clip de Pell se recorta")
 	_w4_rest_and_finish(s2, rp, redh, "t_clip")

@@ -10,6 +10,8 @@
 #   pares implícitos de subrutas de canal distinto («se aceptan los diez pares», GDD§10.4 C6) con id "C6.<a>+<b>".
 # Descriptor de fragmento: {key, ref, copy, kind, tags:["a:x",...], tags_any, ents, origin, cls, srcs:[claves], mask,
 #   exemplar, missing, place, area, doc, char, sub, notes}. kind ∈ doc node sil scene line react journal ad measure.
+# v2 (GDD_v2 §C.5): R:<rid>.fisica = línea física del papel que entrega la reacción; D#fisica = la de un documento
+# estático (DataRepo la inyecta como tramo #fisica). Las refs M: (regla) siguen soportadas, sin uso.
 # Ejemplar (cond. 4, §10.3): "copy:<id>" · "lamina:<lugar>.<área>" / "lamina:<lámina>" · "scene:<id>" · "char:<id>" ·
 #   "react:<rid>" · "ad:<id>" · "" (líneas del diario J:, o documento sin ejemplar fijo con varias copias: no fuerza).
 extends RefCounted
@@ -18,6 +20,7 @@ const TimeKey = preload("res://core/util/timekey.gd")
 const Markup = preload("res://core/text/markup.gd")
 const J = preload("res://core/util/j.gd")
 const Av = preload("res://core/graph/availability.gd")
+const Fisica = preload("res://core/text/fisica.gd")
 
 const ELIGIBLE := ["fija", "columna", "garantizada"]
 const DEPS_ORDER := {"fija": 0, "columna": 1, "garantizada": 2, "opcional": 3}
@@ -481,6 +484,8 @@ static func _rastro(repo, ref: String, copy: String, vars: Dictionary) -> Dictio
 		return d
 	var rid := rest.substr(0, dot)
 	var x := rest.substr(dot + 1)
+	if x == Fisica.TRAMO_ID and not rid.contains("*"):
+		return _rastro_fisica(repo, d, rid, copy)
 	var rids: Array = []
 	if rid.contains("*"):
 		for rr in repo.reactions():
@@ -574,6 +579,29 @@ static func _rastro(repo, ref: String, copy: String, vars: Dictionary) -> Dictio
 		d.exemplar = "react:" + rid
 		for one4 in used_ids:
 			d._s.append(Av.react_src(repo, String(one4), "I" if all_printed else ""))
+	return d
+
+# R:<rid>.fisica (GDD_v2 §C.5.2): la línea de descripción física del documento que entrega la reacción (data/fisica.json
+# plantillas por doc.entity; Effects la antepone al crear el papel). Etiquetas y entidades de la plantilla (+ las del
+# documento), origen de la instancia, clase del documento y disponibilidad de la reacción.
+static func _rastro_fisica(repo, d: Dictionary, rid: String, copy: String) -> Dictionary:
+	var r: Dictionary = repo.reaction(rid)
+	if r.is_empty():
+		d.missing = "reacción %s inexistente" % rid
+		return d
+	var doc = r.get("doc")
+	var ent := String(doc.get("entity", "")) if typeof(doc) == TYPE_DICTIONARY else ""
+	var fis: Dictionary = repo.fisica() if repo.has_method("fisica") else {}
+	var spec := Fisica.spec_tpl(fis, ent)
+	if spec.is_empty():
+		d.missing = "%s: sin descripción física de la plantilla «%s» (data/fisica.json)" % [rid, ent]
+		return d
+	d.tags = uniq(Fisica.tags(spec))
+	d.ents = uniq(Fisica.ents(spec, fis) + tag_ents(d.tags) + doc_ents(doc))
+	d.cls = Av.react_cls(r)
+	d.origin = "R." + rid
+	d.exemplar = "react:" + rid
+	d._s = [Av.react_src(repo, rid)]
 	return d
 
 const SEL_OPS := {"col": "columna", "columna": "columna", "carta": "carta", "noticia": "noticia"}

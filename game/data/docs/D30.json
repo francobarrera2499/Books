@@ -16,5 +16,5 @@
   "parts": [
     {"id": "p1", "text": "<sc>221B, Baker Street.</sc> — Primer piso. — Recibos.\n{{#recibo a:en_vida a:vinculo_mycroft e:mycroft e:alquiler e:cuartos d:1891-06-24 c:verdadero h:F.mycroft_paga_221b|San Juan de 1891: recibido por cuenta del Sr. [[mycroft|M. Holmes]] el [[alquiler|alquiler]] del trimestre, £27 10s\\. por los [[cuartos|cuartos]], que se conservan como estaban.}} <f=manuscrito>Hudson.</f>\n{{#r9109 e:alquiler|San Miguel de 1891: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9112 e:alquiler|Navidad de 1891: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9203 e:alquiler|Anunciación de 1892: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9206 e:alquiler|San Juan de 1892: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9209 e:alquiler|San Miguel de 1892: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9212 e:alquiler|Navidad de 1892: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9303 e:alquiler|Anunciación de 1893: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9306 e:alquiler|San Juan de 1893: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9309 e:alquiler|San Miguel de 1893: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9312 e:alquiler|Navidad de 1893: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9403 e:mycroft e:alquiler d:1894-03-25|Anunciación de 1894: recibido por cuenta del Sr. [[mycroft|M. Holmes]], £27 10s\\. por el trimestre.}} <f=manuscrito>Hudson.</f>"}
   ],
-  "words": 100
+  "words": 139
 }

@@ -11,7 +11,7 @@ const Paper = preload("res://ui/kit/paper.gd")
 
 const FIX := "res://tests/fixtures/integ"
 const CONTENT_DIRS := ["docs/", "dialogue/", "scenes/", "catalog/"]
-const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json"]
+const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json", "entities/v2_fisica.json"]
 
 static func make(kind: String, shell) -> Node:
 	match kind:

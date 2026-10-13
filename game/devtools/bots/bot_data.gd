@@ -44,7 +44,7 @@ static func structural(rel: String) -> bool:
 			return false
 	if rel.begins_with("entities/"):
 		var f := rel.get_file()
-		return f == "core.json" or f == "struct.json" or f.begins_with("places_")
+		return f == "core.json" or f == "struct.json" or f.begins_with("places_") or f.begins_with("v2_")   # v2_*: entidades del sistema v2 (papeles de fisica.json)
 	return true
 
 static func _clear(p: String) -> void:

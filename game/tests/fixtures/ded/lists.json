@@ -10,7 +10,7 @@
   ],
   "estados": ["vivo", "muerto", "desconocido"],
   "templates": {
-    "T1": {"name": "Errata", "lines": [
+    "T1": {"name": "Contradicción", "lines": [
       {"fields": [{"id": "fuente_a", "label": "Fuente A: ___", "accept": {"kinds": ["documento"]}}, {"id": "dice_a", "label": "Dice: ___", "accept": {"kinds": ["concepto", "objeto", "lugar", "fecha", "suceso"]}}]},
       {"fields": [{"id": "fuente_b", "label": "Fuente B: ___", "accept": {"kinds": ["documento"]}}, {"id": "dice_b", "label": "Dice: ___", "accept": {"kinds": ["concepto", "objeto", "lugar", "fecha", "suceso"]}}]}
     ]},

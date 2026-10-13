@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-DLG-B. M6 (columna de Moran, GDD §9.7): sáb. 31 de marzo, al amanecer; Pell sube a la buhardilla con la guinea y transmite la pregunta del mayor. Sólo si Pell no fue despedido (reacción M6: con pell_despedido llega en cambio la nota «H.» con la misma línea y las mismas etiquetas). Contrato §4.8: S:M6.donde (C10.Ca, grupo busca: a:busca_a_holmes e:donde e:harris; el cebo lo da D10#cabrito_atado). Sin h: (Pell no sabe nada; el hecho lo sabe el mayor). Pell es el primer who (sync_scene_extra).",
+  "_nota": "W3-CT-DLG-B; redacción v2: TEXTOS-DIÁLOGOS (GDD_v2 §A.3: Pell sin latín; «en debida forma» una vez). M6 (columna de Moran, GDD §9.7): sáb. 31 de marzo, al amanecer; Pell sube a la buhardilla con la guinea y transmite la pregunta del mayor. Sólo si Pell no fue despedido (reacción M6: con pell_despedido llega en cambio la nota «H.» con la misma línea y las mismas etiquetas). Contrato §4.8: S:M6.donde (C10.Ca, grupo busca: a:busca_a_holmes e:donde e:harris; el cebo lo da D10#cabrito_atado). Sin h: (Pell no sabe nada; el hecho lo sabe el mayor). Pell es el primer who (sync_scene_extra).",
   "id": "M6",
   "place": "L1",
   "area": "buhardilla",
@@ -9,7 +9,7 @@
   "lines": [
     {"id": "pago", "who": "pell", "text": "Buenos días, señor Lisle, y perdone la hora: el mayor quiere las cosas al amanecer. Su [[guinea|guinea]], contada."},
     {"id": "donde", "who": "pell", "text": "Se seca la frente. —Y un recado, que le transmito tal como me lo dieron. {{#donde a:busca_a_holmes e:donde e:harris|[[harris|El mayor]] no pregunta si vive, señor Lisle: pregunta dónde.}}"},
-    {"id": "pleito", "who": "pell", "text": "Mira hacia la ventana. —En un pleito por difamación, esa pregunta no tiene objeto. Se lo digo como procurador, y no se lo he dicho."},
-    {"id": "chico", "who": "pell", "text": "Esta noche pasa el chico por el informe. <i>Bona fide</i>, señor Lisle; siempre <i>bona fide</i>."}
+    {"id": "pleito", "who": "pell", "text": "Mira hacia la ventana. —En un juicio por difamación, esa pregunta no tiene sentido. Se lo digo como abogado, y no se lo dije."},
+    {"id": "chico", "who": "pell", "text": "Esta noche pasa mi chico a buscar el informe, señor Lisle. Todo en debida forma."}
   ]
 }

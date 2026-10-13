@@ -2,6 +2,9 @@
 # Lo que llegó un día (Game.sim.q_tray(día)): cada papel con su color, su título y el sello «Recibido: <fecha>, <franja>»;
 # también el ruido y las cuentas (todo igual, sin aviso). Pestañas de días anteriores (sólo días con algo). Clic en un
 # papel -> read_requested(view). open(day := -1) · close() · señal closed. Sin contadores ni «nuevo».
+# GDD_v2 §C.3: al principio sólo lo llegado hoy (qué es y cómo llegó). «Días anteriores», plegado, desde el día 2
+#   (bandera tray.anteriores): un renglón que despliega los días con algo; elegir uno muestra lo de ese día.
+# Dueño desde v2: DESPEJE-UI.
 extends Control
 
 signal read_requested(view: String)
@@ -9,6 +12,7 @@ signal closed
 
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
+const UiFlags = preload("res://ui/kit/ui_flags.gd")
 
 const W := 640.0
 
@@ -21,6 +25,8 @@ var head: Label
 var empty_label: Label
 var _scroll: ScrollContainer
 var _remeasure := 0
+var prev_toggle: Button          # «Días anteriores» (plegado)
+var _prev_open := false
 
 func _init() -> void:
 	name = "Tray"
@@ -47,6 +53,16 @@ func _ready() -> void:
 	top.add_child(head)
 	var x := Widgets.ink_button(Widgets.t("kit.close"), close)
 	top.add_child(x)
+	prev_toggle = Widgets.ink_button("", func():
+		_prev_open = not _prev_open
+		var s = _sim()
+		if s != null:
+			_fill(s)
+			_place.call_deferred())
+	prev_toggle.name = "DiasAnteriores"
+	prev_toggle.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	prev_toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	v.add_child(prev_toggle)
 	days_row = HBoxContainer.new()
 	days_row.add_theme_constant_override("separation", 4)
 	v.add_child(days_row)
@@ -71,6 +87,8 @@ func open(p_day := -1) -> void:
 		return
 	var c: Dictionary = sim.q_clock()
 	day = int(c.day) if p_day == null or int(p_day) < 0 else int(p_day)
+	if int(day) == int(c.day) and (p_day == null or int(p_day) < 0):
+		_prev_open = false
 	_fill(sim)
 	visible = true
 	modulate.a = 0.0
@@ -133,7 +151,10 @@ func _fill(sim) -> void:
 		b.button_pressed = d == day
 		b.pressed.connect(func(): open(d))
 		days_row.add_child(b)
-	days_row.visible = ds.size() > 1
+	var prev_ok := UiFlags.on(UiFlags.of(sim), "tray.anteriores") and ds.size() > 1
+	prev_toggle.visible = prev_ok
+	prev_toggle.text = (Widgets.FOLD_OPEN if _prev_open else Widgets.FOLD_CLOSED) + Widgets.t("v2d.tray.anteriores")
+	days_row.visible = prev_ok and _prev_open
 	var items: Array = sim.q_tray(day)
 	empty_label.visible = items.is_empty()
 	if items.is_empty():

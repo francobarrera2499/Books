@@ -110,3 +110,32 @@ func test_t01_optional_real_data():
 			rt.frags = rt.frags.filter(func(f): return String(f.ref) != "N:L4.crespon")
 	var p = PatchRepo.new(r, {"conclusions": {"C14": c14}})
 	ok(str(RouteDB.lint(p, "C14").errors).contains("C14.R3: no cubre los grupos"), "sin el crespón, C14.R3 no cubre el duelo")
+
+# GDD_v2 §C.5.4: C7 sin regla. C7.R1 y C7.R1c comparan la descripción física de la carta (R:HA*.fisica) con la del papel
+# del club (D46#fisica); C7.R1d (nueva, no ★) la compara con el cesto de tiras de la Sala de Lectura. Las ★ no cambian.
+func test_t01_c7_fisica_routes():
+	var r = repo()
+	var by := {}
+	for rt in RouteDB.routes(r, "C7"):
+		by[String(rt.id)] = rt
+	for rid in ["C7.R1", "C7.R1c", "C7.R1d"]:
+		ok(by.has(rid), rid)
+		if not by.has(rid):
+			continue
+		eq(by[rid].missing, [], rid + " resuelta")
+		no(bool(by[rid].star), rid + " no es ★ (fragmento P)")
+		for f in by[rid].frags:
+			no(String(f.ref).begins_with("M:"), rid + ": ninguna medida con regla")
+	eq(String(r.conclusion("C7").routes.filter(func(x): return String(x.id) == "C7.R1d")[0].from), "2.M")
+	ok(r.conclusion("C7").keys.entities.has("papel_crema_grueso"), "clave de enlace de C7")
+	no(r.conclusion("C7").keys.entities.has("papel_corto"), "la interpretación «un centímetro más corto» ya no es clave")
+	var l := RouteDB.lint(r, "C7")
+	eq(l.errors, [])
+	eq(l.pending, [])
+	var stars: Array = RouteDB.routes(r, "C7").filter(func(x): return bool(x.star) and bool(x.eligible)).map(func(x): return String(x.id))
+	ok(stars.has("C7.R2") and stars.has("C7.R4"), "las ★ de C7 siguen: %s" % str(stars))
+	for c in r.conclusions():
+		for rt in c.get("routes", []):
+			for f in rt.get("frags", []):
+				no(String(f.get("ref", "")).begins_with("M:"), "%s: sin refs de regla (M:)" % rt.id)
+

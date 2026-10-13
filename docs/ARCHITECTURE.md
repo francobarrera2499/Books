@@ -66,7 +66,7 @@ C:\Dev\books\
                  l1.gd l2.gd l3.gd l4.gd l5.gd l6.gd l7.gd l8.gd plates.gd       WP del lugar (W2-PLACES-*)
       characters/ mannequin.gd crowd.gd                                          W1-3D
       lighting.gd                                                                W1-POST (W4-STYLE en ola 4)
-      post/      engraving.gdshader engraving_post.gd                            W1-POST (W4-STYLE en ola 4)
+      post/      engraving_post.gd looks.gd looks/{aguada,grabado}.{gdshader,json}   W1-POST (W4-STYLE en ola 4)
     audio/
       synth.gd proc_audio.gd sound_bank.gd                                       W1-AUDIO
     assets/fonts/              IMFeENrm28P.ttf IMFeENit28P.ttf SpecialElite-Regular.ttf HomemadeApple-Regular.ttf + licencias (ya existen)
@@ -1431,6 +1431,8 @@ Páginas: «Reglas del asiento» (texto fijo de GDD§8.0), «Varios», folios (e
 - **Compositores** (`ui/compose/*`): formas cerradas con selectores (listas o chips) y el texto final completo antes de «Enviar»; informe: sobre con 3 ranuras, «Sin novedad»; final: «Quemar» y «Errata a medida» sólo si corresponde.
 - **W4 (playtest):** nota del instructor en una capa propia (25) con *dock* junto a los libros y menciones clicables (espera a que termine la presentación); bandeja una vez por día con papeles (el día 10, antes de la confrontación); «Tijera sobre la tienda» en la confrontación (`confront` cuenta como banda); copia certificada desde la tarjeta de examen del documento de L6 («Pedir copia certificada (un chelín)», en dos pasos); catálogo: «Pedir» en toda ficha y **toda papeleta se gasta** (ficha de ruido o fuera de ventana: `{t:slip, doc:"", noise}` / view `""`, «No está en los estantes hoy, señor»); marcadores del mapa con prioridad del abierto; título sin «Continuar» cuando el registro termina en `<save>.fin`; `Shell.go_epilogue`; epígrafe por área (`places.epigraph_by_area`, p. ej. L4 estudio el domingo).
 
+- **v2 (integración del playtest; prevalece sobre lo anterior):** sin lupa ni regla (ni en el escritorio ni en el lector: la línea de **descripción física** de cada documento, en tinta tenue, `core/text/fisica.gd`); HUD = calendario, tira «Pendientes» (viñetas; plegada a los 4 s en la primera línea, se despliega al pasar el mouse) y cintas «Cuaderno», «Libro de conclusiones» y **«Plano» (M)** con sus banderas (el plano sólo en el escritorio); la nota del instructor vive en la capa **35** (encima del lector) y con el lector abierto se acopla en su margen izquierdo, bajo la ficha del documento; el lector muestra una ayuda de la tijera hasta el primer recorte. **Nombres a la vista**: `Index.label()`/`q_index().label` = nombre natural (`Index.display`: el `name` de la entidad sin artículo, con mayúscula: «Doctor Watson», «Times del 27 de marzo»); la forma de catálogo (`index`: «Watson, John H., doctor») sólo ordena y es la que muestra y agrupa por letra la pestaña «Índice» del cuaderno (`q_index().index`). Los destinos del telegrama y la carta excluyen a Lisle. El chequeo formal del borrador usa el de la práctica (pasajes) mientras la práctica del día 1 está pendiente (`q_entry`; confirmar sigue con el normal). Las siluetas con las que se habla dicen dónde están («Muchacho con gorra (afuera)», `silhouettes.<id>.where`). La plantilla al azar de una reacción no repite la última de esa misma reacción.
+
 ---
 
 ## 7. 3D (W1-3D motor; W2-PLACES-* lugares; W1-POST estilo)
@@ -1499,6 +1501,8 @@ Verificación: `devtools/drivers/w13d_siluetas.gd` captura cada maniquí sobre f
 
 Encuadres fijos con transición 0,5 s (ease in-out). En lugares: órbita corta (yaw ±`orbit.yaw`, pitch ±`orbit.pitch`, por defecto 25°/10°) alrededor del `pivot` arrastrando con el botón izquierdo sobre el vacío (umbral 6 px: si no, es clic) o con flechas; rueda = FOV ±10°. Examinar: clic en nodo → la cámara encuadra el `anchor` (distancia según tamaño) y orbita alrededor de él; `fe_volver` regresa.
 
+**v2 (GDD_v2 §E; prevalece sobre lo anterior).** Sin chevrones. Pila de poses `[general] → [zona] → [examen]` (`push`/`back()`; clic derecho o Esc bajan un nivel; transición 0,45 s; giro y FOV suavizados `x += (obj − x)·(1 − e^(−12·dt))`). Vista general por área en `world/camera.json` (no en `data/`: DataRepo rechaza archivos desconocidos): `{"<lugar>.<área>": {overview: {pos, look, fov, yaw, pitch}, zones: {nodo: encuadre}}}`; `"yaw" ≥ 180` = **vuelta entera** (buhardilla y tienda: la puerta a la tienda y la vidriera quedan a la espalda; `rig.wraps()`), si no, tope ±yaw. Lugares sin general propia (`"*": first_frame`): cada encuadre es una **estación** (órbita de su encuadre acotada a 1,8 m de arco); empujar contra el límite `PUSH_S` = 1 s pasa a la vecina (`station_ring`) y un clic en un nodo lejano lleva a la estación que mejor lo ve. Bandas del borde (8 % / 10 %, 0,15 s, 45 °/s, nunca sobre la interfaz, con un panel, la tijera o un arrastre; opción «Girar la vista con los bordes»), arrastre, flechas y rueda hacia el cursor. La pantalla de juego (`ui/desk/game_screen.gd`) agrega: botón «‹ Alejarse» (tooltip «Clic derecho o Esc») mientras la cámara está acercada; un clic en el vacío o cerrar el panel abierto desde un objeto bajan un paso; en el prólogo, al cerrar un panel, la vista vuelve al escritorio. Afordancias (`world/affordance/*`, §D): códigos en la rugosidad leídos del canal A de `normal_roughness` (1,00 escenario · 0,9725…0,949 examinable · 0,9325…0,909 usable · 0,88 bajo el mouse; Godot 4.7 guarda la rugosidad tal cual), quad de contornos sobre el look, cursores dibujados (`ui/desk/cursors.gd`, liberados al salir) y etiqueta (`ui/desk/hover_label.gd`: no tapa el HUD ni la banda; se rearma si el mouse se mueve rápido; con Espacio, una por examinable, recalculadas mientras la vista gira). La aguada lava menos (`obj_soften` 0,5) y lleva más pluma (`obj_line` 1,3) en todo lo examinable por igual (§D.4).
+
 ### 7.6 Selección y recorte por rectángulo (`picker.gd`, `rect_clip.gd`)
 
 - Clic: `project_ray_origin/normal` → `intersect_ray` (máscara capas 1|2|4) → primer impacto; nodo → `node_clicked`; personaje → `character_clicked`.
@@ -1512,12 +1516,13 @@ Presets `manana_perla`, `dia_ventana`, `tarde`, `gas`, `farol_calle`, `electrica
 
 ### 7.8 Post-proceso de grabado (`world/post/*`; W1-POST; GDD§14.5)
 
-`engraving_post.gd` cuelga de la `Camera3D` activa un `MeshInstance3D` con `QuadMesh` 2×2, `extra_cull_margin = 16384`, sin sombras, con `ShaderMaterial(engraving.gdshader)`:
+`engraving_post.gd` cuelga de la `Camera3D` activa un `MeshInstance3D` con `QuadMesh` 2×2, `extra_cull_margin = 16384`, sin sombras, con el `ShaderMaterial` del look activo (por defecto `looks/aguada.gdshader`, elegido por el usuario; `looks/grabado.gdshader` = alternativa en Opciones). Lo que sigue describe el grabado; la aguada (lavados por cara, pluma en siluetas y pluma fina de cerca, hilo de papel, papel por franja y tinta por preset) está documentada en la cabecera de `looks/aguada.gdshader` y en `looks/aguada.json`:
 - `shader_type spatial; render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never;` vértice `POSITION = vec4(VERTEX.xy, 1.0, 1.0);`
 - `hint_screen_texture`, `hint_depth_texture` (profundidad lineal vía `INV_PROJECTION_MATRIX`), `hint_normal_roughness_texture` (sólo Forward+).
 - Contornos por discontinuidad de profundidad y normal (4 vecinos); trama **Bayer 8×8** procedural anclada a una esfera centrada en la cámara, celda derivada del FOV y del alto del *viewport*; grano de papel por *hash*; salida `mix(paper, ink, máscara)`.
 - Uniforms: `paper` (por franja: mañana `#e8e6e0`, tarde `#efe6d2`, noche `#ecd9b4`), `ink #1b1712`, `edge_depth`, `edge_normal`, `cell_px`, `grain`. Alternativa sepia = sólo cambiar `paper/ink` (GDD§16.3).
-- T27: el shader compila en headless (el renderer *dummy* de 4.7 sí reporta errores de shader al `Logger`); calibración con ventana: plano gris 0,5 a 5 m → gris medio esperado ±0,06 en la captura.
+- Looks intercambiables (`looks.gd`): cada `looks/<id>.gdshader` + `looks/<id>.json` se descubre solo ('grabado' = `"base": "lighting"`, sus parámetros siguen en `lighting.gd`); se elige con `--look=<id>` (sesión) u Opciones «Estilo de imagen» (persistente), default `Looks.DEFAULT` = `aguada` (sólo existen `aguada` y `grabado`); comparar: `LOOK=<id> ./godot.sh -s devtools/shot.gd --resolution 1600x900 -- res://devtools/blank.tscn look res://devtools/drivers/look_compare.gd` (6 tomas fijas → `.work/shots/look_<id>_<n>.png`) y `./godot.sh --headless -s devtools/contact_sheet.gd -- <id>` (→ `sheet_<id>.png`); recorrido completo (L1-L8, láminas y franjas): `SET=todo LOOK=<id> …look_compare.gd` (30 tomas, hojas `<id>-t1…t5`).
+- T27: los shaders de los looks compilan en headless (el renderer *dummy* de 4.7 sí reporta errores de shader al `Logger`); calibración con ventana del grabado: plano gris 0,5 a 5 m → gris medio esperado ±0,06 en la captura; aguada con ventana: tono monótono con blancos reservados, presets legibles, objetos del color de la mesa separados (pluma fina + hilo de papel), sin pluma falsa en piso rasante, siluetas en tono continuo ≥ 0,08, Opciones con clics reales.
 
 ---
 
@@ -1604,6 +1609,11 @@ T28: `md5` de `stream.data` de cada id coincide entre dos generaciones en el mis
 | T27 | `test_t27_shaders.gd` | W1-POST | shaders compilan (headless); calibración del grabado (`WINDOW`) |
 | T28 | `test_t28_audio.gd` | W1-AUDIO | hash PCM estable |
 | T29 | `test_t29_dioramas.gd` | W1-3D (lugares: W2-PLACES) | `examine` en todo nodo; Wiggins en frustum y sin tapar desde el día 3; línea de tiro recortable sola |
+| T30 | `test_t30_fisica.gd` | v2 DESPEJE-UI | descripción física en todo documento y plantilla; formato fijo; sólo D46 y la Remington con etiquetas; `D46#fisica` y `R:HA1.fisica` se resuelven |
+| T31 | `test_t31_ui_reveal.gd` | v2 DESPEJE-UI | revelado progresivo por vista con `q_ui()`; cinta «Plano» y Pendientes plegable |
+| T32 | `test_t32_camera.gd` (+ `_window`) | v2 CÁMARA | límites, suavizado, pila de poses, bandas del borde, estaciones, alcance de nodos; puerta y plano alcanzables girando; con ventana y mouse real |
+| T33 | `test_t33_style.gd` (+ `fixtures/style_exceptions.json`) | v2 TEXTOS-UI | estilo neutro/argentino: sin vosotros, peninsularismos, latinismos ni jerga; glosario §A.1 en ui_text y PRO; botones ≤3 palabras |
+| T34 | `test_t34_affordance.gd` (+ `_window`) | v2 AFORDANCIAS | códigos 1/2/3 en la rugosidad; contorno, etiqueta y cursor con mouse real; «‹ Alejarse»; etiquetas que siguen el giro; §D.4 de la aguada |
 
 Tests unitarios `test_u_<módulo>.gd`: dueño = dueño del módulo. Cada WP de ola 2 usa fixtures propios (`tests/fixtures/<wp>/`) para no depender del contenido; los T-tests sobre `res://data` informan faltantes con `pending_content`.
 

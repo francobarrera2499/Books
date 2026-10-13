@@ -355,8 +355,7 @@ static func _piece_label(repo, val: String) -> String:
 	if not asr.is_empty():
 		var t := String(asr.get("ad_text", ""))
 		return Deps.cap_first(t) if t != "" else Deps.cap_first(Markup.fill(String(asr.get("phrase", val)), {"addr": ""}).replace(", .", ".").replace(", ?", "?"))
-	var e: Dictionary = repo.entity(val)
-	return String(e.get("index", e.get("name", val)))
+	return Deps.index().display(repo, val)
 
 static func _clean_fields(fields: Dictionary, f: Dictionary) -> Dictionary:
 	var out := {}
@@ -391,6 +390,8 @@ static func _to_ok(st, repo, id: String) -> bool:
 	var e: Dictionary = repo.entity(id)
 	if e.is_empty() or not ["persona", "lugar"].has(String(e.get("kind", ""))) or not Deps.index().has(st, id):
 		return false
+	if id == "lisle":
+		return false   # Lisle no se escribe a sí mismo (playtest v2: «Para: Lisle»)
 	return not _mail_forbidden(repo, id)
 
 static func _part_ok(st, repo, id: String) -> bool:
