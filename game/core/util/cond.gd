@@ -17,6 +17,8 @@ const L = preload("res://core/util/log.gd")
 const ATOMS := ["day", "slot", "weekday", "tk", "flag", "flag_eq", "flag_gte", "sealed", "sealed_all", "sealed_count",
 	"counter", "event_count", "visited", "channel_closed", "report_final_cats_any", "anchor", "char_present"]
 const COMBI := ["all", "any", "not", "always"]
+# Datos (validate): sólo códigos ASCII (§12.2). eval tolera «mié»/«sáb» (wd_norm).
+const WEEKDAYS_ASCII := ["lun", "mar", "mie", "jue", "vie", "sab", "dom"]
 
 static func eval(cond, ctx: Dictionary) -> bool:
 	if cond == null:
@@ -183,8 +185,8 @@ static func _val(cond, path: String, errs: Array) -> void:
 			"weekday":
 				var arr2: Array = v if typeof(v) == TYPE_ARRAY else [v]
 				for s in arr2:
-					if not ["lun", "mar", "mie", "mié", "jue", "vie", "sab", "sáb", "dom"].has(String(s)):
-						errs.append("%s: día de semana desconocido %s" % [p, str(s)])
+					if not WEEKDAYS_ASCII.has(String(s)):
+						errs.append("%s: día de semana desconocido %s (códigos ASCII: %s)" % [p, str(s), ", ".join(PackedStringArray(WEEKDAYS_ASCII))])
 			"tk":
 				if typeof(v) == TYPE_DICTIONARY:
 					_val_cmp(v, p, errs, [])
@@ -330,7 +332,7 @@ static func _cur_tk(ctx: Dictionary) -> int:
 		return _cur_day(ctx) * 10
 	return TimeKey.tk(_cur_day(ctx), s)
 
-# "mié" == "mie", "sáb" == "sab" (el contrato no fija la tilde de schedule.days[].weekday).
+# "mié" == "mie", "sáb" == "sab" en runtime; en data/ el contrato fija códigos ASCII (§12.2, Schema y validate).
 static func wd_norm(s: String) -> String:
 	return s.to_lower().replace("é", "e").replace("á", "a")
 

@@ -1,0 +1,12 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). La escena definitiva la escribe W3-CT-DLG-A. Contrato §4.8: S:HC05.jueves_a (C9.R1). Escena automática del vestíbulo de 221B los días 8 y 9.",
+  "id": "HC05",
+  "place": "L3",
+  "area": "interior",
+  "auto": true,
+  "when": {"day": {"gte": 8, "lte": 9}},
+  "origin": "S.HC05",
+  "lines": [
+    {"id": "jueves_a", "who": "mrs_hudson", "text": "{{#jueves_a a:dia_jueves c:regreso_jueves e:jueves|El empleado del señor [[mycroft|Mycroft]] dijo que los cuartos del [[221b|primer piso]] tenían que estar listos para el [[jueves|jueves]], sir.}}"}
+  ]
+}

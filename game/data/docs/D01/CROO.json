@@ -1,0 +1,41 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. VI (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie (XX), p2 = escena central (abre con «[…]»: la mangosta y la palabra «David»), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/croo.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. #clavos (las marcas de los clavos de una bota en el linóleo) y #david («el marido se llamaba James») son ecos que no prueban nada: el James de aquí es el coronel Barclay (coronel_barclay), no el doctor. chron_date (guardián): «una noche de verano, pocos meses después de mi boda».",
+  "id": "D01.CROO",
+  "entity": "croo",
+  "title": "«El jorobado», The Strand Magazine, julio de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-07-01",
+  "chron_date": "1889-09-11",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El jorobado», The Strand Magazine, vol. VI (julio de 1893)", "entities": ["croo", "coronel_barclay", "henry_wood", "aldershot"]},
+  "copies": [
+    {"id": "D01.CROO@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.CROO@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XX\\. — El jorobado</b>\n{{#verano e:watson q:verano|Una noche de verano, pocos meses después de [[boda_de_watson|mi boda]], estaba yo sentado junto a mi propio hogar fumando una última pipa y cabeceando sobre una novela, pues la jornada había sido agotadora.}} {{#arriba e:esposa q:arriba|[[esposa|Mi mujer]] ya había subido, y el ruido de la cerradura de la puerta del vestíbulo, un rato antes, me había dicho que también los criados se habían retirado.}}\n{{#reloj q:reloj|Miré el reloj: eran las doce menos cuarto.}} {{#umbral e:holmes q:umbral|Para mi asombro, era [[holmes|Sherlock Holmes]] quien estaba en el umbral.}}\n—¡Hum! {{#arcadia e:holmes q:arcadia|¡Sigue usted fumando la mezcla Arcadia de sus tiempos de soltero!}} {{#panuelo e:holmes q:panuelo|Nunca pasará usted por un civil de pura cepa mientras conserve la costumbre de llevar el pañuelo en la manga.}} Siento ver que ha tenido usted en casa al obrero británico. ¿No serán los desagües?\n—No, el gas.\n—¡Ah! {{#clavos e:holmes q:clavos|Le ha dejado en el linóleo dos marcas de los [[clavo_de_bota|clavos de la bota]], justo donde da la luz.}}"},
+    {"id": "p2", "text": "\\[…\\] {{#criatura e:henry_wood q:criatura|Al instante se deslizó fuera una hermosa criatura de color pardo rojizo, delgada y ágil, con patas de armiño, hocico largo y fino y los ojos rojos más espléndidos que he visto nunca en un animal.}}\n{{#mangosta q:mangosta|—¡Es una [[mangosta|mangosta]]!}} —exclamé.\n—Unos las llaman así y otros icneumones —dijo el hombre—. {{#cobras e:henry_wood q:cobras|Yo las llamo cazaserpientes, y Teddy es asombrosamente rápido con las cobras.}}\n\\[…\\] —La investigación judicial acaba de terminar —nos dijo [[mayor_murphy|el mayor Murphy]]—. {{#apoplejia e:mayor_murphy q:apoplejia|El informe médico demostró de manera concluyente que la muerte se había debido a una apoplejía.}}\n{{#superficial e:holmes p:aldershot q:superficial|—Oh, notablemente superficial —dijo Holmes, sonriendo—.}} Vamos, Watson; no creo que nos necesiten más en [[aldershot|Aldershot]].\n{{#david e:watson e:coronel_barclay q:david|—Hay una cosa —dije, mientras bajábamos a la estación—: si el marido se llamaba [[coronel_barclay|James]] y el otro [[henry_wood|Henry]], ¿qué era eso de David?}}\n—{{#reproche e:holmes q:reproche|Era, evidentemente, un término de reproche.}} {{#urias e:holmes q:urias|¿Recuerda usted el asuntillo de Urías y Betsabé?}}"}
+  ],
+  "src_en": {
+    "verano": "One summer night, a few months after my marriage, I was seated by my own hearth smoking a last pipe and nodding over a novel, for my day’s work had been an exhausting one.",
+    "arriba": "My wife had already gone upstairs, and the sound of the locking of the hall door some time before told me that the servants had also retired.",
+    "reloj": "I looked at the clock. It was a quarter to twelve.",
+    "umbral": "To my astonishment it was Sherlock Holmes who stood upon my step.",
+    "arcadia": "You still smoke the Arcadia mixture of your bachelor days then!",
+    "panuelo": "You’ll never pass as a pure-bred civilian as long as you keep that habit of carrying your handkerchief in your sleeve.",
+    "clavos": "He has left two nail-marks from his boot upon your linoleum just where the light strikes it.",
+    "criatura": "out there slipped a beautiful reddish-brown creature, thin and lithe, with the legs of a stoat, a long, thin nose, and a pair of the finest red eyes that ever I saw in an animal’s head.",
+    "mangosta": "It’s a mongoose,” I cried.",
+    "cobras": "Snake-catcher is what I call them, and Teddy is amazing quick on cobras.",
+    "apoplejia": "The medical evidence showed conclusively that death was due to apoplexy.",
+    "superficial": "Oh, remarkably superficial,” said Holmes, smiling.",
+    "david": "There’s one thing,” said I, as we walked down to the station. “If the husband’s name was James, and the other was Henry, what was this talk about David?",
+    "reproche": "It was evidently a term of reproach.",
+    "urias": "You remember the small affair of Uriah and Bathsheba?"
+  },
+  "words": 300
+}

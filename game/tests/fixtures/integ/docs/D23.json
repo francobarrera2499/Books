@@ -1,0 +1,19 @@
+{
+  "_nota": "Fixture de integración (tests/test_i_integration.gd). El texto definitivo lo escribe W3-CT-LISLE. Contrato §4.8: D23#cruel (C10a.R3 / C10 Ic).",
+  "id": "D23",
+  "entity": "encargo",
+  "title": "Encargo del señor Pell, 26 de marzo de 1894",
+  "src_type": "papel_privado",
+  "class": "P",
+  "date": "1894-03-26",
+  "font": "maquina",
+  "paper": "carta",
+  "paper_mm": [210, 270],
+  "copies": [
+    {"id": "D23@L1", "holder": "L1", "area": "buhardilla", "via": "desk", "from": "P.N", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#aviso e:suceso_reichenbach|Un aviso de testigos de [[suceso_reichenbach|lo de Reichenbach]] para el [[times|Times]], que salga el martes.}} {{#seis|No menos de seis asientos pasados en limpio para el jueves 5 de abril.}} {{#cruel a:harris_es_moran e:adjetivos_repetidos e:cruel|Una memoria cruel, cruel, me dicta [[harris|el mayor]] por encima del hombro.}} Informes los miércoles, sábados y martes, a las diez de la noche."}
+  ],
+  "words": 60
+}

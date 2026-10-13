@@ -1,0 +1,38 @@
+{
+  "_nota": "W3-CT-REICH. Carta original del Reichenbach, primera hoja (GDD §6 D29b, §2.3): lápiz de Holmes y, bajo luz rasante, los surcos de la hoja anterior del mismo bloc. Contrato §4.8: #surcos (C4.R4: en_vida). No se presta nunca (HB5); HB4 cierra la consulta.",
+  "id": "D29b",
+  "entity": "carta_de_reichenbach",
+  "title": "Carta de Holmes desde el Reichenbach, original a lápiz (primera hoja)",
+  "src_type": "papel_privado",
+  "class": "C",
+  "date": "1891-05-04",
+  "font": "manuscrito",
+  "paper": "cuaderno",
+  "paper_mm": [
+    110,
+    100
+  ],
+  "visible_cats": [
+    "watson_privado"
+  ],
+  "copies": [
+    {
+      "id": "D29b@L4",
+      "holder": "L4",
+      "class": "C",
+      "via": "place",
+      "from": "1.M",
+      "to": "9.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "{{#surcos a:en_vida e:en_vida e:holmes h:F.as_arranged c:verdadero|<rasante>Mi querido [[mycroft|Mycroft]] — [[as_arranged|según lo convenido]] —</rasante>}}\n<ink=lapiz>Mi querido [[watson|Watson]]: {{#cortesia_b q:cortesia e:profesor_moriarty d:1891-05-04|le escribo estas pocas líneas gracias a la cortesía del señor [[profesor_moriarty|Moriarty]], que aguarda a que yo disponga para la discusión final de las cuestiones pendientes entre nosotros.}} Me ha estado dando un esbozo de los métodos con que eludió a la policía inglesa y se mantuvo al tanto de nuestros movimientos. Ciertamente confirman la altísima opinión que</ink>"
+    }
+  ],
+  "src_en": {
+    "cortesia": "I write these few lines through the courtesy of Mr. Moriarty, who awaits my convenience for the final discussion of those questions which lie between us."
+  },
+  "words": 70
+}

@@ -1,0 +1,20 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-MORAN. Contrato §4.8: D16#moran (C10 Ia, C10a.R1, C11.R2).",
+  "id": "D16",
+  "entity": "daily_graphic",
+  "title": "The Daily Graphic, martes 3 de abril de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1894-04-03",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "slip_topic": "prensa_1894",
+  "copies": [
+    {"id": "D16@BM", "holder": "BM", "class": "I", "via": "slip", "from": "8.M", "to": "9.N"},
+    {"id": "D16@L1", "holder": "L1", "area": "buhardilla", "class": "I", "via": "desk", "from": "8.dawn", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "LA INDAGATORIA DE PARK LANE. — Grabados de los testigos. {{#moran a:harris_es_moran a:autor_moran e:moran e:bigote|El coronel [[moran|Sebastian Moran]], compañero de whist del difunto [[ronald_adair|Ronald Adair]] en la casa de [[park_lane_427|Park Lane]], tiene un [[bigote|bigote canoso]] enorme y cejas pesadas.}}"}
+  ],
+  "words": 45
+}

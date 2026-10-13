@@ -1,0 +1,20 @@
+{
+  "_nota": "W3-CT-TRACES. D30, libro de recibos del alquiler del primer piso del 221B, en la salita de Mrs. Hudson (L3, interior) [INV; GDD §6 D30, §10.4 C4.R3 y C7.R3]. Clase C: HB6 lo retira (retirar D30@L3) desde el día siguiente a la primera visita al interior; la variante blanda no lo retira. Recibos tecleados con la misma Remington de la voz A (machine remington_cotter: «s» alzada; todo recorte lleva remington_s_alzada) y firmados a mano por Mrs. Hudson: el escribiente trae el dinero y el recibo hecho. Trimestre por trimestre desde San Juan de 1891, siete semanas después del Reichenbach, «por cuenta del Sr. M. Holmes»: la casa se pagó sin una sola pausa (EMPT: «Mycroft had preserved my rooms»). Contrato §4.8: #recibo (C4 en_vida: el hermano se hizo cargo de lo suyo desde el primer trimestre; C7 vinculo_mycroft: la mano que teclea trabaja para Mycroft; claves mycroft y remington_s_alzada). Un recibo por trimestre, doce en columna (San Juan de 1891 a Anunciación de 1894), cada uno con la firma de la casera: el lector ve de un vistazo que no falta ninguno. Libras con \\. para que no corten la oración. Ejemplar: L3, interior.",
+  "id": "D30",
+  "entity": "libro_de_recibos",
+  "title": "Libro de recibos del alquiler, 221B Baker Street, primer piso",
+  "src_type": "registro",
+  "class": "C",
+  "date": "1894-03-25",
+  "font": "maquina",
+  "paper": "registro",
+  "paper_mm": [210, 270],
+  "machine": "remington_cotter",
+  "copies": [
+    {"id": "D30@L3", "holder": "L3", "area": "interior", "class": "C", "via": "place", "from": "1.M", "to": "9.T"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>221B, Baker Street.</sc> — Primer piso. — Recibos.\n{{#recibo a:en_vida a:vinculo_mycroft e:mycroft e:alquiler e:cuartos d:1891-06-24 c:verdadero h:F.mycroft_paga_221b|San Juan de 1891: recibido por cuenta del Sr. [[mycroft|M. Holmes]] el [[alquiler|alquiler]] del trimestre, £27 10s\\. por los [[cuartos|cuartos]], que se conservan como estaban.}} <f=manuscrito>Hudson.</f>\n{{#r9109 e:alquiler|San Miguel de 1891: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9112 e:alquiler|Navidad de 1891: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9203 e:alquiler|Anunciación de 1892: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9206 e:alquiler|San Juan de 1892: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9209 e:alquiler|San Miguel de 1892: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9212 e:alquiler|Navidad de 1892: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9303 e:alquiler|Anunciación de 1893: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9306 e:alquiler|San Juan de 1893: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9309 e:alquiler|San Miguel de 1893: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9312 e:alquiler|Navidad de 1893: ídem.}} <f=manuscrito>Hudson.</f>\n{{#r9403 e:mycroft e:alquiler d:1894-03-25|Anunciación de 1894: recibido por cuenta del Sr. [[mycroft|M. Holmes]], £27 10s\\. por el trimestre.}} <f=manuscrito>Hudson.</f>"}
+  ],
+  "words": 100
+}

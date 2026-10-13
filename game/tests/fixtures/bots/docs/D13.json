@@ -1,0 +1,20 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-TRACES. Contrato §4.8: D13#muestra97 (C8.R1), #jartum (pista falsa: f:refutado a:falsa_jartum).",
+  "id": "D13",
+  "entity": "despachos_sigerson",
+  "title": "Despachos del explorador Sigerson, The Times, 1892 y 1893",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1893-06-01",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "slip_topic": "sigerson",
+  "copies": [
+    {"id": "D13@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "Despacho comunicado por el [[foreign_office|Foreign Office]]. {{#muestra97 a:actividad_posterior_a_mayo_1891 e:numero_97 e:sigerson|El explorador [[sigerson|Sigerson]] remite la muestra que faltaba al [[numero_97|número 97]] de cierta clasificación inglesa de cenizas.}}"},
+    {"id": "p2", "text": "{{#jartum f:refutado a:falsa_jartum e:jartum|Se nos comunica que el explorador noruego es huésped del [[califa|Califa]] en [[jartum|Jartum]].}}"}
+  ],
+  "words": 45
+}

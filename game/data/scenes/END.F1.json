@@ -1,0 +1,16 @@
+{
+  "_nota": "W3-CT-DLG-B. Final F1 «Al menos un lector» (GDD §12.1; endings.json scene END.F1). El informe final fue la errata a medida, un segundo señuelo además de Parker. Sábado 7 de abril: Holmes sube en persona a la buhardilla (Watson ya lo sabe); corrige con lápiz azul la entrada que no es literalmente cierta (si las doce obligatorias están selladas: «Hum. Nada que corregir»); pide silencio «hasta que el autor lo autorice», como al doctor entre 1894 y 1903; pide devolver los cinco tomos sin nombre a un estante de Kensington. Sin place (no ocurre en un lugar del mapa); when día ≥ 10 = fecha de la escena para T7. La ficha «L» la da endings.json (card).",
+  "id": "END.F1",
+  "when": {"day": {"gte": 10}},
+  "origin": "S.END.F1",
+  "lines": [
+    {"id": "pasos", "who": "lisle", "text": "Sáb. 7 de abril, a las once. Suben la escalera unos pasos largos que no conozco."},
+    {"id": "entra", "who": "holmes", "text": "Se quita el sombrero en la puerta; esta vez la sombra es de su tamaño. —No se levante, señor Lisle: ya nos conocemos."},
+    {"id": "errata", "who": "holmes", "text": "—Su informe del jueves fue una errata ejemplar. Le dijo usted al tigre dónde iba a estar yo, y era verdad: allí estuvo mi [[busto|busto]]."},
+    {"id": "corrige", "who": "holmes", "when": {"sealed_count": {"of": "mandatory", "lt": 12}}, "text": "Hojea el [[libro_mayor|libro mayor]] de pie, con un lápiz azul en la mano. —Una de sus entradas no es literalmente cierta. Se la dejo marcada."},
+    {"id": "nada", "who": "holmes", "when": {"sealed_count": {"of": "mandatory", "gte": 12}}, "text": "Hojea el [[libro_mayor|libro mayor]] de pie, hasta la última página. —Hum. Nada que corregir."},
+    {"id": "silencio", "who": "holmes", "text": "—Le pido lo mismo que al doctor: silencio, hasta que el autor lo autorice."},
+    {"id": "tomos", "who": "holmes", "text": "Apoya la mano sobre los [[tomos|cinco tomos]]. —Y devuélvalos usted, sin nombre, a un estante de [[kensington|Kensington]]. Se ve desordenado."},
+    {"id": "nombre", "who": "lisle", "text": "No me dijo su nombre. No hacía falta: conocía su letra por dos palabras a lápiz en el margen de mi carta de enero."}
+  ]
+}

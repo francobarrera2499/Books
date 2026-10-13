@@ -1,0 +1,29 @@
+{
+  "_nota": "W3-CT-REICH. Entidades propias de D02–D08 y D29a–c: ruido de época (_ruido) y algunos puentes (investigaciones_quimicas, pisadas_del_sendero, firma_mh, republica_francesa).",
+  "entities": [
+    {"id": "narbona", "kind": "lugar", "name": "Narbona", "index": "Narbona", "noun": "ciudad", "_ruido": true},
+    {"id": "nimes", "kind": "lugar", "name": "Nimes", "index": "Nimes", "noun": "ciudad", "_ruido": true},
+    {"id": "lowther_arcade", "kind": "lugar", "name": "la Lowther Arcade", "index": "Lowther Arcade", "noun": "galería", "_ruido": true},
+    {"id": "brougham_de_la_arcade", "kind": "objeto", "name": "un brougham", "index": "brougham (Lowther Arcade)", "noun": "coche", "_ruido": true},
+    {"id": "furgon_de_welbeck", "kind": "objeto", "name": "un furgón de dos caballos", "index": "furgón de dos caballos (Welbeck Street)", "noun": "furgón", "_ruido": true},
+    {"id": "rufian_del_garrote", "kind": "persona", "name": "un rufián con un garrote", "index": "rufián del garrote", "noun": "rufián", "_ruido": true},
+    {"id": "familia_real_escandinava", "kind": "persona", "name": "la familia real de Escandinavia", "index": "Escandinavia, familia real de", "noun": "familia real", "_ruido": true},
+    {"id": "republica_francesa", "kind": "persona", "name": "la república francesa", "index": "república francesa", "noun": "gobierno"},
+    {"id": "investigaciones_quimicas", "kind": "concepto", "name": "las investigaciones químicas", "index": "investigaciones químicas", "noun": "química"},
+    {"id": "sacerdote_italiano", "kind": "persona", "name": "un venerable sacerdote italiano", "index": "sacerdote italiano (estación Victoria)", "noun": "sacerdote", "_ruido": true},
+    {"id": "grosvenor_hotel", "kind": "lugar", "name": "el Grosvenor Hotel", "index": "Grosvenor Hotel", "noun": "hotel", "_ruido": true},
+    {"id": "dama_tisica", "kind": "persona", "name": "una dama inglesa", "index": "dama inglesa enferma (Meiringen)", "noun": "dama", "_ruido": true},
+    {"id": "davos_platz", "kind": "lugar", "name": "Davos Platz", "index": "Davos Platz", "noun": "aldea", "_ruido": true},
+    {"id": "lucerna", "kind": "lugar", "name": "Lucerna", "index": "Lucerna", "noun": "ciudad", "_ruido": true},
+    {"id": "abismo_del_reichenbach", "kind": "concepto", "name": "el abismo", "index": "abismo del Reichenbach", "noun": "abismo", "_ruido": true},
+    {"id": "pisadas_del_sendero", "kind": "concepto", "name": "las pisadas del sendero", "index": "pisadas del sendero (Reichenbach)", "noun": "pisadas"},
+    {"id": "pitillera_de_holmes", "kind": "objeto", "name": "la pitillera de plata", "index": "pitillera de plata", "noun": "pitillera", "_ruido": true},
+    {"id": "inspector_patterson", "kind": "persona", "name": "el inspector Patterson", "index": "Patterson, inspector", "noun": "inspector", "_ruido": true},
+    {"id": "firma_mh", "kind": "persona", "name": "M. H.", "index": "M. H. (iniciales)", "noun": "iniciales"},
+    {"id": "lago_leman", "kind": "lugar", "name": "el lago Lemán", "index": "Lemán, lago", "noun": "lago", "_ruido": true},
+    {"id": "influenza_1891", "kind": "concepto", "name": "la influenza", "index": "influenza (mayo de 1891)", "noun": "epidemia", "_ruido": true},
+    {"id": "hotel_sauvage", "kind": "lugar", "name": "el Sauvage", "index": "Sauvage, hotel (Meiringen)", "noun": "hotel", "_ruido": true},
+    {"id": "valle_del_aar", "kind": "lugar", "name": "el valle del Aar", "index": "Aar, valle del", "noun": "valle", "_ruido": true},
+    {"id": "gran_scheidegg", "kind": "lugar", "name": "la Gran Scheidegg", "index": "Gran Scheidegg", "noun": "paso", "_ruido": true}
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "_nota": "W3-CT-DLG-A. Entidades nuevas que mencionan los diálogos y escenas de este paquete (las demás ya existen en core.json y en los archivos de otros WPs).",
+  "entities": [
+    {"id": "portman_square", "kind": "lugar", "name": "Portman Square", "index": "Portman Square", "noun": "plaza", "_ruido": true}
+  ]
+}

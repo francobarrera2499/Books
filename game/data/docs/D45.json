@@ -1,0 +1,21 @@
+{
+  "_nota": "W3-CT-TRACES. D45, The Lancet del sábado 3 de febrero de 1894, noticias médicas [INV; GDD §2.3, §6 D45, §10.4 C14.R2]. La única noticia pública del duelo del doctor (no hubo aviso en el Times; no llega a Montpellier: Holmes lo sabrá en la tienda de Crane, §2.3). Contrato §4.8: #duelo (C14 duelo, línea Cuándo; claves watson y paddington: enlaza con D20#subasta; e:duelo). La fecha exacta de la muerte la da D18 (⚠). Ruido: un nombramiento de dispensario. slip_topic watson_prensa (silencio). Ejemplar: BM.",
+  "id": "D45",
+  "entity": "lancet",
+  "title": "The Lancet, sábado 3 de febrero de 1894: noticias médicas",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1894-02-03",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [190, 260],
+  "slip_topic": "watson_prensa",
+  "catalog": {"label": "Lancet, The, 3 de febrero de 1894 (noticias médicas y nombramientos)", "entities": ["lancet", "watson", "paddington", "kensington"]},
+  "copies": [
+    {"id": "D45@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>The Lancet</sc>, sábado 3 de febrero de 1894. — Noticias médicas.\n\n{{#dewar e:dewar e:poplar|El [[dewar|doctor H. Lennox Dewar]] ha sido nombrado médico auxiliar del dispensario de [[poplar|Poplar]].}}\n{{#duelo a:duelo e:watson e:duelo e:paddington e:kensington c:verdadero h:F.lancet d:1894-02-03|El [[watson|doctor J. H. Watson]], tras su reciente [[duelo|duelo]], ha trasladado su consulta de [[paddington|Paddington]] a [[kensington|Kensington]].}}"}
+  ],
+  "words": 40
+}

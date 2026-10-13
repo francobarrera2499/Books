@@ -1,0 +1,21 @@
+{
+  "_nota": "Fixture de W3-SCENEUI (capturas y tests de la UI de escenas). El texto definitivo lo escribe W3-CT-REICH. Contrato §4.8: D08#kanzel (C3.R3, refuta falsa_reuter). Menciona Meiringen para el telegrama de prueba.",
+  "id": "D08",
+  "entity": "guia_de_suiza",
+  "title": "Guía de viajeros por Suiza, 1891",
+  "src_type": "libro",
+  "class": "I",
+  "date": "1891-01-01",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [118, 180],
+  "slip_topic": "otros",
+  "catalog": {"label": "Guía de viajeros por Suiza (1891)", "entities": ["guia_de_suiza", "meiringen", "reichenbach"]},
+  "copies": [
+    {"id": "D08@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#meiringen e:meiringen|[[meiringen|Meiringen]] tiene una sola fonda recomendable, el [[englischer_hof|Englischer Hof]] de P. [[steiler|Steiler]], buena y moderada.}} {{#cascada e:reichenbach|Media hora de subida lleva a la [[reichenbach|cascada del Reichenbach]], que se ve mejor desde el sendero de la orilla derecha.}} {{#kanzel a:cornisa_existe a:refuta_reuter e:cornisa|Más arriba del final del [[sendero|sendero]], invisible desde éste, hay [[cornisa|una cornisa]] a la que sólo ha llegado algún [[nidero|cazador de nidos]] temerario.}} No se recomienda a nadie."}
+  ],
+  "words": 70
+}

@@ -16,7 +16,9 @@ const CLS := {"t": "enum", "v": ["I", "P", "C"]}
 const VEC3 := {"t": "list", "of": "num", "min": 3, "max": 3}
 const STRS := {"t": "list", "of": "str"}
 const ENT_KINDS := ["persona", "lugar", "documento", "objeto", "fecha", "concepto", "suceso"]
-const WEEKDAYS := ["lun", "mar", "mie", "mié", "jue", "vie", "sab", "sáb", "dom"]   # = los que acepta Cond (weekday)
+# §12.2: en data/ los días de semana son códigos ASCII (schedule.days[].weekday y átomos weekday de Cond.validate);
+# Cond.eval sigue tolerando «mié»/«sáb» en runtime.
+const WEEKDAYS := ["lun", "mar", "mie", "jue", "vie", "sab", "dom"]
 const EFFECT_OPS := ["carta", "columna", "noticia", "escena", "linea", "retirar", "cerrar", "silueta", "flag",
 	"alterar_lugar", "devolver", "paga", "arrancar", "linea_siguiente_comunicacion", "evento_mundo"]
 
@@ -122,6 +124,7 @@ static func _doc() -> Dictionary:
 		"clip_mode": _enum(["normal", "memoria"]), "slip_topic": "?str", "visible_cats": STRS,
 		"catalog": {"t": "?obj", "f": {"label": "str", "entities": STRS}, "req": ["label", "entities"], "open": false},
 		"copies": _list(copy, 1), "parts": _list(part, 1), "src_en": _map("str"), "plate": "?str", "words": "int",
+		"inserts": _map("str"),
 	}, ["id", "entity", "title", "src_type", "class", "date", "font", "paper", "copies", "parts", "words"])
 
 static func _schedule() -> Dictionary:
@@ -175,11 +178,13 @@ static func _line() -> Dictionary:
 	return _obj({"id": "id", "who": "str", "text": "markup", "gen": "str", "tpl": _map("tpl"), "fallback": "markup",
 		"when": "cond", "effects": _list({"t": "dict"}), "reaction": "str"}, ["id"])
 
+# place es opcional (§12.2): los finales y el epílogo (END.F1–F4, EPI) no ocurren en un lugar del mapa. Sin place, el
+# motor la trata como escena de la buhardilla (WorldModel.start_scene) y nunca como escena fija de columna.
 static func _scene() -> Dictionary:
 	return _obj({"id": "id", "place": "id", "area": "str", "tk": "tk", "plate": "str", "origin": "str", "when": "cond",
 		"auto": "bool", "lines": _list(_line(), 1),
 		"variants": _list(_obj({"when": "cond", "replace": _map("markup"), "append": _list(_line())}, ["when"]))},
-		["id", "place", "lines"])
+		["id", "lines"])
 
 static func _dialogue() -> Dictionary:
 	var dl := _obj({"id": "id", "layer": _enum(["afirmacion", "tema", "documento", "entidad", "tipo", "generica"]),
@@ -353,6 +358,27 @@ static func _extra(ds: String, v, errs: Array) -> void:
 					if cids.has(c.get("id")):
 						errs.append("docs.%s: ejemplar %s duplicado" % [v.get("id", "?"), c.get("id")])
 					cids[c.get("id")] = true
+			# inserts (§12.2): {"columna"|"noticias": id de parte existente} a nivel de documento (o, por compatibilidad, de parte)
+			var pids := {}
+			for p in v.get("parts", []):
+				if typeof(p) == TYPE_DICTIONARY:
+					pids[String(p.get("id", ""))] = true
+			var ins_maps: Array = [v.get("inserts", {})]
+			for p in v.get("parts", []):
+				if typeof(p) == TYPE_DICTIONARY:
+					ins_maps.append(p.get("inserts", {}))
+			for im in ins_maps:
+				if typeof(im) != TYPE_DICTIONARY:
+					continue
+				for k in im:
+					if String(k).begins_with("_"):
+						continue
+					if not ["columna", "noticias"].has(String(k)):
+						errs.append("docs.%s: inserts.%s desconocido (columna | noticias)" % [v.get("id", "?"), k])
+					elif not pids.has(String(im[k])):
+						errs.append("docs.%s: inserts.%s apunta a una parte inexistente '%s'" % [v.get("id", "?"), k, im[k]])
+		"scenes":
+			_scene_variants(v, errs)
 		"places", "plates":
 			var nids := {}
 			for nd in v.get("nodes", []):
@@ -395,6 +421,61 @@ static func _extra(ds: String, v, errs: Array) -> void:
 				for cid in v.get(k, []):
 					if not ids.has(cid):
 						errs.append("conclusions.%s: %s no existe" % [k, cid])
+
+# §12.2: una variante `replace` cambia el texto de una línea base pero conserva sus tramos: los mismos #id con las
+# mismas etiquetas (las rutas citan S:<escena>.<línea> y el grafo toma la intersección de las versiones). La línea
+# reemplazada debe existir entre las líneas base (no generadas). Ids de línea únicos (base + append).
+static func _scene_variants(v: Dictionary, errs: Array) -> void:
+	var sid := String(v.get("id", "?"))
+	var base := {}
+	var seen := {}
+	for ln in v.get("lines", []):
+		if typeof(ln) != TYPE_DICTIONARY:
+			continue
+		var lid := String(ln.get("id", ""))
+		if seen.has(lid):
+			errs.append("scenes.%s: línea %s duplicada" % [sid, lid])
+		seen[lid] = true
+		if not ln.has("gen") and typeof(ln.get("text")) == TYPE_STRING:
+			base[lid] = String(ln.text)
+	var vs = v.get("variants", [])
+	if typeof(vs) != TYPE_ARRAY:
+		return
+	for i in vs.size():
+		var var_d = vs[i]
+		if typeof(var_d) != TYPE_DICTIONARY:
+			continue
+		for ap in var_d.get("append", []):
+			if typeof(ap) == TYPE_DICTIONARY and seen.has(String(ap.get("id", ""))):
+				errs.append("scenes.%s: variants[%d].append: la línea %s ya es una línea base (usar replace)" % [sid, i, ap.get("id", "")])
+		var rep = var_d.get("replace", {})
+		if typeof(rep) != TYPE_DICTIONARY:
+			continue
+		for lid in rep:
+			if String(lid).begins_with("_"):
+				continue
+			if not base.has(String(lid)):
+				errs.append("scenes.%s: variants[%d].replace.%s: no es una línea base de la escena" % [sid, i, lid])
+				continue
+			if typeof(rep[lid]) != TYPE_STRING:
+				continue
+			var want := _tramo_sig(base[String(lid)])
+			var got := _tramo_sig(String(rep[lid]))
+			if want != got:
+				errs.append("scenes.%s: variants[%d].replace.%s: debe conservar los tramos de la línea base %s (tiene %s)" % [sid, i, lid, str(want), str(got)])
+
+# Firma de tramos de un texto: ["#id a:x e:y …"] ordenada (id y etiquetas; el texto puede cambiar).
+static func _tramo_sig(text: String) -> Array:
+	var out: Array = []
+	for t in Markup.parse(text, {"allow_placeholders": true}).tramos:
+		var tags: Array = []
+		for p in Markup.PREFIXES:
+			for x in t.tags.get(p, []):
+				tags.append(p + ":" + String(x))
+		tags.sort()
+		out.append(("#" + String(t.id) + " " if String(t.id) != "" else "") + " ".join(PackedStringArray(tags)))
+	out.sort()
+	return out
 
 static func _has_id(arr, id: String) -> bool:
 	for x in arr:

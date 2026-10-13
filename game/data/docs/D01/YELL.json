@@ -1,0 +1,39 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. V (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie (XV), p2 = escena central (abre con «[…]»; aquí, el relato de la cara en la ventana y, tras otro «[…]», el final de «Norbury», que cita D21#norbury), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/yell.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. chron_date (guardián): «a comienzos de la primavera», en Baker Street con el botones y sin año en el texto: antes de FIVE (sep. 1887), por la misma razón que CARD.",
+  "id": "D01.YELL",
+  "entity": "yell",
+  "title": "«La cara amarilla», The Strand Magazine, febrero de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-02-01",
+  "chron_date": "1886-04-07",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«La cara amarilla», The Strand Magazine, vol. V (febrero de 1893)", "entities": ["yell", "grant_munro", "norbury"]},
+  "copies": [
+    {"id": "D01.YELL@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.YELL@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XV\\. — La cara amarilla</b>\n{{#ejercicio e:holmes q:ejercicio|[[holmes|Sherlock Holmes]] era hombre que rara vez hacía ejercicio por el ejercicio mismo.}} {{#primavera q:primavera|Un día, a comienzos de la primavera, había llegado a relajarse tanto que salió conmigo a dar un paseo por el parque, donde los primeros brotes verdes asomaban ya en los olmos.}} {{#cinco p:baker_street q:cinco|Eran casi las cinco cuando volvimos a estar en [[baker_street|Baker Street]].}}\n{{#botones q:botones|—Perdone, señor —dijo nuestro botones al abrirnos la puerta—.}} Ha estado aquí un caballero preguntando por usted, señor.\n—¡Vaya! {{#pipa e:holmes q:pipa|Esa [[pipa|pipa]] de la mesa no es la de usted.}} El caballero debe de haberse olvidado la suya. {{#ambar q:ambar|Una buena pipa vieja de brezo, con una boquilla larga de lo que los estanqueros llaman ámbar.}}\n{{#zurdo e:holmes q:zurdo|—El dueño es evidentemente un hombre musculoso, zurdo, de dentadura excelente, descuidado en sus costumbres y que no tiene necesidad de economizar.}}"},
+    {"id": "p2", "text": "\\[…\\] {{#escalofrio e:grant_munro q:escalofrio|—No sé qué tenía aquella cara, señor Holmes, pero me produjo un escalofrío que me bajó por toda la espalda.}} {{#inhumano e:grant_munro q:inhumano|Estaba algo lejos y no pude distinguir las facciones, pero había algo antinatural e inhumano en aquella cara.}} {{#arrancada e:grant_munro q:arrancada|Pero en ese momento la cara desapareció de golpe, tan de golpe que pareció como si la hubieran arrancado hacia la oscuridad del cuarto.}}\n\\[…\\] {{#londres e:holmes q:londres|—Creo —dijo— que seremos más útiles en Londres que en [[norbury|Norbury]].}}\n{{#vela e:holmes q:vela|No volvió a decir una palabra del caso hasta muy entrada la noche, cuando se retiraba a su dormitorio con la vela encendida.}}\n{{#norbury e:holmes p:norbury q:norbury|—Watson —dijo—, si alguna vez le parece que me fío demasiado de mis facultades, o que pongo en un caso menos empeño del que merece, susúrreme al oído «Norbury», y se lo agradeceré infinitamente.}}"}
+  ],
+  "src_en": {
+    "ejercicio": "Sherlock Holmes was a man who seldom took exercise for exercise’s sake.",
+    "primavera": "One day in early spring he had so far relaxed as to go for a walk with me in the Park, where the first faint shoots of green were breaking out upon the elms",
+    "cinco": "It was nearly five before we were back in Baker Street once more.",
+    "botones": "Beg pardon, sir,” said our page-boy, as he opened the door.",
+    "pipa": "That’s not your pipe on the table.",
+    "ambar": "A nice old briar with a good long stem of what the tobacconists call amber.",
+    "zurdo": "The owner is obviously a muscular man, left-handed, with an excellent set of teeth, careless in his habits, and with no need to practise economy.",
+    "escalofrio": "I don’t know what there was about that face, Mr. Holmes, but it seemed to send a chill right down my back.",
+    "inhumano": "I was some little way off, so that I could not make out the features, but there was something unnatural and inhuman about the face.",
+    "arrancada": "But as I did so the face suddenly disappeared, so suddenly that it seemed to have been plucked away into the darkness of the room.",
+    "londres": "I think,” said he, “that we shall be of more use in London than in Norbury.",
+    "vela": "Not another word did he say of the case until late that night, when he was turning away, with his lighted candle, for his bedroom.",
+    "norbury": "Watson,” said he, “if it should ever strike you that I am getting a little over-confident in my powers, or giving less pains to a case than it deserves, kindly whisper ‘Norbury’ in my ear, and I shall be infinitely obliged to you."
+  },
+  "words": 300
+}

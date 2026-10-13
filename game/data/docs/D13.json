@@ -1,0 +1,23 @@
+{
+  "_nota": "W3-CT-TRACES. D13, despachos de «S. Sigerson» desde el Tíbet en el Times (1892) y nota comunicada de 1893 [INV; GDD §2.3 HUE-03/HUE-04, §6 D13, §10.4 C8.R1 y apoyo, §10.5]. Comunicados por el Foreign Office (sin oficina de prensa: las notas «se comunican»; Mycroft no aparece: T7). La carta de Lhasa está escrita con la voz de Holmes sin firma de Holmes: precisa, química (hollín, ceniza, bórax), irónica («Aquí se lo daba por muerto»), el lama de EMPT. Contrato §4.8: #muestra97 (C8 actividad_posterior_a_mayo_1891, junio de 1892; clave numero_97: enlaza con D12#n97; sin cifra de variedades: el «ciento cuarenta» sólo está en D12 y D44) · #jartum (pista falsa fija: f:refutado a:falsa_jartum; la refutan D34#ruinas y D35#califa: el Califa reside en Omdurmán; Holmes repetirá el error a Watson en EMPT). La nota de 1893 dice «despachos del Tíbet»: HB3 (W2-STRUCT) escribe «despachos de Jartum» (diff propuesto). Ningún texto da paradero de Holmes en 1894 (fechas 1892–1893). slip_topic sigerson: dispara HB3 y HA1 (grupo holmes). Ejemplar: BM.",
+  "id": "D13",
+  "entity": "despachos_sigerson",
+  "title": "The Times: despachos del señor S. Sigerson desde el Tíbet (1892) y nota comunicada (1893)",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1893-06-06",
+  "chron_date": "1892-06-02",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [160, 320],
+  "slip_topic": "sigerson",
+  "catalog": {"label": "Times, The: el Tíbet, despachos del explorador S. Sigerson (1892) y nota de 1893", "entities": ["despachos_sigerson", "sigerson", "tibet", "lhasa", "te_en_ladrillo"]},
+  "copies": [
+    {"id": "D13@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>The Times</sc>. — <b>EL TÍBET</b>.\n<i>(Comunicado por el [[foreign_office|Foreign Office]].)</i>\n\nDARJEELING, 14 de marzo de 1892. — {{#mercader e:sigerson e:nagchu d:1892-03-14 p:darjeeling|Un mercader de [[nagchu|Nagchu]], llegado con la primera caravana del año, trae noticias del explorador noruego señor [[sigerson|S. Sigerson]].}} {{#meseta e:chang_tang e:yak|Cruzó en otoño las mesetas del [[chang_tang|Chang Tang]] con dos criados y veinte [[yak|yaks]], de los que le quedan seis.}} {{#lhasa e:lhasa p:lhasa|Ha entrado en [[lhasa|Lhasa]], cosa que ningún europeo lograba desde los misioneros franceses de 1846, y los lamas le han permitido quedarse.}} {{#muerto e:sigerson|Aquí se lo daba por muerto desde diciembre.}}\n\n<sc>Carta del señor Sigerson.</sc>\nLHASA, 2 de junio. — {{#humo e:lhasa|La ciudad huele a manteca rancia y a enebro quemado; el humo de las lámparas de los templos deja en los muros un hollín graso que no he visto en ninguna otra parte.}} {{#lama e:gran_lama|He pasado algunos días con el [[gran_lama|gran lama]], que pregunta mucho y escucha más.}} {{#borax e:borax|La sal y el [[borax|bórax]] de los lagos del norte bajan a la India a lomo de oveja, veinte libras por animal, y vuelven convertidos en cebada.}} {{#ladrillo e:te_en_ladrillo e:yak|El té llega de la China en [[te_en_ladrillo|ladrillos]] prensados; lo hierven con sal y manteca de [[yak|yak]], y los arrieros, cuando les falta el tabaco, lo desmenuzan y lo fuman.}} {{#muestra97 a:actividad_posterior_a_mayo_1891 e:numero_97 e:te_en_ladrillo d:1892-06-02 p:lhasa h:F.sigerson_despachos|Con este correo remito una muestra de su ceniza, que es la que faltaba al [[numero_97|n.º 97]] de cierta clasificación inglesa de cenizas.}} {{#lento e:sigerson|Mis cartas tardarán: el correo de los lamas no conoce la prisa ni el sello.}}\n<i>(No hemos podido averiguar a qué clasificación se refiere nuestro corresponsal.)</i>\n\nDARJEELING, 21 de noviembre de 1892. — {{#oeste e:sigerson e:persia d:1892-11-21|Por los mercaderes de la última caravana se sabe que el señor Sigerson dejó [[lhasa|Lhasa]] en septiembre, por el camino del oeste, con intención de seguir hasta [[persia|Persia]].}} {{#nieve e:tibet|Los pasos del [[tibet|Tíbet]] se cierran con la primera nieve; no se esperan noticias suyas antes de la primavera.}}"},
+    {"id": "p2", "text": "<sc>The Times</sc>, 6 de junio de 1893.\n<i>(Nota comunicada.)</i>\n{{#jartum f:refutado a:falsa_jartum e:jartum e:califa e:sigerson d:1893-06-06 h:F.jartum|Se sabe por [[el_cairo|El Cairo]] que el explorador noruego señor [[sigerson|S. Sigerson]], cuyos despachos del Tíbet publicó este diario, se halla en [[jartum|Jartum]], huésped del [[califa|Califa]].}} {{#rescate e:califa|No se cree que salga de allí sin rescate, aunque se dice que el Califa lo trata con miramientos y le pregunta mucho por los ingleses.}}"}
+  ],
+  "words": 380
+}

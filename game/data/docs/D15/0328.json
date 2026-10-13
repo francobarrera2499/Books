@@ -1,0 +1,22 @@
+{
+  "_nota": "W3-CT-TIMES. The Times del miércoles 28 de marzo (día 2). Noticias [H]/[INV]: el presupuesto de Harcourt (rumor; se presenta el 16-abr), Rosebery (F.rosebery; vive en Berkeley Square), las apuestas del Grand National, las básculas del puente de la Torre (se abre el 30-jun). Columna: Fan (sube la gratificación), el loro, la Strand de abril (Martin Hewitt, II), SEMPER EADEM, John Roberts, DINERO. Ninguna etiqueta de conclusión.",
+  "id": "D15.0328",
+  "entity": "times_0328",
+  "title": "The Times, miércoles 28 de marzo de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "origin": "D15.0328",
+  "date": "1894-03-28",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [380, 540],
+  "inserts": {"columna": "p2", "noticias": "p1"},
+  "copies": [
+    {"id": "D15.0328@L1", "holder": "L1", "area": "buhardilla", "via": "desk", "from": "2.dawn", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Política.</sc> — {{#presupuesto e:harcourt|Se dice en Westminster que [[harcourt|sir William Harcourt]] prepara un presupuesto que gravará con dureza las herencias.}} {{#rosebery e:rosebery h:F.rosebery|[[rosebery|Lord Rosebery]] vuelve hoy del campo a [[berkeley_square|Berkeley Square]].}}\n<sc>Carreras.</sc> — {{#apuestas e:grand_national p:aintree|Para el [[grand_national|Grand National]] del viernes, en [[aintree|Aintree]], [[why_not|Why Not]], de trece años, figura entre los favoritos.}}\n<sc>El puente de la Torre.</sc> — {{#puente e:puente_de_la_torre|Siguen las pruebas de las hojas basculantes del [[puente_de_la_torre|puente]], que se abrirá al tránsito en el verano.}}\n<sc>El tiempo.</sc> — {{#tiempo d:1894-03-28|Seco; neblina sobre el río al alba.}}"},
+    {"id": "p2", "text": "<sc>Anuncios personales</sc>\nFAN. — {{#perro e:perro_perdido p:hyde_park|Dos libras a quien devuelva [[perro_perdido|el spaniel castaño]] perdido en [[hyde_park|Hyde Park]].}} Gloucester Terrace, 14.\n{{#loro e:loro p:cadogan_place|PERDIDO [[loro|un loro gris]] que silba «Rule, Britannia».}} Gratificación en el 3 de [[cadogan_place|Cadogan Place]].\n{{#strand_abril e:strand_abril|[[strand|THE STRAND MAGAZINE]] de abril: una nueva aventura de [[martin_hewitt|Martin Hewitt]], investigador.}} Seis peniques.\nSEMPER EADEM. — {{#semper e:semper_eadem|Todo sigue igual; escriba como antes, a la misma dirección.}} — G.\n{{#institutriz e:institutriz|[[institutriz|INSTITUTRIZ]] inglesa, con alemán y dibujo, busca familia que viaje.}}\n{{#piso p:bloomsbury|SE ALQUILA primer piso sin muebles en [[bloomsbury|Bloomsbury]], con balcones a la plaza.}}\n{{#reloj e:reloj_de_oro p:el_strand|PERDIDO en un hansom, del [[el_strand|Strand]] a [[euston|Euston]], [[reloj_de_oro|un reloj de oro]] con iniciales.}}\n{{#hospital e:hospital_de_ninos|El [[hospital_de_ninos|Hospital de Niños]] agradece a «Una abuela» sus diez guineas.}}\n{{#esgrima e:esgrima|[[esgrima|ESGRIMA]] para caballeros, por un antiguo sargento de la Guardia.}}\n{{#roberts e:melbourne|[[john_roberts|JOHN ROBERTS]], embarcado para [[melbourne|Melbourne]] en 1886: escriba a Peel y Peel, Lincoln's Inn.}}\nDINERO. — {{#prestamos e:prestamos|Se [[prestamos|adelanta]] a oficiales y caballeros, sobre su firma, con toda reserva.}}"}
+  ],
+  "words": 220
+}

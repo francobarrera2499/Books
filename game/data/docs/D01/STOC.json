@@ -1,0 +1,40 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. V (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie (XVI), p2 = escena central (abre con «[…]»), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/stoc.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. #consulta (consulta en Paddington, «poco después de mi boda») y #signo (la señora Watson) rozan INC-06 y C14 sin probar nada: ruido que parece pista (D21#stoc_fecha lo cita). chron_date (guardián): «poco después de mi boda… una mañana de junio», con la clientela de Paddington.",
+  "id": "D01.STOC",
+  "entity": "stoc",
+  "title": "«El empleado del corredor de bolsa», The Strand Magazine, marzo de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-03-01",
+  "chron_date": "1889-06-15",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El empleado del corredor de bolsa», The Strand Magazine, vol. V (marzo de 1893)", "entities": ["stoc", "hall_pycroft", "paddington"]},
+  "copies": [
+    {"id": "D01.STOC@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.STOC@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XVI\\. — El empleado del corredor de bolsa</b>\n{{#consulta e:watson p:paddington q:consulta|Poco después de [[boda_de_watson|mi boda]] compré una clientela en el distrito de [[paddington|Paddington]].}} {{#farquhar q:farquhar|El viejo señor Farquhar, que me la vendió, había tenido en otro tiempo una excelente clientela general; pero la edad, y un mal del tipo del baile de San Vito que padecía, la habían mermado mucho.}}\n{{#junio e:watson q:junio|Me sorprendió, por tanto, una mañana de junio, mientras leía el <i>British Medical Journal</i> después del desayuno, oír la campanilla y luego la voz aguda y algo estridente de mi antiguo compañero.}}\n—Ah, mi querido Watson —dijo, entrando a grandes pasos—, ¡cuánto me alegro de verlo! {{#signo e:holmes e:mary_watson q:signo|Espero que [[mary_watson|la señora Watson]] se haya repuesto del todo de las pequeñas emociones de nuestra aventura del [[sign|signo de los cuatro]].}}\n{{#indispuesto e:holmes q:indispuesto|—Veo que ha estado usted indispuesto últimamente.}}\n—¿Y cómo lo ha sabido?\n—Por sus zapatillas.\nMiré mis zapatillas de charol, nuevas.\n—Son nuevas —dijo—. {{#zapatillas e:holmes q:zapatillas|Las suelas que en este momento me presenta están ligeramente chamuscadas.}}"},
+    {"id": "p2", "text": "\\[…\\] {{#directorio e:hall_pycroft q:directorio|—Esto es un directorio de [[paris|París]] —dijo—, con el oficio detrás de cada nombre.}} {{#ferreteros e:hall_pycroft q:ferreteros|Quiero que se lo lleve a su casa y señale a todos los vendedores de ferretería, con sus direcciones.}}\n{{#oro e:hall_pycroft q:oro|Se rió al decirlo, y vi con un sobresalto que el segundo diente del lado izquierdo lo tenía muy mal empastado con oro.}}\nAl otro, en Londres, {{#mismo_diente e:hall_pycroft q:mismo_diente|le había notado el diente empastado de esa misma manera.}} {{#destello e:hall_pycroft q:destello|En los dos casos me llamó la atención el destello del oro, ¿sabe usted?}} {{#mismo_hombre e:hall_pycroft q:mismo_hombre|Cuando sumé a eso que la voz y la figura eran las mismas, y que sólo había cambiado lo que puede cambiar una navaja o una peluca, no pude dudar de que era el mismo hombre.}} {{#hermanos e:hall_pycroft q:hermanos|Uno espera, claro, que dos hermanos se parezcan, pero no que tengan el mismo diente empastado del mismo modo.}}\n{{#palangana e:hall_pycroft q:palangana|Volví a mi hotel, metí la cabeza en una palangana de agua fría y traté de pensarlo con calma.}} ¿Por qué me había mandado de Londres a Birmingham? ¿Por qué había llegado allí antes que yo?"}
+  ],
+  "src_en": {
+    "consulta": "Shortly after my marriage I had bought a connection in the Paddington district.",
+    "farquhar": "Old Mr. Farquhar, from whom I purchased it, had at one time an excellent general practice; but his age, and an affliction of the nature of St. Vitus’s dance from which he suffered, had very much thinned it.",
+    "junio": "I was surprised, therefore, when, one morning in June, as I sat reading the British Medical Journal after breakfast, I heard a ring at the bell, followed by the high, somewhat strident tones of my old companion’s voice.",
+    "signo": "I trust that Mrs. Watson has entirely recovered from all the little excitements connected with our adventure of the Sign of Four.",
+    "indispuesto": "I perceive that you have been unwell lately.",
+    "zapatillas": "The soles which you are at this moment presenting to me are slightly scorched.",
+    "directorio": "This is a directory of Paris,’ said he, ‘with the trades after the names of the people.",
+    "ferreteros": "I want you to take it home with you, and to mark off all the hardware sellers, with their addresses.",
+    "oro": "He laughed as he spoke, and I saw with a thrill that his second tooth upon the left-hand side had been very badly stuffed with gold.",
+    "mismo_diente": "I happened to notice that his tooth was stuffed in this very identical fashion.",
+    "destello":"The glint of the gold in each case caught my eye, you see.",
+    "mismo_hombre": "When I put that with the voice and figure being the same, and only those things altered which might be changed by a razor or a wig, I could not doubt that it was the same man.",
+    "hermanos": "Of course you expect two brothers to be alike, but not that they should have the same tooth stuffed in the same way.",
+    "palangana": "Back I went to my hotel, put my head in a basin of cold water, and tried to think it out."
+  },
+  "words": 300
+}

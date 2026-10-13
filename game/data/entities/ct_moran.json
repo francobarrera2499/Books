@@ -1,0 +1,24 @@
+{
+  "_nota": "W3-CT-MORAN. Entidades nuevas de D09, D10, D11, D16, D17, D32 y D39 que no estaban en core.json ni en otro archivo de entities/. Casi todas son ruido (_ruido): lugares, personas y cosas que los textos nombran para que todo recorte tenga epígrafe (uniformidad). Ids específicos para no chocar con los de otros WP. silueta_contra_la_luz acompaña el tramo de D10 sobre el tiro a la silueta (#silueta, a:tirador, fuera del contrato); moran_reverendo es otro Moran del Kelly's (D17), puesto a propósito junto al coronel. dorset_street y baines_dorset: la entrada de ruido de la hoja de abril de D32.",
+  "entities": [
+    {"id": "cachemira", "kind": "lugar", "name": "Cachemira", "index": "Cachemira", "noun": "valle", "_ruido": true},
+    {"id": "seoni", "kind": "lugar", "name": "Seoni", "index": "Seoni (Provincias Centrales de la India)", "noun": "distrito", "_ruido": true},
+    {"id": "bourne_y_shepherd", "kind": "persona", "name": "Bourne y Shepherd", "index": "Bourne y Shepherd, fotógrafos (Simla)", "noun": "fotógrafo", "_ruido": true},
+    {"id": "filantropos_de_simla", "kind": "persona", "name": "los filántropos de Simla", "index": "filántropos de Simla", "noun": "caballero de levita", "_ruido": true},
+    {"id": "shikari", "kind": "persona", "name": "el shikari", "index": "shikari (rastreador indio)", "noun": "rastreador", "_ruido": true},
+    {"id": "devorador_de_seoni", "kind": "concepto", "name": "el devorador de hombres de Seoni", "index": "devorador de hombres de Seoni", "noun": "tigre", "_ruido": true},
+    {"id": "oso_del_himalaya", "kind": "concepto", "name": "el oso del Himalaya", "index": "oso del Himalaya", "noun": "oso", "_ruido": true},
+    {"id": "leopardo", "kind": "concepto", "name": "el leopardo", "index": "leopardo", "noun": "leopardo", "_ruido": true},
+    {"id": "silueta_contra_la_luz", "kind": "concepto", "name": "la silueta contra la luz", "index": "silueta contra la luz", "noun": "silueta"},
+    {"id": "rifle_express", "kind": "objeto", "name": "un rifle Express", "index": "rifle Express de dos cañones", "noun": "rifle", "_ruido": true},
+    {"id": "the_pioneer", "kind": "documento", "name": "The Pioneer", "index": "Pioneer, The (Allahabad)", "noun": "diario", "_ruido": true},
+    {"id": "dibujante_del_graphic", "kind": "persona", "name": "el dibujante del Daily Graphic", "index": "dibujante del Daily Graphic", "noun": "dibujante", "_ruido": true},
+    {"id": "moran_reverendo", "kind": "persona", "name": "el reverendo Patrick Moran", "index": "Moran, Patrick, reverendo", "noun": "clérigo", "_ruido": true},
+    {"id": "farmacia_pratt", "kind": "lugar", "name": "la farmacia de Pratt y Cía.", "index": "Pratt y Cía., farmacéuticos (Church Street)", "noun": "farmacia", "_ruido": true},
+    {"id": "holland_street", "kind": "lugar", "name": "Holland Street", "index": "Holland Street (Kensington)", "noun": "calle", "_ruido": true},
+    {"id": "york_place", "kind": "lugar", "name": "York Place", "index": "York Place", "noun": "calle", "_ruido": true},
+    {"id": "reverendo_pyke", "kind": "persona", "name": "el reverendo Mr. Pyke", "index": "Pyke, reverendo", "noun": "clérigo", "_ruido": true},
+    {"id": "dorset_street", "kind": "lugar", "name": "Dorset Street", "index": "Dorset Street (junto a Baker Street)", "noun": "calle", "_ruido": true},
+    {"id": "baines_dorset", "kind": "persona", "name": "el señor Baines", "index": "Baines, inquilino de Dorset Street", "noun": "inquilino", "_ruido": true}
+  ]
+}

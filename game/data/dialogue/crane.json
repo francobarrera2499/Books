@@ -1,0 +1,50 @@
+{
+  "_nota": "W3-CT-DLG-B. Abel Crane (GDD §4), librero de viejo de Holywell Street, debajo de la buhardilla de Lisle: chismoso, mercachifle, se rasca la oreja con el lápiz. NO es canal (sensor null): interlocutor gratuito para practicar preguntar y presentar (preguntas sin límite). Comenta como librero (precios, ediciones, rumores de la calle); nunca da una deducción. Lisle le debe 3s. 6d. (eco de HC06 (a) y de EPI). Huevos: L:crane.hewitt (x:EE05) y L:crane.segunda_mancha (x:EE07); esos tramos no llevan etiquetas de conclusión (T13). Dentro de cada capa gana la primera línea cuyo match y when se cumplen.",
+  "char": "crane",
+  "label": "Crane",
+  "intro": "Abel Crane, librero de viejo",
+  "addr": "señor Crane",
+  "sensor": null,
+  "max_questions": 99,
+  "trait": "mangas_ligas",
+  "closing": "Si no compra, señor Lisle, por lo menos no me tape el escaparate.",
+  "ask_phrase": {
+    "default": "¿Qué me dice de ${topic}, ${addr}?",
+    "lisle": "¿Cuánto le debo, señor Crane?",
+    "fina": "¿Se vendió bien «El problema final», señor Crane?"
+  },
+  "lines": [
+    {"id": "af.vive", "layer": "afirmacion", "match": {"assertion": ["vive"]}, "text": "—Vivo se vendía la mitad, señor Lisle. No me lo resucite, que tengo existencias."},
+    {"id": "af.otras", "layer": "afirmacion", "match": {"assertion": ["cebo", "canario"]}, "text": "—Usted fue corrector y yo sólo vendo, señor. Si usted lo dice, así será."},
+
+    {"id": "hewitt", "layer": "tema", "match": {"topic": ["martin_hewitt", "strand_marzo_1894", "strand"]}, "text": "Se rasca la oreja con el lápiz. —{{#hewitt x:EE05 e:martin_hewitt|Lo cambiaron por un gordo que sonríe, señor: un tal [[martin_hewitt|Martin Hewitt]], desde el número de marzo.}}"},
+    {"id": "segunda_mancha", "layer": "tema", "match": {"topic": ["segunda_mancha", "nava"]}, "text": "Baja la voz. —{{#mancha x:EE07 e:segunda_mancha|Yo vi el manuscrito de [[segunda_mancha|«La segunda mancha»]], señor, en una imprenta de [[fleet_street|Fleet Street]], atado con cinta azul.}} No me pregunte el año: lo juro igual."},
+    {"id": "fina", "layer": "tema", "match": {"topic": ["fina", "suceso_reichenbach", "reichenbach"]}, "text": "Se vendió como pan caliente, señor. En diciembre las señoras lo compraban de dos en dos: uno para llorar y otro para prestar."},
+    {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes", "mycroft"]}, "text": "Muerto, señor, se vende el doble. Y si alguna vez vuelve, que vuelva en un número que yo tenga."},
+    {"id": "watson", "layer": "tema", "match": {"topic": ["watson"]}, "text": "El doctor escribe bien y se equivoca mejor, señor: cada errata suya me vende un número atrasado."},
+    {"id": "tomos", "layer": "tema", "match": {"topic": ["tomos", "notas_de_los_tomos"]}, "text": "Lomos sin un rasguño, señor. Alguien los cuidaba, y tanto cuidado no se vende sino por necesidad."},
+    {"id": "lisle", "layer": "tema", "match": {"topic": ["lisle", "anteojos_azules", "fotofobia"]}, "text": "Me debe usted 3s\\. 6d\\. y una vela, señor Lisle. Se lo recuerdo sólo los sábados, pero los sábados vienen muy seguido."},
+    {"id": "calle", "layer": "tema", "match": {"topic": ["holywell_street", "tienda_de_crane", "media_luna"]}, "text": "El [[times|Times]] la llamó la calle más vil del mundo civilizado, señor. Pero el Times se compra aquí, y a mitad de precio."},
+    {"id": "pell", "layer": "tema", "match": {"topic": ["pell", "harris", "chico_de_pell", "chistera", "bigote", "billetes_de_cinco_libras"]}, "text": "Su procurador subió el lunes de Pascua con un caballero de chistera y bigote de general, señor. Gente que paga por adelantado: en esta calle se ve de lejos."},
+    {"id": "muchacho", "layer": "tema", "match": {"topic": ["muchacho_de_gorra", "wiggins", "irregulares"]}, "when": {"day": {"gte": 3}}, "text": "Un muchacho de gorra larga se pasa la mañana delante de mi escaparate y no compra nunca, señor. O es poeta o es de la policía."},
+    {"id": "caza", "layer": "tema", "match": {"topic": ["heavy_game", "moran", "autor_heavy_game", "tigre", "india"]}, "text": "Libros de caza mayor, señor: los compran los que no han pasado nunca de [[brighton|Brighton]]."},
+
+    {"id": "doc.fina", "layer": "documento", "match": {"doc": ["D03"]}, "text": "El número de diciembre, con las láminas del [[paget|señor Paget]]. Lo tengo en tres estados, señor: nuevo, leído y llorado."},
+    {"id": "doc.galerada", "layer": "documento", "match": {"doc": ["D02"]}, "text": "Una prueba con sello de lector, señor. Eso no se vende ni se compra: se guarda en un cajón y, si alguien pregunta, no existe."},
+    {"id": "doc.pruebas", "layer": "documento", "match": {"doc": ["D04"]}, "text": "Papel de imprenta comprado al peso, señor. Al peso, todas las erratas pesan lo mismo."},
+    {"id": "doc.foto", "layer": "documento", "match": {"doc": ["D07"]}, "text": "Una vista de las que venden en [[meiringen|Meiringen]] a los ingleses. En diciembre, señor, la gente las compraba para tener dónde llorarlo."},
+    {"id": "doc.diarios", "layer": "documento", "match": {"doc": ["D09", "D40", "D42"]}, "text": "Diarios atrasados, señor, a penique la docena. No hay mejor papel para envolver lo que no se quiere leer."},
+    {"id": "doc.kellys", "layer": "documento", "match": {"doc": ["D17"]}, "text": "El Kelly's, señor: todo Londres por orden alfabético, salvo los que no quieren estar."},
+    {"id": "doc.ventas", "layer": "documento", "match": {"doc": ["D33"]}, "text": "Mi libro de ventas se mira, señor, pero no se toca. Ahí anoto también a los que me deben."},
+    {"id": "doc.raros", "layer": "documento", "match": {"doc": ["D43"]}, "text": "Ése vale dinero, señor: casi nadie guardó [[stud|el Beeton's del ochenta y siete]]."},
+    {"id": "doc.sign", "layer": "documento", "match": {"doc": ["D44"]}, "text": "El <i>Lippincott's</i> del noventa, señor. Hasta diciembre no lo quería nadie; ahora me lo piden de luto."},
+
+    {"id": "ent.maquina", "layer": "entidad", "match": {"ent": ["cartas_a_maquina", "remington", "remington_s_alzada", "amigo_de_la_exactitud", "matasellos_sw", "papel_corto"]}, "text": "Carta a máquina, señor: hoy cualquiera escribe como una oficina. Antes, por la letra, uno sabía a quién le debía."},
+
+    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "No lo conozco, señor. Si alguna vez escribió algo, se lo busco."},
+    {"id": "tipo.lugar", "layer": "tipo", "match": {"kind": ["lugar"]}, "text": "No estuve nunca, señor. Yo viajo en los libros, que es más barato y no llueve."},
+
+    {"id": "gen.1", "layer": "generica", "text": "Todo libro tiene precio, señor; algunos, dos."},
+    {"id": "gen.2", "layer": "generica", "text": "Se rasca la oreja con el lápiz. —Eso no está en mis estantes, señor."}
+  ]
+}

@@ -492,7 +492,17 @@ static func node_def(st, repo, snap: Dictionary, node: String) -> Dictionary:
 			act = _visit_act(st, snap)
 		if act != "":
 			ents.append(act)
-		return {"id": node, "noun": noun, "tags": ["a:ancla_" + ch] if ch != "" else [], "cls": "I", "examine": "", "ents": ents}
+		# examen neutro de la silueta (ui_text sim.sil.<who>, §6.1 «todo objeto visible da una línea»): también la hace
+		# recortable por texto (src kind "node", accesibilidad T29), con las mismas etiquetas que el recorte de lámina.
+		var ex := String(repo.text("sim.sil." + who))
+		if ex == "sim.sil." + who:
+			ex = ""
+		var d := {"id": node, "noun": noun, "tags": ["a:ancla_" + ch] if ch != "" else [], "cls": "I", "examine": ex, "ents": ents}
+		if ex != "":
+			for m in repo.parse_text(ex).get("mentions", []):
+				if not d.ents.has(m.ent):
+					d.ents.append(m.ent)
+		return d
 	return {}
 
 # Canal del vigía de una silueta (código de medio: "ks"…) = canal de la reacción que la pone (op "silueta", who);

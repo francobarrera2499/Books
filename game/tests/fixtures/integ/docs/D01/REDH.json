@@ -1,0 +1,26 @@
+{
+  "_nota": "Fixture de integración (tests/test_i_integration.gd). El texto definitivo lo escribe W3-CT-CORPUS-A. Contrato §4.8: C1 inc10 = D01.REDH#abril / D01.REDH#octubre.",
+  "id": "D01.REDH",
+  "entity": "redh",
+  "title": "«La liga de los pelirrojos», The Strand Magazine, agosto de 1891",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1891-08-01",
+  "chron_date": "1890-10-09",
+  "font": "imprenta",
+  "paper": "strand",
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "The Strand Magazine, vol. II", "entities": ["redh", "jabez_wilson"]},
+  "copies": [
+    {"id": "D01.REDH@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.REDH@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#abril a:inc10 d:1890-04-27 q:abril|Es el Morning Chronicle del [[abril_27_1890|27 de abril de 1890]], hace apenas dos meses.}} {{#ocho_semanas e:jabez_wilson|El señor [[jabez_wilson|Jabez Wilson]] jura que el aviso salió hace [[ocho_semanas|ocho semanas]] justas.}} {{#octubre a:inc10 d:1890-10-09 q:octubre|El cartel de la puerta anunciaba que la Liga quedaba disuelta el [[octubre_9_1890|9 de octubre de 1890]].}}"}
+  ],
+  "src_en": {
+    "abril": "It is The Morning Chronicle of April 27, 1890. Just two months ago.",
+    "octubre": "THE RED-HEADED LEAGUE IS DISSOLVED. October 9, 1890."
+  },
+  "words": 55
+}

@@ -1,0 +1,30 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Entidades nuevas del corpus vols. II–III (docs/D01/{SCAN,REDH,IDEN,BOSC,FIVE,TWIS,BLUE,SPEC,ENGR,NOBL,BERY,COPP}.json). Todas son ruido de las crónicas (_ruido): personas, lugares y objetos que el texto nombra. Antes de crear se buscó en entities/*.json; los ids evitan los nombres genéricos que otro WP podría usar.",
+  "entities": [
+    {"id": "briony_lodge", "kind": "lugar", "name": "Briony Lodge", "index": "Briony Lodge (St. John's Wood)", "noun": "villa", "_ruido": true},
+    {"id": "liga_de_los_pelirrojos", "kind": "concepto", "name": "la Liga de los Pelirrojos", "index": "Liga de los Pelirrojos", "noun": "liga", "_ruido": true},
+    {"id": "morning_chronicle", "kind": "documento", "name": "el Morning Chronicle", "index": "Morning Chronicle, The", "noun": "diario", "_ruido": true},
+    {"id": "coburg_square", "kind": "lugar", "name": "Coburg Square", "index": "Coburg Square (cerca de la City)", "noun": "plaza", "_ruido": true},
+    {"id": "james_windibank", "kind": "persona", "name": "el señor James Windibank", "index": "Windibank, James", "noun": "viajante de vinos", "_ruido": true},
+    {"id": "anstruther", "kind": "persona", "name": "Anstruther", "index": "Anstruther (médico)", "noun": "médico", "_ruido": true},
+    {"id": "clark_russell", "kind": "persona", "name": "Clark Russell", "index": "Russell, Clark", "noun": "novelista", "_ruido": true},
+    {"id": "elias_openshaw", "kind": "persona", "name": "el coronel Elias Openshaw", "index": "Openshaw, Elias, coronel", "noun": "coronel retirado", "_ruido": true},
+    {"id": "pondicherry", "kind": "lugar", "name": "Pondicherry", "index": "Pondicherry (India)", "noun": "ciudad", "_ruido": true},
+    {"id": "isa_whitney", "kind": "persona", "name": "Isa Whitney", "index": "Whitney, Isa", "noun": "caballero", "_ruido": true},
+    {"id": "kate_whitney", "kind": "persona", "name": "Kate Whitney", "index": "Whitney, Kate", "noun": "dama", "_ruido": true},
+    {"id": "peterson", "kind": "persona", "name": "Peterson", "index": "Peterson, ordenanza", "noun": "ordenanza", "_ruido": true},
+    {"id": "sombrero_de_fieltro", "kind": "objeto", "name": "el sombrero de fieltro", "index": "sombrero de fieltro duro (el carbunclo azul)", "noun": "sombrero", "_ruido": true},
+    {"id": "condesa_de_morcar", "kind": "persona", "name": "la condesa de Morcar", "index": "Morcar, condesa de", "noun": "condesa", "_ruido": true},
+    {"id": "hotel_cosmopolitan", "kind": "lugar", "name": "el hotel Cosmopolitan", "index": "Cosmopolitan, hotel", "noun": "hotel", "_ruido": true},
+    {"id": "coronel_warburton", "kind": "persona", "name": "el coronel Warburton", "index": "Warburton, coronel", "noun": "coronel", "_ruido": true},
+    {"id": "prensa_hidraulica", "kind": "objeto", "name": "la prensa hidráulica", "index": "prensa hidráulica (Eyford)", "noun": "máquina", "_ruido": true},
+    {"id": "lady_st_simon", "kind": "persona", "name": "lady St. Simon", "index": "St. Simon, lady (de soltera Hatty Doran)", "noun": "novia", "_ruido": true},
+    {"id": "serpentine", "kind": "lugar", "name": "el Serpentine", "index": "Serpentine (Hyde Park)", "noun": "lago", "_ruido": true},
+    {"id": "trafalgar_square", "kind": "lugar", "name": "Trafalgar Square", "index": "Trafalgar Square", "noun": "plaza", "_ruido": true},
+    {"id": "threadneedle_street", "kind": "lugar", "name": "Threadneedle Street", "index": "Threadneedle Street (la City)", "noun": "calle", "_ruido": true},
+    {"id": "streatham", "kind": "lugar", "name": "Streatham", "index": "Streatham", "noun": "barrio", "_ruido": true},
+    {"id": "diadema_de_berilos", "kind": "objeto", "name": "la diadema de berilos", "index": "diadema de berilos", "noun": "joya", "_ruido": true},
+    {"id": "george_burnwell", "kind": "persona", "name": "sir George Burnwell", "index": "Burnwell, sir George", "noun": "caballero", "_ruido": true},
+    {"id": "winchester", "kind": "lugar", "name": "Winchester", "index": "Winchester (Hampshire)", "noun": "ciudad", "_ruido": true}
+  ]
+}

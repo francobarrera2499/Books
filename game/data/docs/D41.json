@@ -1,0 +1,19 @@
+{
+  "_nota": "W3-CT-TIMES. D41 [H] (canon_bible F.martin_hewitt): la Strand de marzo de 1894 abre con «Martin Hewitt, Investigator: I. The Lenton Croft Robberies», de Arthur Morrison; versión española libre de la presentación de Hewitt (Gutenberg #11252: la escalera mugrienta cerca del Strand, la palabra «Hewitt» en el vidrio esmerilado, «a stoutish, clean-shaven man, of middle height, and of a cheerful, round countenance», ex escribiente de Crellan, Hunt & Crellan). Marginalia: #retrato lleva x:EE05 («gordo, sonríe y no toca el violín»; Crane dice lo mismo en L:crane.hewitt). Ruido: ninguna etiqueta de conclusión.",
+  "id": "D41",
+  "entity": "strand_marzo_1894",
+  "title": "The Strand Magazine, marzo de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1894-03-01",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [170, 245],
+  "copies": [
+    {"id": "D41@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Martin Hewitt, investigador.</sc> — {{#titulo e:arthur_morrison h:F.martin_hewitt|I. Los robos de Lenton Croft, por [[arthur_morrison|Arthur Morrison]].}}\n{{#escalera e:martin_hewitt p:el_strand|Una escalera mugrienta sube desde un portal siempre abierto, en una calle que da al [[el_strand|Strand]], hasta una puerta con una sola palabra en el vidrio esmerilado: «Hewitt».}} {{#retrato x:EE05 e:martin_hewitt|El señor [[martin_hewitt|Martin Hewitt]] es un hombre más bien grueso, bien afeitado, de mediana estatura y cara redonda y risueña.}} {{#cordial e:martin_hewitt|Difícilmente podría imaginarse un hombre con menos aire de detective.}} {{#bufete e:martin_hewitt|Antes de trabajar por su cuenta fue escribiente en el bufete de los procuradores Crellan, Hunt y Crellan.}}"}
+  ],
+  "words": 85
+}

@@ -1,0 +1,36 @@
+{
+  "_nota": "W3-CT-DLG-A. El ujier de la Sala de Lectura del Museo Británico [INV] (GDD §5 L2, Acto I: «el ujier le explica papeletas y asiento»). Habla en susurros, recita el reglamento, quiere al catálogo como a un pariente; dice «señor». Enseña la forma (papeleta, asiento, tres por visita, horario, catálogo) y nunca el contenido; como al llegar el índice del jugador todavía no tiene «papeleta» ni «asiento», las respuestas por tipo y las más probables (Holmes, la Strand) repiten el procedimiento (ver diff propuesto: escena automática del ujier en la primera visita a L2). No da nombres de lectores. Cree que nadie toca la canastilla salvo el personal: no sabe que el escribiente de las tiras de papel (Cotter, K-BM) lee las papeletas; sólo ha notado que viene desde fines de enero y nunca pide un libro (canon_bible F.cotter_ordenes). Sensor K-BM (como el fixture de W2-SCENES): ninguna afirmación (cebos y canarios son de K-W/K-H/K-T) se le ofrece. Convención de texto: el habla empieza sin raya; acotación + « —» + habla.",
+  "char": "ujier",
+  "label": "el ujier",
+  "intro": "el ujier de la Sala de Lectura",
+  "addr": "señor",
+  "sensor": "K-BM",
+  "max_questions": 3,
+  "trait": "",
+  "closing": "Se lleva un dedo a los labios y vuelve a su mostrador.",
+  "ask_phrase": {
+    "default": "Disculpe, ${addr}: ¿dónde podría saber algo de ${topic}?",
+    "papeleta": "¿Cómo se piden los libros aquí?",
+    "asiento": "¿Puedo sentarme donde quiera?",
+    "ujier": "¿Hace mucho que trabaja usted aquí?"
+  },
+  "lines": [
+    {"id": "papeleta", "layer": "tema", "match": {"topic": ["papeleta", "catalogo_general", "museo_britanico"]}, "text": "Baja la voz hasta el susurro. —Una [[papeleta|papeleta]] por obra, señor: la signatura y el título tal como los trae el [[catalogo_general|catálogo]], y el número de su asiento. Blanca para los impresos, verde para los manuscritos; tres por visita, y ni una más."},
+    {"id": "asiento", "layer": "tema", "match": {"topic": ["asiento", "mesas_radiales"]}, "text": "Elija el que guste y anote el número en la papeleta, señor. Las mesas salen del centro como los rayos de una rueda; no se cambie de sitio, que los libros van a la mesa y no a la persona."},
+    {"id": "canastilla", "layer": "tema", "match": {"topic": ["canastilla"]}, "text": "Las papeletas se dejan en la [[canastilla|canastilla]] del mostrador, señor, y nosotros hacemos el resto. Nadie las toca sino el personal."},
+    {"id": "escribiente", "layer": "tema", "match": {"topic": ["cotter", "hombre_de_la_canastilla", "fajo_de_papel"]}, "text": "No doy nombres de lectores, señor; es el reglamento. Ése es de los que no molestan: viene desde fines de enero casi todos los días, y no le he llevado un libro todavía."},
+    {"id": "sala", "layer": "tema", "match": {"topic": ["sala_de_lectura", "sala_de_periodicos"]}, "text": "Abierta de nueve a ocho, señor, todos los días menos el domingo. Los periódicos se piden aparte, y los atrasados tardan un poco más."},
+    {"id": "strand", "layer": "tema", "match": {"topic": ["fina", "strand", "tomos"]}, "text": "Desde diciembre la [[strand|Strand]] se pide más que la Biblia, señor. Hemos tenido que mandar a coser el volumen dos veces; si la quiere, papeleta blanca y el número de su asiento."},
+    {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes"]}, "text": "Del señor Holmes sé lo que sabe todo el mundo, señor; los nombres de los lectores no salen de esta Sala. Lo que escribió él, y lo que se escribió de él, está en el catálogo."},
+    {"id": "lisle", "layer": "tema", "match": {"topic": ["lisle", "anteojos_azules", "fotofobia"]}, "text": "Con esos anteojos, señor, le conviene un asiento lejos de las lámparas. La luz eléctrica no perdona."},
+    {"id": "yo", "layer": "tema", "match": {"topic": ["ujier"]}, "text": "Diecinueve años en esta Sala, señor, y nunca he levantado la voz. Lo digo con orgullo, y en voz baja."},
+
+    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "No doy nombres de lectores, señor; es el reglamento. Si esa persona escribió algo, o si alguien escribió sobre ella, estará en el catálogo: busque la entrada y llene una papeleta con la signatura y el número de su asiento."},
+    {"id": "tipo.lugar", "layer": "tipo", "match": {"kind": ["lugar"]}, "text": "Para lugares, señor, el catálogo tiene guías y planos. Pida la que guste."},
+    {"id": "tipo.documento", "layer": "tipo", "match": {"kind": ["documento"]}, "text": "Si está impreso en el reino, señor, lo tenemos. Búsquelo en el catálogo y llene una papeleta: la signatura y el número de su asiento, tres por visita."},
+    {"id": "tipo.otro", "layer": "tipo", "match": {"kind": ["objeto", "concepto", "fecha", "suceso"]}, "text": "Búsquelo en el catálogo por la palabra que le parezca, señor. Y si no está, es que nadie lo imprimió."},
+
+    {"id": "gen.1", "layer": "generica", "text": "Silencio en la Sala, señor."},
+    {"id": "gen.2", "layer": "generica", "text": "Se lleva un dedo a los labios y señala el catálogo."}
+  ]
+}

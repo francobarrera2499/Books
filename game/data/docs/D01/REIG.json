@@ -1,0 +1,40 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. V (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie (XIX), p2 = escena central (abre con «[…]»: la errata deliberada del aviso y las dos manos del papel), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/reig.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. Las palabras inglesas del papel se dejan en el original (el análisis de Holmes es sobre esas letras). Fecha de la crónica: 14 de abril de 1887 (D21#reig_fecha).",
+  "id": "D01.REIG",
+  "entity": "reig",
+  "title": "«Los hacendados de Reigate», The Strand Magazine, junio de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-06-01",
+  "chron_date": "1887-04-14",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«Los hacendados de Reigate», The Strand Magazine, vol. V (junio de 1893)", "entities": ["reig", "reigate", "cunningham", "coronel_hayter"]},
+  "copies": [
+    {"id": "D01.REIG@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.REIG@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XIX\\. — Los hacendados de Reigate</b>\n{{#salud e:holmes q:salud|Pasó algún tiempo antes de que la salud de mi amigo, el señor [[holmes|Sherlock Holmes]], se repusiera del esfuerzo que le habían costado sus inmensos trabajos de la primavera del 87.}} {{#lyon d:1887-04-14 p:lyon q:lyon|Consultando mis notas, veo que fue el 14 de abril cuando recibí un telegrama de [[lyon|Lyon]] que me informaba de que Holmes yacía enfermo en el hotel Dulong.}} {{#telegramas e:holmes q:telegramas|En un momento en que Europa resonaba con su nombre y en que su cuarto estaba literalmente alfombrado, hasta los tobillos, de telegramas de felicitación, lo encontré presa de la más negra depresión.}}\n{{#hayter e:coronel_hayter p:reigate q:hayter|Mi viejo amigo el [[coronel_hayter|coronel Hayter]], que había estado bajo mi cuidado profesional en [[afganistan|Afganistán]], había alquilado una casa cerca de [[reigate|Reigate]], en Surrey, y me había invitado muchas veces a visitarlo.}}\n{{#armeria e:coronel_hayter q:armeria|La noche de nuestra llegada estábamos sentados, después de cenar, en la sala de armas del coronel: Holmes, tendido en el sofá, mientras Hayter y yo examinábamos su pequeña colección de armas de fuego.}}\n{{#pistola e:coronel_hayter q:pistola|—A propósito —dijo Hayter de pronto—, creo que me llevaré arriba una de estas pistolas, por si hay alarma.}}\n—¡Alarma! —dije yo."},
+    {"id": "p2", "text": "\\[…\\] —{{#una_menos e:holmes q:una_menos|Ya ve usted que empieza: «Por cuanto, hacia la una menos cuarto de la madrugada del martes, se intentó», etcétera.}} {{#doce_menos e:holmes q:doce_menos|En realidad fue a las doce menos cuarto.}}\n\\[…\\] {{#dos_personas e:holmes q:dos_personas|—Mi querido señor —exclamó Holmes—, no cabe la menor duda de que lo escribieron dos personas, una palabra cada una.}} {{#tes e:holmes q:tes|Si le hago notar las tes firmes de <i>at</i> y de <i>to</i>, y le pido que las compare con las débiles de <i>quarter</i> y de <i>twelve</i>, lo reconocerá usted al instante.}}\n\\[…\\] —{{#en_comun e:holmes q:en_comun|Estas dos manos tienen algo en común.}} {{#sangre e:holmes e:cunningham q:sangre|Pertenecen a hombres que son parientes de sangre.}} {{#e_griegas e:holmes q:e_griegas|Quizá a usted le salte más a la vista en las <i>e</i> griegas, pero para mí hay muchos pequeños detalles que indican lo mismo.}} {{#veintitres e:holmes q:veintitres|Hubo otras veintitrés deducciones que interesarían más a los expertos que a usted.}}"}
+  ],
+  "src_en": {
+    "salud": "It was some time before the health of my friend Mr. Sherlock Holmes recovered from the strain caused by his immense exertions in the spring of ’87.",
+    "lyon": "On referring to my notes I see that it was upon the 14th of April that I received a telegram from Lyons which informed me that Holmes was lying ill in the Hotel Dulong.",
+    "telegramas": "at a time when Europe was ringing with his name and when his room was literally ankle-deep with congratulatory telegrams I found him a prey to the blackest depression.",
+    "hayter": "My old friend, Colonel Hayter, who had come under my professional care in Afghanistan, had now taken a house near Reigate in Surrey, and had frequently asked me to come down to him upon a visit.",
+    "armeria": "On the evening of our arrival we were sitting in the Colonel’s gun-room after dinner, Holmes stretched upon the sofa, while Hayter and I looked over his little armoury of fire-arms.",
+    "pistola": "By the way,” said he suddenly, “I think I’ll take one of these pistols upstairs with me in case we have an alarm.",
+    "una_menos": "You see you begin, ‘Whereas, at about a quarter to one on Tuesday morning an attempt was made,’ and so on.",
+    "doce_menos": "It was at a quarter to twelve, as a matter of fact.",
+    "dos_personas": "My dear sir,” cried Holmes, “there cannot be the least doubt in the world that it has been written by two persons doing alternate words.",
+    "tes": "When I draw your attention to the strong t’s of ‘at’ and ‘to’, and ask you to compare them with the weak ones of ‘quarter’ and ‘twelve,’ you will instantly recognise the fact.",
+    "en_comun": "There is something in common between these hands.",
+    "sangre": "They belong to men who are blood-relatives.",
+    "e_griegas": "It may be most obvious to you in the Greek e’s, but to me there are many small points which indicate the same thing.",
+    "veintitres": "There were twenty-three other deductions which would be of more interest to experts than to you."
+  },
+  "words": 300
+}

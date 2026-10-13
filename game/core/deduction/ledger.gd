@@ -56,8 +56,12 @@ static func act_entry_new(st, repo, a) -> Dictionary:
 	for ln in tpl.get("lines", []):
 		lines.append({"fields": {}, "support": []})
 	var id: String = st.next_id("entry", "AS", 3)
+	# Práctica (C1): la página «erratas» o cualquier asiento del prólogo (el tutorial lo abre en un folio; §12.2): su
+	# chequeo formal pide dos pasajes, no dos orígenes, igual que act_practice.
+	var clk = st.clock if typeof(st.clock) == TYPE_DICTIONARY else {}
+	var practice: bool = folio == "erratas" or String(clk.get("phase", "")) == "prologue"
 	d.entries[id] = {"id": id, "folio": folio, "template": tid, "lines": lines, "ink": "lapiz",
-		"practice": folio == "erratas", "cid": ""}
+		"practice": practice, "cid": ""}
 	if d.folios.has(folio):
 		d.folios[folio].entries.append(id)
 	_note(st, "entry", {"id": id})

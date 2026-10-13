@@ -152,7 +152,7 @@ func test_validate_errors():
 	var bad := [
 		{"lluvia": 1}, {"day": "x"}, {"slot": ["Q"]}, {"tk": {"gte": "zz"}}, {"sealed_count": {"of": "mandatory"}},
 		{"all": {"day": 1}}, {"weekday": "domingo"}, {"flag": ""}, {"event_count": {"gte": 1}}, {"day": {"mayor": 3}},
-		{"not": {"lluvia": 1}}, "texto",
+		{"not": {"lluvia": 1}}, "texto", {"weekday": "sáb"}, {"weekday": ["mié"]},
 	]
 	for c in bad:
 		ok(Cond.validate(c).size() > 0, "debe fallar: " + str(c))

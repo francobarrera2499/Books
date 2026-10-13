@@ -1,0 +1,7 @@
+{"_nota": "W3-CT-DLG-B: entidades nombradas en dialogue/{mycroft,pell,harris,crane,librero,portero}.json y scenes/{PRO,M6,M7,HC06,HC07,HC08,HC09,END.F1-F4,EPI}.json que no estaban en core.json ni en los archivos de otros paquetes. Ruido de época: no sostienen ninguna ruta. segunda_mancha la usan también D01.NAVA y D21 (huevo EE07).",
+"entities": [
+  {"id": "segunda_mancha", "kind": "documento", "name": "«La segunda mancha»", "index": "«La segunda mancha» (anunciada, nunca publicada)", "noun": "manuscrito"},
+  {"id": "bunyan", "kind": "persona", "name": "Bunyan", "index": "Bunyan, John", "noun": "autor"},
+  {"id": "paget", "kind": "persona", "name": "el señor Paget", "index": "Paget, Sidney (ilustrador)", "noun": "ilustrador"},
+  {"id": "brighton", "kind": "lugar", "name": "Brighton", "index": "Brighton", "noun": "ciudad"}
+]}

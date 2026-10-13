@@ -1,0 +1,21 @@
+{
+  "_nota": "W3-CT-MORAN. D39, el tratado sobre el teorema del binomio del profesor Moriarty [C la obra; INV la portada] (GDD §2.6 INC-14, §6 D39, §13 EE09). Es la única parte del juego donde el profesor se llama James (el coronel de Bath firma James en D09 y en D28): EE09 se dispara al emparejar R:D28#padre (x:EE09) con cualquier recorte de este libro (e:binomio, la entidad del documento). Sin etiquetas de conclusión (T13). Ejemplar: sólo BM (I); papeleta «otros» = silencio (HB14).",
+  "id": "D39",
+  "entity": "binomio",
+  "title": "Tratado sobre el teorema del binomio (Londres, 1867)",
+  "src_type": "libro",
+  "class": "I",
+  "date": "1867-03-01",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [140, 200],
+  "slip_topic": "otros",
+  "catalog": {"label": "Moriarty, James. Tratado sobre el teorema del binomio (Londres, 1867)", "entities": ["binomio", "profesor_moriarty", "coronel_moriarty"]},
+  "copies": [
+    {"id": "D39@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#titulo e:binomio|<sc>Tratado sobre el teorema del binomio</sc>, con su extensión a los exponentes fraccionarios y negativos.}}\n\n{{#autor e:profesor_moriarty|Por [[profesor_moriarty|James Moriarty]], bachiller en artes.}}\n\n{{#pie_imprenta e:londres|[[londres|Londres]], 1867.}}\n\n{{#sello e:museo_britanico|<ink=roja>[[museo_britanico|Museo Británico]], 14 de marzo de 1867.</ink>}}"}
+  ],
+  "words": 30
+}

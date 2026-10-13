@@ -1,0 +1,21 @@
+{
+  "_nota": "W3-CT-DLG-B. Josiah Pell (GDD §4): procurador menor de Chancery Lane; quisquilloso, latinajos en cursiva, miedo a los pleitos; se seca la frente y mira la ventana. Nunca vio al coronel Moriarty: obedece al «mayor». m4 = respuesta especial de M4 (presentarle algo que nombre a Moran o a Harris como autor o asesino): palidece; eco de la nota temblorosa «Le ruego no me nombre». Sus escenas: scenes/PRO.json (instructor del tutorial) y scenes/M6.json.",
+  "char": "pell",
+  "label": "el señor Pell",
+  "intro": "Josiah Pell, procurador",
+  "addr": "señor Pell",
+  "sensor": null,
+  "max_questions": 3,
+  "trait": "cartera",
+  "closing": "Mira el reloj de bolsillo. —Tengo otro compromiso, señor Lisle: <i>tempus fugit</i>.",
+  "ask_phrase": {"default": "¿Qué me puede decir de ${topic}, ${addr}?"},
+  "lines": [
+    {"id": "m4", "layer": "tema", "reaction": "M4", "text": "Palidece y se seca la frente. —Yo no he visto eso, señor Lisle. Le ruego que no me nombre."},
+    {"id": "af.todas", "layer": "afirmacion", "match": {"assertion": ["cebo", "vive", "canario"]}, "text": "—Lo que no se prueba no existe, señor Lisle, y menos ante un tribunal."},
+    {"id": "coronel", "layer": "tema", "match": {"topic": ["coronel_moriarty", "profesor_moriarty", "cartas_del_coronel"]}, "text": "Mira hacia la ventana. —No he tenido el honor de ver al coronel, señor. Obro por poder, en debida forma."},
+    {"id": "mayor", "layer": "tema", "match": {"topic": ["harris", "moran", "bigote", "chistera"]}, "text": "—El mayor es un caballero muy exacto, señor Lisle. Yo me limito a la forma, que es lo mío."},
+    {"id": "encargo", "layer": "tema", "match": {"topic": ["encargo", "fina", "watson", "guinea", "billetes_de_cinco_libras"]}, "text": "—Tres informes y uno final, por escrito, señor: <i>verba volant</i>."},
+    {"id": "gen.1", "layer": "generica", "text": "—En debida forma, señor Lisle, <i>in extenso</i>."},
+    {"id": "gen.2", "layer": "generica", "text": "Se seca la frente y mira hacia la ventana. —Eso no consta en el encargo, señor."}
+  ]
+}

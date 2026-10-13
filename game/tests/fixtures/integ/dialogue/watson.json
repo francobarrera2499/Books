@@ -1,0 +1,20 @@
+{
+  "_nota": "Fixture de integración (tests/test_i_integration.gd). El diálogo definitivo lo escribe W3-CT-DLG-A. Contrato §4.8: L:watson.escribi_mycroft (C7.R5).",
+  "char": "watson",
+  "label": "el doctor Watson",
+  "intro": "Dr. J. H. Watson",
+  "addr": "doctor",
+  "sensor": "K-W",
+  "max_questions": 3,
+  "trait": "bombin_crespon",
+  "closing": "Tengo pacientes, señor Lisle.",
+  "ask_phrase": {"default": "¿Qué sabe usted de ${topic}, ${addr}?"},
+  "lines": [
+    {"id": "pared", "layer": "afirmacion", "match": {"assertion": ["as.pared"]}, "text": "Palidece. —Era un sendero estrecho, señor Lisle. Lo escribí como lo vi."},
+    {"id": "escribi_mycroft", "layer": "tema", "match": {"topic": ["mycroft", "fina"]}, "when": {"event_count": {"type": "say", "where": {"char": "watson", "topic_group": "roca"}, "gte": 1}}, "text": "{{#escribi a:vinculo_mycroft e:mycroft|Le escribí al señor [[mycroft|Mycroft]], como cuando lo de las pruebas.}}"},
+    {"id": "tema.roca", "layer": "tema", "match": {"topic": ["reichenbach", "pared", "sendero", "a_pique", "cornisa"]}, "text": "No volví a subir, señor Lisle. No hacía falta."},
+    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "No lo conozco lo bastante para opinar, señor Lisle."},
+    {"id": "gen.1", "layer": "generica", "text": "Un hombre puede ser herido más de una vez, señor Lisle."},
+    {"id": "gen.2", "layer": "generica", "text": "Lo que imprimí, lo imprimí de buena fe."}
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-MORAN. Contrato §4.8: D11#desague (C5.R1), #no_bala (C10 Cb), #hacerlo_balar (C10 Cd), #mejor_tiro (C11.R2).",
+  "id": "D11",
+  "entity": "three_months",
+  "title": "Three Months in the Jungle, Londres, 1884",
+  "src_type": "libro",
+  "class": "I",
+  "date": "1884-01-01",
+  "font": "imprenta",
+  "paper": "libro",
+  "slip_topic": "moran",
+  "copies": [
+    {"id": "D11@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#desague a:estilo_o_rostro_moran e:desague e:tigre|Al [[tigre|tigre]] herido se lo sigue por [[desague|el desagüe]], y no por el monte.}} {{#no_bala a:cebo e:cabrito e:tigre|Un [[cabrito|cabrito]] que no bala no atrae a ningún [[tigre|tigre]].}} {{#hacerlo_balar a:cebo e:cabrito|Hay que hacerlo balar.}}"},
+    {"id": "p2", "text": "{{#mejor_tiro a:autor_moran e:moran e:fusil_de_aire|En el regimiento me llamaban el mejor tiro de la India, y no conozco [[fusil_de_aire|fusil de aire]] que me hiciera quedar mal.}}"}
+  ],
+  "words": 75
+}

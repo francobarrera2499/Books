@@ -1,0 +1,20 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-TRACES. Contrato §4.8: D12#n97 (C8.R1), #dedicatoria (C8.R4, C12.R3/R4).",
+  "id": "D12",
+  "entity": "monografia_cenizas",
+  "title": "Sobre la distinción entre las cenizas de los diversos tabacos",
+  "src_type": "libro",
+  "class": "I",
+  "date": "1886-01-01",
+  "font": "imprenta",
+  "paper": "libro",
+  "slip_topic": "holmes_monografia",
+  "copies": [
+    {"id": "D12@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#n97 a:identidad_holmes e:numero_97 e:holmes|[[numero_97|Número 97]]: té en ladrillo del Tíbet, sin muestra.}} En la lámina, la ceniza negra de Trichinópolis."},
+    {"id": "p2", "text": "{{#dedicatoria a:identidad_holmes a:rasgo_holmes e:letra e:holmes|En la guarda, a lápiz y de [[letra|letra]] menuda: «Al Museo, con los cumplidos del autor».}}"}
+  ],
+  "words": 40
+}

@@ -1,0 +1,20 @@
+{
+  "_nota": "W3-CT-TRACES. D33, libro de ventas de la tienda de Crane, abierto sobre el mostrador (L1, tienda) [INV; GDD §2.2 jue. 5 9:30, §6 D33, §10.4 C12.R2 (apoyo, epílogo) y C12.R3, ARCHITECTURE §12.1.6]. Letra de Crane, chismosa y de mercachifle (comentarios al margen de cada venta). La entrada del jueves 5 existe sólo después de la escena del librero (parts[].when: día 10 y delivered.HC07); antes, el libro muestra las ventas de la semana anterior al encargo (20 y 22 de marzo; ruido; ninguna fecha posterior al día en curso). La dirección la escribe el librero «de su puño», a lápiz (como «No lo es.», la dedicatoria de D12 y el precio de D37): la letra se coteja. Contrato §4.8: #direccion (C12 librero_falso: no hay librería en esa esquina, D17#church_street; claves church_street y letra: enlaza con D17 y con D12#dedicatoria; R4: e:librero) · #tree_worship (apoyo C12.R2 con N:PARK.libros: los cuatro títulos del disfraz). Fechas sin punto tras el número para que no corten la oración; chelines con \\. Ejemplar: Crane (mostrador).",
+  "id": "D33",
+  "entity": "libro_de_ventas",
+  "title": "Libro de ventas de la tienda de Crane, Holywell Street (marzo y abril de 1894)",
+  "src_type": "registro",
+  "class": "I",
+  "date": "1894-04-05",
+  "font": "manuscrito",
+  "paper": "registro",
+  "paper_mm": [210, 330],
+  "copies": [
+    {"id": "D33@Crane", "holder": "Crane", "class": "I", "via": "counter", "from": "1.M", "to": "10.M"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "Ventas de la semana.\n{{#nelson e:vida_de_nelson|Mar. 20 — [[vida_de_nelson|Vida de Nelson]], 1s\\. 6d., a un marino retirado; regateó el medio chelín como si fuera Trafalgar.}}\n{{#hewitt e:strand_marzo_1894|Jue. 22 — [[strand_marzo_1894|La Strand de marzo]], 6d.; quería al detective de antes y se llevó al gordo.}}"},
+    {"id": "p2", "when": {"all": [{"day": {"gte": 10}}, {"counter": {"name": "delivered.HC07", "gte": 1}}]}, "text": "{{#jue5 e:anciano e:librero d:1894-04-05|Jue. 5 abr. — Un [[anciano|anciano]], [[librero|librero]] (dice).}} {{#tree_worship e:tree_worship e:anciano|[[british_birds|British Birds]], [[catullus|Catullus]], [[holy_war|The Holy War]], [[tree_worship|The Origin of Tree Worship]].}} {{#gremio e:precio_de_gremio|[[precio_de_gremio|Precio de gremio]].}} {{#direccion a:librero_falso e:church_street e:letra e:librero h:F.librero_en_crane|Dirección, de su puño: <ink=lapiz>esquina de [[church_street|Church Street]], [[kensington|Kensington]]</ink>.}} Se los lleva."}
+  ],
+  "words": 70
+}

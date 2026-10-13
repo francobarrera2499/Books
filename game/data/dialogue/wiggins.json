@@ -1,0 +1,64 @@
+{
+  "_nota": "W3-CT-DLG-A. Wiggins (GDD §4; STUD, SIGN): en 1894 es un hombre joven; insolente, leal a un muerto, dice «jefe»; gorra larga y mondadientes. Habla sólo como silueta con diálogo (HC02, desde el día 3). Sospecha quién está detrás de la vieja tarifa y nadie le dijo nada: nunca habla de Francia ni afirma que alguien viva; no vigila casas (K-S: sólo calles y horas). Sin sensor: se le pueden decir cebos y canarios (HB8b los cuenta). Convención de texto (igual que W3-CT-DLG-B): el habla empieza sin raya; acotación + « —» + habla. Contrato §4.8: vieja_tarifa (HB8, línea especial por el efecto linea; C7.R7) y conduit (C10.Id, C10a.R4; la dice desde el día siguiente a un encargo: when por día del evento task, que el modelo de rutas ve posible). No nombra a Moran: el jugador cruza «Conduit Street» con el Kelly's (D17#moran_conduit); la cabeza de tigre del zaguán (clave «tigre» de C10) enlaza la línea con la pareja Cb de C10.R4 (D11#no_bala, S:M7.donde_duerme) aun sin C10a sellada. Wiggins es K-S (el evento say lleva la frase exacta de Lisle): las preguntas por Camden House o la casa vacía usan una frase sin el nombre de la casa (secreto_camden). Ids reservados: pago, tarea.seguir_chico_pell, tarea.seguir_parker. #tarifa lleva a:me_vigila_de_cerca (+ e:cartas_a_maquina): el que paga la tarifa es el que escribe a máquina, o sea, la mano de las cartas me hace seguir; el vínculo con Mycroft lo pone D01.GREE#whitehall (C7.R7; igual que tests/fixtures/graph/base/dialogue/wiggins.json). Guardián.",
+  "char": "wiggins",
+  "label": "Wiggins",
+  "intro": "Wiggins, de los irregulares de Baker Street",
+  "addr": "muchacho",
+  "max_questions": 3,
+  "trait": "gorra_larga",
+  "closing": "Se cala la gorra hasta las cejas. —Me están esperando, jefe.",
+  "ask_phrase": {
+    "default": "¿Qué sabe usted de ${topic}, ${addr}?",
+    "vieja_tarifa": "¿Qué es eso de la vieja tarifa, muchacho?",
+    "lisle": "¿Por qué me sigue usted, muchacho?",
+    "wiggins": "¿Cómo se llama usted, muchacho?",
+    "camden_house": "¿Qué sabe usted de las casas de esta calle, muchacho?",
+    "casa_vacia": "¿Qué sabe usted de las casas de esta calle, muchacho?"
+  },
+  "lines": [
+    {"id": "af.cebo", "layer": "afirmacion", "match": {"assertion": ["cebo"]}, "text": "Se toca la visera. —Anotado, jefe. Las cosas llegan adonde tienen que llegar."},
+    {"id": "af.vive", "layer": "afirmacion", "match": {"assertion": ["vive"]}, "text": "Se le cae el mondadientes; lo recoge sin prisa. —Eso no se dice en la calle, jefe."},
+    {"id": "af.canario", "layer": "afirmacion", "match": {"assertion": ["canario"]}, "text": "¿Y eso a mí qué, jefe? Bueno: ya lo sé."},
+
+    {"id": "vieja_tarifa", "layer": "tema", "reaction": "HB8", "text": "Se quita la gorra, por primera vez. —La [[vieja_tarifa|vieja tarifa]], jefe. {{#tarifa a:me_vigila_de_cerca e:vieja_tarifa e:cartas_a_maquina e:pall_mall e:whitehall|El que la paga escribe a máquina; el que la manda no camina más que de [[pall_mall|Pall Mall]] a [[whitehall|Whitehall]].}}"},
+    {"id": "conduit", "layer": "tema", "match": {"topic": ["chico_de_pell", "pell", "harris", "moran", "militar", "bigote", "parker", "hombrecito_del_arpa", "lista_de_correos", "charing_cross", "conduit_street", "coronel_moriarty", "encargo", "lisle", "wiggins", "muchacho_de_gorra", "vieja_tarifa", "irregulares"]},
+     "when": {"any": [
+       {"all": [{"day": 4}, {"event_count": {"type": "task", "where": {"char": "wiggins", "day": [3]}, "gte": 1}}]},
+       {"all": [{"day": 5}, {"event_count": {"type": "task", "where": {"char": "wiggins", "day": [3, 4]}, "gte": 1}}]},
+       {"all": [{"day": 6}, {"event_count": {"type": "task", "where": {"char": "wiggins", "day": [3, 4, 5]}, "gte": 1}}]},
+       {"all": [{"day": 7}, {"event_count": {"type": "task", "where": {"char": "wiggins", "day": [3, 4, 5, 6]}, "gte": 1}}]},
+       {"all": [{"day": 8}, {"event_count": {"type": "task", "where": {"char": "wiggins", "day": [3, 4, 5, 6, 7]}, "gte": 1}}]},
+       {"all": [{"day": {"gte": 9}}, {"event_count": {"type": "task", "where": {"char": "wiggins", "day": [3, 4, 5, 6, 7, 8]}, "gte": 1}}]}
+     ]},
+     "text": "Se saca el mondadientes de la boca. —{{#conduit a:harris_es_moran e:conduit_street|El que usted me mandó seguir entró en una casa de [[conduit_street|Conduit Street]] con una cabeza de [[tigre|tigre]] en el zaguán, jefe, y allí los criados no conocen a ningún [[harris|mayor]]: dicen «el coronel».}} Pregunté en la escalera de servicio; adentro no entré, que eso no se paga."},
+    {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes", "muerte_de_holmes", "reichenbach"]}, "when": {"flag": "wiggins_aliado"}, "text": "Un caballero nos pagaba la vieja tarifa, jefe, y nunca nos pidió nada sucio. Los diarios dicen que se cayó a una cascada. Los diarios dicen muchas cosas."},
+    {"id": "holmes.extrano", "layer": "tema", "match": {"topic": ["holmes", "muerte_de_holmes", "reichenbach"]}, "text": "Escupe a un lado. —De ése no se habla con desconocidos, jefe."},
+    {"id": "mycroft", "layer": "tema", "match": {"topic": ["mycroft"]}, "text": "A ése no se lo sigue, jefe: no se sale nunca de su camino."},
+    {"id": "pall_mall", "layer": "tema", "match": {"topic": ["club_diogenes", "pall_mall", "whitehall"]}, "text": "Por ahí pasa todas las mañanas un caballero muy grueso, jefe, siempre a la misma hora y por la misma acera. A ése no se lo sigue."},
+    {"id": "chico_de_pell", "layer": "tema", "match": {"topic": ["chico_de_pell", "pell", "lista_de_correos", "charing_cross"]}, "when": {"flag": "wiggins_aliado"}, "text": "El chico del procurador lleva un sobre bajo la chaqueta y no mira a nadie, jefe. Si me lo encarga, mañana le digo adónde."},
+    {"id": "harris", "layer": "tema", "match": {"topic": ["harris", "bigote", "militar"]}, "when": {"flag": "wiggins_aliado"}, "text": "Al del bigote no lo sigo yo: mira para atrás como los que cazan, jefe. Al chico que le lleva sus papeles, sí, si me lo encarga."},
+    {"id": "parker", "layer": "tema", "match": {"topic": ["parker", "hombrecito_del_arpa", "arpa_de_boca"]}, "text": "Al del arpa lo conoce toda Baker Street, jefe. Toca mal y mira bien."},
+    {"id": "cotter", "layer": "tema", "match": {"topic": ["cotter", "hombre_de_la_canastilla", "fajo_de_papel", "remington"]}, "text": "Mira para otro lado. —De ése no hablo, jefe. Cada uno con su oficio."},
+    {"id": "camden", "layer": "tema", "match": {"topic": ["camden_house", "casa_vacia", "cartel_se_alquila", "agente_de_fincas", "chico_del_agente"]}, "text": "Yo cuento calles, jefe, no casas. Una puerta es una puerta."},
+    {"id": "221b", "layer": "tema", "match": {"topic": ["221b", "baker_street", "mrs_hudson"]}, "text": "Ahí arriba nos pagaban, jefe, y la señora nos tenía miedo. Ahora nadie sube."},
+    {"id": "tarifa.extrano", "layer": "tema", "match": {"topic": ["vieja_tarifa"]}, "when": {"not": {"flag": "wiggins_aliado"}}, "text": "La vieja tarifa no se discute, jefe: se paga."},
+    {"id": "tarifa.aliado", "layer": "tema", "match": {"topic": ["vieja_tarifa"]}, "text": "Ya se la dije, jefe: la vieja tarifa. Y no me pregunte de quién."},
+    {"id": "watson", "layer": "tema", "match": {"topic": ["watson"]}, "text": "El doctor nos echaba a la calle con un caramelo de menta en la mano, jefe. Buen hombre. Ahora anda de luto."},
+    {"id": "irregulares", "layer": "tema", "match": {"topic": ["irregulares", "muchacho_de_gorra", "wiggins"]}, "text": "Wiggins, para servirlo. Quedamos pocos, jefe, y ya no somos chicos; pero la calle es la misma."},
+    {"id": "park_lane", "layer": "tema", "match": {"topic": ["park_lane", "park_lane_427", "ronald_adair", "asesinato_de_adair", "suceso_park_lane"]}, "when": {"day": {"gte": 5}}, "text": "Park Lane está lleno de curiosos, jefe. Buen sitio para mirar sin que lo miren a uno."},
+    {"id": "lisle", "layer": "tema", "match": {"topic": ["lisle", "anteojos_azules"]}, "text": "¿Seguirlo? Yo paseo, jefe, como usted. Aunque usted camina mucho para tener esos ojos."},
+
+    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "No sé quién es, jefe. Y si lo supiera, tampoco."},
+    {"id": "tipo.lugar", "layer": "tipo", "match": {"kind": ["lugar"]}, "text": "Conozco todas las calles de Londres, jefe. Ésa también. ¿Y?"},
+    {"id": "tipo.documento", "layer": "tipo", "match": {"kind": ["documento"]}, "text": "Yo no leo, jefe; yo miro."},
+    {"id": "tipo.otro", "layer": "tipo", "match": {"kind": ["objeto", "concepto", "fecha", "suceso"]}, "text": "Mastica el mondadientes. —¿Y eso se come, jefe?"},
+
+    {"id": "pago", "layer": "generica", "text": "Muerde la moneda y se la guarda en la gorra. —Se agradece, jefe."},
+    {"id": "tarea.seguir_chico_pell", "layer": "generica", "text": "¿El chico del procurador? Ése no mira nunca para atrás, jefe. Mañana le digo adónde lleva lo que lleva."},
+    {"id": "tarea.seguir_parker", "layer": "generica", "text": "¿El del arpa? Camina como un gato, jefe, pero los gatos también vuelven a casa. Mañana le digo adónde."},
+    {"id": "gen.1", "layer": "generica", "text": "Mastica el mondadientes. —¿Y a mí qué, jefe?"},
+    {"id": "gen.2", "layer": "generica", "text": "Yo no vi nada, jefe, y lo vi bien."},
+    {"id": "gen.extrano", "layer": "generica", "when": {"not": {"flag": "wiggins_aliado"}}, "text": "Mirar es gratis, jefe. Hablar, no tanto."},
+    {"id": "gen.aliado", "layer": "generica", "when": {"flag": "wiggins_aliado"}, "text": "Usted pague y pregunte poco, jefe, que así nos entendemos."}
+  ]
+}

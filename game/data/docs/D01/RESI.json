@@ -1,0 +1,42 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. VI (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie (XXI; texto de la Strand de agosto de 1893, sin el pasaje de la lectura del pensamiento, que es de CARD: GDD §2.6), p2 = escena central (abre con «[…]»: las colillas), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/resi.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. chron_date (guardián): «hacia el final del primer año» en Baker Street, «tiempo borrascoso de octubre».",
+  "id": "D01.RESI",
+  "entity": "resi",
+  "title": "«El paciente interno», The Strand Magazine, agosto de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-08-01",
+  "chron_date": "1881-10-06",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El paciente interno», The Strand Magazine, vol. VI (agosto de 1893)", "entities": ["resi", "percy_trevelyan", "inspector_lanner"]},
+  "copies": [
+    {"id": "D01.RESI@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.RESI@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XXI\\. — El paciente interno</b>\n{{#fecha_exacta e:holmes p:baker_street q:fecha_exacta|No puedo estar seguro de la fecha exacta, porque se me han extraviado algunos apuntes, pero debió de ser hacia el final del primer año en que [[holmes|Holmes]] y yo compartimos habitaciones en [[baker_street|Baker Street]].}} {{#octubre q:octubre|Hacía un tiempo borrascoso de octubre, y los dos nos habíamos quedado en casa todo el día}}: yo, porque con mi salud quebrantada temía el viento cortante del otoño; él, sumido en una de esas abstrusas investigaciones químicas que lo absorbían por completo mientras duraban. Hacia el anochecer, sin embargo, {{#tubo e:holmes q:tubo|la rotura de un tubo de ensayo puso fin prematuro a su investigación, y se levantó de un salto con una exclamación de impaciencia y el ceño nublado.}}\n{{#arruinado e:holmes q:arruinado|—Un día de trabajo perdido, Watson —dijo, yendo a grandes pasos hacia la ventana—.}} ¡Ah! Han salido las estrellas y ha amainado el viento. ¿Qué le parece un paseo por Londres?\n{{#caleidoscopio p:fleet_street q:caleidoscopio|Durante tres horas paseamos juntos, contemplando el caleidoscopio siempre cambiante de la vida que fluye y refluye por [[fleet_street|Fleet Street]] y [[el_strand|el Strand]].}} {{#brougham q:brougham|Eran las diez cuando llegamos de nuevo a Baker Street; a nuestra puerta esperaba un <i>brougham</i>.}}\n—¡Hum! {{#medico e:holmes q:medico|De un médico, un médico de cabecera, por lo que veo —dijo Holmes.}}"},
+    {"id": "p2", "text": "\\[…\\] {{#destornillador e:inspector_lanner q:destornillador|—Encontramos un destornillador y unos tornillos en el lavabo.}} {{#colillas e:inspector_lanner q:colillas|Aquí tiene cuatro colillas de cigarro que recogí en la chimenea.}}\n{{#habano e:holmes q:habano|—Oh, éste es un habano, y estos otros son cigarros de esa clase peculiar que los holandeses importan de sus colonias de las Indias Orientales.}}\n{{#lente e:holmes q:lente|Recogió las cuatro colillas y las examinó con su lente de bolsillo.}}\n{{#boquilla e:holmes q:boquilla|—Dos se han fumado con boquilla y dos sin ella —dijo—.}} {{#dientes e:holmes q:dientes|Dos se cortaron con un cuchillo no muy afilado, y a dos les arrancaron la punta de un mordisco unos dientes excelentes.}} {{#suicidio e:holmes e:inspector_lanner q:suicidio|Esto no es un suicidio, señor [[inspector_lanner|Lanner]].}} {{#sangre_fria e:holmes q:sangre_fria|Es un asesinato muy bien planeado y a sangre fría.}}\n\\[…\\] —{{#ceniza_comoda e:holmes q:ceniza_comoda|El más joven se sentó allí; sacudía la ceniza contra la cómoda.}}"}
+  ],
+  "src_en": {
+    "fecha_exacta": "I cannot be sure of the exact date, for some of my memoranda upon the matter have been mislaid, but it must have been towards the end of the first year during which Holmes and I shared chambers in Baker Street.",
+    "octubre": "It was boisterous October weather, and we had both remained indoors all day",
+    "tubo": "the breaking of a test-tube brought his research to a premature ending, and he sprang up from his chair with an exclamation of impatience and a clouded brow.",
+    "arruinado": "A day’s work ruined, Watson,” said he, striding across to the window.",
+    "caleidoscopio": "For three hours we strolled about together, watching the ever-changing kaleidoscope of life as it ebbs and flows through Fleet Street and the Strand.",
+    "brougham": "It was ten o’clock before we reached Baker Street again. A brougham was waiting at our door.",
+    "medico": "A doctor’s—general practitioner, I perceive,” said Holmes.",
+    "destornillador": "Found a screw-driver and some screws on the wash-hand stand.",
+    "colillas": "Here are four cigar-ends that I picked out of the fireplace.",
+    "habano": "Oh, this is a Havana, and these others are cigars of the peculiar sort which are imported by the Dutch from their East Indian colonies.",
+    "lente": "He picked up the four ends and examined them with his pocket-lens.",
+    "boquilla": "Two of these have been smoked from a holder and two without,” said he.",
+    "dientes": "Two have been cut by a not very sharp knife, and two have had the ends bitten off by a set of excellent teeth.",
+    "suicidio": "This is no suicide, Mr. Lanner.",
+    "sangre_fria": "It is a very deeply planned and cold-blooded murder.",
+    "ceniza_comoda": "The younger man sat over yonder; he knocked his ash off against the chest of drawers."
+  },
+  "words": 300
+}

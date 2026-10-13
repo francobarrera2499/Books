@@ -1,0 +1,38 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. III (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Sin tramos del contrato §4.8: ruido de las crónicas, con el mismo tratamiento que las demás. chron_date: «una mañana fría de comienzos de la primavera»; cita NOBL como caso ya anotado.",
+  "id": "D01.COPP",
+  "entity": "copp",
+  "title": "«Las hayas cobrizas», The Strand Magazine, junio de 1892",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1892-06-01",
+  "chron_date": "1890-03-12",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«Las hayas cobrizas», The Strand Magazine, vol. III (junio de 1892)", "entities": ["copp", "violet_hunter", "winchester", "daily_telegraph"]},
+  "copies": [
+    {"id": "D01.COPP@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.COPP@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XII\\. — Las hayas cobrizas</b>\n{{#arte e:holmes q:arte|—Para el hombre que ama el arte por el arte —observó [[holmes|Sherlock Holmes]], arrojando a un lado la hoja de anuncios del <i>[[daily_telegraph|Daily Telegraph]]</i>—, el placer más vivo suele hallarse en sus manifestaciones menos importantes y más humildes.}} {{#color_y_vida e:holmes q:color_y_vida|Quizá ha errado usted al querer poner color y vida en cada una de sus afirmaciones, en vez de limitarse a dejar constancia del severo razonamiento de causa a efecto, lo único notable del asunto.}} {{#logica e:holmes q:logica|El crimen es común; la lógica es rara.}} {{#lecciones e:holmes q:lecciones|Ha rebajado usted lo que debía ser un curso de lecciones a una serie de cuentos.}}\n{{#primavera p:baker_street q:primavera|Era una mañana fría de comienzos de la primavera, y después del desayuno estábamos sentados a uno y otro lado de un fuego alegre, en la vieja sala de [[baker_street|Baker Street]].}} {{#anuncios e:holmes q:anuncios|Holmes había estado callado toda la mañana, hundiéndose sin descanso en las [[columna_de_anuncios|columnas de anuncios]] de un periódico tras otro.}}\n—¡Bah, mi querido amigo! {{#cajista e:holmes q:cajista|¿Qué le importan los matices del análisis y de la deducción al gran público que no observa, que apenas distinguiría a un tejedor por los dientes o a un [[cajista|cajista]] por el pulgar izquierdo?}}"},
+    {"id": "p2", "text": "\\[…\\] {{#capital p:winchester q:capital|A las once del día siguiente íbamos ya bien avanzados camino de la vieja capital inglesa, [[winchester|Winchester]].}} Holmes había dejado los diarios y miraba el paisaje.\n{{#maldicion e:holmes q:maldicion|—¿Sabe usted, Watson, que una de las maldiciones de una mente como la mía es que tengo que mirarlo todo en relación con mi especialidad?}} {{#impunidad e:holmes q:impunidad|Yo miro esas casas dispersas y sólo pienso en lo aisladas que están y en la impunidad con que puede cometerse allí un crimen.}} {{#campina e:holmes q:campina|Es mi convicción, Watson, fundada en la experiencia, que los callejones más bajos y viles de [[londres|Londres]] no ofrecen un registro de pecado más espantoso que la campiña risueña y hermosa.}}\n{{#cinco_millas e:holmes q:cinco_millas|—Son las cinco millas de campo las que hacen el peligro.}}"}
+  ],
+  "src_en": {
+    "arte": "To the man who loves art for its own sake,” remarked Sherlock Holmes, tossing aside the advertisement sheet of The Daily Telegraph, “it is frequently in its least important and lowliest manifestations that the keenest pleasure is to be derived.",
+    "color_y_vida": "you have erred perhaps in attempting to put colour and life into each of your statements instead of confining yourself to the task of placing upon record that severe reasoning from cause to effect which is really the only notable feature about the thing.",
+    "logica": "Crime is common. Logic is rare.",
+    "lecciones": "You have degraded what should have been a course of lectures into a series of tales.",
+    "primavera": "It was a cold morning of the early spring, and we sat after breakfast on either side of a cheery fire in the old room at Baker Street.",
+    "anuncios": "Sherlock Holmes had been silent all the morning, dipping continuously into the advertisement columns of a succession of papers",
+    "cajista": "what do the public, the great unobservant public, who could hardly tell a weaver by his tooth or a compositor by his left thumb, care about the finer shades of analysis and deduction!",
+    "capital": "By eleven o’clock the next day we were well upon our way to the old English capital.",
+    "maldicion": "Do you know, Watson,” said he, “that it is one of the curses of a mind with a turn like mine that I must look at everything with reference to my own special subject.",
+    "impunidad": "I look at them, and the only thought which comes to me is a feeling of their isolation and of the impunity with which crime may be committed there.",
+    "campina": "It is my belief, Watson, founded upon my experience, that the lowest and vilest alleys in London do not present a more dreadful record of sin than does the smiling and beautiful countryside.",
+    "cinco_millas": "It is the five miles of country which makes the danger."
+  },
+  "words": 300
+}

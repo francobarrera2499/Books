@@ -1,0 +1,38 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. II (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Contrato §4.8: #madre (C1.07 inc07, «visita a su madre» en 1887) y #una_mujer (C1.08 inc08, «una mujer» en 1887). #ano_87 no lleva grupos (verificador): el año solo no contradice nada, y emparejado con D01.SCAN#marzo_1888 o con D44#madre_muerta entintaría una práctica falsa. #una_mujer lleva e:ano_87 (el año del caso) para que «Dice: el año 87» sea indexable desde el propio pasaje.",
+  "id": "D01.FIVE",
+  "entity": "five",
+  "title": "«Las cinco semillas de naranja», The Strand Magazine, noviembre de 1891",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1891-11-01",
+  "chron_date": "1887-09-29",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«Las cinco semillas de naranja», The Strand Magazine, vol. II (noviembre de 1891)", "entities": ["five", "john_openshaw", "semillas_de_naranja", "pondicherry"]},
+  "copies": [
+    {"id": "D01.FIVE@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.FIVE@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>V\\. — Las cinco semillas de naranja</b>\n{{#ano_87 q:ano_87|[[ano_87|El año 87]] nos trajo una larga serie de casos de mayor o menor interés, de los que conservo las notas.}}\n{{#equinoccio q:equinoccio|Era a fines de septiembre, y los vendavales del equinoccio se habían desatado con una violencia excepcional.}} {{#fichero q:fichero|[[holmes|Sherlock Holmes]], malhumorado, ordenaba con referencias cruzadas sus archivos del crimen a un lado de la chimenea, mientras yo, al otro, me hundía en una de las espléndidas novelas marineras de [[clark_russell|Clark Russell]].}} {{#madre a:inc07 q:madre|[[esposa|Mi mujer]] había ido a visitar a [[madre_de_mary|su madre]], y por unos días volvía yo a habitar mis viejas habitaciones de [[baker_street|Baker Street]].}}\nAquella noche sonó la campanilla. El visitante era joven, de veintidós años a lo sumo, bien arreglado y pulcramente vestido.\n—He oído hablar de usted, señor Holmes. {{#prendergast e:john_openshaw q:prendergast|El mayor Prendergast me contó cómo lo salvó en el escándalo del [[tankerville|club Tankerville]].}}\n—Ah, sí. Lo acusaron injustamente de hacer trampas a las cartas.\n—Dijo que usted podía resolverlo todo.\n—Dijo demasiado.\n—Que a usted nunca lo han vencido.\n{{#una_mujer a:inc08 e:holmes e:ano_87 q:una_mujer|—Me han vencido cuatro veces: tres, unos hombres, y una, una mujer.}}"},
+    {"id": "p2", "text": "\\[…\\] {{#marzo_1883 e:john_openshaw q:marzo_1883|—Un día —fue en marzo de 1883— había sobre la mesa, delante del plato del coronel, una carta con sello extranjero.}} {{#sin_amigos e:elias_openshaw q:sin_amigos|No era cosa corriente que recibiera cartas, porque pagaba todas sus cuentas al contado y no tenía amigos de ninguna clase.}} «¡De la India!», dijo al tomarla. «¡Matasellos de [[pondicherry|Pondicherry]]! ¿Qué podrá ser?» {{#pepitas q:pepitas|Al abrirla de prisa, saltaron de dentro [[semillas_de_naranja|cinco semillitas secas de naranja]], que repiquetearon sobre su plato.}} Me eché a reír, pero la risa se me heló en los labios al verle la cara. Se le había caído el labio, tenía los ojos saltones y la piel del color de la masilla. {{#kkk e:elias_openshaw q:kkk|«¡K. K. K.!», chilló, y luego: «¡Dios mío, Dios mío, mis pecados me han alcanzado!»}}\n\\[…\\] {{#sobre e:john_openshaw q:sobre|El joven sacó del chaleco un sobre arrugado y, volviéndose hacia la mesa, sacudió sobre ella cinco pequeñas semillas secas de naranja.}}\n{{#matasellos e:john_openshaw q:matasellos|—Éste es el sobre: el matasellos es de [[londres|Londres]], distrito del este.}}"}
+  ],
+  "src_en": {
+    "ano_87": "The year ’87 furnished us with a long series of cases of greater or less interest, of which I retain the records.",
+    "equinoccio": "It was in the latter days of September, and the equinoctial gales had set in with exceptional violence.",
+    "fichero": "Sherlock Holmes sat moodily at one side of the fireplace cross-indexing his records of crime, while I at the other was deep in one of Clark Russell’s fine sea-stories",
+    "madre": "My wife was on a visit to her mother’s, and for a few days I was a dweller once more in my old quarters at Baker Street.",
+    "prendergast": "I heard from Major Prendergast how you saved him in the Tankerville Club scandal.",
+    "una_mujer": "I have been beaten four times—three times by men, and once by a woman.",
+    "marzo_1883": "One day—it was in March, 1883—a letter with a foreign stamp lay upon the table in front of the colonel’s plate.",
+    "sin_amigos": "It was not a common thing for him to receive letters, for his bills were all paid in ready money, and he had no friends of any sort.",
+    "pepitas": "Opening it hurriedly, out there jumped five little dried orange pips, which pattered down upon his plate.",
+    "kkk": "‘K. K. K.!’ he shrieked, and then, ‘My God, my God, my sins have overtaken me!’",
+    "sobre": "The young man took from his waistcoat a crumpled envelope, and turning to the table he shook out upon it five little dried orange pips.",
+    "matasellos": "The postmark is London—eastern division."
+  },
+  "words": 300
+}

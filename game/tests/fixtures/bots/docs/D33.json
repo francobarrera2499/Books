@@ -1,0 +1,18 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-TRACES. Contrato §4.8: D33#direccion (C12.R3). La entrada del jueves está desde las 9:30 del día 10 (el ejemplar empieza en 10.M).",
+  "id": "D33",
+  "entity": "libro_de_ventas",
+  "title": "Libro de ventas de Crane",
+  "src_type": "registro",
+  "class": "I",
+  "date": "1894-04-05",
+  "font": "manuscrito",
+  "paper": "libro",
+  "copies": [
+    {"id": "D33@Crane", "holder": "Crane", "class": "I", "via": "counter", "from": "10.M", "to": "10.M"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "Jue. 5. Un anciano, librero (dice). {{#direccion a:librero_falso e:letra e:church_street|Dirección, de su puño: «esquina de [[church_street|Church Street]], Kensington».}} Se los lleva."}
+  ],
+  "words": 25
+}

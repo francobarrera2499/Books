@@ -1,0 +1,21 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-MORAN. Contrato §4.8: D17#moran_conduit (C10 Id, C10a.R4), #church_street (C12.R3).",
+  "id": "D17",
+  "entity": "kellys",
+  "title": "Kelly's Post Office London Directory, 1894",
+  "src_type": "registro",
+  "class": "I",
+  "date": "1894-01-01",
+  "font": "imprenta",
+  "paper": "libro",
+  "slip_topic": "kelly",
+  "copies": [
+    {"id": "D17@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"},
+    {"id": "D17@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "Watson, J. H., médico, Paddington. {{#moran_conduit a:harris_es_moran e:moran e:conduit_street|[[moran|Moran, Col. S.]], [[conduit_street|Conduit Street]], número 44.}}"},
+    {"id": "p2", "text": "{{#church_street a:librero_falso e:church_street e:librero|En la esquina de [[church_street|Church Street]], en Kensington, no figura ninguna librería.}}"}
+  ],
+  "words": 40
+}

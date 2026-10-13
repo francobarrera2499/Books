@@ -1,0 +1,40 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. VI (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie (XXIII; la Strand la dio en dos números, octubre y noviembre de 1893), p2 = escena central (abre con «[…]»: la rosa musgosa), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/nava.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. #titulos anuncia «La segunda mancha» (D21#segunda_mancha; huevo EE07 por la línea de Crane, no por aquí). #foreign_office (Phelps trabaja en el F.O.) es ruido: el pedido del F.O. de 1893 no se nombra en ningún texto público. chron_date (guardián): «el mes de julio que siguió inmediatamente a mi boda».",
+  "id": "D01.NAVA",
+  "entity": "nava",
+  "title": "«El tratado naval», The Strand Magazine, octubre y noviembre de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-10-01",
+  "chron_date": "1889-07-30",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El tratado naval», The Strand Magazine, vol. VI (octubre y noviembre de 1893)", "entities": ["nava", "percy_phelps", "foreign_office", "segunda_mancha"]},
+  "copies": [
+    {"id": "D01.NAVA@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.NAVA@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XXIII\\. — El tratado naval</b>\n{{#julio e:watson q:julio|El mes de julio que siguió inmediatamente a [[boda_de_watson|mi boda]] se hizo memorable por tres casos de interés, en los que tuve el privilegio de acompañar a [[holmes|Sherlock Holmes]] y de estudiar sus métodos.}} {{#titulos e:segunda_mancha q:titulos|Los encuentro anotados con los títulos de «[[segunda_mancha|La aventura de la segunda mancha]]», «La aventura del tratado naval» y «La aventura del capitán cansado».}} {{#primeras_familias q:primeras_familias|El primero, sin embargo, toca intereses de tal importancia y compromete a tantas de las primeras familias del reino que durante muchos años será imposible hacerlo público.}} {{#siglo_nuevo q:siglo_nuevo|Antes de que esa historia pueda contarse sin peligro, habrá llegado el nuevo siglo.}}\n{{#phelps e:percy_phelps q:phelps|En mis años de colegio había tenido mucha intimidad con un muchacho llamado [[percy_phelps|Percy Phelps]], más o menos de mi edad, aunque iba dos cursos por delante de mí.}} {{#foreign_office e:percy_phelps q:foreign_office|Oí decir vagamente que su talento y las influencias de que disponía le habían valido un buen puesto en el [[foreign_office|Foreign Office]]}}, y luego se me fue por completo de la memoria."},
+    {"id": "p2", "text": "\\[…\\] —{{#autoridades e:holmes q:autoridades|Las autoridades son excelentes para acumular hechos, aunque no siempre les saquen provecho.}} {{#rosa e:holmes q:rosa|¡Qué cosa tan hermosa es una rosa!}}\n{{#musgosa e:holmes q:musgosa|Pasó junto al sofá hasta la ventana abierta y levantó el tallo caído de una rosa musgosa, contemplando la delicada mezcla de carmesí y verde.}} {{#faceta q:faceta|Era para mí una faceta nueva de su carácter, porque nunca le había visto mostrar un interés vivo por las cosas de la naturaleza.}}\n{{#religion e:holmes q:religion|—No hay nada en que la deducción sea tan necesaria como en la religión —dijo, recostado de espaldas contra los postigos—.}} {{#providencia e:holmes q:providencia|La mayor garantía de la bondad de la Providencia me parece que reside en las flores.}} Pero esta rosa es algo de más. {{#adorno e:holmes q:adorno|Su perfume y su color son un adorno de la vida, no una condición de ella.}} {{#flores e:holmes q:flores|Sólo la bondad da lo que sobra, y por eso repito que tenemos mucho que esperar de las flores.}}"}
+  ],
+  "src_en": {
+    "julio": "The July which immediately succeeded my marriage was made memorable by three cases of interest, in which I had the privilege of being associated with Sherlock Holmes and of studying his methods.",
+    "titulos": "I find them recorded in my notes under the headings of “The Adventure of the Second Stain,” “The Adventure of the Naval Treaty,” and “The Adventure of the Tired Captain.”",
+    "primeras_familias": "The first of these, however, deals with interest of such importance and implicates so many of the first families in the kingdom that for many years it will be impossible to make it public.",
+    "siglo_nuevo": "The new century will have come, however, before the story can be safely told.",
+    "phelps": "During my school-days I had been intimately associated with a lad named Percy Phelps, who was of much the same age as myself, though he was two classes ahead of me.",
+    "foreign_office": "I heard vaguely that his abilities and the influences which he commanded had won him a good position at the Foreign Office",
+    "autoridades": "The authorities are excellent at amassing facts, though they do not always use them to advantage.",
+    "rosa": "What a lovely thing a rose is!",
+    "musgosa": "He walked past the couch to the open window, and held up the drooping stalk of a moss-rose, looking down at the dainty blend of crimson and green.",
+    "faceta": "It was a new phase of his character to me, for I had never before seen him show any keen interest in natural objects.",
+    "religion": "There is nothing in which deduction is so necessary as in religion,” said he, leaning with his back against the shutters.",
+    "providencia": "Our highest assurance of the goodness of Providence seems to me to rest in the flowers.",
+    "adorno": "Its smell and its colour are an embellishment of life, not a condition of it.",
+    "flores": "It is only goodness which gives extras, and so I say again that we have much to hope from the flowers."
+  },
+  "words": 300
+}

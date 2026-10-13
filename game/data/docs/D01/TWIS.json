@@ -1,0 +1,36 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. II (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Contrato §4.8: #james (C1.02 inc02: la esposa del doctor lo llama «James»; el otro lado es D43#john_h). La nota de Mary «mi James» vive en D01N (W3-CT-CORPUS-B), no aquí: el texto impreso no la lleva.",
+  "id": "D01.TWIS",
+  "entity": "twis",
+  "title": "«El hombre del labio retorcido», The Strand Magazine, diciembre de 1891",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1891-12-01",
+  "chron_date": "1889-06-19",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El hombre del labio retorcido», The Strand Magazine, vol. II (diciembre de 1891)", "entities": ["twis", "neville_st_clair", "isa_whitney", "kate_whitney"]},
+  "copies": [
+    {"id": "D01.TWIS@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.TWIS@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>VI\\. — El hombre del labio retorcido</b>\n{{#isa q:isa|[[isa_whitney|Isa Whitney]], hermano del difunto Elias Whitney, doctor en teología y rector del colegio teológico de San Jorge, era muy dado al opio.}}\n{{#junio_89 q:junio_89|Una noche —fue en junio del 89— sonó la campanilla a esa hora en que uno da el primer bostezo y mira el reloj.}} {{#labor e:esposa q:labor|Me incorporé en el sillón, y [[esposa|mi mujer]] dejó la labor en el regazo e hizo un gestito de contrariedad.}}\n—¡Pero si es [[kate_whitney|Kate Whitney]]! —dijo mi mujer, levantándole el velo—. ¡Qué susto me has dado, Kate!\n—No sabía qué hacer, así que vine derecho a ti.\n{{#faro e:esposa q:faro|Siempre era así: la gente afligida acudía a mi mujer como los pájaros a un faro.}}\n—Has sido muy buena en venir. Ahora tomarás un poco de vino con agua, te sentarás aquí cómoda y nos lo contarás todo. {{#james a:inc02 e:esposa q:james|¿O prefieres que mande a [[james|James]] a la cama?}}"},
+    {"id": "p2", "text": "\\[…\\] {{#tiron e:holmes q:tiron|Al pasar al lado del hombre alto que estaba sentado junto al brasero, sentí un súbito tirón del faldón, y una voz baja susurró: «Pase de largo y luego vuélvase a mirarme».}} {{#viejo q:viejo|Aquellas palabras sólo podían venir del viejo que tenía a mi lado, y sin embargo seguía tan absorto como siempre, muy flaco, muy arrugado, encorvado por la edad, con una pipa de opio colgándole entre las rodillas.}} Di dos pasos y miré atrás. {{#fuego q:fuego|Su figura se había llenado, las arrugas habían desaparecido, los ojos apagados habían recobrado su fuego, y allí, sentado junto al brasero y sonriendo ante mi sorpresa, estaba nada menos que [[holmes|Sherlock Holmes]].}}\n—¡Holmes! —susurré—. ¿Qué diablos hace usted en este antro?\n{{#oido e:holmes q:oido|—Hable lo más bajo que pueda —respondió—; tengo un oído excelente.}}\n{{#dos_calles e:holmes q:dos_calles|Durante dos calles caminó arrastrando los pies, con la espalda encorvada y el paso inseguro.}} Luego, tras echar una rápida mirada alrededor, se enderezó y soltó una carcajada."}
+  ],
+  "src_en": {
+    "isa": "Isa Whitney, brother of the late Elias Whitney, D.D., Principal of the Theological College of St. George’s, was much addicted to opium.",
+    "junio_89": "One night—it was in June, ’89—there came a ring to my bell, about the hour when a man gives his first yawn and glances at the clock.",
+    "labor": "I sat up in my chair, and my wife laid her needle-work down in her lap and made a little face of disappointment.",
+    "faro": "Folk who were in grief came to my wife like birds to a lighthouse.",
+    "james": "Or should you rather that I sent James off to bed?",
+    "tiron": "As I passed the tall man who sat by the brazier I felt a sudden pluck at my skirt, and a low voice whispered, “Walk past me, and then look back at me.”",
+    "viejo": "They could only have come from the old man at my side, and yet he sat now as absorbed as ever, very thin, very wrinkled, bent with age, an opium pipe dangling down from between his knees",
+    "fuego": "His form had filled out, his wrinkles were gone, the dull eyes had regained their fire, and there, sitting by the fire and grinning at my surprise, was none other than Sherlock Holmes.",
+    "oido": "As low as you can,” he answered; “I have excellent ears.",
+    "dos_calles": "For two streets he shuffled along with a bent back and an uncertain foot."
+  },
+  "words": 300
+}

@@ -1,0 +1,35 @@
+{
+  "_nota": "W3-CT-REICH. Manuscrito del cajón (GDD §6 D29c, §13 huevo 4): un caso anterior que el doctor pasó en limpio en marzo de 1892 y fechó, por error honesto, con la fecha de la copia (INC-12). Borrador propio, no el texto publicado en 1908 (WIST no está en tests/fixtures/canon: sin q:). x:EE04; sin etiquetas de conclusión (T13).",
+  "id": "D29c",
+  "entity": "manuscrito_del_cajon",
+  "title": "Manuscrito atado con una cinta, del cajón del doctor Watson",
+  "src_type": "papel_privado",
+  "class": "C",
+  "date": "1892-03-31",
+  "font": "manuscrito",
+  "paper": "carta",
+  "paper_mm": [
+    180,
+    160
+  ],
+  "visible_cats": [
+    "watson_privado"
+  ],
+  "copies": [
+    {
+      "id": "D29c@L4",
+      "holder": "L4",
+      "class": "C",
+      "via": "place",
+      "from": "1.M",
+      "to": "9.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "<ink=lapiz>Pasado en limpio en marzo de 1892, para no olvidarle la voz.</ink>\n{{#fines_de_marzo x:EE04 d:1892-03-31 e:watson|Hallo anotado en mi libreta que fue hacia fines de marzo de 1892, un día de viento y frío.}} A [[holmes|Holmes]] le llegó [[telegrama|un telegrama]] mientras almorzábamos; garabateó la respuesta sin decir palabra, pero el asunto le rondó toda la tarde. De pronto se volvió hacia mí, con un destello en los ojos:\n—¿Cómo define usted, Watson, la palabra «grotesco»?"
+    }
+  ],
+  "words": 70
+}

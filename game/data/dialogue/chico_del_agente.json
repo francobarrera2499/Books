@@ -1,0 +1,49 @@
+{
+  "_nota": "W3-CT-DLG-A. El chico del agente de fincas de Baker Street [INV] (GDD §5 L3 y L8): nuevo en el oficio (aparece desde el lunes 2, día 7; por eso sabe poco; ninguna línea fija el día en que empezó), servicial y parlanchín, repite las frases del patrón y vende casas con ellas; dice «señor». Sólo sabe que la casa de enfrente la anda viendo un militar que se llevó una llave el lunes (canon_bible F.camden_preparada, knowable chico_del_agente 1894-04-02); no sabe para qué ni sabe nada de Holmes. Está en la oficina (L3, área agente, días 7–9 salvo domingo) y enseña Camden House (L8): las líneas no dependen del lugar. Sin sensor (nadie lo escucha por cuenta de Holmes). ARCHITECTURE §10 nombra el archivo «chico_agente.json»; el personaje del código y de los datos es chico_del_agente (places/L3, L8; reactions M5; DataRepo exige char = nombre de archivo), así que el archivo es chico_del_agente.json. Línea del contrato: vino_un_caballero (M5, rastro L:chico_del_agente.vino_un_caballero, a:escondite_preparado f:secreto_camden e:libro_de_llaves; when delivered.M5 porque nadie dice todavía las líneas de Effects.lines). La línea «militar» del contrato (C13.R2) está en scenes/AGENTE.json. Convención de texto: el habla empieza sin raya; acotación + « —» + habla.",
+  "char": "chico_del_agente",
+  "label": "el chico del agente",
+  "intro": "el chico del agente de fincas",
+  "addr": "muchacho",
+  "max_questions": 3,
+  "trait": "",
+  "closing": "Suena la campanilla de la puerta. —Perdone, señor: me llaman de adentro.",
+  "ask_phrase": {
+    "default": "Dígame, ${addr}: ¿qué sabe usted de ${topic}?",
+    "camden_house": "¿Se alquila esa casa, muchacho?",
+    "casa_vacia": "¿Se alquila esa casa, muchacho?",
+    "libro_de_llaves": "¿Qué es ese libro, muchacho?",
+    "harris": "¿Quién se llevó la llave, muchacho?"
+  },
+  "lines": [
+    {"id": "af.cebo", "layer": "afirmacion", "match": {"assertion": ["cebo"]}, "text": "Pone cara de no entender. —De eso no sé nada, señor. Yo entiendo de casas."},
+    {"id": "af.vive", "layer": "afirmacion", "match": {"assertion": ["vive"]}, "text": "Abre mucho los ojos. —¿El de los diarios, señor? Pues por aquí no lo he visto pasar."},
+    {"id": "af.casa", "layer": "afirmacion", "match": {"assertion": ["cn.chelsea", "cn.boda"]}, "text": "Si busca casa, señor, el patrón tiene en todo Londres. Dígale que lo mandé yo."},
+    {"id": "af.canario", "layer": "afirmacion", "match": {"assertion": ["canario"]}, "text": "No sabe qué contestar. —Pues que le vaya bien, señor."},
+
+    {"id": "vino_un_caballero", "layer": "tema", "match": {"topic": ["libro_de_llaves", "camden_house", "casa_vacia", "llave", "harris", "militar", "agente_de_fincas", "oficina_del_agente", "cartel_se_alquila", "chico_del_agente"]}, "when": {"counter": {"name": "delivered.M5", "gte": 1}}, "text": "Baja la voz. —{{#caballero a:escondite_preparado f:secreto_camden e:libro_de_llaves|Vino un caballero a consultar el [[libro_de_llaves|libro de llaves]], señor, y desde entonces le falta la hoja del lunes, la de [[camden_house|Camden House]].}} El patrón dice que fui yo."},
+    {"id": "militar", "layer": "tema", "match": {"topic": ["harris", "militar", "bigote"]}, "text": "Un caballero muy derecho, de bigote canoso, señor. Dijo que era mayor, y lo parecía: firmó el libro como quien firma un parte."},
+    {"id": "camden", "layer": "tema", "match": {"topic": ["camden_house", "casa_vacia", "cartel_se_alquila"]}, "text": "Se pone derecho, como le ha enseñado el patrón. —Una casa muy sólida, señor, vacía desde hace meses y con vista a toda la calle. El patrón la da barata, para lo que es."},
+    {"id": "llave", "layer": "tema", "match": {"topic": ["llave"]}, "text": "La llave de la puerta grande se la llevó el mayor, señor, y todavía no la ha devuelto. Nos queda la de repuesto, que hay que empujarla."},
+    {"id": "libro", "layer": "tema", "match": {"topic": ["libro_de_llaves"]}, "text": "El patrón apunta cada llave que sale, señor: fecha, casa y nombre. Con ese libro es muy exigente."},
+    {"id": "guillotina", "layer": "tema", "match": {"topic": ["guillotina", "alfeizar"]}, "text": "Sube medio pie la ventana y la vuelve a bajar. —Corre sola, señor, sin un ruido. Para ser una casa vacía, está muy bien cuidada."},
+    {"id": "polvo", "layer": "tema", "match": {"topic": ["polvo_removido"]}, "text": "Hay quien viene a ver una casa y se pasa la hora mirando por la ventana, señor. Yo no digo nada."},
+    {"id": "ceniza", "layer": "tema", "match": {"topic": ["ceniza", "cheroot"]}, "text": "Eso no estaba cuando barrí, señor. El patrón me va a regañar."},
+    {"id": "221b", "layer": "tema", "match": {"topic": ["221b", "mrs_hudson", "ventanas_abiertas", "ventana_de_holmes"]}, "text": "De esa casa no sé nada, señor: llevo pocos días en el oficio. El patrón dice que ésa no se alquila nunca."},
+    {"id": "baker_street", "layer": "tema", "match": {"topic": ["baker_street"]}, "text": "La mejor calle del barrio, señor, de [[portman_square|Portman Square]] para arriba. De noche hay un hombrecito que toca el arpa en la esquina, pero eso no lo dice el anuncio."},
+    {"id": "parker", "layer": "tema", "match": {"topic": ["parker", "hombrecito_del_arpa", "arpa_de_boca"]}, "text": "Se pone en la esquina al oscurecer, señor, y toca siempre la misma tonada. El patrón dice que espanta a los inquilinos."},
+    {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes", "muerte_de_holmes"]}, "text": "¿El de los diarios, señor? Vivía por aquí, dicen. Yo no lo conocí."},
+    {"id": "agente", "layer": "tema", "match": {"topic": ["agente_de_fincas", "oficina_del_agente", "planos_de_casas", "avisos_de_alquiler"]}, "text": "El patrón está en el fondo, con los planos, señor. A mí me deja la puerta, las llaves y las visitas."},
+    {"id": "yo", "layer": "tema", "match": {"topic": ["chico_del_agente"]}, "text": "Llevo pocos días en el oficio, señor, pero ya sé abrir todas las puertas de la calle."},
+    {"id": "lisle", "layer": "tema", "match": {"topic": ["lisle", "anteojos_azules"]}, "text": "Usted tiene cara de inquilino serio, señor. Los anteojos dan mucha confianza."},
+
+    {"id": "doc.libro", "layer": "documento", "match": {"doc": ["D32"]}, "text": "Eso es del libro del patrón, señor. ¿De dónde lo ha sacado?"},
+
+    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "No sé quién es, señor; por aquí entra poca gente."},
+    {"id": "tipo.lugar", "layer": "tipo", "match": {"kind": ["lugar"]}, "text": "Si es una casa, señor, el patrón la tiene en los planos."},
+    {"id": "tipo.documento", "layer": "tipo", "match": {"kind": ["documento"]}, "text": "De papeles no sé, señor; yo sé de casas."},
+    {"id": "tipo.otro", "layer": "tipo", "match": {"kind": ["objeto", "concepto", "fecha", "suceso"]}, "text": "Eso no figura en el anuncio, señor."},
+
+    {"id": "gen.1", "layer": "generica", "text": "Si busca casa, señor, ha venido al lugar indicado."},
+    {"id": "gen.2", "layer": "generica", "text": "El patrón vuelve enseguida, señor. Siéntese, si quiere."}
+  ]
+}

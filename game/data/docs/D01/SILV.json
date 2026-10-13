@@ -1,0 +1,40 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. IV (GDD §6 D01, §15.1). Mismo formato que W3-CT-CORPUS-A: p1 = escena inicial con la cabecera de la serie de la Strand (numeración continua: XIII), p2 = escena central (abre con «[…]»), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/silv.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. chron_date (guardián): desayuno juntos en Baker Street, sin año en el texto: antes de FIVE (sep. 1887), por la misma razón que CARD.",
+  "id": "D01.SILV",
+  "entity": "silv",
+  "title": "«Estrella de Plata», The Strand Magazine, diciembre de 1892",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1892-12-01",
+  "chron_date": "1886-09-23",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«Estrella de Plata», The Strand Magazine, vol. IV (diciembre de 1892)", "entities": ["silv", "estrella_de_plata", "john_straker", "dartmoor"]},
+  "copies": [
+    {"id": "D01.SILV@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.SILV@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XIII\\. — Estrella de Plata</b>\n{{#ir e:holmes q:ir|—Me temo, Watson, que tendré que ir —dijo [[holmes|Holmes]] una mañana, cuando nos sentábamos juntos a desayunar.}}\n—¡Ir! ¿Adónde?\n{{#dartmoor e:holmes p:dartmoor q:dartmoor|—A [[dartmoor|Dartmoor]]; a [[kings_pyland|King's Pyland]].}}\nNo me sorprendió. {{#extraordinario q:extraordinario|A decir verdad, lo único que me extrañaba era que no se hubiera visto ya envuelto en aquel caso extraordinario, que era el único tema de conversación a lo largo y a lo ancho de Inglaterra.}} {{#tabaco e:holmes q:tabaco|Durante un día entero mi compañero había rondado por el cuarto con el mentón sobre el pecho y el ceño fruncido, cargando y volviendo a cargar la [[pipa|pipa]] con el tabaco negro más fuerte}}, sordo por completo a mis preguntas y comentarios. {{#favorito e:estrella_de_plata q:favorito|Sólo había un problema ante el público capaz de desafiar su capacidad de análisis: la singular desaparición del favorito de la [[copa_de_wessex|Copa de Wessex]] y el trágico asesinato de su entrenador.}}\n{{#tren e:holmes q:tren|—Creo que tenemos el tiempo justo para tomar nuestro tren en [[paddington|Paddington]], y por el camino le contaré más del asunto.}} Me haría usted un gran favor si trajera sus excelentes gemelos de campaña."},
+    {"id": "p2", "text": "\\[…\\] {{#ovejas e:holmes q:ovejas|—Tiene usted unas cuantas [[ovejas|ovejas]] en el cercado —le dijo [[holmes|Holmes]] al mozo—.}} ¿Quién las cuida?\n—Yo, señor.\n{{#raro e:holmes q:raro|—¿Ha notado usted algo raro en ellas últimamente?}}\n{{#cojas p:dartmoor q:cojas|—Bueno, señor, nada de importancia; pero tres se han quedado cojas, señor.}}\n{{#complacido e:holmes q:complacido|Vi que Holmes estaba muy complacido, porque se rió por lo bajo y se frotó las manos.}}\n{{#tiro_largo e:holmes q:tiro_largo|—Un tiro largo, Watson; un tiro muy largo —dijo, pellizcándome el brazo—.}} [[inspector_gregory|Gregory]], permítame recomendar a su atención esta singular epidemia entre las ovejas.\n{{#ross q:ross|El [[coronel_ross|coronel Ross]] conservaba la expresión que delataba la pobre opinión que se había formado de la capacidad de mi compañero, pero en la cara del inspector vi que su atención había despertado del todo.}}\n—¿Cree usted que eso es importante?\n—Muchísimo.\n—¿Hay algún otro punto sobre el que quiera llamarme la atención?\n{{#perro e:holmes e:perro_de_la_cuadra q:perro|—Sobre el curioso incidente del perro durante la noche.}}\n—El perro no hizo nada durante la noche.\n{{#incidente e:holmes q:incidente|—Ése fue el curioso incidente —observó Sherlock Holmes.}}"}
+  ],
+  "src_en": {
+    "ir": "I am afraid, Watson, that I shall have to go,” said Holmes, as we sat down together to our breakfast one morning.",
+    "dartmoor": "To Dartmoor; to King's Pyland.",
+    "extraordinario": "Indeed, my only wonder was that he had not already been mixed up in this extraordinary case, which was the one topic of conversation through the length and breadth of England.",
+    "tabaco": "For a whole day my companion had rambled about the room with his chin upon his chest and his brows knitted, charging and recharging his pipe with the strongest black tobacco",
+    "favorito": "There was but one problem before the public which could challenge his powers of analysis, and that was the singular disappearance of the favourite for the Wessex Cup, and the tragic murder of its trainer.",
+    "tren": "We have, I think, just time to catch our train at Paddington, and I will go further into the matter upon our journey.",
+    "ovejas": "You have a few sheep in the paddock,” he said.",
+    "raro": "Have you noticed anything amiss with them of late?",
+    "cojas": "Well, sir, not of much account; but three of them have gone lame, sir.",
+    "complacido": "I could see that Holmes was extremely pleased, for he chuckled and rubbed his hands together.",
+    "tiro_largo": "A long shot, Watson; a very long shot,” said he, pinching my arm.",
+    "ross": "Colonel Ross still wore an expression which showed the poor opinion which he had formed of my companion's ability, but I saw by the Inspector's face that his attention had been keenly aroused.",
+    "perro": "To the curious incident of the dog in the night-time.",
+    "incidente": "That was the curious incident,” remarked Sherlock Holmes."
+  },
+  "words": 300
+}

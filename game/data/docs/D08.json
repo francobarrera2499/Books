@@ -1,0 +1,44 @@
+{
+  "_nota": "W3-CT-REICH. Guía de viajeros por Suiza, 1891 (GDD §6; título genérico, INV). Contrato §4.8: #kanzel (C3.R3; refuta falsa_reuter).",
+  "id": "D08",
+  "entity": "guia_de_suiza",
+  "title": "Guía del viajero en Suiza, 1891",
+  "src_type": "libro",
+  "class": "I",
+  "date": "1891-03-01",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [
+    110,
+    98
+  ],
+  "slip_topic": "otros",
+  "catalog": {
+    "label": "Guía del viajero en Suiza (1891)",
+    "entities": [
+      "guia_de_suiza",
+      "suiza",
+      "meiringen",
+      "reichenbach",
+      "rosenlaui",
+      "oberland"
+    ]
+  },
+  "copies": [
+    {
+      "id": "D08@BM",
+      "holder": "BM",
+      "class": "I",
+      "via": "slip",
+      "from": "1.M",
+      "to": "9.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "<b>Ruta 27.</b> — De Meiringen a Grindelwald por Rosenlaui y la [[gran_scheidegg|Gran Scheidegg]].\n{{#hoteles e:meiringen|<b>[[meiringen|Meiringen]]</b> (1.950 pies), en [[valle_del_aar|el valle del Aar]]: [[hotel_sauvage|Sauvage]], de primera clase; [[englischer_hof|Englischer Hof]], de [[steiler|Steiler]], bueno y no caro.}} Guías y caballos en los hoteles.\n<i>Excursiones.</i> — A las cataratas del [[reichenbach|Reichenbach]], media hora: se cruza el Aar y se sube por un camino de herradura hasta la cascada superior. {{#sendero_guia e:sendero|Un [[sendero|sendero]] abierto en la roca rodea a media altura la caída y termina de golpe; se vuelve por el mismo camino.}} {{#kanzel a:cornisa_existe a:refuta_reuter e:reichenbach c:verdadero|Más arriba del final del sendero, invisible desde éste, [[cornisa|una cornisa]] (<i>Kanzel</i>) a la que sólo ha llegado algún [[nidero|cazador de nidos]] temerario.}} No se recomienda a nadie.\n{{#rosenlaui e:rosenlaui|De la cascada a [[rosenlaui|Rosenlaui]], dos horas y media entre bosques; posada sencilla y un glaciar.}}"
+    }
+  ],
+  "words": 120
+}

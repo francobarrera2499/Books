@@ -1,0 +1,28 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Entidades nuevas del corpus vols. IV–VI (docs/D01/{SILV,CARD,YELL,STOC,GLOR,MUSG,REIG,CROO,RESI,GREE,NAVA}.json), de D43 (STUD), D44 (SIGN) y D01N (notas de los tomos). Todas son ruido de las crónicas (_ruido): personas, lugares, objetos y fechas de los casos que no sostienen ninguna conclusión. hudson_marinero es el Hudson del «Gloria Scott», no la casera; las dos fechas del 4 de mayo (1847, 1882) son las del huevo EE03 y no son cuatro_de_mayo (1891).",
+  "entities": [
+    {"id": "kings_pyland", "kind": "lugar", "name": "King's Pyland", "index": "King's Pyland (Dartmoor)", "noun": "cuadras", "_ruido": true},
+    {"id": "estrella_de_plata", "kind": "objeto", "name": "Estrella de Plata", "index": "Estrella de Plata (caballo)", "noun": "caballo", "_ruido": true},
+    {"id": "copa_de_wessex", "kind": "suceso", "name": "la Copa de Wessex", "index": "Copa de Wessex", "noun": "carrera", "_ruido": true},
+    {"id": "ovejas", "kind": "objeto", "name": "las ovejas", "index": "ovejas cojas", "noun": "oveja", "_ruido": true},
+    {"id": "inspector_gregory", "kind": "persona", "name": "el inspector Gregory", "index": "Gregory, inspector", "noun": "inspector", "_ruido": true},
+    {"id": "coronel_ross", "kind": "persona", "name": "el coronel Ross", "index": "Ross, coronel", "noun": "militar", "_ruido": true},
+    {"id": "perro_de_la_cuadra", "kind": "objeto", "name": "el perro de la cuadra", "index": "perro de la cuadra", "noun": "perro", "_ruido": true},
+    {"id": "croydon", "kind": "lugar", "name": "Croydon", "index": "Croydon", "noun": "pueblo", "_ruido": true},
+    {"id": "caja_de_carton", "kind": "objeto", "name": "la caja de cartón", "index": "caja de cartón (Croydon)", "noun": "caja", "_ruido": true},
+    {"id": "orejas", "kind": "objeto", "name": "las dos orejas", "index": "orejas en sal gruesa", "noun": "orejas", "_ruido": true},
+    {"id": "norbury", "kind": "lugar", "name": "Norbury", "index": "Norbury", "noun": "pueblo", "_ruido": true},
+    {"id": "hudson_marinero", "kind": "persona", "name": "Hudson", "index": "Hudson, marinero del Gloria Scott", "noun": "marinero", "_ruido": true},
+    {"id": "trevor_padre", "kind": "persona", "name": "el viejo Trevor", "index": "Trevor, el viejo, juez de paz", "noun": "juez", "_ruido": true},
+    {"id": "coronel_hayter", "kind": "persona", "name": "el coronel Hayter", "index": "Hayter, coronel", "noun": "militar", "_ruido": true},
+    {"id": "henry_wood", "kind": "persona", "name": "Henry Wood", "index": "Wood, Henry, el jorobado", "noun": "jorobado", "_ruido": true},
+    {"id": "mangosta", "kind": "objeto", "name": "la mangosta", "index": "mangosta", "noun": "mangosta", "_ruido": true},
+    {"id": "mayor_murphy", "kind": "persona", "name": "el mayor Murphy", "index": "Murphy, mayor", "noun": "militar", "_ruido": true},
+    {"id": "aldershot","kind": "lugar", "name": "Aldershot", "index": "Aldershot", "noun": "campamento", "_ruido": true},
+    {"id": "inspector_lanner", "kind": "persona", "name": "el inspector Lanner", "index": "Lanner, inspector", "noun": "inspector", "_ruido": true},
+    {"id": "bull_pup", "kind": "objeto", "name": "un cachorro de bulldog", "index": "cachorro de bulldog", "noun": "cachorro", "_ruido": true},
+    {"id": "cuatro_de_mayo_1847", "kind": "fecha", "name": "el 4 de mayo de 1847", "index": "4 de mayo de 1847", "noun": "fecha", "_ruido": true},
+    {"id": "cuatro_de_mayo_1882", "kind": "fecha", "name": "el 4 de mayo de 1882", "index": "4 de mayo de 1882", "noun": "fecha", "_ruido": true},
+    {"id": "lyceum", "kind": "lugar", "name": "el teatro Lyceum", "index": "Lyceum, teatro", "noun": "teatro", "_ruido": true}
+  ]
+}

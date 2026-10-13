@@ -1,0 +1,37 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. II (GDD §6 D01, §15.1). Formato común de las 12 historias: p1 = escena inicial (con la cabecera de la serie), p2 = escena central (abre con «[…]»), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/scan.txt), clip_entities [watson] (todas las crónicas son «de las memorias» del doctor). Contrato §4.8: #turner (C1.03 inc03), #boda (C1.06 inc06), #marzo_1888 (C1.08 inc08; también inc06, porque la fecha es la mitad de ese par).",
+  "id": "D01.SCAN",
+  "entity": "scan",
+  "title": "«Escándalo en Bohemia», The Strand Magazine, julio de 1891",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1891-07-01",
+  "chron_date": "1888-03-20",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«Escándalo en Bohemia», The Strand Magazine, vol. II (julio de 1891)", "entities": ["scan", "irene_adler", "rey_de_bohemia", "briony_lodge"]},
+  "copies": [
+    {"id": "D01.SCAN@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.SCAN@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>I\\. — Escándalo en Bohemia</b>\n{{#la_mujer e:irene_adler q:la_mujer|Para [[holmes|Sherlock Holmes]], ella es siempre <i>la</i> mujer.}} {{#difunta q:difunta|Y, sin embargo, no hubo para él más que una mujer, y esa mujer fue la difunta [[irene_adler|Irene Adler]], de dudosa y discutible memoria.}}\n{{#boda a:inc06 q:boda|[[boda_de_watson|Mi matrimonio]] nos había alejado el uno del otro.}} {{#marzo_1888 a:inc06 a:inc08 d:1888-03-20 e:marzo_1888 q:marzo_1888|Una noche —fue el [[veinte_de_marzo_1888|veinte de marzo de 1888]]— volvía yo de visitar a un enfermo (pues había vuelto a ejercer la medicina civil), cuando el camino me llevó por [[baker_street|Baker Street]].}} {{#silueta e:holmes q:silueta|Sus habitaciones estaban muy iluminadas y, al levantar la vista, vi pasar dos veces su figura alta y enjuta, como una silueta negra contra la persiana.}} Llamé a la campanilla y me hicieron subir a la habitación que en otro tiempo había sido en parte mía.\n\\[…\\] —Usted ve, pero no observa. La diferencia es clara. Por ejemplo, ha visto muchas veces los escalones que suben del vestíbulo a esta habitación. ¿Cuántos son?\n—¿Cuántos? No lo sé.\n—¡Exacto! No ha observado. Y sin embargo ha visto. {{#escalones e:holmes q:escalones|Pues bien, yo sé que son [[diecisiete_escalones|diecisiete]], porque los he visto y los he observado.}}"},
+    {"id": "p2", "text": "\\[…\\] {{#colaboracion e:holmes q:colaboracion|—A propósito, doctor, necesitaré su colaboración.}}\n—Con mucho gusto.\n—¿No le importa infringir la ley?\n—En absoluto.\n—¿Ni correr el riesgo de que lo arresten?\n—No, si la causa es buena.\n—¡Oh, la causa es excelente!\n—Entonces soy su hombre.\n—Pero ¿qué es lo que desea?\n{{#turner a:inc03 e:holmes q:turner|—Cuando [[mrs_turner|Mrs. Turner]] haya traído la bandeja, se lo aclararé.}} —Y, volviéndose con hambre hacia la sencilla comida que nos había servido nuestra casera, añadió—: {{#briony e:holmes p:briony_lodge q:briony|La señorita [[irene_adler|Irene]], o más bien <i>madame</i>, vuelve de su paseo a las siete, y tenemos que estar en [[briony_lodge|Briony Lodge]] para recibirla.}}\n—¿Y después?\n{{#neutral e:holmes q:neutral|—Déjelo de mi cuenta; sólo hay un punto en el que debo insistir: no intervenga usted, pase lo que pase.}} {{#humo e:holmes q:humo|Cuando yo levante la mano —así—, usted arrojará a la habitación lo que yo le dé y, al mismo tiempo, dará el grito de fuego.}}"}
+  ],
+  "src_en": {
+    "la_mujer": "To Sherlock Holmes she is always the woman.",
+    "difunta": "And yet there was but one woman to him, and that woman was the late Irene Adler, of dubious and questionable memory.",
+    "boda": "My marriage had drifted us away from each other.",
+    "marzo_1888": "One night—it was on the twentieth of March, 1888—I was returning from a journey to a patient (for I had now returned to civil practice), when my way led me through Baker Street.",
+    "silueta": "His rooms were brilliantly lit, and, even as I looked up, I saw his tall, spare figure pass twice in a dark silhouette against the blind.",
+    "escalones": "Now, I know that there are seventeen steps, because I have both seen and observed.",
+    "colaboracion": "By the way, Doctor, I shall want your co-operation.",
+    "turner": "When Mrs. Turner has brought in the tray I will make it clear to you.",
+    "briony": "Miss Irene, or Madame, rather, returns from her drive at seven. We must be at Briony Lodge to meet her.",
+    "neutral": "There is only one point on which I must insist. You must not interfere, come what may.",
+    "humo": "And when I raise my hand—so—you will throw into the room what I give you to throw, and will, at the same time, raise the cry of fire."
+  },
+  "words": 300
+}

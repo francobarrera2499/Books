@@ -1,0 +1,38 @@
+{
+  "_nota": "W3-CT-REICH. Primera galerada de «El problema final» que Lisle corrigió y se guardó (GDD §2.3, §6). Mismo texto que D03 en el pasaje del sendero, más la cláusula después suprimida. Contrato §4.8: #clausula (C2.R1). Una errata del cajista («Reichenbch») con la marca de Lisle: es una galerada de verdad. #baston_g (mismo texto que D03#baston) también refuta falsa_baston.",
+  "id": "D02",
+  "entity": "galerada",
+  "title": "Galerada de «El problema final», jueves 2 de noviembre de 1893",
+  "src_type": "prueba",
+  "class": "P",
+  "date": "1893-11-02",
+  "chron_date": "1891-05-04",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [
+    150,
+    285
+  ],
+  "copies": [
+    {
+      "id": "D02@L1",
+      "holder": "L1",
+      "area": "buhardilla",
+      "class": "P",
+      "via": "desk",
+      "from": "P.N",
+      "to": "10.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "<sc>The Strand Magazine</sc> — diciembre — «El problema final» — galerada 9\n{{#sello d:1893-11-02 h:F.galerada|<ink=roja><b>1.ª PRUEBA — LECTOR: [[lisle|E. L.]]</b></ink>}}\nMe había llevado una hora descender. Pese a todos mis esfuerzos, pasaron otras dos antes de que me encontrara de nuevo en la catarata del [[reichenbach|Reichenbch]]. {{#baston_g a:refuta_baston q:baston e:baston|Allí estaba el [[baston|bastón alpino]] de Holmes, apoyado todavía contra la [[roca|roca]] junto a la cual lo había dejado.}} Pero de él no había rastro, y fue en vano que gritara. Mi única respuesta fue mi propia voz, que volvía en un eco rodante desde los riscos de alrededor.\nFue la vista de aquel bastón alpino lo que me heló y me revolvió el estómago. No había ido a [[rosenlaui|Rosenlaui]], entonces. Se había quedado en aquel [[sendero|sendero]] de tres pies, {{#clausula a:raspadura_registrada e:reichenbach c:verdadero|con una [[pared|pared]] [[a_pique|a pique]] a un lado —salvo que, a la altura del hombro, la [[roca|roca]] mostraba una [[raspadura|raspadura]] fresca, como la que dejaría el [[clavo_de_bota|clavo de una bota]]; la atribuí a algún [[cabrero|cabrero]]—}} y un [[precipicio|precipicio]] a pique al otro, hasta que su enemigo le dio alcance. También el joven suizo había desaparecido. Probablemente estaba a sueldo de Moriarty y había dejado solos a los dos hombres. ¿Y qué había ocurrido entonces? ¿Quién iba a decirnos lo que había ocurrido entonces?\nMe quedé allí un minuto o dos para recobrarme, porque el horror de aquello me tenía aturdido. Después empecé a pensar en los métodos del propio Holmes y a tratar de aplicarlos a la lectura de esta tragedia. Era, ¡ay!, demasiado fácil. Durante nuestra conversación no habíamos llegado al final del sendero, y el bastón alpino señalaba el lugar donde nos habíamos detenido. La tierra negruzca se conserva siempre blanda por el rocío incesante de la espuma, y hasta un pájaro dejaría en ella su huella. {{#pisadas_g q:pisadas e:pisadas_del_sendero d:1891-05-04|Dos líneas de [[pisadas_del_sendero|pisadas]] se marcaban con claridad a lo largo del último trecho del sendero, y ambas se alejaban de mí.}} No había ninguna de regreso.\n<f=manuscrito><ink=lapiz>Lín. 2: «Reichenbch» — falta una a. Lo demás, visto. — E. L., 2-xi.</ink></f>"
+    }
+  ],
+  "src_en": {
+    "baston": "There was Holmes’s Alpine-stock still leaning against the rock by which I had left him.",
+    "pisadas": "Two lines of footmarks were clearly marked along the farther end of the path, both leading away from me."
+  },
+  "words": 300
+}

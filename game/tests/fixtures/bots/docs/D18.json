@@ -1,0 +1,19 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-TRACES. Contrato §4.8: D18#calendars (C4.R1, refuta falsa_herencia), #mary (C14.R1).",
+  "id": "D18",
+  "entity": "indices_somerset",
+  "title": "Somerset House: calendars de sucesiones e índices de defunciones",
+  "src_type": "registro",
+  "class": "I",
+  "date": "1894-01-01",
+  "font": "imprenta",
+  "paper": "libro",
+  "copies": [
+    {"id": "D18@L6", "holder": "L6", "area": "sala", "class": "I", "via": "place", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#calendars a:en_vida a:refuta_herencia e:en_vida e:holmes|En los [[calendars|calendars]] de 1891 a 1893 no hay sucesión ni [[bienes|bienes]] a nombre de Sherlock Holmes: la página salta de Holmes, Rebecca, a Holmes, Thomas.}}"},
+    {"id": "p2", "text": "{{#mary a:duelo e:mary_watson|Índice de defunciones, cuarto trimestre de 1893: «Watson, Mary», en [[paddington|Paddington]].}}"}
+  ],
+  "words": 45
+}

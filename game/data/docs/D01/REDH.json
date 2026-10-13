@@ -1,0 +1,36 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. II (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Contrato §4.8: #abril y #octubre (C1.10 inc10, par del tutorial, marcado en D21; D01.REDH@tomo desde P.N y D01.REDH@BM). #ocho_semanas también lleva inc10: abril más ocho semanas es la cuenta que no cierra con octubre. R12: el recorrido de integración practica C1.10 con fuente redh, dice abril_27_1890 / octubre_9_1890 (mencionados en sus tramos). Sin el aviso del periódico: nombra a un tal Hopkins (lint de anacronismos de T7).",
+  "id": "D01.REDH",
+  "entity": "redh",
+  "title": "«La liga de los pelirrojos», The Strand Magazine, agosto de 1891",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1891-08-01",
+  "chron_date": "1890-10-09",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«La liga de los pelirrojos», The Strand Magazine, vol. II (agosto de 1891)", "entities": ["redh", "jabez_wilson", "liga_de_los_pelirrojos"]},
+  "copies": [
+    {"id": "D01.REDH@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.REDH@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>II\\. — La liga de los pelirrojos</b>\n{{#otono e:jabez_wilson q:otono|Un día del otoño del año pasado fui a ver a mi amigo, el señor [[holmes|Sherlock Holmes]], y lo encontré en profunda conversación con un caballero de edad, muy grueso, de cara encendida y pelo rojo como el fuego.}}\n\\[…\\] {{#deducir e:holmes q:deducir|—Aparte de los hechos evidentes de que alguna vez ha hecho trabajos manuales, toma rapé, es francmasón, ha estado en la China y últimamente ha escrito mucho, no puedo deducir nada más.}}\n{{#respingo q:respingo|El señor [[jabez_wilson|Jabez Wilson]] se irguió de un salto en la silla, con el índice sobre el periódico pero los ojos clavados en mi compañero.}}\n{{#explicar e:holmes q:explicar|—Empiezo a pensar, Watson —dijo Holmes—, que cometo un error al dar explicaciones.}} Y ahora, señor Wilson, cuéntenoslo todo desde el principio. Usted, doctor, tome nota antes del periódico y de la fecha.\n{{#abril a:inc10 d:1890-04-27 q:abril|—Es el <i>[[morning_chronicle|Morning Chronicle]]</i> del [[abril_27_1890|27 de abril de 1890]]: hace justo dos meses.}}\n—Perfecto. ¿Y bien, señor Wilson?\n{{#casa_de_empenos e:jabez_wilson p:coburg_square q:casa_de_empenos|—Tengo una pequeña casa de préstamos en [[coburg_square|Coburg Square]], cerca de la City.}}"},
+    {"id": "p2", "text": "\\[…\\] {{#ocho_semanas a:inc10 e:jabez_wilson q:ocho_semanas|—Así pasaron [[ocho_semanas|ocho semanas]], y yo había escrito sobre los Abades, la Arquería, las Armaduras, la Arquitectura y el Ática, y esperaba llegar con diligencia a la B antes de mucho.}} Y entonces, de pronto, todo el asunto se acabó.\n—¿Se acabó?\n{{#puerta e:jabez_wilson q:puerta|—Sí, señor, y esta misma mañana: fui a mi trabajo a las diez, como siempre, pero la puerta estaba cerrada con llave, con un cartoncito cuadrado clavado con una tachuela en medio de la tabla.}} Aquí lo tiene; léalo usted mismo.\nLevantó un cartón blanco del tamaño de una hoja de carta, que decía así:\n{{#octubre a:inc10 d:1890-10-09 q:octubre|«LA [[liga_de_los_pelirrojos|LIGA DE LOS PELIRROJOS]] QUEDA DISUELTA\\. [[octubre_9_1890|9 de octubre de 1890]].»}}\n{{#carcajada q:carcajada|Sherlock Holmes y yo contemplamos aquel seco anuncio y la cara compungida que había detrás, hasta que el lado cómico del asunto se impuso de tal modo a toda otra consideración que los dos soltamos una carcajada.}}\n—No le veo la gracia —exclamó nuestro cliente, enrojeciendo hasta la raíz de su cabellera llameante."}
+  ],
+  "src_en": {
+    "otono": "I had called upon my friend, Mr. Sherlock Holmes, one day in the autumn of last year and found him in deep conversation with a very stout, florid-faced, elderly gentleman with fiery red hair.",
+    "deducir": "Beyond the obvious facts that he has at some time done manual labour, that he takes snuff, that he is a Freemason, that he has been in China, and that he has done a considerable amount of writing lately, I can deduce nothing else.",
+    "respingo": "Mr. Jabez Wilson started up in his chair, with his forefinger upon the paper, but his eyes upon my companion.",
+    "explicar": "I begin to think, Watson,” said Holmes, “that I make a mistake in explaining.",
+    "abril": "It is The Morning Chronicle of April 27, 1890. Just two months ago.",
+    "casa_de_empenos": "I have a small pawnbroker’s business at Coburg Square, near the City.",
+    "ocho_semanas": "Eight weeks passed away like this, and I had written about Abbots and Archery and Armour and Architecture and Attica, and hoped with diligence that I might get on to the B’s before very long.",
+    "puerta": "I went to my work as usual at ten o’clock, but the door was shut and locked, with a little square of cardboard hammered on to the middle of the panel with a tack.",
+    "octubre": "THE RED-HEADED LEAGUE IS DISSOLVED. October 9, 1890.",
+    "carcajada": "Sherlock Holmes and I surveyed this curt announcement and the rueful face behind it, until the comical side of the affair so completely overtopped every other consideration that we both burst out into a roar of laughter."
+  },
+  "words": 300
+}

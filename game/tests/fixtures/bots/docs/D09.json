@@ -1,0 +1,21 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-MORAN. Contrato §4.8: D09#desague (C5.R1), #cruel (C5.R2), #nota_redactor (C5.R4).",
+  "id": "D09",
+  "entity": "cartas_del_coronel",
+  "title": "Cartas del coronel James Moriarty, Pall Mall Gazette, octubre de 1893",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1893-10-23",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "slip_topic": "coronel",
+  "copies": [
+    {"id": "D09@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"},
+    {"id": "D09@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "Señor director: {{#desague a:estilo_cartas_coronel e:desague e:tigre|Se ha perseguido la memoria de mi hermano como se sigue a un [[tigre|tigre]] herido por [[desague|el desagüe]].}} Lo digo sin rencor. {{#cruel a:estilo_cartas_coronel e:cruel|Es una persecución [[cruel|cruel, cruel]], que no honra a quien la escribe.}} —[[coronel_moriarty|J. Moriarty]], coronel."},
+    {"id": "p2", "text": "{{#nota_redactor a:estilo_cartas_coronel e:bigote|Nota de la redacción: la carta fue entregada en mano por un caballero de [[bigote|bigote canoso]] que no dejó su nombre.}}"}
+  ],
+  "words": 70
+}

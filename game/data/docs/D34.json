@@ -1,0 +1,30 @@
+{
+  "_nota": "W3-CT-TRACES. D34, Ten Years' Captivity in the Mahdi's Camp, 1882–1892, del padre José Ohrwalder, traducido por el mayor F. R. Wingate (Londres, 1892) [H; Gutenberg #32875; pasajes en tests/fixtures/canon/ohrwalder.txt]. Traducción propia y fiel, con q: y src_en exactos (T7). Cap. VIII: Jartum arrasada por orden del Califa en 1886 (la madera y el ladrillo a Omdurmán); cap. XII: Omdurmán, «hence the name of the Mahdiist capital». Contrato §4.8: #ruinas (refuta falsa_jartum → a:refuta_jartum: nadie es huésped del Califa en una ciudad de barro abandonada; h:F.califa_en_omdurman). #capital lo confirma para el lector sin etiqueta a: (una sola refutación por documento). slip_topic sudan (silencio). Ejemplar: BM (el contrato no cita ejemplar; T17 lo alcanza por éste).",
+  "id": "D34",
+  "entity": "ohrwalder_cautiverio",
+  "title": "Ten Years' Captivity in the Mahdi's Camp, 1882–1892, del padre J. Ohrwalder (Londres, 1892)",
+  "src_type": "libro",
+  "class": "I",
+  "date": "1892-03-01",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [150, 230],
+  "slip_topic": "sudan",
+  "catalog": {"label": "Ohrwalder, J.: Ten Years' Captivity in the Mahdi's Camp, 1882–1892, trad. F. R. Wingate (Londres, 1892)", "entities": ["ohrwalder_cautiverio", "ohrwalder", "sudan", "jartum", "omdurman", "mahdi"]},
+  "copies": [
+    {"id": "D34@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Ten Years' Captivity in the Mahdi's Camp</sc>, del padre [[ohrwalder|José Ohrwalder]]; traducción del mayor [[wingate|F. R. Wingate]].\n\n<sc>Capítulo VIII</sc>: la caída de Jartum.\n\n{{#ruinas a:refuta_jartum q:ruinas e:jartum h:F.califa_en_omdurman|Poco después de mi visita, [[jartum|Jartum]] quedó reducida a ruinas.}} {{#celoso e:califa e:ashraf q:celoso|El [[califa|Califa]] Abdullah, celoso de los [[ashraf|Ashraf]], que se habían instalado a sus anchas en la ciudad y cuyos actos, por eso mismo, no podía vigilar como quería, resolvió ordenar que se evacuara.}} {{#agosto e:jartum q:agosto|En agosto se dio a todos la orden de dejar la ciudad en tres días; se cumplió en el acto, y al cuarto día empezó la destrucción de Jartum.}} {{#madera e:omdurman q:madera|Se derribaron las casas, y la madera de ventanas, balcones y puertas se llevó a [[omdurman|Omdurmán]].}} {{#montones e:jartum q:montones|En suma, Jartum no es hoy más que un montón de ruinas de barro.}}"},
+    {"id": "p2", "text": "<sc>Capítulo XII</sc>: impresiones de Omdurmán.\n\n{{#capital e:omdurman e:mahdi q:capital|La pequeña colina de la orilla occidental, justo enfrente de la confluencia de los dos Nilos, se llamaba Omdurmán; de ahí el nombre de la capital [[mahdi|mahdista]].}}"}
+  ],
+  "src_en": {
+    "ruinas": "Shortly after my visit, Khartum was reduced to ruins",
+    "celoso": "The Khalifa Abdullah, jealous of the Ashraf, who had completely established themselves in the town, and whose actions he could not therefore sufficiently supervise, determined to order its evacuation",
+    "agosto": "In August the command was given to all to quit the town within three days; it was carried out at once, and on the fourth day the destruction of Khartum began",
+    "madera": "Houses were pulled down, the wood of the windows, balconies, and doors was transported to Omdurman",
+    "montones": "In fact, Khartum is now nothing but a heap of mud ruins",
+    "capital": "The little hill on the west bank just opposite to the junction of the two Niles was called Omdurman, hence the name of the Mahdiist capital"
+  },
+  "words": 150
+}

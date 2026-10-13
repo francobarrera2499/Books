@@ -1,0 +1,41 @@
+{
+  "_nota": "Fixture de integración (tests/test_i_integration.gd). El número definitivo lo escribe W3-CT-TIMES. inserts: dónde WorldModel agrega los bloques runtime (avisos de Lisle y columnas «—S.»).",
+  "id": "D15.0330",
+  "entity": "times_0330",
+  "title": "The Times, viernes 30 de marzo de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "origin": "D15.0330",
+  "date": "1894-03-30",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [
+    380,
+    540
+  ],
+  "inserts": {
+    "columna": "p2",
+    "noticias": "p1"
+  },
+  "copies": [
+    {
+      "id": "D15.0330@L1",
+      "holder": "L1",
+      "area": "buhardilla",
+      "via": "desk",
+      "from": "4.dawn",
+      "to": "10.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "NOTICIAS DE LONDRES. — La temporada de whist de los clubes de Mayfair se abre con mesas completas."
+    },
+    {
+      "id": "p2",
+      "text": "COLUMNA DE ANUNCIOS. — Se alquilan habitaciones amuebladas cerca de Russell Square."
+    }
+  ],
+  "words": 40
+}

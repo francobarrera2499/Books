@@ -1,0 +1,37 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. II (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Sin tramos del contrato §4.8: ruido de las crónicas, con el mismo tratamiento que las demás. chron_date (todas las historias llevan una, para que la cronología del cuaderno no distinga las del contrato): entre SCAN y TWIS, como las cita BLUE.",
+  "id": "D01.IDEN",
+  "entity": "iden",
+  "title": "«Un caso de identidad», The Strand Magazine, septiembre de 1891",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1891-09-01",
+  "chron_date": "1888-10-18",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«Un caso de identidad», The Strand Magazine, vol. II (septiembre de 1891)", "entities": ["iden", "mary_sutherland", "hosmer_angel", "james_windibank"]},
+  "copies": [
+    {"id": "D01.IDEN@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.IDEN@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>III\\. — Un caso de identidad</b>\n{{#mas_extrana p:baker_street q:mas_extrana|—Querido amigo —dijo [[holmes|Sherlock Holmes]], sentados los dos a uno y otro lado de la chimenea en su alojamiento de [[baker_street|Baker Street]]—, la vida es infinitamente más extraña que todo lo que la mente humana pudiera inventar.}} {{#tejados e:holmes q:tejados|Si pudiéramos salir volando por esa ventana, tomados de la mano, flotar sobre esta gran ciudad, levantar con suavidad los tejados y espiar las cosas extrañas que pasan dentro, toda la ficción nos parecería rancia y estéril.}}\n\\[…\\] {{#velero q:velero|El botones entró a anunciar a la señorita [[mary_sutherland|Mary Sutherland]], mientras la dama asomaba detrás de su figurita negra como un mercante a toda vela detrás de un diminuto bote de práctico.}}\n{{#miopia e:holmes q:miopia|—¿No le resulta un poco fatigoso, con lo corta de vista que es usted, escribir tanto a máquina?}}\n{{#teclas e:mary_sutherland q:teclas|—Al principio sí —respondió—, pero ahora sé dónde están las letras sin mirarlas.}}\nLuego, comprendiendo de pronto el alcance de sus palabras, dio un respingo y levantó la vista, asombrada.\n—Usted ha oído hablar de mí, señor Holmes —exclamó—; si no, ¿cómo podría saber todo eso?"},
+    {"id": "p2", "text": "\\[…\\] {{#individualidad e:holmes q:individualidad|—Es curioso —observó Holmes— que una máquina de escribir tenga en realidad tanta individualidad como la letra de un hombre.}} {{#iguales e:holmes q:iguales|Salvo que sean del todo nuevas, no hay dos que escriban exactamente igual.}} {{#e_r e:holmes q:e_r|Ahora bien, señor [[james_windibank|Windibank]], observará usted que en esta nota suya la «e» sale siempre un poco borrosa y la «r» tiene un ligero defecto en el rabo.}} Hay otras catorce características, pero ésas son las más evidentes.\n{{#monografia e:holmes q:monografia|—Pienso escribir uno de estos días otra pequeña monografía sobre la máquina de escribir y su relación con el crimen.}}\n{{#sombrero_windibank e:james_windibank q:sombrero_windibank|El señor Windibank se levantó de un salto de la silla y tomó su sombrero.}}\n—Si puede atrapar a ese hombre, atrápelo, y avíseme cuando lo haya hecho.\n{{#atrapado e:holmes q:atrapado|—Desde luego —dijo Holmes, adelantándose a cerrar la puerta con llave—: ¡le aviso, entonces, de que ya lo he atrapado!}}"}
+  ],
+  "src_en": {
+    "mas_extrana": "My dear fellow,” said Sherlock Holmes as we sat on either side of the fire in his lodgings at Baker Street, “life is infinitely stranger than anything which the mind of man could invent.",
+    "tejados": "If we could fly out of that window hand in hand, hover over this great city, gently remove the roofs, and peep in at the queer things which are going on, the strange coincidences, the plannings, the cross-purposes, the wonderful chains of events, working through generations, and leading to the most outré results, it would make all fiction with its conventionalities and foreseen conclusions most stale and unprofitable.",
+    "velero": "the boy in buttons entered to announce Miss Mary Sutherland, while the lady herself loomed behind his small black figure like a full-sailed merchant-man behind a tiny pilot boat",
+    "miopia": "that with your short sight it is a little trying to do so much typewriting",
+    "teclas": "but now I know where the letters are without looking",
+    "individualidad": "that a typewriter has really quite as much individuality as a man’s handwriting.",
+    "iguales": "Unless they are quite new, no two of them write exactly alike.",
+    "e_r": "Now, you remark in this note of yours, Mr. Windibank, that in every case there is some little slurring over of the ‘e,’ and a slight defect in the tail of the ‘r.’",
+    "monografia": "I think of writing another little monograph some of these days on the typewriter and its relation to crime.",
+    "sombrero_windibank": "Mr. Windibank sprang out of his chair and picked up his hat.",
+    "atrapado": "I let you know, then, that I have caught him!"
+  },
+  "words": 300
+}

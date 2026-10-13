@@ -1,0 +1,17 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). La escena definitiva la escribe W3-CT-DLG-B. Contrato §4.8: S:M7.inteligente (C10 Ib, C10a.R2), S:M7.donde_duerme (C10 Cb), S:M7.trichinopolis (C13.R1).",
+  "id": "M7",
+  "place": "L1",
+  "area": "buhardilla",
+  "tk": "7.night",
+  "plate": "PL.M7",
+  "origin": "S.M7",
+  "lines": [
+    {"id": "inteligente", "who": "harris", "text": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}}"},
+    {"id": "donde_duerme", "who": "harris", "text": "No me diga que vive, señor Lisle. {{#donde a:busca_a_holmes e:donde e:tigre|Dígame dónde duerme [[tigre|el tigre]].}}"},
+    {"id": "trichinopolis", "who": "harris", "text": "¿Le molesta el humo? {{#tri a:tirador f:secreto_camden e:cheroot|Es de [[trichinopolis|Trichinópolis]].}}"}
+  ],
+  "variants": [
+    {"when": {"flag": "pell_despedido"}, "replace": {"inteligente": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}} Su procurador ya no nos sirve."}}
+  ]
+}

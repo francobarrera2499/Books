@@ -1,0 +1,37 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. III (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Sin tramos del contrato §4.8: ruido de las crónicas, con el mismo tratamiento que las demás. «Poco después de mi boda» (verano del 89) no contradice el marzo de 1888 de SCAN: es ruido que parece par, no un par. chron_date: «el verano del 89».",
+  "id": "D01.ENGR",
+  "entity": "engr",
+  "title": "«El pulgar del ingeniero», The Strand Magazine, marzo de 1892",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1892-03-01",
+  "chron_date": "1889-09-07",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El pulgar del ingeniero», The Strand Magazine, vol. III (marzo de 1892)", "entities": ["engr", "victor_hatherley", "prensa_hidraulica", "paddington"]},
+  "copies": [
+    {"id": "D01.ENGR@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.ENGR@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>IX\\. — El pulgar del ingeniero</b>\n{{#dos_casos e:holmes q:dos_casos|De todos los problemas sometidos a mi amigo, el señor [[holmes|Sherlock Holmes]], sólo dos llegaron a él por mi intermedio: el del pulgar del señor Hatherley y el de la locura del [[coronel_warburton|coronel Warburton]].}}\n{{#verano_89 q:verano_89|Fue en el verano del 89, poco después de [[boda_de_watson|mi boda]], cuando ocurrieron los hechos que voy a resumir.}} {{#paddington p:paddington q:paddington|Como vivía a poca distancia de la estación de [[paddington|Paddington]], tenía algunos pacientes entre los empleados del ferrocarril.}}\nUna mañana, poco antes de las siete, me trajeron un paciente de la estación. La criada había dejado en la mesita la tarjeta de mi visitante:\n{{#tarjeta e:victor_hatherley q:tarjeta|«Señor [[victor_hatherley|Victor Hatherley]], ingeniero hidráulico, Victoria Street, 16 A (tercer piso).»}}\n{{#pulgar e:victor_hatherley q:pulgar|—Y ahora, doctor, quizá tenga usted la bondad de atenderme el pulgar o, mejor dicho, el sitio donde antes tenía el pulgar.}}\n{{#cuatro_dedos q:cuatro_dedos|Desenvolvió el pañuelo y tendió la mano: había cuatro dedos salientes y una horrible superficie roja y esponjosa donde debía estar el pulgar.}}"},
+    {"id": "p2", "text": "\\[…\\] «Y de pronto, en el silencio, oí un ruido que me subió el corazón a la boca. {{#palancas e:prensa_hidraulica q:palancas|Era el golpeteo de las palancas y el silbido del cilindro que perdía agua.}} El coronel había puesto en marcha la máquina. {{#techo_negro e:victor_hatherley q:techo_negro|A la luz de la lámpara vi que el techo negro bajaba sobre mí, lento, a sacudidas, pero, como nadie lo sabía mejor que yo, con una fuerza que en un minuto había de reducirme a una pulpa informe.}} {{#un_pie e:prensa_hidraulica q:un_pie|El techo estaba a sólo un pie o dos de mi cabeza, y con la mano en alto sentía su superficie dura y áspera.}}»\n\\[…\\] —¡Bonito negocio ha sido para mí! —dijo con pesar nuestro ingeniero, en el tren de vuelta a Londres—. {{#cincuenta_guineas e:victor_hatherley q:cincuenta_guineas|He perdido el pulgar y he perdido unos honorarios de cincuenta guineas, ¿y qué he ganado?}}\n—Experiencia —dijo Holmes, riendo—. {{#experiencia e:holmes q:experiencia|No tiene más que ponerla en palabras para ganarse, por el resto de sus días, la fama de ser una compañía excelente.}}"}
+  ],
+  "src_en": {
+    "dos_casos": "Of all the problems which have been submitted to my friend, Mr. Sherlock Holmes, for solution during the years of our intimacy, there were only two which I was the means of introducing to his notice—that of Mr. Hatherley’s thumb, and that of Colonel Warburton’s madness.",
+    "verano_89": "It was in the summer of ’89, not long after my marriage, that the events occurred which I am now about to summarise.",
+    "paddington": "as I happened to live at no very great distance from Paddington Station, I got a few patients from among the officials.",
+    "tarjeta": "Mr. Victor Hatherley, hydraulic engineer, 16A, Victoria Street (3rd floor).",
+    "pulgar": "And now, Doctor, perhaps you would kindly attend to my thumb, or rather to the place where my thumb used to be.",
+    "cuatro_dedos": "There were four protruding fingers and a horrid red, spongy surface where the thumb should have been.",
+    "palancas": "It was the clank of the levers and the swish of the leaking cylinder.",
+    "techo_negro": "By its light I saw that the black ceiling was coming down upon me, slowly, jerkily, but, as none knew better than myself, with a force which must within a minute grind me to a shapeless pulp.",
+    "un_pie": "The ceiling was only a foot or two above my head, and with my hand upraised I could feel its hard, rough surface.",
+    "cincuenta_guineas": "I have lost my thumb and I have lost a fifty-guinea fee, and what have I gained?",
+    "experiencia": "you have only to put it into words to gain the reputation of being excellent company for the remainder of your existence."
+  },
+  "words": 300
+}

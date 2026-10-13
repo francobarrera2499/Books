@@ -1,0 +1,21 @@
+{
+  "_nota": "W3-CT-TRACES. D22, carta de «E. L., Holywell Street» al St James's Gazette del jueves 18 de enero de 1894, «La aritmética del doctor Watson» [INV; GDD §2.3, §3.1, §6 D22]. Voz de Lisle (seca, de corrector: «dele», sic, galerada, fe de erratas). Contesta, tres semanas después y en el mismo diario, la burla de Barrie del 29 de diciembre (D40: el doctor llevado a Bow Street). Erratas inocentes de dominio público (la herida, «James», Mrs. Turner, las fechas de REDH) y la indiscreción por la que Moran lo elige (D23#carta_enero): «en primeras pruebas el doctor fue más honesto con la roca que en la revista». #miembro reproduce letra por letra la frase que cita el recorte devuelto de HC01 (R:HC01.texto). No nombra a Holmes ni dice que nadie viva (T7, T23); nada de «not literally true». Es el origen de toda la partida: Mycroft se la reexpidió a Montpellier y Holmes escribió al margen «No lo es.» (HC01). Sin a: (no es fuente de ninguna conclusión; los hechos que insinúa se prueban con D02, D04, D05). Watson la reconoce si se le presenta (dialogue/watson.json doc.carta_enero). slip_topic watson_prensa (silencio). Ejemplar: BM.",
+  "id": "D22",
+  "entity": "carta_de_enero",
+  "title": "St James's Gazette, jueves 18 de enero de 1894: «La aritmética del doctor Watson», carta de E. L.",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1894-01-18",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [160, 300],
+  "slip_topic": "watson_prensa",
+  "catalog": {"label": "St James's Gazette, 18 de enero de 1894: «La aritmética del doctor Watson» (carta de E. L.)", "entities": ["carta_de_enero", "st_james_gazette", "lisle", "herida", "a_pique"]},
+  "copies": [
+    {"id": "D22@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>St James's Gazette</sc>, jueves 18 de enero de 1894. — Correspondencia.\n\n<b>LA ARITMÉTICA DEL DOCTOR WATSON</b>\n<i>Al director del</i> [[st_james_gazette|St James's Gazette]].\n\n{{#bow_street e:late_sherlock_holmes e:watson|Señor: Su colaborador del 29 de diciembre llevó al [[watson|doctor Watson]] a [[bow_street|Bow Street]] por la muerte de su amigo.}} {{#no_tanto e:watson|Yo no lo acuso de tanto; lo acuso de no saber contar, y lo hago con el respeto que se debe a un hombre que escribe de memoria.}} {{#oficio e:lisle|He corregido pruebas para ganarme la vida, y el oficio consiste en desconfiar de lo que el autor recuerda.}}\n\n{{#herida e:herida e:maiwand|En [[stud|«Estudio en escarlata»]] la bala de [[maiwand|Maiwand]] le entra por el [[hombro|hombro]]; en [[sign|«El signo de los cuatro»]], por la [[pierna|pierna]], y el doctor no parece haber notado el traslado.}} {{#james e:james|Su señora lo llama [[james|James]], aunque él firma John.}} {{#turner e:mrs_turner|La casera de [[baker_street|Baker Street]] trae la bandeja con el nombre de [[mrs_turner|Mrs. Turner]] en una página y con el de [[mrs_hudson|Mrs. Hudson]] en todas las demás.}} {{#pelirrojos e:redh|En [[redh|«La liga de los pelirrojos»]] un aviso de abril vence en octubre, al cabo de ocho semanas que duran seis meses.}} {{#buena_fe e:watson|Son erratas de buena fe, y ningún corrector se las reprocharía a un médico con consulta.}} {{#sic e:watson|Yo las señalo con un <i>sic</i>, como quien avisa de un escalón roto: para que el lector no tropiece, no para que el autor se avergüence.}}\n\n{{#suiza e:fina|Pero el doctor nos pide ahora que lo sigamos hasta [[suiza|Suiza]], y allí la aritmética se vuelve geometría.}} {{#miembro e:herida e:pared|Si el doctor no sabe en qué miembro lleva la bala, ¿cómo creerle que la [[pared|pared]] era a pique?}} {{#roca e:roca e:galerada h:F.carta_de_enero|Diré sólo, porque las tuve en la mano, que en primeras pruebas el doctor fue más honesto con la [[roca|roca]] que en la revista.}} {{#dele e:fina|Entre la [[galerada|galerada]] y el número de diciembre alguien escribió «dele» al margen, y me gustaría saber quién.}}\n\n{{#seis_peniques e:strand|El lector de [[strand|la Strand]] paga seis peniques por número; tiene derecho, por lo menos, a la errata corregida.}} {{#fe e:strand|Propongo a la revista que cierre cada tomo con una fe de erratas: es el único género que no admite ficción.}}\n\nE. L.\n<i>[[holywell_street|Holywell Street]], 16 de enero.</i>"}
+  ],
+  "words": 350
+}

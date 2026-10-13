@@ -1,0 +1,22 @@
+{
+  "_nota": "W3-CT-TIMES. The Times del miércoles 4 de abril (día 9): la indagatoria se reanuda hoy (sin datos nuevos del crimen: ninguna oración que repita o refuerce lo de la indagatoria sin llevar su grupo); la policía francesa pide vigilar a refugiados (prepara la noticia de Meunier del 5). Ruido [H]/[INV]: la Reina irá a Coburgo (17–28 de abril). Columna: SEMPER EADEM cierra su cita; Hale y Rook ya tienen testigos.",
+  "id": "D15.0404",
+  "entity": "times_0404",
+  "title": "The Times, miércoles 4 de abril de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "origin": "D15.0404",
+  "date": "1894-04-04",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [380, 540],
+  "inserts": {"columna": "p2", "noticias": "p1"},
+  "copies": [
+    {"id": "D15.0404@L1", "holder": "L1", "area": "buhardilla", "via": "desk", "from": "9.dawn", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>El misterio de Park Lane.</sc> — {{#reanuda e:indagatoria|La [[indagatoria|indagatoria]] se reanuda hoy, y se espera el veredicto.}} {{#gobernador e:lord_maynooth|El [[lord_maynooth|conde de Maynooth]] telegrafía desde Australia que embarca en el primer vapor.}} {{#cartas e:curiosos|Recibimos cada día cartas de lectores con teorías sobre el caso; no las publicaremos.}}\n<sc>Los refugiados.</sc> — {{#refugiados e:anarquistas|La policía de [[paris|París]] pide a la de Londres que vigile a varios [[anarquistas|anarquistas]] buscados por las bombas de 1892.}}\n<sc>La Corte.</sc> — {{#coburgo e:la_reina p:coburgo|[[la_reina|Su Majestad]] dejará Florencia a mediados de mes para asistir en [[coburgo|Coburgo]] a una boda de familia.}}\n<sc>El tiempo.</sc> — {{#tiempo d:1894-04-04|Templado; noches oscuras.}}"},
+    {"id": "p2", "text": "<sc>Anuncios personales</sc>\nSEMPER EADEM. — {{#semper e:semper_eadem|Allí estaré esta noche, con todo.}} — G.\n{{#testigos e:omnibus p:ludgate_hill|Hale y Rook agradecen las cartas sobre el vuelco del [[omnibus|ómnibus]] de [[ludgate_hill|Ludgate Hill]]; no se necesitan más testigos.}}\n{{#gato e:gato_persa p:maida_vale|PERDIDO en [[maida_vale|Maida Vale]] [[gato_persa|un gato persa]] blanco, de ojos azules.}}\n{{#caballos e:caballos_de_silla p:rotten_row|[[caballos_de_silla|CABALLOS DE SILLA]] para [[rotten_row|Rotten Row]], por mes o por temporada.}}\n{{#baul e:baul p:kings_cross|CINCO LIBRAS por noticias de [[baul|un baúl de cuero]], iniciales M. B., perdido en [[kings_cross|King's Cross]].}}\n{{#mecanografa e:mecanografa|[[mecanografa|SEÑORITA MECANÓGRAFA]], con máquina propia, copia manuscritos con esmero y reserva.}}\n{{#price e:ellen_price p:clapham|SE DESEAN NOTICIAS de [[ellen_price|Ellen Price]], que en 1891 servía en [[clapham|Clapham]].}}\n{{#armonio e:armonio|SE VENDE [[armonio|un armonio de salón]], de dos teclados, por traslado al Cabo.}}\n{{#socio p:ceilan|SE BUSCA socio con mil libras para importar té de [[ceilan|Ceilán]].}}\n{{#hospital e:hospital_de_ninos|El [[hospital_de_ninos|Hospital de Niños]] agradece a «M. R.» cincuenta libras.}}\nDINERO. — {{#prestamos e:prestamos|Se [[prestamos|adelanta]] a oficiales y caballeros, sobre su firma, con toda reserva.}}"}
+  ],
+  "words": 225
+}

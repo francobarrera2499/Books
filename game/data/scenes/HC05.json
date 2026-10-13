@@ -1,0 +1,21 @@
+{
+  "_nota": "W3-CT-DLG-A. HC05 (columna de Mycroft, GDD §9.6): mar. 3 de abril, el empleado del señor Mycroft hace airear el primer piso del 221B y deja una libra de shag; mié. 4 por la tarde llega el cajón de Grenoble (el nodo N:L3.cajon es de W2-PLACES-B). Escena automática del interior de L3 los días 8–9: Mrs. Hudson lo dice en DOS líneas separadas (GDD: «en dos tramos separados»), así ningún recorte legal junta el día y los preparativos (T4). Contrato §4.8: S:HC05.jueves_a (C9.R1/R1b/R5, a:dia_jueves; e:221b y e:mycroft enlazan por claves con N:L3.ventanas_abiertas / N:L3.shag y con S:HC06.e) y jueves_b (rastro de HC05, a:preparativos_221b e:shag; e:221b e:mycroft para enlazar con S:HC06.e). c:regreso_jueves en jueves_a como en S:HC06.e (lo que el texto dice para Moran). HB6 NO corta estas líneas (Mrs. Hudson chismea aunque le ordenen callar): con hudson_cerrada las variantes sólo doblan los «sir» (tell) y conservan los tramos (§12.2 D7). Origen real del recorte = la visita (WorldModel dice las líneas automáticas con el id de la visita); S.HC05 es el origen del modelo de rutas.",
+  "id": "HC05",
+  "place": "L3",
+  "area": "interior",
+  "auto": true,
+  "when": {"day": {"gte": 8, "lte": 9}},
+  "origin": "S.HC05",
+  "lines": [
+    {"id": "jueves_a", "who": "mrs_hudson", "text": "Baja la voz, aunque en el vestíbulo no hay nadie más. —{{#jueves a:dia_jueves c:regreso_jueves e:jueves e:mycroft e:221b|El empleado del señor [[mycroft|Mycroft]] dijo que para el [[jueves|jueves]], sir…}}"},
+    {"id": "jueves_b", "who": "mrs_hudson", "text": "{{#preparativos a:preparativos_221b e:shag e:221b e:mycroft|…todo tiene que estar como siempre: los [[cuartos|cuartos]] de arriba aireados y una libra de [[shag|shag]] en la repisa, sir.}} No sé para quién, sir. No hay quien lo fume, sir."},
+    {"id": "cajon", "who": "mrs_hudson", "when": {"all": [{"day": 9}, {"slot": ["T"]}]}, "text": "Se planta delante del [[cajon_de_grenoble|cajón]] del vestíbulo, con los brazos cruzados. —No se abre, sir. Órdenes, sir."}
+  ],
+  "variants": [
+    {"when": {"flag": "hudson_cerrada"}, "replace": {
+      "jueves_a": "Mira hacia la escalera antes de hablar. —{{#jueves a:dia_jueves c:regreso_jueves e:jueves e:mycroft e:221b|El empleado del señor [[mycroft|Mycroft]] dijo que para el [[jueves|jueves]], sir, y que no se lo contara a nadie, sir…}}",
+      "jueves_b": "{{#preparativos a:preparativos_221b e:shag e:221b e:mycroft|…todo tiene que estar como siempre, sir: los [[cuartos|cuartos]] de arriba aireados y una libra de [[shag|shag]] en la repisa, sir.}} No sé para quién, sir; no, sir. No hay quien lo fume, sir, nadie, sir.",
+      "cajon": "Se planta delante del [[cajon_de_grenoble|cajón]] del vestíbulo, con los brazos cruzados. —No se abre, sir; no, sir. Órdenes, sir, órdenes, sir."
+    }}
+  ]
+}

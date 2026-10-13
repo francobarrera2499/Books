@@ -1,0 +1,38 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. III (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Sin tramos del contrato §4.8: ruido de las crónicas, con el mismo tratamiento que las demás. chron_date: «una mañana de febrero», con el doctor todavía en «nuestro mirador» de Baker Street.",
+  "id": "D01.BERY",
+  "entity": "bery",
+  "title": "«La diadema de berilos», The Strand Magazine, mayo de 1892",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1892-05-01",
+  "chron_date": "1887-02-17",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«La diadema de berilos», The Strand Magazine, vol. III (mayo de 1892)", "entities": ["bery", "alexander_holder", "diadema_de_berilos", "streatham"]},
+  "copies": [
+    {"id": "D01.BERY@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.BERY@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XI\\. — La diadema de berilos</b>\n{{#loco q:loco|—Holmes —dije una mañana, de pie en nuestro mirador, mientras miraba la calle—, ahí viene un loco.}} Parece bastante triste que su familia lo deje salir solo.\n{{#febrero q:febrero|Era una mañana de febrero, clara y fría, y la nieve de la víspera seguía espesa sobre el suelo, centelleando al sol de invierno.}} {{#franja_parda p:baker_street q:franja_parda|Por el centro de [[baker_street|Baker Street]] el tránsito la había arado hasta dejarla en una franja parda y desmenuzable, pero a los lados y en los bordes amontonados de las aceras seguía tan blanca como al caer.}}\n—¿Qué demonios le pasa? —pregunté—. {{#numeros q:numeros|Va mirando los números de las casas.}}\n{{#viene_aqui e:holmes q:viene_aqui|—Creo que viene aquí —dijo Holmes, frotándose las manos.}}\nPoco después estaba en nuestra sala, jadeando todavía, pero con una expresión tan fija de pena y desesperación en los ojos que nuestras sonrisas se trocaron al instante en horror y lástima.\n—Mi nombre —dijo nuestro visitante— probablemente les será familiar. {{#holder e:alexander_holder q:holder|Soy [[alexander_holder|Alexander Holder]], de la casa de banca Holder & Stevenson, de [[threadneedle_street|Threadneedle Street]].}}"},
+    {"id": "p2", "text": "\\[…\\] {{#doble_linea e:holmes q:doble_linea|—Había una doble línea de huellas de un hombre calzado con botas, y una segunda doble línea que, con alegría, vi que pertenecía a un hombre descalzo.}} {{#su_hijo e:holmes q:su_hijo|Por lo que usted me había contado, me convencí en seguida de que éstas eran de su hijo.}} El primero había ido y vuelto, pero el otro había corrido a toda prisa, y como sus pisadas se marcaban a trechos sobre la huella de la bota, era evidente que había pasado después.\n{{#maxima e:holmes q:maxima|—Es una vieja máxima mía que, cuando se ha excluido lo imposible, lo que queda, por improbable que sea, ha de ser la verdad.}}\n{{#vagabundo e:holmes q:vagabundo|—Fui en figura de vagabundo a casa de [[george_burnwell|sir George]] y trabé amistad con su ayuda de cámara.}} {{#seis_chelines e:holmes q:seis_chelines|Al precio de seis chelines me aseguré del todo, comprándole un par de zapatos viejos de su amo.}} {{#encajaban e:holmes p:streatham q:encajaban|Con ellos fui a [[streatham|Streatham]] y vi que encajaban exactamente en las huellas.}}"}
+  ],
+  "src_en": {
+    "loco": "Holmes,” said I as I stood one morning in our bow-window looking down the street, “here is a madman coming along.",
+    "febrero": "It was a bright, crisp February morning, and the snow of the day before still lay deep upon the ground, shimmering brightly in the wintry sun.",
+    "franja_parda": "Down the centre of Baker Street it had been ploughed into a brown crumbly band by the traffic, but at either side and on the heaped-up edges of the footpaths it still lay as white as when it fell.",
+    "numeros": "He is looking up at the numbers of the houses.",
+    "viene_aqui": "I believe that he is coming here,” said Holmes, rubbing his hands.",
+    "holder": "I am Alexander Holder, of the banking firm of Holder & Stevenson, of Threadneedle Street.",
+    "doble_linea": "There was a double line of tracks of a booted man, and a second double line which I saw with delight belonged to a man with naked feet.",
+    "su_hijo": "I was at once convinced from what you had told me that the latter was your son.",
+    "maxima": "It is an old maxim of mine that when you have excluded the impossible, whatever remains, however improbable, must be the truth.",
+    "vagabundo": "I went in the shape of a loafer to Sir George’s house, managed to pick up an acquaintance with his valet",
+    "seis_chelines": "at the expense of six shillings, made all sure by buying a pair of his cast-off shoes.",
+    "encajaban": "With these I journeyed down to Streatham and saw that they exactly fitted the tracks."
+  },
+  "words": 300
+}

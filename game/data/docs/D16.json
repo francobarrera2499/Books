@@ -1,0 +1,23 @@
+{
+  "_nota": "W3-CT-MORAN. D16, The Daily Graphic del martes 3 de abril de 1894 [H el diario; INV la página] (GDD §2.1 día 8, §6 D16, §10.4 C10 Ia, C10a, C11.R2). Grabados de los testigos de la indagatoria abierta el lunes 2 y aplazada al miércoles: Mr. Murray, sir John Hardy y el coronel Moran (EMPT: los compañeros de whist de Adair en el Bagatelle; nadie relaciona a Moran con Adair antes de este día, T7). El «coronel Moran» del grabado tiene el bigote de Harris (lámina del prólogo: «alto, ancho de hombros, de bigote canoso enorme») y la frente calva de EMPT («a high, bald forehead, and a huge grizzled moustache»). Contrato §4.8: #moran = harris_es_moran (C10 Ia y C10a.R1, clave bigote con N:PRO.harris) + autor_moran (C11.R2, clave moran con D11#mejor_tiro; menciona al difunto) + estilo_o_rostro_moran (C5: el rostro del hombre de bigote canoso de D09#nota_redactor). Ejemplares: llega a la bandeja con el Times al amanecer del día 8 (L1, comprado en el quiosco) y está en la Sala de Periódicos desde la mañana del 8 (BM). Romanos con \\. para que no corten la oración.",
+  "id": "D16",
+  "entity": "daily_graphic",
+  "title": "The Daily Graphic, martes 3 de abril de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1894-04-03",
+  "chron_date": "1894-04-02",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [190, 240],
+  "slip_topic": "prensa_1894",
+  "catalog": {"label": "The Daily Graphic, abril de 1894", "entities": ["daily_graphic", "indagatoria", "ronald_adair", "asesinato_de_adair", "park_lane", "moran"]},
+  "copies": [
+    {"id": "D16@L1", "holder": "L1", "area": "buhardilla", "class": "I", "via": "desk", "from": "8.dawn", "to": "10.N"},
+    {"id": "D16@BM", "holder": "BM", "class": "I", "via": "slip", "from": "8.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>The Daily Graphic</sc>, martes 3 de abril de 1894.\n\n{{#titular e:park_lane|<b>EL MISTERIO DE [[park_lane|PARK LANE]]: LA INDAGATORIA</b>}}\n\n{{#apuntes e:indagatoria|Grabados según los apuntes de [[dibujante_del_graphic|nuestro dibujante]] en la primera sesión de la [[indagatoria|indagatoria]] por la muerte del honorable [[ronald_adair|Ronald Adair]], que se aplazó hasta el miércoles.}}\n\n{{#murray e:murray|I\\. [[murray|Mr. Murray]], compañero de juego del difunto, al prestar declaración.}}\n{{#hardy e:sir_john_hardy|II\\. [[sir_john_hardy|Sir John Hardy]], de la misma mesa.}}\n{{#moran a:harris_es_moran a:autor_moran a:estilo_o_rostro_moran e:bigote h:F.indagatoria_testimonios|III\\. El [[moran|coronel Sebastian Moran]], pareja del [[ronald_adair|difunto]] en el [[whist|whist]] del [[bagatelle|Bagatelle]]: alto, ancho de hombros, calvo de frente, con un [[bigote|bigote canoso]] y enorme.}}"}
+  ],
+  "words": 80
+}

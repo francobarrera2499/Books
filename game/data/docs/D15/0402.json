@@ -1,0 +1,22 @@
+{
+  "_nota": "W3-CT-TIMES. The Times del lunes 2 de abril (día 7; el domingo no hay Times). Park Lane según lo que el público sabe antes de la indagatoria: la familia, la vida ordenada, el compromiso roto (hechos de EMPT contados como prensa de 1894, sin citar). Hoy se abre la indagatoria. Nada relaciona a Moran con Adair (T7). Ruido [H]: la final de la Copa (F.final_copa). Columna: A. H. vuelve; Semper Eadem contesta a G.; medio billete de conciencia; testigos de Oxford Street.",
+  "id": "D15.0402",
+  "entity": "times_0402",
+  "title": "The Times, lunes 2 de abril de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "origin": "D15.0402",
+  "date": "1894-04-02",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [380, 540],
+  "inserts": {"columna": "p2", "noticias": "p1"},
+  "copies": [
+    {"id": "D15.0402@L1", "holder": "L1", "area": "buhardilla", "via": "desk", "from": "7.dawn", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>El misterio de Park Lane.</sc> — {{#indagatoria_hoy e:indagatoria|Hoy se abre la [[indagatoria|indagatoria]] por la muerte del honorable [[ronald_adair|Ronald Adair]].}} {{#familia p:park_lane_427|El joven vivía con su madre, [[lady_maynooth|lady Maynooth]], vuelta de Australia para operarse de cataratas, y con su hermana, la señorita [[hilda_adair|Hilda Adair]].}} {{#naipes e:ronald_adair|No se le conocían enemigos ni vicios; jugaba a los naipes, pero con prudencia.}} {{#woodley e:edith_woodley|Su compromiso con la señorita [[edith_woodley|Edith Woodley]], de Carstairs, se deshizo de común acuerdo hace meses.}}\n<sc>La Copa.</sc> — {{#copa e:final_de_la_copa p:goodison_park h:F.final_copa|El [[notts_county|Notts County]] ganó la [[final_de_la_copa|final]] al [[bolton_wanderers|Bolton]] por cuatro a uno; [[logan|Logan]] marcó tres goles ante treinta y siete mil personas.}}\n<sc>El tiempo.</sc> — {{#tiempo d:1894-04-02|Templado, con nubes altas.}}"},
+    {"id": "p2", "text": "<sc>Anuncios personales</sc>\n{{#ah e:joven_desaparecido|[[joven_desaparecido|A. H.]] ha vuelto a casa.}} Su familia agradece a cuantos ayudaron.\nG. — {{#semper e:semper_eadem|Hoy, imposible; el miércoles sin falta, y traiga lo prometido.}} — Semper Eadem.\n{{#conciencia e:harcourt|El ministro de Hacienda acusa recibo de medio billete de diez libras, [[dinero_de_conciencia|dinero de conciencia]].}}\n{{#misal e:libro_de_oraciones p:san_pablo|PERDIDO en [[san_pablo|San Pablo]] [[libro_de_oraciones|un libro de oraciones]] con tapas de marfil.}}\nTESTIGOS. — {{#andamio e:andamio p:oxford_street|Se gratificará a quien viera caer [[andamio|un andamio]] en [[oxford_street|Oxford Street]] el sábado, a las cuatro.}}\n{{#socio p:ceilan|SE BUSCA socio con mil libras para importar té de [[ceilan|Ceilán]]; beneficios seguros.}}\n{{#portamonedas e:portamonedas|PERDIDO en el ómnibus de Hammersmith [[portamonedas|un portamonedas de malla de plata]].}}\n{{#abrigo e:abrigo_ajeno p:savoy|AL CABALLERO que se llevó del [[savoy|Savoy]] [[abrigo_ajeno|un abrigo de nutria]] ajeno: el suyo lo espera.}}\n{{#richmond p:richmond|SE ALQUILA por la temporada casa amueblada en [[richmond|Richmond]], con jardín al río.}}\n{{#cook e:suiza|EXCURSIONES a [[suiza|Suiza]] y a los lagos italianos desde mayo, con billete circular.}}\nDINERO. — {{#prestamos e:prestamos|Se [[prestamos|adelanta]] a oficiales y caballeros, sobre su firma, con toda reserva.}}"}
+  ],
+  "words": 250
+}

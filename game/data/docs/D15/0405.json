@@ -1,0 +1,22 @@
+{
+  "_nota": "W3-CT-TIMES. The Times del jueves 5 de abril (día 10; lo lee Watson esa mañana): veredicto de la indagatoria (canon_bible F.veredicto) y arresto de Théodule Meunier en Victoria por Melville, armado, cuando iba a tomar el correo continental de las nueve [H] (F.meunier_arresto; london_period §1.4); bomba del Foyot [H]. Pista falsa falsa_meunier: #detenido (f:refutado a:falsa_meunier: «el anarquista Meunier» a secas, sin mención de theodule_meunier: el índice daría el nombre de pila y la pista falsa se refutaría sola; guardián); la refutan #meunier (contrato §4.8, a:refuta_meunier: Théodule, ebanista) y N:L3.cajon (O. Meunier, mouleur). #meunier lleva x:EE10 (Marginalia: con e:oscar_meunier). El veredicto no repite los hechos de la indagatoria. Pronóstico: noche fría y ventosa (GDD §2.1). Columna: desenlace de VIOLETA/R.",
+  "id": "D15.0405",
+  "entity": "times_0405",
+  "title": "The Times, jueves 5 de abril de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "origin": "D15.0405",
+  "date": "1894-04-05",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [380, 540],
+  "inserts": {"columna": "p2", "noticias": "p1"},
+  "copies": [
+    {"id": "D15.0405@L1", "holder": "L1", "area": "buhardilla", "via": "desk", "from": "10.dawn", "to": "10.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>El misterio de Park Lane.</sc> — {{#veredicto e:veredicto d:1894-04-04 h:F.veredicto|La [[indagatoria|indagatoria]] por la muerte del honorable [[ronald_adair|Ronald Adair]] concluyó ayer con [[veredicto|un veredicto]] de asesinato premeditado contra persona o personas desconocidas.}}\n<sc>Arresto de un anarquista.</sc> — {{#detenido f:refutado a:falsa_meunier e:arresto_de_meunier h:F.meunier_arresto|Anoche, en [[victoria|la estación Victoria]], el inspector [[melville|Melville]] detuvo al anarquista Meunier cuando iba a tomar el correo continental de las nueve.}} {{#meunier a:refuta_meunier x:EE10 e:theodule_meunier|Es [[theodule_meunier|Théodule Meunier]], ebanista, a quien la policía francesa busca por las bombas del [[cafe_very|restaurante Véry]] y del [[cuartel_lobau|cuartel Lobau]].}} {{#armas e:theodule_meunier|Llevaba encima revólveres y cuchillos.}}\n<sc>París.</sc> — {{#foyot e:anarquistas p:paris|Anoche estalló otra bomba en el [[restaurante_foyot|restaurante Foyot]], junto al Senado; el poeta [[tailhade|Laurent Tailhade]] está herido.}}\n<sc>El tiempo.</sc> — {{#tiempo d:1894-04-05|Despejado por la mañana; frío y ventoso desde la tarde.}}"},
+    {"id": "p2", "text": "<sc>Anuncios personales</sc>\nR. — {{#violeta e:violeta|Papá cede: el domingo, a almorzar, y trae los guantes grises.}} — V.\n{{#mecanografa e:mecanografa|[[mecanografa|SEÑORITA MECANÓGRAFA]], con máquina propia, copia manuscritos con esmero y reserva.}}\n{{#baul e:baul p:kings_cross|CINCO LIBRAS por noticias de [[baul|un baúl de cuero]], iniciales M. B., perdido en [[kings_cross|King's Cross]].}}\n{{#price e:ellen_price p:clapham|SE DESEAN NOTICIAS de [[ellen_price|Ellen Price]], que en 1891 servía en [[clapham|Clapham]].}}\n{{#pomerania e:pomerania p:regents_park|PERDIDO en [[regents_park|Regent's Park]] [[pomerania|un perrito de Pomerania]]; atiende por Toby.}}\n{{#banos e:banos_turcos|[[banos_turcos|BAÑOS TURCOS]] de Jermyn Street, abiertos día y noche.}}\n{{#conciencia e:harcourt|El ministro de Hacienda agradece dos libras, [[dinero_de_conciencia|dinero de conciencia]], de «Un antiguo empleado».}}\n{{#lando e:lando|SE VENDE [[lando|un landó]] casi nuevo, con sus bayos; caballerizas de Mount Street.}}\n{{#bicicleta e:bicicleta|SE VENDE [[bicicleta|bicicleta de seguridad]] con neumáticos, casi nueva.}}\n{{#cook e:suiza|EXCURSIONES a [[suiza|Suiza]] y a los lagos italianos desde mayo, con billete circular.}}\nDINERO. — {{#prestamos e:prestamos|Se [[prestamos|adelanta]] a oficiales y caballeros, sobre su firma, con toda reserva.}}"}
+  ],
+  "words": 245
+}

@@ -1,0 +1,12 @@
+{
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). La escena definitiva la escribe W3-CT-DLG-A. Contrato §4.8: S:AGENTE.militar (C13.R2). El chico del agente, desde el día 7.",
+  "id": "AGENTE",
+  "place": "L3",
+  "area": "agente",
+  "auto": true,
+  "when": {"day": {"gte": 7}},
+  "origin": "S.AGENTE",
+  "lines": [
+    {"id": "militar", "who": "chico_del_agente", "text": "{{#militar a:escondite_preparado f:secreto_camden e:camden_house e:harris|La casa de enfrente la anda viendo un militar, el [[harris|mayor Harris]].}}"}
+  ]
+}

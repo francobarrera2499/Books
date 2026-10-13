@@ -160,3 +160,27 @@ func test_collects_text_and_tag_fields():
 func test_schedule_weekdays():
 	_bad("schedule", func(v): v.days[1].weekday = "martes", "weekday 'martes'")
 	_bad("schedule", func(v): v.days.append(v.days[0].duplicate()), "día 0 duplicado")
+
+# §12.2 (integración ola 2): días de semana ASCII en data/.
+func test_schedule_weekday_ascii():
+	_bad("schedule", func(v): v.days[2].weekday = "mié", "weekday 'mié'")
+
+# §12.2 (d): place opcional (END.F1–F4, EPI); (e) replace conserva los tramos de la línea base.
+func test_scene_place_optional_and_replace_keeps_tramos():
+	var v = _load("scenes").duplicate(true)
+	v.erase("place")
+	v.erase("area")
+	eq(S.check("scenes", v), [], "escena sin place (final/epílogo)")
+	_bad("scenes", func(x): x.variants[0].replace.inteligente = "Un trabajo inteligente, inteligente. Su procurador ya no nos sirve.", "debe conservar los tramos")
+	_bad("scenes", func(x): x.variants[0].replace.inteligente = "{{#adjetivos a:harris_es_moran|Un trabajo inteligente, inteligente.}}", "debe conservar los tramos")
+	_bad("scenes", func(x): x.variants[0].replace = {"no_existe": "Hola."}, "no es una línea base")
+	_bad("scenes", func(x): x.variants[1].append[0].id = "inteligente", "ya es una línea base")
+	_bad("scenes", func(x): x.lines.append(x.lines[0].duplicate()), "línea inteligente duplicada")
+
+# §12.2: inserts del Times a nivel de documento (columna | noticias -> id de parte).
+func test_doc_inserts():
+	var v = _load("docs").duplicate(true)
+	v["inserts"] = {"columna": "p1"}
+	eq(S.check("docs", v), [], "inserts válido")
+	_bad("docs", func(x): x["inserts"] = {"columna": "p9"}, "parte inexistente")
+	_bad("docs", func(x): x["inserts"] = {"avisos": "p1"}, "inserts.avisos desconocido")

@@ -437,6 +437,7 @@ func q_ledger() -> Dictionary:
 	if typeof(folios) != TYPE_DICTIONARY:
 		folios = {}
 	var varios: Array = []
+	var erratas: Array = []   # página «Erratas inocentes» (práctica C1, §6.6; Ledger.PAGES)
 	var by_folio := {}
 	var eids: Array = entries.keys()
 	eids.sort()
@@ -444,6 +445,8 @@ func q_ledger() -> Dictionary:
 		var f := String(entries[eid].get("folio", "varios"))
 		if f == "varios" or f == "":
 			varios.append(String(eid))
+		elif f == "erratas":
+			erratas.append(String(eid))
 		else:
 			if not by_folio.has(f):
 				by_folio[f] = []
@@ -455,7 +458,7 @@ func q_ledger() -> Dictionary:
 		var fo = folios[fid]
 		fl.append({"id": String(fid), "head_clip": String(fo.get("head_clip", fo.get("clip", ""))) if typeof(fo) == TYPE_DICTIONARY else "",
 			"entries": by_folio.get(String(fid), [])})
-	return {"rules_title": repo.text("rules.title"), "rules_page": rules, "varios": varios, "folios": fl}
+	return {"rules_title": repo.text("rules.title"), "rules_page": rules, "varios": varios, "erratas": erratas, "folios": fl}
 
 func q_entry(id: String) -> Dictionary:
 	var entries = st.ded.get("entries", {})

@@ -146,7 +146,10 @@ static func source_accessible(st, repo, a: Dictionary) -> bool:
 				"doc":
 					return WorldModel.view_accessible(st, repo, ref)
 				"line":
-					return st.world.get("lines", {}).has(ref)
+					# líneas de escena (WorldModel.say_line -> st.world.lines) o de diálogo (Dialogue.say_line ->
+					# st.scenes.lines, W2-SCENES): ambas son recortables (§3.5 src kind "line"; integración ola 2).
+					var sl = st.scenes.get("lines", {}) if typeof(st.scenes) == TYPE_DICTIONARY else {}
+					return st.world.get("lines", {}).has(ref) or (typeof(sl) == TYPE_DICTIONARY and sl.has(ref))
 				"diary":
 					return not Diary.get_line(st, repo, ref).is_empty()
 				"node":

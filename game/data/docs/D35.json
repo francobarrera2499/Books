@@ -1,0 +1,21 @@
+{
+  "_nota": "W3-CT-TRACES. D35, notas del Sudán en el Times, 1892 y 1893 [INV el texto; H los hechos: el Califa Abdullah gobierna desde Omdurmán, que ha amurallado; Jartum, al otro lado del Nilo Azul, abandonada desde 1886] (GDD §6 D35, §10.5 falsa_jartum). Dos despachos del servicio de informaciones de la frontera (Wadi Halfa, El Cairo). Contrato §4.8: #califa (refuta falsa_jartum → a:refuta_jartum; h:F.califa_en_omdurman). No contradice la visita de Holmes al Califa (EMPT): sólo el lugar. slip_topic sudan (silencio). Ejemplar: BM (el contrato no cita ejemplar; T17 lo alcanza por éste).",
+  "id": "D35",
+  "entity": "notas_del_sudan",
+  "title": "The Times: notas del Sudán (1892 y 1893)",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1893-10-12",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [160, 260],
+  "slip_topic": "sudan",
+  "catalog": {"label": "Times, The: el Sudán, noticias de Wadi Halfa y El Cairo (1892 y 1893)", "entities": ["notas_del_sudan", "sudan", "califa", "omdurman", "wadi_halfa"]},
+  "copies": [
+    {"id": "D35@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>The Times</sc>. — <b>EL SUDÁN</b>.\n\nWADI HALFA, 4 de agosto de 1892. — {{#fugitivos e:wadi_halfa e:omdurman d:1892-08-03 p:wadi_halfa|Llegaron ayer dos griegos fugitivos de Omdurmán, después de siete semanas de desierto y de una sed que no quieren contar.}} {{#califa a:refuta_jartum e:califa e:omdurman h:F.califa_en_omdurman|Cuentan que el [[califa|Califa]] no sale de [[omdurman|Omdurmán]], donde se ha hecho levantar una muralla, y que [[jartum|Jartum]], al otro lado del río, sigue abandonada.}}\n\nEL CAIRO, 11 de octubre de 1893. — {{#wingate e:wingate e:el_cairo|El mayor [[wingate|Wingate]], del servicio de informaciones, no cree que el Califa intente este año bajar hacia la frontera.}}"}
+  ],
+  "words": 80
+}

@@ -1,0 +1,42 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. V (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie de la Strand (numeración continua: XIV), p2 = escena central (abre con «[…]»), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/card.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. Es el texto de la Strand de enero de 1893, con el pasaje de la lectura del pensamiento (el libro de diciembre no recoge la historia: D21#card_libro). chron_date (guardián): «un día de agosto», los dos todavía en Baker Street y sin año en el texto: antes de FIVE (sep. 1887), para no fabricar en el cuaderno un choque con las fechas de casado que sí da el doctor.",
+  "id": "D01.CARD",
+  "entity": "card",
+  "title": "«La caja de cartón», The Strand Magazine, enero de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-01-01",
+  "chron_date": "1886-08-27",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«La caja de cartón», The Strand Magazine, vol. V (enero de 1893)", "entities": ["card", "susan_cushing", "croydon", "caja_de_carton"]},
+  "copies": [
+    {"id": "D01.CARD@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.CARD@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XIV\\. — La caja de cartón</b>\n{{#agosto q:agosto|Era un día de agosto de un calor abrasador.}} {{#horno p:baker_street q:horno|[[baker_street|Baker Street]] era como un horno, y el resplandor del sol sobre el ladrillo amarillo de la casa de enfrente hacía daño a la vista.}} {{#sofa e:holmes q:sofa|Teníamos las persianas a medio bajar, y [[holmes|Holmes]], acurrucado en el sofá, leía y releía una carta que le había traído el correo de la mañana.}} {{#filamentos e:holmes q:filamentos|Le gustaba yacer en el centro mismo de cinco millones de personas, con sus filamentos extendidos entre ellas, atento a cada pequeño rumor o sospecha de un crimen sin resolver.}}\n—Tiene usted razón, Watson —dijo—. {{#disputa e:holmes q:disputa|Parece, en efecto, un modo de lo más absurdo de zanjar una disputa.}}\n—¡De lo más absurdo! —exclamé; {{#absurdo e:watson q:absurdo|y entonces, al darme cuenta de pronto de que él se había hecho eco del pensamiento más íntimo de mi alma, me erguí en la silla y me quedé mirándolo, atónito.}}"},
+    {"id": "p2", "text": "\\[…\\] {{#cobertizo e:susan_cushing q:cobertizo|—Están en el cobertizo, esas cosas espantosas —dijo [[susan_cushing|la señorita Cushing]] cuando entró [[lestrade|Lestrade]]—.}} Quisiera que se las llevaran de una vez.\n{{#caja e:lestrade q:caja|Lestrade fue al cobertizo y sacó una [[caja_de_carton|caja de cartón]] amarilla, con un trozo de papel de estraza y un poco de cordel.}}\n{{#estraza e:holmes q:estraza|—Y ahora, el envoltorio: papel de estraza, con un claro olor a café.}} {{#croydon e:holmes p:croydon q:croydon|La palabra «[[croydon|Croydon]]» se escribió primero con «i», que después se cambió por «y».}}\n{{#orejas e:holmes q:orejas|Mientras hablaba sacó las dos [[orejas|orejas]] y, apoyando una tabla sobre la rodilla, las examinó minuciosamente.}}\n{{#pareja e:holmes q:pareja|—Habrá observado usted, desde luego —dijo por fin—, que las orejas no hacen pareja.}}\n—Sí, ya lo había notado —dijo [[lestrade|Lestrade]]—. {{#diseccion e:lestrade q:diseccion|Pero si esto fuera la broma de unos estudiantes de las salas de disección, tanto les daría mandar dos orejas desparejas como un par.}}\n\\[…\\] {{#broma e:holmes q:broma|—Repito que aquí no hay ninguna broma, sino que estamos investigando un crimen grave.}} {{#de_mujer e:holmes q:de_mujer|Una de estas orejas es de mujer: pequeña, bien formada y agujereada para un pendiente.}} {{#de_hombre e:holmes q:de_hombre|La otra es de hombre: quemada por el sol, descolorida y también agujereada para un pendiente.}}"}
+  ],
+  "src_en": {
+    "agosto": "It was a blazing hot day in August.",
+    "horno": "Baker Street was like an oven, and the glare of the sunlight upon the yellow brickwork of the house across the road was painful to the eye.",
+    "sofa": "Our blinds were half-drawn, and Holmes lay curled upon the sofa, reading and re-reading a letter which he had received by the morning post.",
+    "filamentos": "He loved to lie in the very centre of five millions of people, with his filaments stretching out and running through them, responsive to every little rumour or suspicion of unsolved crime.",
+    "disputa": "It does seem a most preposterous way of settling a dispute.",
+    "absurdo": "and then suddenly realizing how he had echoed the inmost thought of my soul, I sat up in my chair and stared at him in blank amazement.",
+    "cobertizo": "They are in the outhouse, those dreadful things,” said she as Lestrade entered.",
+    "caja": "Lestrade went in and brought out a yellow cardboard box, with a piece of brown paper and some string.",
+    "estraza": "now for the box wrapper. Brown paper, with a distinct smell of coffee.",
+    "croydon": "The word ‘Croydon’ has been originally spelled with an ‘i,’ which has been changed to ‘y.’",
+    "orejas": "He took out the two ears as he spoke, and laying a board across his knee he examined them minutely",
+    "pareja": "You have observed, of course,” said he at last, “that the ears are not a pair.",
+    "diseccion": "But if this were the practical joke of some students from the dissecting-rooms, it would be as easy for them to send two odd ears as a pair.",
+    "broma": "I repeat that there is no practical joke here, but that we are investigating a serious crime.",
+    "de_mujer": "One of these ears is a woman’s, small, finely formed, and pierced for an earring.",
+    "de_hombre": "The other is a man’s, sun-burned, discoloured, and also pierced for an earring."
+  },
+  "words": 300
+}

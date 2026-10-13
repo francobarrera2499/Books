@@ -1,0 +1,46 @@
+{
+  "_nota": "W3-CT-REICH. Despacho de Reuter en el Times del jueves 7 de mayo de 1891 (GDD §2.3, §6): resumen sin cornisa ni marca. Es la fuente a la que HA1 manda al lector («lea a Reuter»; pista falsa falsa_reuter). Sin tramos del contrato.",
+  "id": "D06",
+  "entity": "despacho_reuter",
+  "title": "The Times, jueves 7 de mayo de 1891",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1891-05-07",
+  "chron_date": "1891-05-04",
+  "knowable": "1891-05-07",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [
+    300,
+    222
+  ],
+  "slip_topic": "holmes_prensa_1891",
+  "catalog": {
+    "label": "The Times, mayo de 1891",
+    "entities": [
+      "times",
+      "despacho_reuter",
+      "reuter",
+      "reichenbach",
+      "meiringen",
+      "holmes"
+    ]
+  },
+  "copies": [
+    {
+      "id": "D06@BM",
+      "holder": "BM",
+      "class": "I",
+      "via": "slip",
+      "from": "1.M",
+      "to": "9.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "<b>ÚLTIMOS TELEGRAMAS.</b>\n<sc>Accidente en Suiza.</sc> ([[reuter|Telegrama de Reuter]].)\nGINEBRA, 6 de mayo. — {{#ginebra d:1891-05-04 h:F.reuter e:suceso_reichenbach|Se tiene por cierto que el señor [[holmes|Sherlock Holmes]], de [[baker_street|Baker Street]], tan conocido por sus servicios en asuntos criminales, pereció el lunes en las cataratas del [[reichenbach|Reichenbach]], cerca de [[meiringen|Meiringen]].}} En la cascada lo acompañaba otro inglés, cuyo nombre no se ha dado. {{#busqueda e:guias|Los [[guias|guías]] que salieron en su busca no hallaron rastro de ninguno de los dos, y se supone que cayeron juntos al torrente.}} Dio la alarma el compañero de viaje del señor Holmes, que había bajado poco antes a la posada.\n<sc>La influenza.</sc> — {{#influenza e:influenza_1891|El Registrador General da cuenta de un nuevo aumento de las defunciones por [[influenza_1891|influenza]] en [[londres|Londres]] durante la semana pasada.}}"
+    }
+  ],
+  "words": 120
+}

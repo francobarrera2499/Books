@@ -1,0 +1,25 @@
+{
+  "_nota": "W3-CT-DLG-B. M7 (columna de Moran, GDD §9.7): lun. 2 de abril, 22 h; el «mayor Harris» sube en persona a la buhardilla, fuma un cheroot de Trichinópolis y deja la ceniza en el escritorio (lámina PL.M7). Contrato §4.8: S:M7.inteligente (C10.Ib, C10a; a:harris_es_moran), S:M7.donde_duerme (C10.Cb; a:busca_a_holmes), S:M7.trichinopolis (C13.R1; a:tirador f:secreto_camden): las mismas etiquetas que declara el rastro de M7. La variante pell_despedido (M4) reemplaza líneas base conservando sus tramos (§12.2 D7): más frío. Variantes de GDD como líneas con when: «cabrito mudo» (informes_vacios ≥ 2) y «exactitud, exactitud» (moran_credito_perdido). Harris es el primer who: las líneas pendientes de M10–M12 (siguiente comunicación) se le atribuyen y se dicen al final. La ceniza se nombra con la entidad ceniza (la lámina trae ceniza_negra).",
+  "id": "M7",
+  "place": "L1",
+  "area": "buhardilla",
+  "tk": "7.night",
+  "plate": "PL.M7",
+  "origin": "S.M7",
+  "lines": [
+    {"id": "llega", "who": "harris", "text": "Buenas noches, señor Lisle. Vengo yo mismo; hay encargos que no se delegan."},
+    {"id": "inteligente", "who": "harris", "text": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos e:harris|Un trabajo inteligente, inteligente.}} He leído sus informes, señor, uno por uno."},
+    {"id": "forma", "who": "harris", "text": "Pero le ruego la forma debida: fecha, fuente y folio, como en un parte de caza."},
+    {"id": "donde_duerme", "who": "harris", "text": "No me diga que vive, señor Lisle. {{#donde a:busca_a_holmes e:tigre e:donde|Dígame dónde duerme [[tigre|el tigre]].}}"},
+    {"id": "trichinopolis", "who": "harris", "text": "Enciende un [[cheroot|cheroot]] sin pedir permiso. —¿Le molesta el humo? {{#tri a:tirador e:cheroot e:trichinopolis f:secreto_camden|Es de [[trichinopolis|Trichinópolis]].}}"},
+    {"id": "mudo", "who": "harris", "when": {"flag_gte": {"informes_vacios": 2}}, "text": "{{#mudo a:cebo e:cabrito e:harris|Un [[cabrito|cabrito]] mudo no me sirve, señor.}} Bale usted, o lo cambio por otro."},
+    {"id": "exactitud", "who": "harris", "when": {"flag": "moran_credito_perdido"}, "text": "{{#exactitud a:harris_es_moran e:adjetivos_repetidos e:harris|Le ruego exactitud, exactitud.}} Lo que usted me informó no estaba donde usted dijo."},
+    {"id": "ceniza", "who": "harris", "text": "Sacude la [[ceniza|ceniza]] sobre el cuero del escritorio. —Buenas noches, señor Lisle. Deje la ventana abierta: el humo se va solo."}
+  ],
+  "variants": [
+    {"when": {"flag": "pell_despedido"}, "replace": {
+      "llega": "Buenas noches. Ya no hace falta un procurador entre nosotros, señor Lisle.",
+      "inteligente": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos e:harris|Un trabajo inteligente, inteligente.}} Demasiado, para lo que se le paga."
+    }}
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "_nota": "W3-CT-TRACES. D12, monografía de Holmes sobre las cenizas (ejemplar del Museo Británico) [C la obra; INV el ejemplar]. Título, «ciento cuarenta formas» y la frase sobre su importancia como indicio, traducidos de SIGN (q: con src_en de tests/fixtures/canon/sign.txt); la clasificación numerada, el n.º 97 «sin muestra» (té en ladrillo del Tíbet, que fuman los arrieros: D13 manda la ceniza que falta) y la dedicatoria a lápiz «S. H.» son invención (GDD §6). Contrato §4.8: #n97 (C8 identidad_holmes; clave numero_97: enlaza con D13#muestra97) · #dedicatoria (C8 identidad_holmes y C12 rasgo_holmes: la letra a lápiz de Holmes, que se coteja con «No lo es.» de HC01, la dirección de D33 y el precio de D37; clave letra). #autor también lleva identidad_holmes (la portada lo dice). La lámina IV lleva e:ceniza_negra y NO la entidad trichinopolis: EE13 se completa con la ceniza de Harris (M7, L8). Fecha del impreso: 1879 (STUD, 1881, ya la menciona); sin h:F.monografia_cenizas (su umbral público es 1890). slip_topic holmes_monografia (HA1). Ejemplar: BM.",
+  "id": "D12",
+  "entity": "monografia_cenizas",
+  "title": "Sobre la distinción entre las cenizas de los diversos tabacos (ejemplar del Museo Británico)",
+  "src_type": "libro",
+  "class": "I",
+  "date": "1879-11-01",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [140, 222],
+  "slip_topic": "holmes_monografia",
+  "catalog": {"label": "Holmes, S.: Sobre la distinción entre las cenizas de los diversos tabacos (Londres, 1879)", "entities": ["monografia_cenizas", "holmes", "ceniza", "numero_97", "te_en_ladrillo", "ceniza_negra", "cheroot"]},
+  "copies": [
+    {"id": "D12@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "{{#titulo q:titulo e:ceniza|<sc>Sobre la distinción entre las cenizas de los diversos tabacos</sc>}}\n\n{{#formas q:formas e:ceniza|Donde se enumeran ciento cuarenta formas de tabaco de cigarro, de cigarrillo y de pipa, con láminas en color que ilustran la diferencia de la ceniza.}}\n\n{{#autor a:identidad_holmes e:holmes|Por [[holmes|Sherlock Holmes]].}}\n[[londres|Londres]]: impreso para el autor, 1879.\n\n{{#indicio q:indicio e:ceniza|Es un punto que surge sin cesar en los juicios criminales y que a veces tiene una importancia suprema como indicio.}}\n\n{{#dedicatoria a:identidad_holmes a:rasgo_holmes e:letra e:holmes|<f=manuscrito><ink=lapiz>Al [[museo_britanico|Museo Británico]], con los cumplidos del autor, S. H.</ink></f>}}"},
+    {"id": "p2", "text": "<sc>Cap. IX</sc>: tabacos de Oriente.\n\n{{#n96 e:lunkah|N.º 96: [[lunkah|lunkah]] de la India, torcido en su propia hoja; ceniza parda, de grano grueso.}}\n{{#n97 a:identidad_holmes e:holmes e:numero_97|[[numero_97|N.º 97]]: [[te_en_ladrillo|té en ladrillo]] del [[tibet|Tíbet]], que los arrieros de las caravanas fuman cuando les falta el tabaco — sin muestra.}}\n{{#n98 e:latakia|N.º 98: [[latakia|latakia]] de Siria, curado al humo de leña; ceniza gris, fina como la harina.}}"},
+    {"id": "p3", "text": "<sc>Lámina IV</sc>.\n\n{{#lamina_iv e:ceniza_negra e:cheroot|La ceniza negra y en escamas del [[cheroot|cheroot]] de la India meridional, junto a la pelusa blanca del [[birds_eye|bird's-eye]], aumentadas cuatro veces.}}"}
+  ],
+  "src_en": {
+    "titulo": "Upon the Distinction between the Ashes of the Various Tobaccoes",
+    "formas": "a hundred and forty forms of cigar-, cigarette-, and pipe-tobacco, with coloured plates illustrating the difference in the ash",
+    "indicio": "It is a point which is continually turning up in criminal trials, and which is sometimes of supreme importance as a clue."
+  },
+  "words": 150
+}

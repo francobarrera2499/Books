@@ -1,0 +1,63 @@
+{
+  "_nota": "Fixture de integración (tests/test_i_integration.gd). El texto definitivo lo escribe W3-CT-REICH. Contrato §4.8: D03#sheer (C2, C3), D03#a_mycroft (C4) y D03#air_guns (C11). DataRepo exige todo tramo del contrato en un documento que exista.",
+  "id": "D03",
+  "entity": "fina",
+  "title": "«El problema final», The Strand Magazine, diciembre de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-12-01",
+  "chron_date": "1891-05-04",
+  "font": "imprenta",
+  "paper": "strand",
+  "slip_topic": "holmes_cronicas",
+  "catalog": {
+    "label": "The Strand Magazine, vol. VI",
+    "entities": [
+      "fina",
+      "strand",
+      "reichenbach"
+    ]
+  },
+  "copies": [
+    {
+      "id": "D03@tomo",
+      "holder": "tomo",
+      "class": "P",
+      "via": "tome",
+      "from": "P.N",
+      "to": "10.N"
+    },
+    {
+      "id": "D03@Crane",
+      "holder": "Crane",
+      "class": "I",
+      "via": "shelf",
+      "from": "1.M",
+      "to": "10.M"
+    },
+    {
+      "id": "D03@BM",
+      "holder": "BM",
+      "class": "I",
+      "via": "slip",
+      "from": "1.M",
+      "to": "9.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p2",
+      "text": "—¿Tiene usted miedo de algo? —le pregunté. {{#air_guns a:arma_de_aire q:air_guns e:fusil_de_aire|—De los [[fusil_de_aire|fusiles de aire]].}}"
+    },
+    {
+      "id": "p7",
+      "text": "{{#sheer a:fina_impreso_sin_raspadura a:fina_a_pique q:sheer e:reichenbach|Se había quedado en aquel [[sendero|sendero]] de tres pies, con una [[pared|pared]] [[a_pique|a pique]] a un lado y un precipicio a pique al otro.}} {{#a_mycroft a:bienes_a_mycroft q:a_mycroft e:holmes|Antes de salir de Inglaterra dispuse de todos mis [[bienes|bienes]] y se los entregué a mi hermano [[mycroft|Mycroft]].}}"
+    }
+  ],
+  "src_en": {
+    "sheer": "He had remained on that three-foot path, with sheer wall on one side and sheer drop on the other",
+    "a_mycroft": "I made every disposition of my property before leaving England, and handed it to my brother Mycroft.",
+    "air_guns": "Of air-guns."
+  },
+  "words": 50
+}

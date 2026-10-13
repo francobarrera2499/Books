@@ -1,0 +1,22 @@
+{
+  "_nota": "W3-CT-TIMES. D40 [H] (canon_bible F.barrie): la burla de J. M. Barrie en el St James's Gazette (29-dic-1893), versión española libre y abreviada de sus secciones («Sensational Arrest», «Much Dented», «The Motive», «What Watson Saw» y «The Dark Horse»; texto en arthur-conan-doyle.com). El «caballo oscuro» de Barrie es un cómplice médico del doctor: se conserva sin la alusión al colaborador literario. Se omiten la mención de Doyle y el «rumor extraordinario» final del original (Holmes de vuelta en Baker Street): en el mundo del juego Doyle no existe y ningún texto público dice que Holmes vive. Barrie no sabe que Mary murió el 25 de noviembre: el desayuno «con su señora» es suyo. Marginalia, ruido (EE06 es la línea de Watson, no este documento). slip_topic holmes_cronicas: el título nombra a Holmes y Cotter lee las papeletas (HA1, una vez por tema).",
+  "id": "D40",
+  "entity": "late_sherlock_holmes",
+  "title": "«The Late Sherlock Holmes», de J. M. Barrie, St James's Gazette, viernes 29 de diciembre de 1893",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1893-12-29",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [300, 420],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "St James's Gazette, 29 de diciembre de 1893: «The Late Sherlock Holmes»", "entities": ["late_sherlock_holmes", "st_james_gazette", "barrie", "holmes", "watson"]},
+  "copies": [
+    {"id": "D40@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"},
+    {"id": "D40@BM", "holder": "BM", "area": "sala", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>The Late Sherlock Holmes.</sc>\n<sc>Arresto sensacional.</sc> — {{#arresto e:watson p:st_johns_wood h:F.barrie|Ayer por la mañana la policía detuvo al doctor [[watson|W. W. Watson]] en su casa de [[st_johns_wood|St. John's Wood]], mientras desayunaba con su señora, y lo condujo a [[bow_street|Bow Street]].}} {{#cargo e:muerte_de_holmes|Se lo acusa de complicidad en la [[muerte_de_holmes|muerte]] del señor [[holmes|Sherlock Holmes]] en las cataratas del [[reichenbach|Reichenbach]].}}\n<sc>Un techo muy abollado.</sc> — {{#techo e:baker_street|El techo de las habitaciones de [[baker_street|Baker Street]] está abollado de tiros de práctica, y en la pared hay un retrato del doctor hecho a balazos, de gran parecido.}}\n<sc>El móvil.</sc> — {{#movil e:watson|Se habla de una disputa de dinero: Holmes sostenía que el doctor había hecho de él una mina de oro y no le daba parte.}} {{#salto e:watson|Se quejaba, además, de que el doctor ya no saltaba de asombro hasta el techo como en los primeros tiempos.}}\n<sc>Lo que vio el doctor.</sc> — {{#forastero e:reichenbach|Al dejar las cataratas, dice el acusado, vio a lo lejos la figura de un hombre alto.}} {{#complice e:watson|La policía no cree que fuera el profesor, sino un cómplice del doctor, médico como él.}}"}
+  ],
+  "words": 170
+}

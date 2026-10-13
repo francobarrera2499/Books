@@ -1,7 +1,11 @@
 {
-  "_nota": "W2-SIM. Textos de la simulación: etiquetas de actos (entidad runtime act_ref, §3.6), qué se recibe en la bandeja, resúmenes de informes para el diario, línea de fuente, motivos de cierre del mapa y errores de acciones de reloj y mundo (voz de Lisle). Claves con prefijo sim. Variables según la clave.",
+  "_nota": "W2-SIM. Textos de la simulación: etiquetas de actos (entidad runtime act_ref, §3.6), qué se recibe en la bandeja, resúmenes de informes para el diario, línea de fuente, motivos de cierre del mapa, errores de acciones de reloj y mundo (voz de Lisle) y el examen neutro de las siluetas (sim.sil.<who>, integración ola 2). Claves con prefijo sim. Variables según la clave.",
   "text": {
     "sim.src_line": "${titulo} · ${tipo}",
+    "sim.sil.wiggins": "Al fondo, un [[muchacho_de_gorra|muchacho de gorra larga]] se entretiene sin prisa.",
+    "sim.sil.muchacho_sin_gorra": "Al fondo, [[muchacho_sin_gorra|un muchacho sin gorra]] mira las vidrieras.",
+    "sim.sil.cochero": "Junto a la acera espera [[cochero|un cochero]] de abrigo con esclavina, sin pasajero.",
+    "sim.sil.m3_hombres": "En la esquina, [[hombres_de_moran|dos hombres]] de bombín conversan apoyados en la verja.",
     "sim.act.go": "${lugar}, ${fecha}",
     "sim.act.slip": "asiento ${seat}, ${fecha}",
     "sim.act.say": "«${frase}», ${fecha}",

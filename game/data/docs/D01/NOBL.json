@@ -1,0 +1,39 @@
+{
+  "_nota": "W3-CT-CORPUS-A. Corpus vol. III (GDD §6 D01, §15.1); formato común (ver D01.SCAN). Sin tramos del contrato §4.8: ruido de las crónicas, con el mismo tratamiento que las demás. #jezail («uno de mis miembros») y #semanas_antes («antes de mi propia boda», con vientos de otoño) rozan INC-01 e INC-06/08 sin probar nada: ruido que parece par. chron_date: otoño, semanas antes de la boda del doctor.",
+  "id": "D01.NOBL",
+  "entity": "nobl",
+  "title": "«El aristócrata solterón», The Strand Magazine, abril de 1892",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1892-04-01",
+  "chron_date": "1887-10-08",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El aristócrata solterón», The Strand Magazine, vol. III (abril de 1892)", "entities": ["nobl", "lord_st_simon", "lady_st_simon", "serpentine"]},
+  "copies": [
+    {"id": "D01.NOBL@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.NOBL@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>X\\. — El aristócrata solterón</b>\n{{#st_simon q:st_simon|La boda de [[lord_st_simon|lord St. Simon]] y su curioso desenlace hace tiempo que dejaron de interesar en los encumbrados círculos donde se mueve el desdichado novio.}}\n{{#semanas_antes e:holmes q:semanas_antes|Fue unas semanas antes de [[boda_de_watson|mi propia boda]], en los días en que aún compartía con Holmes las habitaciones de [[baker_street|Baker Street]].}} Llovía, con recios vientos de otoño, y yo no había salido en todo el día. {{#jezail e:herida q:jezail|La bala de jezail que traje en uno de mis miembros, como recuerdo de la campaña de [[afganistan|Afganistán]], me latía con una persistencia sorda.}}\n—He aquí una epístola muy a la moda —observé cuando volvió de su paseo—. {{#pescadero q:pescadero|Sus cartas de la mañana, si no recuerdo mal, eran de un pescadero y de un vista de aduanas.}}\n{{#variedad e:holmes q:variedad|—Sí, mi correspondencia tiene sin duda el encanto de la variedad —respondió sonriendo—, y las más humildes suelen ser las más interesantes.}} {{#columna e:holmes q:columna|No leo más que las noticias criminales y la [[columna_de_anuncios|columna de anuncios personales]].}} Esta última siempre es instructiva."},
+    {"id": "p2", "text": "\\[…\\] —¿Quién ha oído hablar nunca de un asunto tan enrevesado? {{#entre_los_dedos e:lestrade q:entre_los_dedos|Todas las pistas parecen escapárseme entre los dedos.}}\n—Y muy mojado parece haberlo dejado —dijo Holmes, poniéndole la mano en el brazo del chaquetón.\n{{#serpentine e:lestrade p:serpentine q:serpentine|—Sí, he estado dragando el [[serpentine|Serpentine]].}}\n—¿Y para qué, en nombre del cielo?\n{{#cadaver e:lestrade q:cadaver|—En busca del cadáver de [[lady_st_simon|lady St. Simon]].}}\nSherlock Holmes se echó atrás en el sillón y rió de buena gana.\n{{#trafalgar e:holmes p:trafalgar_square q:trafalgar|—¿Ha dragado usted el pilón de la fuente de [[trafalgar_square|Trafalgar Square]]?}} —preguntó.\n—¿Por qué? ¿Qué quiere decir?\n{{#igual_suerte e:holmes q:igual_suerte|—Porque tiene usted tantas probabilidades de encontrar a esa dama en el uno como en el otro.}}\n{{#vestido e:lestrade q:vestido|[[lestrade|Lestrade]] abrió la bolsa y volcó en el suelo un vestido de novia de seda tornasolada, un par de zapatos de raso blanco y una corona y un velo de novia, todo descolorido y empapado.}}\n{{#guardarropa e:holmes q:guardarropa|—Por el mismo brillante razonamiento, el cadáver de cualquier hombre ha de encontrarse en las cercanías de su guardarropa.}}"}
+  ],
+  "src_en": {
+    "st_simon": "The Lord St. Simon marriage, and its curious termination, have long ceased to be a subject of interest in those exalted circles in which the unfortunate bridegroom moves.",
+    "semanas_antes": "It was a few weeks before my own marriage, during the days when I was still sharing rooms with Holmes in Baker Street",
+    "jezail": "the jezail bullet which I had brought back in one of my limbs as a relic of my Afghan campaign throbbed with dull persistence.",
+    "pescadero": "Your morning letters, if I remember right, were from a fish-monger and a tide-waiter.",
+    "variedad": "Yes, my correspondence has certainly the charm of variety,” he answered, smiling, “and the humbler are usually the more interesting.",
+    "columna": "I read nothing except the criminal news and the agony column.",
+    "entre_los_dedos": "Every clue seems to slip through my fingers.",
+    "serpentine": "Yes, I have been dragging the Serpentine.",
+    "cadaver": "In search of the body of Lady St. Simon.",
+    "trafalgar": "Have you dragged the basin of Trafalgar Square fountain?",
+    "igual_suerte": "Because you have just as good a chance of finding this lady in the one as in the other.",
+    "vestido": "He opened his bag as he spoke, and tumbled onto the floor a wedding-dress of watered silk, a pair of white satin shoes and a bride’s wreath and veil, all discoloured and soaked in water.",
+    "guardarropa": "By the same brilliant reasoning, every man’s body is to be found in the neighbourhood of his wardrobe."
+  },
+  "words": 300
+}

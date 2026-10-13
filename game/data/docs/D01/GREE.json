@@ -1,0 +1,47 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. VI (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie (XXII), p2 = escena central (abre con «[…]»: el Diógenes), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/gree.txt), clip_entities [watson]. Contrato §4.8 (C7, grupo vinculo_mycroft): #pall_mall (C7.R6, con R:HC01.sobre: el matasellos de Pall Mall; enlaza por pall_mall), #whitehall (C7.R7, con L:wiggins.vieja_tarifa: «de Pall Mall a Whitehall»; enlaza por whitehall y pall_mall), #founders (C7.R4, con N:L2.cotter_canastilla y N:L2.cesto_tiras: «…GENES CLUB · PALL MALL…»; enlaza con el cesto por pall_mall, implícito: el club está en Pall Mall, como dicen #pall_mall y #carlton). La frase «Mycroft lodges in Pall Mall, and he walks round the corner into Whitehall…» se parte en dos oraciones para que cada ruta tenga su tramo; #pall_mall junta «lodges in Pall Mall» y «just opposite his rooms» (dos q:). Todo lo demás es ruido. chron_date (guardián): tarde de verano; después de «Estudio en escarlata» (nov. 1887), porque Mycroft llama al doctor cronista de su hermano.",
+  "id": "D01.GREE",
+  "entity": "gree",
+  "title": "«El intérprete griego», The Strand Magazine, septiembre de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-09-01",
+  "chron_date": "1888-09-12",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El intérprete griego», The Strand Magazine, vol. VI (septiembre de 1893)", "entities": ["gree", "mycroft", "club_diogenes", "pall_mall", "melas"]},
+  "copies": [
+    {"id": "D01.GREE@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.GREE@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XXII\\. — El intérprete griego</b>\n{{#parientes e:holmes q:parientes|En mi larga e íntima relación con el señor [[holmes|Sherlock Holmes]] nunca le había oído aludir a sus parientes, y casi nunca a sus primeros años.}} {{#huerfano e:holmes q:huerfano|Había llegado a creer que era huérfano y que no le quedaba ningún pariente vivo, pero un día, con gran sorpresa mía, empezó a hablarme de su hermano.}}\n\\[…\\] {{#arte e:holmes q:arte|—El arte en la sangre suele tomar las formas más extrañas.}}\n—Pero ¿cómo sabe usted que es hereditario?\n{{#hermano e:mycroft q:hermano|—Porque mi hermano [[mycroft|Mycroft]] lo posee en mayor grado que yo.}}\n—¿Es menor que usted?\n{{#mayor e:mycroft q:mayor|—Siete años mayor.}}\n\\[…\\] {{#club e:mycroft q:club|—[[club_diogenes|El club Diógenes]] es el club más raro de Londres, y Mycroft uno de los hombres más raros.}} {{#horario e:mycroft q:horario|Está allí siempre de las cinco menos cuarto a las ocho menos veinte.}}\n\\[…\\] —{{#pall_mall a:vinculo_mycroft e:mycroft q:pall_mall q:enfrente|[[mycroft|Mycroft]] se aloja en [[pall_mall|Pall Mall]], justo enfrente del [[club_diogenes|club Diógenes]].}} {{#whitehall a:vinculo_mycroft e:mycroft e:pall_mall q:whitehall|Cada mañana dobla la esquina hasta [[whitehall|Whitehall]], y cada tarde vuelve.}} {{#ejercicio e:mycroft q:ejercicio|De un año a otro no hace ningún otro ejercicio, ni se lo ve en ninguna otra parte.}}"},
+    {"id": "p2", "text": "\\[…\\] —{{#misantropia e:holmes q:misantropia|Hay en Londres muchos hombres que, por timidez o por misantropía, no desean la compañía de sus semejantes.}} {{#insociables e:club_diogenes q:insociables|Para comodidad de éstos se fundó [[club_diogenes|el club Diógenes]], que hoy reúne a los hombres más insociables y menos aptos para un club de toda la ciudad.}} {{#founders a:vinculo_mycroft e:mycroft e:club_diogenes e:pall_mall q:founders|[[mycroft|Mi hermano]] fue uno de los fundadores}}, y yo mismo he encontrado en él un ambiente muy sedante.\n{{#carlton p:pall_mall q:carlton|Habíamos llegado a [[pall_mall|Pall Mall]] mientras hablábamos, y lo recorríamos desde el extremo de St. James.}} {{#forasteros p:sala_de_forasteros q:forasteros|Holmes me hizo pasar a una salita que daba a Pall Mall y, dejándome solo un minuto, volvió con un acompañante que no podía ser sino su hermano.}}\n{{#corpulento e:mycroft q:corpulento|[[mycroft|Mycroft Holmes]] era un hombre mucho más voluminoso y corpulento que Sherlock.}}\n{{#foca e:mycroft q:foca|—Me alegro de conocerlo, señor —dijo, tendiéndome una mano ancha y gruesa como la aleta de una foca—.}} {{#cronista e:mycroft q:cronista|Oigo hablar de Sherlock en todas partes desde que usted se hizo su cronista.}}\n{{#soldado e:holmes q:soldado|—Un viejo soldado, por lo que veo —dijo Sherlock.}}\n{{#licenciado e:mycroft q:licenciado|—Y licenciado hace muy poco —observó el hermano.}}"}
+  ],
+  "src_en": {
+    "parientes": "During my long and intimate acquaintance with Mr. Sherlock Holmes I had never heard him refer to his relations, and hardly ever to his own early life.",
+    "huerfano": "I had come to believe that he was an orphan with no relatives living, but one day, to my very great surprise, he began to talk to me about his brother.",
+    "arte": "Art in the blood is liable to take the strangest forms.",
+    "hermano": "Because my brother Mycroft possesses it in a larger degree than I do.",
+    "mayor": "Seven years my senior.",
+    "club": "The Diogenes Club is the queerest club in London, and Mycroft one of the queerest men.",
+    "horario": "He’s always there from quarter to five to twenty to eight.",
+    "pall_mall": "Mycroft lodges in Pall Mall",
+    "enfrente": "except only in the Diogenes Club, which is just opposite his rooms.",
+    "whitehall": "he walks round the corner into Whitehall every morning and back every evening.",
+    "ejercicio": "From year’s end to year’s end he takes no other exercise, and is seen nowhere else",
+    "misantropia": "There are many men in London, you know, who, some from shyness, some from misanthropy, have no wish for the company of their fellows.",
+    "insociables":"It is for the convenience of these that the Diogenes Club was started, and it now contains the most unsociable and unclubable men in town.",
+    "founders": "My brother was one of the founders",
+    "carlton": "We had reached Pall Mall as we talked, and were walking down it from the St. James’s end.",
+    "forasteros": "Holmes showed me into a small chamber which looked out into Pall Mall, and then, leaving me for a minute, he came back with a companion whom I knew could only be his brother.",
+    "corpulento": "Mycroft Holmes was a much larger and stouter man than Sherlock.",
+    "foca": "I am glad to meet you, sir,” said he, putting out a broad, fat hand like the flipper of a seal.",
+    "cronista": "I hear of Sherlock everywhere since you became his chronicler.",
+    "soldado": "An old soldier, I perceive,” said Sherlock.",
+    "licenciado": "And very recently discharged,” remarked the brother."
+  },
+  "words": 300
+}

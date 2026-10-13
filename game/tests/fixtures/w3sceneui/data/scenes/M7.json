@@ -1,0 +1,15 @@
+{
+  "_nota": "Fixture de W3-SCENEUI (captura de una escena fija). La escena definitiva la escribe W3-CT-DLG-B. Contrato §4.8: S:M7.inteligente, S:M7.donde_duerme, S:M7.trichinopolis.",
+  "id": "M7",
+  "place": "L1",
+  "area": "buhardilla",
+  "tk": "7.night",
+  "plate": "PL.M7",
+  "origin": "S.M7",
+  "lines": [
+    {"id": "entra", "who": "harris", "text": "Buenas noches, señor Lisle. La escalera de Crane no tiene timbre."},
+    {"id": "inteligente", "who": "harris", "text": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}}"},
+    {"id": "donde_duerme", "who": "harris", "text": "No me diga que vive, señor Lisle. {{#donde a:busca_a_holmes e:donde|Dígame dónde duerme [[tigre|el tigre]].}}"},
+    {"id": "trichinopolis", "who": "harris", "text": "¿Le molesta el humo? {{#tri a:tirador e:cheroot f:secreto_camden|Es de [[trichinopolis|Trichinópolis]].}}"}
+  ]
+}

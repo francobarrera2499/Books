@@ -1,0 +1,37 @@
+{
+  "_nota": "W3-CT-CORPUS-B. Corpus vol. V (GDD §6 D01, §15.1). Formato común (ver D01.SCAN y D01.SILV): p1 = escena inicial con la cabecera de la serie (XVIII), p2 = escena central (abre con «[…]»: el ritual), ~300 palabras, tramos de una oración con q: y src_en exacto (tests/fixtures/canon/musg.txt), clip_entities [watson]. Sin tramos del contrato §4.8: todo es ruido. chron_date (guardián): el caso de Hurlstone, contado de noche en Baker Street; los hechos, años antes de conocer al doctor.",
+  "id": "D01.MUSG",
+  "entity": "musg",
+  "title": "«El ritual de los Musgrave», The Strand Magazine, mayo de 1893",
+  "src_type": "cronica",
+  "class": "I",
+  "date": "1893-05-01",
+  "chron_date": "1879-10-02",
+  "font": "imprenta",
+  "paper": "strand",
+  "clip_entities": ["watson"],
+  "slip_topic": "holmes_cronicas",
+  "catalog": {"label": "«El ritual de los Musgrave», The Strand Magazine, vol. V (mayo de 1893)", "entities": ["musg", "reginald_musgrave", "brunton"]},
+  "copies": [
+    {"id": "D01.MUSG@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
+    {"id": "D01.MUSG@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XVIII\\. — El ritual de los Musgrave</b>\n{{#anomalia e:holmes q:anomalia|Una anomalía que a menudo me llamaba la atención en el carácter de mi amigo [[holmes|Sherlock Holmes]] era que, aunque en sus métodos de pensamiento fuera el más pulcro y metódico de los hombres}}, en sus costumbres personales era uno de los más desordenados que hayan llevado nunca a la desesperación a un compañero de alojamiento. Pero cuando encuentro a un hombre {{#carbonero e:holmes q:carbonero|que guarda los cigarros en el carbonero, el tabaco en la punta de una babucha persa y la correspondencia sin contestar clavada con una navaja en mitad de la repisa de la chimenea}}, empiezo a darme aires de virtud.\n{{#destruir e:holmes q:destruir|Le horrorizaba destruir documentos, sobre todo los que tenían que ver con sus casos pasados.}} {{#hojalata e:holmes q:hojalata|Se fue a su dormitorio, del que volvió al poco arrastrando tras de sí una gran caja de hojalata.}}\n{{#casos e:holmes q:casos|—Aquí hay casos de sobra, Watson —dijo, mirándome con ojos traviesos—.}} Creo que si supiera usted todo lo que tengo en esta caja, me pediría que sacara algunos en vez de meter otros."},
+    {"id": "p2", "text": "\\[…\\] {{#papel e:reginald_musgrave q:papel|—Tengo que ver ese papel, Musgrave —dije—, que [[brunton|su mayordomo]] creyó que valía la pena consultar aun a riesgo de perder el puesto.}}\n{{#catecismo e:reginald_musgrave q:catecismo|Me tendió el mismo papel que tengo aquí, Watson, y éste es el extraño catecismo al que tenía que someterse cada Musgrave al llegar a la mayoría de edad.}}\n«¿De quién era?»\n«Del que se fue.»\n«¿Quién lo tendrá?»\n«El que vendrá.»\n«¿Dónde estaba el sol?»\n{{#roble q:roble|«Sobre el roble.»}}\n«¿Dónde estaba la sombra?»\n{{#olmo q:olmo|«Bajo el olmo.»}}\n«¿Cómo se midió?»\n{{#pasos q:pasos|«Al norte, diez y diez; al este, cinco y cinco; al sur, dos y dos; al oeste, uno y uno, y así debajo.»}}\n«¿Qué daremos por ello?»\n«Todo lo nuestro.»\n«¿Por qué hemos de darlo?»\n«Por la fe debida.»\n{{#siglo e:reginald_musgrave q:siglo|—El original no tiene fecha, pero la ortografía es de mediados del siglo diecisiete —observó [[reginald_musgrave|Musgrave]].}}"}
+  ],
+  "src_en": {
+    "anomalia": "An anomaly which often struck me in the character of my friend Sherlock Holmes was that, although in his methods of thought he was the neatest and most methodical of mankind",
+    "carbonero": "who keeps his cigars in the coal-scuttle, his tobacco in the toe end of a Persian slipper, and his unanswered correspondence transfixed by a jack-knife into the very centre of his wooden mantelpiece",
+    "destruir": "He had a horror of destroying documents, especially those which were connected with his past cases",
+    "hojalata": "he went off to his bedroom, from which he returned presently pulling a large tin box behind him.",
+    "casos": "There are cases enough here, Watson,” said he, looking at me with mischievous eyes.",
+    "papel": "I must see that paper, Musgrave,’ said I, ‘which this butler of yours thought it worth his while to consult, even at the risk of the loss of his place.",
+    "catecismo": "He handed me the very paper which I have here, Watson, and this is the strange catechism to which each Musgrave had to submit when he came to man’s estate.",
+    "roble": "Over the oak.",
+    "olmo": "Under the elm.",
+    "pasos": "North by ten and by ten, east by five and by five, south by two and by two, west by one and by one, and so under.",
+    "siglo": "The original has no date, but is in the spelling of the middle of the seventeenth century,’ remarked Musgrave."
+  },
+  "words": 300
+}

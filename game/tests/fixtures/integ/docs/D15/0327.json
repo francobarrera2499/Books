@@ -1,0 +1,41 @@
+{
+  "_nota": "Fixture de integración (tests/test_i_integration.gd). El número definitivo lo escribe W3-CT-TIMES. inserts: dónde WorldModel agrega los bloques runtime (avisos de Lisle y columnas «—S.»).",
+  "id": "D15.0327",
+  "entity": "times_0327",
+  "title": "The Times, martes 27 de marzo de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "origin": "D15.0327",
+  "date": "1894-03-27",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [
+    380,
+    540
+  ],
+  "inserts": {
+    "columna": "p2",
+    "noticias": "p1"
+  },
+  "copies": [
+    {
+      "id": "D15.0327@L1",
+      "holder": "L1",
+      "area": "buhardilla",
+      "via": "desk",
+      "from": "1.dawn",
+      "to": "10.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "NOTICIAS DE LONDRES. — La niebla cerró ayer el puerto durante seis horas; los vapores de Gravesend esperaron hasta el mediodía."
+    },
+    {
+      "id": "p2",
+      "text": "COLUMNA DE ANUNCIOS. — Se ha perdido un perro de aguas en Hyde Park; se gratificará a quien lo devuelva."
+    }
+  ],
+  "words": 40
+}

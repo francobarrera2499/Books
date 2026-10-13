@@ -1,0 +1,20 @@
+{
+  "_nota": "Fixture de W3-SCENEUI (capturas y tests de la UI de escenas). El diálogo definitivo lo escribe W3-CT-DLG-B. Crane: chismoso, mercachifle; no es canal; sin límite de preguntas.",
+  "char": "crane",
+  "label": "el señor Crane",
+  "intro": "Abel Crane, librero",
+  "addr": "señor Crane",
+  "sensor": null,
+  "max_questions": 99,
+  "trait": "mangas_ligas",
+  "closing": "Si no compra, señor, por lo menos no me tape la vidriera.",
+  "ask_phrase": {"default": "¿Qué me dice de ${topic}, ${addr}?"},
+  "lines": [
+    {"id": "fina", "layer": "tema", "match": {"topic": ["fina", "strand"]}, "text": "Se vendió como pan caliente, señor. Las viudas lo compraban de dos en dos: uno para llorar y otro para prestar."},
+    {"id": "doc.extranjero", "layer": "documento", "match": {"doc": ["D05", "D08"]}, "text": "Papeles extranjeros no compro, señor: nadie los entiende y huelen a tren."},
+    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "Se rasca la oreja con el lápiz. —De ése se dice mucho en la calle, señor, y yo no repito ni la mitad."},
+    {"id": "tipo.lugar", "layer": "tipo", "match": {"kind": ["lugar"]}, "text": "Nunca salí de Holywell Street más que para ir a las subastas, señor."},
+    {"id": "gen.1", "layer": "generica", "text": "Todo libro tiene precio, señor; algunos, dos."},
+    {"id": "gen.2", "layer": "generica", "text": "Se rasca la oreja con el lápiz. —Eso no se vende, señor."}
+  ]
+}

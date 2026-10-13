@@ -1,0 +1,12 @@
+{
+  "_nota": "W3-CT-DLG-B. Escena del epílogo (Clock.EPILOGUE_SCENE: se dice al entrar en la fase epilogue, día E = jueves 1 de octubre de 1903). Prólogo hablado del texto de W3-CT-LISLE (ui_text/epilogo.json, que monta W4-EPILOGUE): Crane, viejo y desde 1901 en Charing Cross Road, le trae a Lisle la Strand de octubre (EMPT). Variante F1 (misma condición que endings V.F1 / nota_de_s_h): la revista llegó por correo, ya pagada. La deuda de 3s. 6d. viene del 94. Archivo exento del lint de anacronismos (T7 EPILOGUE_FILES). Sin place; when día ≥ 11.",
+  "id": "EPI",
+  "when": {"day": {"gte": 11}},
+  "origin": "S.EPI",
+  "lines": [
+    {"id": "trae", "who": "crane", "when": {"not": {"all": [{"sealed_all": ["C6", "C7", "C10"]}, {"sealed_count": {"of": "mandatory", "gte": 8}}, {"flag_eq": {"informe_final": "errata"}}, {"not": {"flag": "watson_expuesto"}}, {"flag": "moran_credito"}, {"not": {"flag": "moran_credito_perdido"}}, {"not": {"flag": "holmes_entregado"}}]}}, "text": "Le dejo la [[strand|Strand]] de octubre, señor Lisle, recién llegada. En la estación hacían cola por ella, como para un estreno."},
+    {"id": "correo", "who": "crane", "when": {"all": [{"sealed_all": ["C6", "C7", "C10"]}, {"sealed_count": {"of": "mandatory", "gte": 8}}, {"flag_eq": {"informe_final": "errata"}}, {"not": {"flag": "watson_expuesto"}}, {"flag": "moran_credito"}, {"not": {"flag": "moran_credito_perdido"}}, {"not": {"flag": "holmes_entregado"}}]}, "text": "Le subo el correo, señor Lisle: la [[strand|Strand]] de octubre, y pagada. Alguien se me adelantó."},
+    {"id": "vuelve", "who": "crane", "text": "Se rasca la oreja con el lápiz, como hace nueve años. —Dicen que vuelve el hombre. Muerto se vendía el doble; vivo, ya veremos."},
+    {"id": "deuda", "who": "crane", "text": "—Le apunto lo de siempre: 3s\\. 6d\\. desde el noventa y cuatro. Yo no pierdo nunca la esperanza, señor."}
+  ]
+}

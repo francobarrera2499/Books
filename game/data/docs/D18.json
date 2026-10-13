@@ -1,0 +1,21 @@
+{
+  "_nota": "W3-CT-TRACES. D18, índices de Somerset House (L6) [GDD §6 D18, §10.4 C4.R1 y C14.R1, §10.5 falsa_herencia]. Dos páginas, en orden alfabético y sin comentario: el lector ve el hueco. (p1) Calendars de sucesiones y administraciones de 1891, 1892 y 1893, letra H: de «Holmes, Rebecca» a «Holmes, Thomas», sin ningún Sherlock entre Sarah y Thomas. (p2) Índice de defunciones del 4.º trimestre de 1893, letra W: «Watson, Mary, 32, Paddington, 1a 41» (32 años: diecisiete en 1878, SIGN; volumen 1a = distritos del oeste de Londres) entre otros dos Watson. Contrato §4.8: #calendars (C4 en_vida, refuta falsa_herencia → a:refuta_herencia; clave holmes implícita e:holmes; R4: e:en_vida y e:bienes) · #mary (C14 duelo, ⚠ w:mary_defuncion: GDD §15.8, que el índice trimestral pudiera consultarse a fines de marzo de 1894; sólo en C14.R1, ruta no ★ de una conclusión opcional; T7). clip_mode memoria (L6: tres recortes por visita). Cerrado el domingo (schedule). Ejemplar: L6, sala.",
+  "id": "D18",
+  "entity": "indices_somerset",
+  "title": "Somerset House: calendars de sucesiones (1891 a 1893) e índice de defunciones (4.º trimestre de 1893)",
+  "src_type": "registro",
+  "class": "I",
+  "date": "1894-03-01",
+  "font": "imprenta",
+  "paper": "registro",
+  "paper_mm": [250, 340],
+  "clip_mode": "memoria",
+  "copies": [
+    {"id": "D18@L6", "holder": "L6", "area": "sala", "class": "I", "via": "place", "from": "1.M", "to": "9.T"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Calendar de sucesiones y administraciones</sc>, tomos de 1891, 1892 y 1893. — Letra H.\n{{#calendars a:en_vida a:refuta_herencia e:holmes e:en_vida e:bienes c:verdadero h:F.sin_sucesion|[[rebecca_holmes|Holmes, Rebecca]], viuda, de [[islington|Islington]], 1892; [[richard_holmes|Holmes, Richard]], tonelero, de Islington, 1891; [[samuel_holmes|Holmes, Samuel]], cordelero, de [[poplar|Poplar]], 1893; [[sarah_holmes|Holmes, Sarah]], 1891; [[thomas_holmes|Holmes, Thomas]], curtidor, 1893.}}"},
+    {"id": "p2", "text": "<sc>Índice de defunciones</sc>, cuarto trimestre de 1893. — Letra W.\n{{#mary a:duelo w:mary_defuncion e:mary_watson e:muerte_de_mary c:verdadero h:F.mary_muerte|[[margaret_watson|Watson, Margaret]], 71, Islington, 1b 212; [[mary_watson|Watson, Mary]], 32, [[paddington|Paddington]], 1a 41; [[michael_watson|Watson, Michael]], 0, Poplar, 1c 530.}}"}
+  ],
+  "words": 60
+}

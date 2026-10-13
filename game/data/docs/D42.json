@@ -1,0 +1,19 @@
+{
+  "_nota": "W3-CT-TIMES. D42 [H]: prensa de época de relleno (GDD §6; canon_bible F.bomba_greenwich, F.rosebery, F.reina_florencia; regata del 17 de marzo, london_period §1.3). Se lee en la pila de diarios atrasados de la tienda de Crane (GDD §5 L1, estantes): números sueltos de la Westminster Gazette (vespertina, papel verde) y de la Pall Mall Gazette de febrero y marzo. Sus palabras cuentan dentro del presupuesto del Times (GDD §6: «en D15»). Ruido puro: ninguna etiqueta de conclusión. El Grand National y la final de la Copa salen en el Times de cada día (D15.0328–0402).",
+  "id": "D42",
+  "entity": "prensa_de_epoca",
+  "title": "Diarios atrasados: Westminster Gazette y Pall Mall Gazette, febrero y marzo de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "date": "1894-03-17",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [300, 420],
+  "copies": [
+    {"id": "D42@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}
+  ],
+  "parts": [
+    {"id": "p1", "text": "<sc>Westminster Gazette, viernes 16 de febrero.</sc> — {{#greenwich e:bomba_de_greenwich p:greenwich h:F.bomba_greenwich|El francés [[bourdin|Martial Bourdin]], sastre, murió ayer sin decir palabra: la bomba que llevaba le estalló en el parque de [[greenwich|Greenwich]], bajo el Observatorio.}}\n<sc>Pall Mall Gazette, lunes 5 de marzo.</sc> — {{#dimision e:dimision_de_gladstone|El señor [[gladstone|Gladstone]] deja el gobierno por la edad y la vista, y conserva su escaño.}} {{#rosebery e:rosebery|[[rosebery|Lord Rosebery]] acepta, a regañadientes, formar el nuevo gabinete.}}\n<sc>Westminster Gazette, sábado 17 de marzo.</sc> — {{#reina e:la_reina p:florencia h:F.reina_florencia|[[la_reina|Su Majestad]] partió ayer hacia [[florencia|Florencia]], donde pasará un mes.}} {{#regata e:regata|Oxford ganó hoy [[regata|la regata]] por tres largos y medio: es su quinta victoria seguida.}}"}
+  ],
+  "words": 95
+}
