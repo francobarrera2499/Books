@@ -1,7 +1,7 @@
 @echo off
-rem Lanza "Fe de erratas". Guarda partidas/config dentro de C:\Devooks\.work (regla del proyecto).
+rem Lanza "Fe de erratas". Guarda partidas y config dentro de esta carpeta (.work), por la regla del proyecto.
 set "ROOT=%~dp0"
-set "APPDATA=%ROOT%.workppdata"
+set "APPDATA=%ROOT%.work\appdata"
 set "LOCALAPPDATA=%ROOT%.work\localappdata"
 if not exist "%APPDATA%" mkdir "%APPDATA%"
 if not exist "%LOCALAPPDATA%" mkdir "%LOCALAPPDATA%"
