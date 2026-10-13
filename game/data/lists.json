@@ -84,7 +84,7 @@
   "_slip_topics_nota": "Tema de papeleta de cada doc del BM (docs/*.json slip_topic) → grupo. «holmes» dispara HA1 (una vez por tema); «silencio» = HB14 (cartas del coronel, libros de Moran, Ohrwalder y notas del Sudán, Gazette, Kelly's, prensa de 1894, Lancet y subasta, y todo lo demás).",
   "topic_groups": {
     "roca": ["pared", "a_pique", "raspadura", "marca_en_la_roca", "cornisa", "roca", "sendero", "reichenbach", "fina", "galerada", "pruebas_americanas", "pruebas_de_watson", "journal_de_geneve", "baston", "carta_de_reichenbach", "nota_de_meiringen", "profesor_moriarty", "suceso_reichenbach", "cayeron", "nota_falsa", "testamento", "mintio"],
-    "mary": ["mary_watson", "duelo", "crespon", "muerte_de_mary", "esposa"],
+    "mary": ["mary_watson", "duelo", "crespon", "muerte_de_mary", "esposa", "boda_de_watson"],
     "vive": ["vive", "vivo"],
     "221b": ["221b", "cuartos", "alquiler", "mycroft", "libro_de_recibos", "shag", "cajon_de_grenoble"],
     "sigerson": ["sigerson", "despachos_sigerson", "tibet", "jartum"]
