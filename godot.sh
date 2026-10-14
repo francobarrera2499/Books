@@ -1,6 +1,6 @@
 #!/bin/sh
 # Wrapper: keeps ALL Godot user/config/cache data inside C:\Dev\books\.work (rule: never touch files outside the repo dir)
-# LOAD LIMIT (user's PC rebooted under load): at most GODOT_SLOTS (default 2) Godot processes at once,
+# LOAD LIMIT (user's PC rebooted under load): at most GODOT_SLOTS (default 1) Godot processes at once,
 # and at most 1 windowed (GPU) process. Extra callers WAIT for a free slot (message on stderr).
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 export APPDATA="$(cygpath -w "$ROOT/.work/appdata" 2>/dev/null || echo "$ROOT/.work/appdata")"
@@ -9,7 +9,7 @@ export TEMP="$(cygpath -w "$ROOT/.work/temp" 2>/dev/null || echo "$ROOT/.work/te
 export TMP="$TEMP"
 mkdir -p "$ROOT/.work/appdata" "$ROOT/.work/localappdata" "$ROOT/.work/temp" "$ROOT/.work/locks"
 LOCKDIR="$ROOT/.work/locks"
-SLOTS="${GODOT_SLOTS:-2}"
+SLOTS="${GODOT_SLOTS:-1}"
 HELD=""
 release() { for d in $HELD; do rm -rf "$d"; done; HELD=""; }
 trap 'release' EXIT
