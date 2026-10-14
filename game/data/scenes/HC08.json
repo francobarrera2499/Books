@@ -8,12 +8,12 @@
   "origin": "S.HC08",
   "lines": [
     {"id": "luz", "who": "lisle", "text": "Park Lane, a las seis. El sol bajo dora las fachadas, y frente al [[park_lane_427|427]] se juntan [[curiosos|curiosos]] a mirar una ventana del segundo piso."},
-    {"id": "teoria_buena", "who": "lisle", "when": {"sealed": "C11"}, "text": "Les explico que el tiro vino de la calle, por la ventana abierta, con un arma que no hace ruido. Se acercan a escucharme."},
-    {"id": "teoria_mala", "who": "lisle", "when": {"not": {"sealed": "C11"}}, "text": "Les explico que el asesino escapó por esa ventana y bajó al jardín. Me escuchan; detrás de la reja, los [[azafranes|azafranes]] del jardín no tienen una flor rota."},
+    {"id": "teoria_buena", "who": "lisle", "when": {"inked": "Q7"}, "text": "Les explico que el tiro vino de la calle, por la ventana abierta, con un arma que no hace ruido. Se acercan a escucharme."},
+    {"id": "teoria_mala", "who": "lisle", "when": {"not": {"inked": "Q7"}}, "text": "Les explico que el asesino escapó por esa ventana y bajó al jardín. Me escuchan; detrás de la reja, los [[azafranes|azafranes]] del jardín no tienen una flor rota."},
     {"id": "medico", "who": "lisle", "text": "Un caballero de luto escucha un momento, menea la cabeza y se aparta, disgustado."},
     {"id": "doctor", "who": "lisle", "when": {"visited": "L4"}, "text": "Creo reconocer al doctor. Él no me reconoce: de mí solo mira los anteojos."},
     {"id": "choque", "who": "lisle", "text": "Tropieza con un anciano encorvado y le tira los libros; al recogerlos lee un título, <i>[[tree_worship|The Origin of Tree Worship]]</i>. —Le ruego que me perdone, señor."},
     {"id": "se_va", "who": "lisle", "text": "Le arranca los libros, gruñe con desprecio y se pierde entre la gente: la espalda curva, las patillas blancas."},
-    {"id": "reconoce", "who": "lisle", "when": {"sealed": "C12"}, "text": "Son los cuatro libros de esta mañana; el de los árboles, arriba. No digo nada."}
+    {"id": "reconoce", "who": "lisle", "when": {"flag_eq": {"confront_estado": "completa"}}, "text": "Son los cuatro libros de esta mañana; el de los árboles, arriba. No digo nada."}
   ]
 }

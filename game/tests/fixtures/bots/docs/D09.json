@@ -14,8 +14,8 @@
     {"id": "D09@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}
   ],
   "parts": [
-    {"id": "p1", "text": "Señor director: {{#desague a:estilo_cartas_coronel e:desague e:tigre|Se ha perseguido la memoria de mi hermano como se sigue a un [[tigre|tigre]] herido por [[desague|el desagüe]].}} Lo digo sin rencor. {{#cruel a:estilo_cartas_coronel e:cruel|Es una persecución [[cruel|cruel, cruel]], que no honra a quien la escribe.}} —[[coronel_moriarty|J. Moriarty]], coronel."},
-    {"id": "p2", "text": "{{#nota_redactor a:estilo_cartas_coronel e:bigote|Nota de la redacción: la carta fue entregada en mano por un caballero de [[bigote|bigote canoso]] que no dejó su nombre.}}"}
+    {"id": "p1", "text": "Señor director: {{#desague e:desague e:tigre|Se ha perseguido la memoria de mi hermano como se sigue a un [[tigre|tigre]] herido por [[desague|el desagüe]].}} Lo digo sin rencor. {{#cruel e:cruel|Es una persecución [[cruel|cruel, cruel]], que no honra a quien la escribe.}} —[[coronel_moriarty|J. Moriarty]], coronel."},
+    {"id": "p2", "text": "{{#nota_redactor e:bigote|Nota de la redacción: la carta fue entregada en mano por un caballero de [[bigote|bigote canoso]] que no dejó su nombre.}}"}
   ],
   "words": 70
 }

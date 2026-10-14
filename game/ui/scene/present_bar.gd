@@ -1,7 +1,7 @@
 # ui/scene/present_bar.gd — segundo paso de presentar (y de pagar o encargar): la frase exacta y «Mostrar» / «Guardar».
 # Dueño: W3-SCENEUI. GDD §8.7 (botón Present de Ace Attorney), ARCHITECTURE §5.7, §6.1 (dos pasos), §6.7.
 # Uso: var b = PresentBar.new(link); add_child(b)
-#   open_present(char, label, item {kind:"clip"|"entry", id}) -> frase = q_preview({"t":"present",…})
+#   open_present(char, label, item {kind:"clip"|"pregunta", id}) -> frase = q_preview({"t":"present",…})
 #   open_pay(char, label, amounts := [6, 12, 30]) -> elegir monedas; frase = q_preview({"t":"pay",…})
 #   open_task(char, label, tasks) -> elegir encargo; frase = q_preview({"t":"task",…})
 #   open_confront(step, char, label, item) -> refutar en la confrontación: acción {"t":"confront","step","item"}; la frase

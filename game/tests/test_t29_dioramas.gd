@@ -228,7 +228,9 @@ func test_sample_pick_node_char_none() -> void:
 func test_sample_cutaway_and_frames() -> void:
 	var place := _sample()
 	var wr = await _world(place, _full_snap(place, "estudio", "M", "puerta"))
-	eq(wr.frames(), ["puerta", "escritorio", "ventana"], "frames()")
+	var fr: Array = wr.frames()
+	fr.sort()
+	eq(fr, ["escritorio", "puerta", "ventana"], "frames(): los puntos del riel (los encuadres del lugar)")
 	eq(wr.current_plate(), "PL.SAMPLE.3.M", "current_plate")
 	wr.set_frame("puerta", true)
 	await tree.physics_frame
@@ -241,48 +243,40 @@ func test_sample_cutaway_and_frames() -> void:
 	await tree.physics_frame
 	ok(ws.visible, "desde adentro se ven todos los muros")
 
-# v2 (GDD_v2 §E): en un lugar (sin vista general propia en world/camera.json) cada encuadre es una estación con la órbita
-# corta de siempre alrededor de su pivote (±orbit.yaw/±orbit.pitch); el primero del área es la general y los otros
-# zonas; FOV entre base −18° y base +4°; la pila de poses baja de a un nivel.
+# v3 (GDD_v3 §6.6, UI-MUNDO): en un lugar sin riel propio en world/camera.json los encuadres son los puntos del riel
+# (ordenados por rumbo); el de inicio es el primero del área; mirar arriba/abajo acotado; el riel no cíclico se acota a sus
+# extremos; FOV entre base −18° y base +4°; examinar no acerca ni hay pila de poses.
 func test_sample_orbit_limits_and_examine() -> void:
 	var place := _sample()
 	var wr = await _world(place, _full_snap(place, "estudio", "M", "puerta"))
 	wr.set_frame("puerta", true)
-	eq(wr.rig.mode(), "overview", "el primer encuadre del área es la vista general")
-	no(wr.rig.inplace(), "un diorama orbita alrededor de su pivote")
+	eq(wr.rig.mode(), "rail", "riel")
+	eq(wr.rig.cur, "puerta", "el encuadre pedido")
 	var cam: Camera3D = wr.camera()
 	var p0 := cam.global_position
-	wr.rig.orbit_by(100.0, 100.0)
-	# límites del encuadre (±25°/±10°), con el arco acotado a 1,8 m si el pivote está lejos (CÁMARA v2)
-	var d: float = p0.distance_to(Vector3(0, 1, 0))
-	var cap := rad_to_deg(1.8 / d)
-	near(wr.rig.yaw_off, minf(25.0, cap), 0.001, "yaw acotado")
-	near(wr.rig.pitch_off, minf(10.0, cap), 0.001, "pitch acotado")
-	ok(cam.global_position.distance_to(p0) > 0.5, "la cámara orbitó")
-	ok(cam.global_position.distance_to(p0) <= 1.8 * sqrt(2.0) + 0.05, "sin trasladarse más de 1,8 m por eje")
-	near(cam.global_position.distance_to(Vector3(0, 1, 0)), p0.distance_to(Vector3(0, 1, 0)), 0.01, "órbita alrededor del pivote")
+	wr.rig.look_now(0.0, 100.0)
+	near(wr.rig.pitch_off, wr.rig.pitch_lim, 0.001, "cabeceo acotado")
+	ok(cam.global_position.is_equal_approx(p0), "mirar arriba no traslada")
+	wr.rig.look_now(1000.0, 0.0)
+	near(wr.rig.yaw_off, wr.rig.s_max, 0.001, "giro acotado al extremo del riel")
+	wr.set_frame("puerta", true)
+	ok(cam.global_position.is_equal_approx(p0), "set_frame restituye el punto")
+	var f0 := cam.fov
 	wr.rig.zoom_by(20.0)
-	near(cam.fov, 54.0, 0.001, "FOV +4 como máximo")
+	near(cam.fov, f0 + 4.0, 0.001, "FOV +4 como máximo")
 	wr.rig.zoom_by(-20.0)
-	near(cam.fov, 32.0, 0.001, "FOV −18 como mínimo")
+	near(cam.fov, f0 - 18.0, 0.001, "FOV −18 como mínimo")
+	wr.rig.zoom_by(6.0)
 	wr.set_orbit_enabled(false)
 	wr.set_frame("puerta", true)
-	wr.rig.orbit_by(10.0, 0.0)
-	near(wr.rig.yaw_off, 0.0, 0.001, "sin mirar alrededor si está apagado")
-	ok(cam.global_position.is_equal_approx(p0), "set_frame restituye el encuadre")
+	wr.rig.look_now(10.0, 0.0)
+	near(wr.rig.yaw_off, float(wr.rig.rail[wr.rig.index_of("puerta")].s), 0.001, "sin girar si está apagado")
 	wr.set_orbit_enabled(true)
-	wr.set_frame("escritorio", true)
-	eq(wr.rig.mode(), "zone", "otro encuadre es una zona (estación)")
-	eq(wr.rig.depth(), 2, "general → zona")
-	ok(wr.examine("lupa"), "examinar")
-	ok(wr.is_examining(), "examinando")
-	eq(wr.rig.depth(), 3, "general → zona → examen")
-	ok(wr.back(), "volver consume")
-	no(wr.is_examining(), "ya no examina")
-	eq(wr.rig.mode(), "zone", "vuelve a la zona")
-	ok(wr.back(), "volver de la zona")
-	eq(wr.rig.mode(), "overview", "vuelve a la vista general")
-	no(wr.back(), "en la vista general no consume")
+	var x0 := cam.global_transform
+	ok(wr.examine("lupa"), "examinar existe")
+	no(wr.is_examining(), "pero no acerca la cámara")
+	ok(cam.global_transform.is_equal_approx(x0), "la cámara no se movió")
+	no(wr.back(), "no hay pila de poses")
 
 # ---------------------------------------------------------------------------------------------
 # Lugares reales (data/places/*.json, W2-PLACES-*)
@@ -357,12 +351,12 @@ func test_places_line_of_fire_clippable_alone() -> void:
 	if not found:
 		pending_content("ningún lugar con nodo linea_de_tiro (L7)")
 
-# Todo nodo N: que una ruta de data/conclusions.json usa se recorta SOLO (rectángulo ≤ 1/8, cover ≥ 0,5, ajustado) desde
+# Todo nodo N: que una ruta de data/dossier.json (v3; antes conclusions.json) usa se recorta SOLO (rectángulo ≤ 1/8, cover ≥ 0,5, ajustado) desde
 # algún encuadre de su lugar o lámina, con la instantánea del primer día y franja en que existe (hallazgo del playtest:
 # T29 sólo probaba la línea de tiro). Nodos que pone un efecto (rastro) o un lugar inexistente: se informan aparte.
 func test_route_nodes_clippable_alone() -> void:
 	var r = repo()
-	var txt := FileAccess.get_file_as_string("res://data/conclusions.json")
+	var txt := FileAccess.get_file_as_string("res://data/dossier.json")
 	var rx := RegEx.new()
 	rx.compile("\"N:([A-Za-z0-9_.]+)\"")
 	var refs: Array = []
@@ -371,7 +365,7 @@ func test_route_nodes_clippable_alone() -> void:
 			refs.append(m.get_string(1))
 	refs.sort()
 	if refs.is_empty():
-		pending_content("conclusions.json sin nodos N:")
+		pending_content("dossier.json sin nodos N:")
 		return
 	var Cond = load("res://core/util/cond.gd")
 	var TK = load("res://core/util/timekey.gd")
@@ -379,6 +373,8 @@ func test_route_nodes_clippable_alone() -> void:
 	for ref in refs:
 		var parts: PackedStringArray = String(ref).split(".")
 		var pid := parts[0]
+		if pid == "*":
+			continue   # rastro en cualquier lugar (N:*.sil_wiggins): lo pone un efecto
 		var nid := parts[parts.size() - 1]
 		var variant := parts[1] if parts.size() == 3 else ""
 		var pl: Dictionary = r.place(pid)
@@ -469,30 +465,32 @@ func _motion(pos: Vector2, rel: Vector2) -> void:
 func test_worldroot_click_and_drag_orbit_by_events() -> void:
 	var place := _sample()
 	var wr = await _world(place, _full_snap(place, "estudio", "M", "escritorio"))
-	wr.auto_examine = false
 	wr.set_frame("escritorio", true)
 	await tree.physics_frame
 	ok(wr.is_plate_ready(), "plate_ready tras un physics_frame")
 	var got := []
 	wr.node_clicked.connect(func(id): got.append(id))
+	var x0: Transform3D = wr.camera().global_transform
 	var p: Vector2 = wr.camera().unproject_position(wr.node_body("lupa").global_position)
 	_mouse(MOUSE_BUTTON_LEFT, true, p)
 	_mouse(MOUSE_BUTTON_LEFT, false, p)
 	await tree.process_frame
 	eq(got, ["lupa"], "clic sobre la lupa → node_clicked")
-	# arrastre sobre el vacío (techo) → órbita; sobre un nodo no orbita
+	ok(wr.camera().global_transform.is_equal_approx(x0), "el clic no mueve la cámara (v3: se usa en el acto)")
+	# arrastre sobre el vacío (techo) → gira; un toque de 3 px es clic
 	wr.set_frame("puerta", true)
 	await tree.physics_frame
 	var empty := Vector2(800, 15)
 	eq(str(wr.pick(empty)["kind"]), "none", "el techo está vacío")
 	var empties := []
 	wr.empty_clicked.connect(func(pos): empties.append(pos))
+	var y0: float = wr.rig.yaw_off
 	_mouse(MOUSE_BUTTON_LEFT, true, empty)
 	_motion(empty + Vector2(40, 0), Vector2(40, 0))
 	_motion(empty + Vector2(80, 0), Vector2(40, 0))
 	_mouse(MOUSE_BUTTON_LEFT, false, empty + Vector2(80, 0))
 	await tree.process_frame
-	ok(absf(wr.rig.yaw_off) > 5.0, "arrastre de 80 px orbita (yaw %.1f)" % wr.rig.yaw_off)
+	ok(absf(wr.rig.yaw_off - y0) > 5.0, "arrastre de 80 px gira (%.1f°)" % (wr.rig.yaw_off - y0))
 	eq(empties.size(), 0, "un arrastre no es clic")
 	_mouse(MOUSE_BUTTON_LEFT, true, empty)
 	_motion(empty + Vector2(3, 0), Vector2(3, 0))
@@ -505,27 +503,26 @@ func test_worldroot_click_and_drag_orbit_by_events() -> void:
 	ok(wr.camera().fov < fov0, "rueda arriba acerca (FOV menor)")
 
 func test_worldroot_right_click_and_esc_leave_examine() -> void:
+	# v3: no hay examen ni pila de poses; volver (clic derecho, Esc) no es del mundo y no mueve la cámara
 	var place := _sample()
 	var wr = await _world(place, _full_snap(place, "estudio", "M", "escritorio"))
 	wr.set_frame("escritorio", true)
 	await tree.physics_frame
-	ok(wr.examine("lupa"), "examinar")
+	var x0: Transform3D = wr.camera().global_transform
 	_mouse(MOUSE_BUTTON_RIGHT, true, Vector2(800, 450))
 	_mouse(MOUSE_BUTTON_RIGHT, false, Vector2(800, 450))
 	await tree.process_frame
-	no(wr.is_examining(), "clic derecho (fe_volver) sale del examen")
-	ok(wr.examine("lupa"), "examinar otra vez")
 	var esc := InputEventKey.new()
 	esc.keycode = KEY_ESCAPE
 	esc.pressed = true
 	tree.root.push_input(esc)
 	await tree.process_frame
-	no(wr.is_examining(), "Esc (fe_volver) sale del examen")
+	ok(wr.camera().global_transform.is_equal_approx(x0), "clic derecho y Esc no mueven la cámara")
+	no(wr.is_examining(), "nunca se examina de cerca")
 
 func test_worldroot_drag_from_node_is_not_a_click() -> void:
 	var place := _sample()
 	var wr = await _world(place, _full_snap(place, "estudio", "M", "escritorio"))
-	wr.auto_examine = false
 	wr.set_frame("escritorio", true)
 	await tree.physics_frame
 	var got := []
@@ -535,13 +532,14 @@ func test_worldroot_drag_from_node_is_not_a_click() -> void:
 	var a := cam.unproject_position(wr.node_body("lupa").global_position)
 	var b := cam.unproject_position(wr.node_body("carta").global_position)
 	ok(a.distance_to(b) > 40.0, "lupa y carta separadas en pantalla")
+	var y0: float = wr.rig.yaw_off
 	_mouse(MOUSE_BUTTON_LEFT, true, a)
 	_motion(a.lerp(b, 0.5), (b - a) * 0.5)
 	_motion(b, (b - a) * 0.5)
 	_mouse(MOUSE_BUTTON_LEFT, false, b)
 	await tree.process_frame
 	eq(got, [], "arrastrar de la lupa a la carta no es clic en ninguna")
-	eq(wr.rig.yaw_off, 0.0, "un arrastre que empieza sobre un objeto no orbita")
+	ok(absf(wr.rig.yaw_off - y0) > 0.5, "v3: arrastrar gira la vista desde cualquier lado (se agarra el mundo)")
 
 func test_cutaway_hides_nodes_on_cut_wall() -> void:
 	var place := _sample()
@@ -589,11 +587,11 @@ func test_worldroot_show_hub_without_data_does_not_crash() -> void:
 		_wr.show_hub("escritorio", "M")
 		await tree.physics_frame
 		ok(_wr.diorama != null, "hub L1 construido")
-		ok(_wr.orbit_enabled, "v2: en casa también se mira alrededor")
-		eq(_wr.rig.mode(), "zone", "el escritorio es una zona de la buhardilla")
+		ok(_wr.orbit_enabled, "en casa también se mira alrededor")
+		eq([_wr.rig.mode(), _wr.rig.cur], ["rail", "escritorio"], "el riel de la buhardilla, en el escritorio")
 		_wr.show_hub("general", "M")
 		await tree.physics_frame
-		eq(_wr.rig.mode(), "overview", "vista general de la buhardilla (world/camera.json)")
+		eq(_wr.rig.cur, "escritorio", "«general» es el punto de inicio (el escritorio)")
 		return
 	_wr.show_hub("escritorio", "M")
 	await tree.physics_frame

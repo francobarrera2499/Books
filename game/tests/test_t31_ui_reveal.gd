@@ -7,7 +7,7 @@ extends "res://tests/test_base.gd"
 const TIMEOUT_S := 120
 const Reader = preload("res://ui/reader/document_reader.gd")
 const Notebook = preload("res://ui/notebook/notebook.gd")
-const Ledger = preload("res://ui/ledger/ledger.gd")
+const Expediente = preload("res://ui/expediente/expediente.gd")
 const ScenePanel = preload("res://ui/scene/scene_panel.gd")
 const ItemPicker = preload("res://ui/scene/item_picker.gd")
 const SimLink = preload("res://ui/scene/sim_link.gd")
@@ -59,14 +59,16 @@ func act(a: Dictionary) -> Dictionary:
 	ok(bool(r.get("ok", false)), "%s -> %s" % [str(a).left(120), str(r)])
 	return r
 
+# v3 (GDD_v3 §6.2): ≤15 palabras; el tramo entero si cabe, si no la ventana legal que más lo cubre.
 func clip_tramo(view: String, tid: String) -> String:
 	var v: Dictionary = g.sim.q_view(view)
 	for pi in (v.get("pages", []) as Array).size():
 		for bi in (v.pages[pi] as Array).size():
 			for t in v.pages[pi][bi].parsed.tramos:
 				if String(t.id) == tid:
+					var span: Array = load("res://tests/fixtures/w3shell/walk.gd").best_window(v.pages[pi][bi].parsed, int(t.from), int(t.to))
 					var r: Dictionary = g.act({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi},
-						"from": int(t.from), "len": int(t.to) - int(t.from)})
+						"from": int(span[0]), "len": int(span[1]) - int(span[0])})
 					return String(r.get("clip", ""))
 	return ""
 
@@ -118,7 +120,7 @@ func test_reader_minimal_then_scissors_with_its_flag() -> void:
 	var rd = add(Reader.new())
 	rd.sounds = false
 	# antes del paso «recortar»: sin tijera; un tomo con dos hojas trae las flechas
-	ok(rd.open("D01.REDH@tomo"), "abre un tomo")
+	ok(rd.open("D01.GREE@tomo"), "abre un tomo (una crónica activa, GDD_v3 §3.5)")
 	await frames()
 	no(bool(g.sim.q_ui().get("desk.tijera", true)), "prólogo, paso «leer»: la tijera todavía no")
 	var t0: Array = rd.tool_names()
@@ -127,7 +129,7 @@ func test_reader_minimal_then_scissors_with_its_flag() -> void:
 	ok(t0.has("Volver"), "«Volver»")
 	for m in ["set_lupa", "set_regla"]:
 		no(rd.has_method(m), "sin " + m)
-	has(g.sim.q_read("D01.REDH@tomo"), 0, "el lector anotó la lectura (read)")
+	has(g.sim.q_read("D01.GREE@tomo"), 0, "el lector anotó la lectura (read)")
 	# abrir el encargo es el paso «leer»: aparece la tijera
 	ok(rd.open("D23@L1"), "abre el encargo")
 	await frames()
@@ -153,7 +155,7 @@ func test_notebook_tabs_search_and_filters_by_flags() -> void:
 	eq(st.tabs, want_tabs if want_tabs.size() > 1 else [], "pestañas = las que tienen bandera: %s" % str(st.tabs))
 	no(st.recortes.search, "con pocos recortes, sin buscador")
 	eq(st.recortes.menus, [], "sin filtros")
-	no(nb.tab_available("cotejos"), "sin pares, sin pestaña de pares")
+	no(Notebook.TABS.has("cotejos"), "v3: sin pares ni pestaña de pares")
 	no(nb.tab_available("marginalia"), "sin curiosidades, sin su pestaña")
 	inject_clips(12)
 	nb.refresh()
@@ -171,25 +173,33 @@ func test_notebook_tabs_search_and_filters_by_flags() -> void:
 		ok((nb.page("recortes").menu_options(String(k)) as Array).size() >= 2, "filtro %s con ≥2 opciones" % k)
 	ok(nb.tab_available("indice"), "el índice ya tiene ≥12 entradas: pestaña Índice")
 
-# ------------------------------------------------------------------ libro de conclusiones
-func test_ledger_day1_first_page_quotes_pell() -> void:
+# ------------------------------------------------------------------ expediente (GDD_v3 §6.1; UI-EXPEDIENTE)
+# Día 1: la carpeta muestra «El encargo» y sólo las preguntas ya nacidas (≤3, con la del cliente), cada hoja con su
+# origen y sus dudas; «Pasar en limpio» no está hasta llenar las tres ranuras; «En tinta» no existe sin nada en tinta;
+# ningún contador (ni de preguntas, ni de intentos).
+func test_expediente_day1_only_born_questions_no_counters() -> void:
 	to_day1()
-	var lg = add(Ledger.new())
-	lg.sounds = false
-	lg.open()
+	if not g.sim.has_method("q_dossier"):
+		pending_content("la GameSim todavía no tiene q_dossier (CORE)")
+		return
+	var ex = add(Expediente.new())
+	ex.sounds = false
+	ex.open()
 	await frames()
-	var qs: Array = g.sim.q_questions()
-	ok(qs.size() >= 3, "día 1: las tres preguntas del encargo (%d)" % qs.size())
+	var d: Dictionary = g.sim.q_dossier()
+	var st: Dictionary = ex.debug_state()
+	eq(st.open_ids, d.open.map(func(h): return String(h.id)), "la carpeta lista las abiertas del sim")
+	ok((st.open_ids as Array).size() <= 3, "como mucho tres abiertas")
+	has(st.open_ids, "Q1", "la pregunta del cliente está desde el principio")
+	ok(ex.rect_of("encargo").size.x > 0.0, "«El encargo» a la vista")
+	eq(st.has_ink_fold, not (d.inked as Array).is_empty(), "«En tinta» sólo si hay algo en tinta")
+	no(st.pass, "sin las tres ranuras llenas no hay «Pasar en limpio»")
 	var txt: Array = []
-	_all_text(lg, txt)
-	var all := "\n".join(PackedStringArray(txt))
-	for q in qs:
-		ok(all.contains(String(q.text).strip_edges()), "cita textual: %s" % String(q.text).left(40))
-	var st: Dictionary = lg.debug_state()
-	eq(st.tabs, ["reglas"], "una sola página al empezar")
-	no(st.seal, "sin sello antes de la práctica")
-	eq(st.new_folio, bool(g.sim.q_ui().get("lg.hoja_nueva", false)), "«Nueva hoja» con su bandera")
-	no(st.nb_tab, "sin pestaña «Cuaderno»")
+	_all_text(ex, txt)
+	var digits := RegEx.new()
+	digits.compile("[0-9]")
+	for t in txt:
+		no(digits.search(String(t)) != null, "sin contadores: «%s»" % String(t))
 
 func _all_text(n: Node, out: Array) -> void:
 	if n is Label and (n as Label).is_visible_in_tree():
@@ -279,15 +289,21 @@ func test_picker_confrontation_order_and_no_empty_tabs() -> void:
 	to_day1()
 	var link := SimLink.new()
 	var p = add(ItemPicker.new(link))
-	p.open("Responder", ["clip", "entry"])
+	# v3 (GDD_v3 §6.10): se muestra o se informa un recorte o una pregunta del expediente
+	p.open("Responder", ["clip"])
 	await frames()
-	no(p._tabs["entry"].visible, "sin conclusiones: sin pestaña «Conclusiones»")
+	no(p._tabs["pregunta"].visible, "sólo recortes: sin pestaña «Preguntas»")
 	no(p._tabs["clip"].visible, "una sola pestaña posible: no se dibuja")
 	no(p._search.visible, "pocas tarjetas: sin buscador")
-	p.open("Responder", ["entry", "clip"], {"merged": true})
+	p.open("Responder", ["clip", "pregunta"])
+	await frames()
+	var both: bool = not g.sim.q_clips().is_empty() and not (g.sim.q_dossier().open as Array).is_empty()
+	eq(p._tabs["pregunta"].visible, both, "«Preguntas» sólo si hay recortes y preguntas")
+	p.open("Responder", ["pregunta", "clip"], {"merged": true})
 	await frames()
 	var kinds: Array = p.cards().map(func(c): return String(c.kind))
-	ok(not kinds.is_empty() and kinds[0] == "clip", "sin conclusiones, los recortes: %s" % str(kinds))
+	ok(not kinds.is_empty() and kinds[0] == "clip", "sin nada en tinta, primero los recortes: %s" % str(kinds))
+	ok(kinds.is_empty() or kinds[-1] == "pregunta" or (g.sim.q_dossier().open as Array).is_empty(), "y al final las preguntas a lápiz: %s" % str(kinds))
 
 # ------------------------------------------------------------------ compositor de avisos
 func test_ad_composer_prologue_only_witness_form() -> void:
@@ -301,21 +317,33 @@ func test_ad_composer_prologue_only_witness_form() -> void:
 	eq(ac.forms_available(), ["testigo"], "prólogo: sólo «Se busca testigo»")
 	no(ac._forms_row.visible, "una sola forma: sin fila de formas")
 
-# Playtest v2: el plano no se descubría el día 1 -> cinta «Plano» (M) en el HUD con desk.mapa, sólo en el escritorio;
-# Pendientes con viñetas, plegada a los 4 s en la primera línea (GDD_v2 §B.6.2) y desplegada al pasar el mouse.
+# v3 (GDD_v3 §5.4, §6.4; UI-MUNDO): no hay cinta del plano (está en la pared) ni del libro mayor; las cintas «Cuaderno» y
+# «Expediente» sólo fuera de la buhardilla (hud.cintas), cada una con su bandera; Pendientes con viñetas, plegada a los
+# 4 s en la primera línea (GDD_v2 §B.6.2) y desplegada al pasar el mouse.
 func test_hud_map_ribbon_and_folding_guide() -> void:
 	var DeskHud = load("res://ui/desk/desk_hud.gd")
 	var hud = add(DeskHud.new())
 	await frames(2)
-	hud.set_flags({"desk.mapa": false, "hud.cuaderno": false, "hud.libro": false})
-	hud.refresh({"phase": "prologue", "slot": "N", "day": 0})
-	no(hud.ribbon("map").visible, "prólogo: sin plano")
-	hud.set_flags({"desk.mapa": true, "hud.cuaderno": true, "hud.libro": true})
+	ok(hud.ribbon("map") == null, "sin cinta del plano")
+	ok(hud.ribbon("ledger") == null, "sin cinta del libro mayor")
+	hud.set_flags({"hud.cintas": false, "hud.cuaderno": true, "desk.expediente": true})
 	hud.refresh({"phase": "desk", "slot": "M", "day": 1})
-	ok(hud.ribbon("map").visible, "escritorio con desk.mapa: cinta «Plano»")
-	eq(hud.ribbon("map").tooltip_text, "M", "con su tecla")
+	no(hud.books_box.visible, "en la buhardilla: sin cintas (todo está sobre la mesa)")
+	hud.set_flags({"hud.cintas": true, "hud.cuaderno": false, "desk.expediente": true})
 	hud.refresh({"phase": "visit", "slot": "M", "day": 1})
-	no(hud.ribbon("map").visible, "en una visita no suma nada")
+	ok(hud.books_box.visible and hud.ribbon("dossier").visible, "fuera de casa: «Expediente»")
+	no(hud.ribbon("notebook").visible, "«Cuaderno» con su bandera")
+	eq(hud.ribbon("dossier").tooltip_text, "E", "con su tecla")
+	hud.set_flags({"hud.cintas": true, "hud.cuaderno": true, "desk.expediente": true})
+	hud.refresh({"phase": "scene", "slot": "N", "day": 7})
+	ok(hud.ribbon("notebook").visible and hud.ribbon("dossier").visible, "en una escena, las dos")
+	var got: Array = []
+	hud.book_pressed.connect(func(k): got.append(k))
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = true
+	hud.ribbon("dossier").gui_input.emit(e)
+	eq(got, ["dossier"], "clic en la cinta: el expediente")
 	hud.set_guide(["Uno.", "Dos.", "Tres."])
 	await frames(1)
 	var vis := func() -> int:
@@ -327,7 +355,10 @@ func test_hud_map_ribbon_and_folding_guide() -> void:
 	eq(vis.call(), 3, "desplegada al llegar")
 	ok(String(hud.guide_v.get_node("Linea0").text).begins_with("· "), "con viñeta")
 	hud._process(4.1)
-	eq(vis.call(), 1, "plegada a los 4 s: la primera línea")
-	ok(hud.guide_v.get_node("Mas").visible, "«…» si hay más")
+	# playtest v3: ya no se pliega sola (escondía el resto detrás de «…»)
+	eq(vis.call(), 3, "a los 4 s sigue desplegada")
+	no(hud.guide_v.get_node("Mas").visible, "sin «…»")
+	hud._set_folded(true)
+	eq(vis.call(), 1, "plegada a mano: la primera línea")
 	hud.guide_box.mouse_entered.emit()
 	eq(vis.call(), 3, "al pasar el mouse se despliega")

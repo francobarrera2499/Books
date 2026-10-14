@@ -1,4 +1,7 @@
-# core/sim/ui_state.gd — revelado progresivo de la interfaz (GDD_v2 §C.2). Dueño: PROGRESIÓN.
+# core/sim/ui_state.gd — revelado progresivo de la interfaz (GDD_v2 §C.2; GDD_v3 §6.9). Dueño: CORE-EXPEDIENTE.
+# v3: sin lg.*, nb.pares, hud.libro ni look.ayuda; desk.expediente (desde el paso read), hud.cintas (cintas «Cuaderno» y
+#   «Expediente» sólo fuera de la buhardilla), exp.pasar / exp.pasar.<Q> (la hoja tiene respuesta y dos pruebas: aparece
+#   «Pasar en limpio»), sc.donde (Crane ya se presentó: «¿Dónde consigo…?»).
 # flags(st, repo) -> {bandera: bool}: fuente ÚNICA de qué controles existen ya. Sólo del estado de la partida
 # (determinista, persiste al cargar, se prueba sin pantalla). Las vistas lo consumen y no deciden por su cuenta.
 # Reglas (§C.1): nada visible que todavía no se pueda usar; lo que apareció no vuelve a desaparecer (salvo paneles
@@ -7,6 +10,7 @@
 extends RefCounted
 
 const Tutorial = preload("res://core/sim/tutorial.gd")
+const Dialogue = preload("res://core/scenes/dialogue.gd")
 const Composers = preload("res://core/scenes/composers.gd")
 const Index = preload("res://core/deduction/index.gd")
 
@@ -29,56 +33,42 @@ static func flags(st, repo) -> Dictionary:
 	var tstep := int(st.world.get("tutorial", {}).get("step", 0))
 	var tut_done := Tutorial.complete(st) or not pro
 	var clips := _ded(st, "clips")
-	var pairs := _ded(st, "pairs")
-	var entries := _ded(st, "entries")
-	var taught: Array = Tutorial.verbs_taught(st)
+	var dos := _ded(st, "dossier")
 	var f := {}
 	# ---- escritorio y HUD ----
 	f["desk.tijera"] = not pro or tstep >= Tutorial.step_index_of("clip_text")
 	f["desk.tintero"] = not pro or tstep >= Tutorial.step_index_of("compose_ad")
 	f["desk.calendario"] = not pro or tstep >= Tutorial.step_index_of("sleep") or tut_done
 	f["desk.mapa"] = not pro
+	f["desk.expediente"] = true
 	f["desk.bandeja"] = day >= 1
 	f["desk.pendientes"] = day >= 1 and not pro
 	f["hud.cuaderno"] = clips.size() >= 1
-	f["hud.libro"] = (not pro and day >= 1) or entries.size() >= 1
+	f["hud.cintas"] = not _in_attic(st)
 	# ---- cuaderno ----
-	# una vez visto, no se va (§C.1): deshacer el último par no esconde la pestaña
-	f["nb.pares"] = pairs.size() >= 1 or int(st.seq.get("pair", 0)) >= 1
 	f["nb.diario"] = day >= 1 and not (st.world.get("diary", []) as Array).is_empty()
 	f["nb.indice"] = _ded(st, "index").size() >= INDICE_MIN
 	f["nb.curiosidades"] = _n(st.world.get("eggs", {})) >= 1
 	f["nb.buscar"] = clips.size() >= BUSCAR_MIN
 	f["nb.filtros"] = clips.size() >= FILTROS_MIN
 	f["nb.agrupar"] = _months(clips) >= 2
-	# ---- libro de conclusiones ----
-	var varios := false
-	var practica := false
-	var draft := false
-	var inked := false
-	for eid in entries:
-		var e = entries[eid]
-		if typeof(e) != TYPE_DICTIONARY:
-			continue
-		var fo := String(e.get("folio", "varios"))
-		var is_pr := bool(e.get("practice", false)) or fo == "erratas"
-		if fo == "varios" or fo == "":
-			varios = true
-		if is_pr:
-			practica = true
-		elif String(e.get("ink", "lapiz")) != "tinta":
-			draft = true
-		else:
-			inked = true
-	# «Nueva hoja»: la enseña el día 1 (después de juntar el primer par); quien no juntó nada la tiene igual desde el día 2
-	# con un recorte (sin ella no podría escribir conclusiones)
-	f["lg.hoja_nueva"] = taught.has("folio_open") or int(st.seq.get("folio", 0)) >= 1 or (not pro and day >= 2 and clips.size() >= 1)
-	f["lg.varios"] = varios
-	f["lg.practica"] = practica or Tutorial.practice_done(st)
-	# el sello no se va al confirmar el último borrador (lo confirmado queda)
-	f["lg.sello"] = Tutorial.practice_done(st) and (draft or inked)
+	# ---- expediente ----
+	var any_full := false
+	var drafts = dos.get("drafts", {})
+	var openq = dos.get("open", {})
+	if typeof(openq) == TYPE_DICTIONARY:
+		for qid in openq:
+			var dr = drafts.get(qid, {}) if typeof(drafts) == TYPE_DICTIONARY else {}
+			var full := false
+			if typeof(dr) == TYPE_DICTIONARY and String(dr.get("answer", "")) != "":
+				var pr: Array = dr.get("proofs", [])
+				full = pr.size() == 2 and String(pr[0]) != "" and String(pr[1]) != ""
+			f["exp.pasar." + String(qid)] = full
+			any_full = any_full or full
+	f["exp.pasar"] = any_full
 	# ---- escena ----
-	f["sc.mostrar"] = clips.size() >= 1 or entries.size() >= 1
+	f["sc.mostrar"] = clips.size() >= 1 or _n(dos.get("open", {})) + _n(dos.get("inked", {})) >= 1
+	f["sc.donde"] = Dialogue.crane_presented(st)
 	f["sc.decir"] = _assertions_any(st, repo)
 	var sil := false
 	for ch in st.world.get("visit", {}).get("chars", []):
@@ -109,8 +99,14 @@ static func flags(st, repo) -> Dictionary:
 	f["tray.anteriores"] = day >= 2 and not pro
 	var vid := String(st.world.get("visit", {}).get("id", ""))
 	f["cat.mesa"] = vid != "" and not (st.world.get("slips", {}).get(vid, []) as Array).is_empty()
-	f["look.ayuda"] = day == 1 and not pro
 	return f
+
+# ¿Lisle está en la buhardilla? (sin visita, o una escena en L1 fuera de la tienda: prólogo, M6, M7)
+static func _in_attic(st) -> bool:
+	var v = st.world.get("visit", {})
+	if typeof(v) != TYPE_DICTIONARY or v.is_empty():
+		return true
+	return String(v.get("place", "")) == "L1" and ["", "buhardilla"].has(String(v.get("area", "")))
 
 static func _months(clips: Dictionary) -> int:
 	var seen := {}

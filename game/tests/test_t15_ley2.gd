@@ -87,7 +87,13 @@ func test_guaranteed_are_calendar_only():
 				_atoms(rule.get("condiciones", {}), atoms)
 				for a in atoms:
 					ok(CALENDAR_ATOMS.has(a), "%s %s: condición extra «%s»" % [label, rule.id, a])
-				eq(RDB._as_arr(rule.get("corta", [])), [], "%s %s: una garantizada no corta" % [label, rule.id])
+				# v3 (GDD_v3 §4.2): la única garantizada que corta es la intrusión por los techos (HA5): un original P
+				# relacionado con el acto, un día, con variante blanda (D1). Ninguna otra garantizada corta.
+				for c in RDB._as_arr(rule.get("corta", [])):
+					ok(typeof(c) == TYPE_DICTIONARY and String(c.get("copias", "")) == "relacionada" and int(c.get("ventana", {}).get("dias", 0)) == 1,
+						"%s %s: una garantizada sólo corta el original relacionado, un día: %s" % [label, rule.id, str(c)])
+				if not RDB._as_arr(rule.get("corta", [])).is_empty():
+					ok(typeof(rule.get("variante_blanda")) == TYPE_DICTIONARY, "%s %s: corta con variante blanda" % [label, rule.id])
 		for want in ["HA1", "HA3"]:
 			has(gar, want, label)
 		var hb1: Dictionary = r.reaction("HB1")
@@ -143,32 +149,22 @@ func test_optional_hb1_is_blockable():
 # redactor despide a Pell en el informe 1 sea cual sea el documento (El problema final o las cartas del coronel), y
 # ninguno de los dos da crédito ante Moran (un lápiz sin fundamento no es un dato comprobable).
 func test_m4_by_visible_fields_not_oracle():
+	# v3 (GDD_v3 §6.10): una pregunta informada que nombra a Moran (Q6/Q7 en lápiz, sin pruebas) es moran_autor por lo que
+	# DICE, cierre o no: M4 despide a Pell; ninguna da crédito ante Moran.
 	var r = repo()
-	if r.reactions().is_empty():
-		skip("sin reacciones en data/")
+	if r.reactions().is_empty() or r.question("Q7").is_empty():
+		skip("sin reacciones o sin dossier.json en data/")
 		return
+	var MoranAgent = load("res://core/react/moran_agent.gd")
 	var outcome := {}
-	for doc in ["fina", "cartas_del_coronel"]:
-		var sim = load("res://core/sim/game_sim.gd").new(r, 3)
-		var b = load("res://devtools/bots/bot_pasivo.gd").new()
-		b.setup(sim, 3)
-		for _i in 400:
-			var c: Dictionary = sim.q_clock()
-			if String(c.phase) == "night" and bool(sim.q_report_status().due):
-				break
-			b.step()
-		ok(bool(sim.q_report_status().due), "informe 1 pendiente")
-		load("res://core/deduction/index.gd").add_entities(sim.st, r, [doc, "moran"])
-		var e: Dictionary = sim.apply({"t": "entry_new", "folio": "varios", "template": "T4"})
-		ok(e.ok, str(e))
-		ok(sim.apply({"t": "entry_set", "entry": e.entry, "line": 0, "field": "documento", "value": doc}).ok)
-		ok(sim.apply({"t": "entry_set", "entry": e.entry, "line": 1, "field": "redacto", "value": "moran"}).ok)
-		var rep: Dictionary = sim.apply({"t": "report_submit", "mode": "items", "items": [{"kind": "entry", "id": e.entry}]})
-		ok(rep.ok, str(rep))
-		for _i in 40:
-			if int(sim.q_clock().day) >= 4:
-				break
-			b.step()
-		outcome[doc] = [bool(sim.st.flags.get("pell_despedido", false)), bool(sim.st.flags.get("moran_credito", false))]
-	eq(outcome["fina"], [true, false], "El problema final · Moran: M4, sin crédito")
-	eq(outcome["cartas_del_coronel"], [true, false], "las cartas del coronel · Moran: lo mismo (Moran no confirma valores)")
+	for q in ["Q7", "Q6"]:
+		var h = H.new(r, 3)
+		h.st.ded = {"clips": {}, "dossier": {"born": {q: {"tk": 41, "via": "t", "origin": "", "n": 1}}, "open": {}, "waiting": [],
+			"drafts": {q: {"answer": "moran", "proofs": ["", ""]}}, "inked": {}, "attempts": {}, "noticed": {}, "seen": {}, "shown_n": 1}}
+		var item: Dictionary = MoranAgent.report_item(h.st, r, {"kind": "pregunta", "id": q})
+		h.ev("report", {"n": 1, "mode": "items", "items": [item]}, "2.night")
+		h.advance_to("4.M")
+		outcome[q] = [bool(h.st.flags.get("pell_despedido", false)), bool(h.st.flags.get("moran_credito", false))]
+		H.cleanup()
+	eq(outcome["Q7"], [true, false], "¿Quién mató a Ronald Adair? · Moran: M4, sin crédito")
+	eq(outcome["Q6"], [true, false], "¿Quién es mi cliente? · Moran: lo mismo (Moran no confirma respuestas)")

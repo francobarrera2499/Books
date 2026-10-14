@@ -1,4 +1,4 @@
-# PROGRESIÓN (GDD_v2 §B.3–§B.5, §B.8, §F.3): el mapa crece cuando Lisle se entera (lee, oye o recorta un nombre) y, si no,
+# CORE-EXPEDIENTE (GDD_v2 §B.3–§B.5, §B.8, §F.3; GDD_v3 §5.3): el mapa crece cuando Lisle se entera (lee, oye o recorta un nombre) y, si no,
 # a la hora garantizada; las novedades de Crane atrasan sus ejemplares; el grafo usa sólo la garantía; `read` es libre,
 # ciega y reproducible. Datos reales (y el fixture del sim para la compatibilidad sin `reveal`).
 extends "res://tests/test_base.gd"
@@ -19,7 +19,9 @@ func _clip_tramo(s, view: String, tid: String) -> String:
 		for bi in (pages[pi] as Array).size():
 			for tr in pages[pi][bi].get("parsed", {}).get("tramos", []):
 				if String(tr.id) == tid:
-					var r: Dictionary = s.apply({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(tr.from), "len": int(tr.to) - int(tr.from)})
+					# ≤15 palabras (GDD_v3 §6.2): la ventana legal que más cubre el tramo
+					var sp: Array = load("res://devtools/bots/bot_base.gd").best_window(pages[pi][bi].parsed, int(tr.from), int(tr.to))
+					var r: Dictionary = s.apply({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])})
 					return String(r.get("clip", ""))
 	return ""
 
@@ -210,3 +212,38 @@ func test_reveal_data_shape():
 	eq(r.map().get("places", {}).get("L8", {}).has("show"), false, "map.json ya no decide qué aparece")
 	for L in r.map().get("places", {}):
 		ok(String(r.map().places[L].get("hours", "")) != "", "horario de %s" % L)
+
+# GDD_v3 §5.3: por qué está cada lugar en el plano (q_places().por_que) y la vía de Crane (§5.2).
+func test_why_and_crane():
+	var s = GameSim.new(repo(), 7)
+	Reveal.hear(s.st, s.repo, "Pregunte en [[somerset_house|Somerset House]], señor.", "", "watson")
+	Reveal.update(s.st, s.repo)
+	var w6: Dictionary = Reveal.why(s.st, s.repo, "L6")
+	eq(String(w6.via), "oir")
+	ok(String(w6.text).begins_with("Lo dijo "), str(w6))
+	ok(Reveal.reveal(s.st, s.repo, "L8", {"via": "crane", "ref": "donde.casas"}), "Crane suma un lugar que no estaba")
+	no(Reveal.reveal(s.st, s.repo, "L8", {"via": "crane", "ref": "donde.casas"}), "una sola vez")
+	var w8: Dictionary = Reveal.why(s.st, s.repo, "L8")
+	eq([String(w8.via), String(w8.text)], ["crane", "Me lo dijo Crane."])
+	eq(Reveal.why(s.st, s.repo, "L1"), {}, "la casa no necesita razón")
+	s.st.now_tk = TimeKey.parse("1.dawn")
+	Reveal.update(s.st, s.repo)
+	s.st.now_tk = -1
+	eq(String(Reveal.why(s.st, s.repo, "L2").via), "garantia")
+	for p in s.q_places():
+		ok(p.has("que_hay") and p.has("por_que"), "q_places v3: " + String(p.id))
+
+# Playtest v3: «Lo menciona: …» no envuelve en «» un título que ya trae sus comillas.
+func test_why_read_no_nested_quotes():
+	var s = GameSim.new(repo(), 7)
+	Reveal.learn(s.st, ["club_diogenes", "pall_mall"], 5, {"via": "leer", "ref": "D01.GREE", "title": "«El intérprete griego», The Strand Magazine, septiembre de 1893"})
+	Reveal.update(s.st, s.repo)
+	var w: Dictionary = Reveal.why(s.st, s.repo, "L5")
+	eq(String(w.get("via", "")), "leer", str(w))
+	eq(String(w.get("text", "")), "Lo menciona: «El intérprete griego», The Strand Magazine, septiembre de 1893.", "sin comillas dobles anidadas")
+	no(String(w.get("text", "")).contains("««"), str(w))
+	var s2 = GameSim.new(repo(), 7)
+	Reveal.learn(s2.st, ["club_diogenes", "pall_mall"], 5, {"via": "leer", "ref": "D30", "title": "Guía de clubes"})
+	Reveal.update(s2.st, s2.repo)
+	var w2: Dictionary = Reveal.why(s2.st, s2.repo, "L5")
+	eq(String(w2.get("text", "")), "Lo menciona: «Guía de clubes».", "un título sin comillas se cita")

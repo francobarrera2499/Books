@@ -1,0 +1,29 @@
+{
+  "_nota": "UI-MUNDO (GDD_v3 §5, §6.3–§6.6). Textos de la pieza, el HUD, el plano y «¿Dónde consigo…?» de Crane. Voz de Lisle (primera persona) para lo que dice él; interfaz en infinitivo; botones de ≤3 palabras; español neutro y simple (GDD_v2 §A). Sin contadores. Las líneas «qué hay» y «por qué está» del plano son de CONTENIDO (plano.*) y de CORE (v3core.por_que.*).",
+  "text": {
+    "mundo.hud.expediente": "Expediente",
+    "mundo.aviso.hueco": "elegir…",
+    "mundo.tintero.noche_informe": "A esta hora ya no escribo: el chico de Pell espera el informe.",
+    "mundo.tintero.noche": "A esta hora ya no escribo: lo que haga falta, lo mando mañana temprano.",
+    "mundo.estante.cabeza": "En el estante",
+    "mundo.estante.papeles": "Mis papeles",
+    "mundo.estante.falta": "No está: ${titulo}",
+    "mundo.estante.no_esta": "No está. La dejé acá anoche.",
+    "mundo.verb.donde": "¿Dónde consigo…?",
+    "mundo.donde.title": "Preguntarle a ${quien} dónde conseguir algo",
+    "mundo.donde.ok": "Preguntar",
+    "mundo.donde.pick": "Elegir qué busco.",
+    "mundo.donde.none": "Por ahora no tengo nada que buscar.",
+    "mundo.donde.ya": "Ya lo pregunté",
+    "mundo.donde.mas": "Más cosas que busco",
+    "mundo.donde.plano": "Lo anoto en el plano.",
+    "mundo.picker.preguntas": "Preguntas",
+    "mundo.picker.no_preguntas": "Todavía no hay preguntas en el expediente.",
+    "mundo.picker.tinta": "en tinta",
+    "mundo.picker.lapiz": "a lápiz",
+    "mundo.picker.sin_respuesta": "Sin respuesta todavía.",
+    "mundo.plano.horario": "Horario: ${horas}",
+    "mundo.plano.casa": "Holywell Street: mi pieza y, abajo, la librería de Crane.",
+    "mundo.plano.desde_casa": "Salgo siempre desde mi pieza, y vuelvo a ella."
+  }
+}

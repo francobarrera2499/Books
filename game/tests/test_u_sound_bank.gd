@@ -11,7 +11,7 @@ const An = preload("res://audio/analysis.gd")
 const AudioScript = preload("res://autoload/audio.gd")
 const TIMEOUT_S := 120.0
 const AMB_BUS_DB := -3.0
-const W4_LOOPS := ["amb.calle_parker", "amb.gas_parker", "amb.casa_vacia"]
+const W4_LOOPS := ["amb.calle_parker", "amb.noche_parker", "amb.casa_vacia", "amb.noche"]
 const EPI_UI := "ui_text/epilogue_ui.json"
 
 # Mezcla: rango de sonoridad máxima (dB) de cada suelto. Todo suelto nuevo tiene que entrar aquí.
@@ -27,6 +27,8 @@ const MIX := {
 	"bells.horas": [-25.0, -20.0], "evt.cerrojo": [-30.0, -25.0],
 	# calle y casa
 	"hooves.madera": [-24.0, -20.0], "hooves.granito": [-24.0, -20.0], "evt.golpe_puerta": [-23.0, -19.0], "evt.ladrillo": [-25.0, -20.0],
+	# v3 (GDD_v3 §4.3): la corriente de aire al entrar con la ventana abierta, sin alerta (playtest v3: −8 dB, ≈ −29)
+	"evt.corriente": [-31.0, -26.0],
 }
 const FOLEY := ["sfx.papel", "sfx.pagina", "sfx.plumin", "sfx.secante", "sfx.sobre"]
 const DAWN := ["bells.st_clement", "evt.lechero", "evt.persiana_crane"]
@@ -192,11 +194,14 @@ func test_ambience_follows_the_world() -> void:
 		if says:
 			ok(_amb_id(String(pd.origin), "N").contains("parker"), "la lámina %s dice que se oye el arpa: suena" % plid)
 	# cada área con su sonido: el vestíbulo de Mrs. Hudson no es la calle; la casa vacía, vacía
-	eq(_amb_id("L3.interior", "3.M"), "amb.tienda", "vestíbulo del 221B: reloj y calle amortiguada")
+	eq(_amb_id("L3.interior", "3.M"), "amb.vestibulo", "vestíbulo del 221B: su propio sonido (playtest v3), no la tienda")
+	eq(_amb_id("L4", "3.M"), "amb.consultorio", "consultorio de Watson: su propio sonido (playtest v3), no la tienda")
+	ne(_audio().caption("amb.vestibulo"), _audio().caption("amb.tienda"), "subtítulos distintos")
+	ne(_audio().caption("amb.consultorio"), _audio().caption("amb.tienda"), "subtítulos distintos")
 	eq(_amb_id("L3.calle", "3.M"), "amb.calle", "Baker Street de día")
 	eq(_amb_id("L8.interior", "8.T"), "amb.casa_vacia", "Camden House")
-	eq(_amb_id("PL.prologo", "0.N"), "amb.gas_parker", "prólogo: gas y, abajo, Parker")
-	eq(_amb_id("L1", "4.N"), "amb.gas", "la buhardilla de noche: el gas")
+	eq(_amb_id("PL.prologo", "0.N"), "amb.noche_parker", "prólogo: la noche y, abajo, Parker de vez en cuando (v3: sin gas)")
+	eq(_amb_id("L1", "4.N"), "amb.noche", "la buhardilla de noche: casi silencio (v3: sin gas)")
 	eq(_amb_id("L7", "10.T"), "amb.parque", "Park Lane a las 18 h")
 
 func test_dawn_and_night_cues_exist() -> void:
@@ -249,8 +254,8 @@ func test_harp_plays_the_tune_and_falls_silent_mid_bar() -> void:
 	near(44100.0 / float(ac["lag"]), 98.0, 3.0, "arpa a 98 Hz")
 
 func test_parker_tune_is_always_the_same() -> void:
-	# Baker Street de noche (desde 0,4 s) y el prólogo (desde 1,0 s, tras la ventana): la misma tonada, con la nota falsa
-	for c in [["amb.calle_parker", 0.4], ["amb.gas_parker", 1.0]]:
+	# Baker Street de noche (desde 0,4 s) y el prólogo (desde 10,5 s, tras la ventana): la misma tonada, con la nota falsa
+	for c in [["amb.calle_parker", 0.4], ["amb.noche_parker", 10.5]]:
 		var x := _x(String(c[0]))
 		var hits := 0
 		var nt: int = Proc.PARKER_TUNE.size()

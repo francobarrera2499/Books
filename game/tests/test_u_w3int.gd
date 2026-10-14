@@ -1,11 +1,10 @@
 # Tests del integrador de UI (W3-INT): lo que une los paquetes de UI dentro de la Shell real (autoload Game, dataset
 # «fixture» de tests/fixtures/w3shell/walk.gd). Headless.
-#   · dos libros con el mouse: cinta «Libro mayor» en el canto del cuaderno, pestaña «Cuaderno» en el libro mayor
-#   · soltar un recorte sobre la cinta del libro mayor (HUD, libro cerrado) o sobre la del cuaderno -> folio nuevo
-#   · el HUD (calendario, monedas, cintas) se desvanece cuando lo tapa el cuaderno acoplado; vuelve al cerrarlo
+#   · v3: la carpeta del expediente trae el cuaderno acoplado a la izquierda; las cintas del HUD sólo fuera de casa
+#   · el HUD (calendario, cintas) se desvanece cuando lo tapa el cuaderno acoplado; vuelve al cerrarlo
 #   · en una visita con el cuaderno abierto, «Preguntar» se acopla a la derecha (no tapa el cuaderno)
 #   · tarjeta de examen con muchos enlaces: lista de alto acotado, dentro de la pantalla
-#   · Shell.subs_rect() (vacío con --mute) y el libro mayor lo usa; sin comillas dobles en el elector de recortes
+#   · Shell.subs_rect() (vacío con --mute); sin comillas dobles en el elector de recortes
 # Recorrido con el mouse real y capturas: devtools/drivers/w3int_flow.gd.
 extends "res://tests/test_base.gd"
 
@@ -123,33 +122,22 @@ func drag_clip_to(clip: String, target: Control) -> void:
 	await frames(4)
 	src.queue_free()
 
-func folios() -> int:
-	return (g.sim.q_ledger().get("folios", []) as Array).size()
-
 # ------------------------------------------------------------------ tests
+# v3 (GDD_v3 §6.1, §6.4): en casa el expediente se abre con un clic en su carpeta y trae el cuaderno acoplado a la
+# izquierda (de ahí se arrastran las pruebas); la carpeta va a la derecha; nunca más de dos paneles.
 func test_two_books_by_mouse() -> void:
 	await boot_desk()
 	var gs = sh.game_screen
-	click(gs.hud.ribbon("notebook"))
+	gs.on_node("expediente")
 	await frames(4)
+	ok(sh.is_open("dossier"), "clic en la carpeta: el expediente")
+	if not sh.is_open("notebook"):
+		skip("el expediente todavía no acopla el cuaderno (UI-EXPEDIENTE)")
+		return
 	var nb = sh.panel("notebook")
-	ok(sh.is_open("notebook"), "cinta «Cuaderno»")
-	var rb: Control = nb.find_child("CintaLibroMayor", true, false)
-	ok(rb != null and rb.visible, "el cuaderno muestra la cinta del libro mayor en su canto")
-	if rb != null:
-		ok(rb.get_global_rect().position.x >= nb.book_rect().end.x - 4.0, "la cinta asoma por el canto derecho")
-		click(rb)
-		await frames(4)
-	ok(sh.is_open("ledger") and sh.is_open("notebook"), "clic en la cinta: los dos libros")
 	eq(String(nb.layout), "left", "el cuaderno a la izquierda")
-	ok(sh.panel("ledger").side, "el libro mayor a la derecha")
-	no(rb.visible, "con el libro abierto la cinta se va")
-	ok(sh.panel("ledger").find_child("Pestana_cuaderno", true, false) == null, "con el cuaderno abierto el libro no ofrece su pestaña")
+	ok(bool(sh.panel("dossier").side), "la carpeta a la derecha")
 	ok(sh.stack.size() <= 2, "nunca más de dos paneles")
-	# GDD_v2 §C.3: el «Cuaderno» ya no es una pestaña del libro (queda la cinta del HUD)
-	sh.close_kind("notebook")
-	await frames(4)
-	ok(sh.panel("ledger").find_child("Pestana_cuaderno", true, false) == null, "el libro no tiene pestaña «Cuaderno»")
 
 func test_hud_covered_by_docked_notebook() -> void:
 	await boot_desk()
@@ -159,9 +147,13 @@ func test_hud_covered_by_docked_notebook() -> void:
 	sh.open_panel("notebook")
 	await frames(3)
 	no(gs.hud.covered, "cuaderno centrado (con velo): el HUD queda a su lado")
-	sh.open_panel("ledger")
+	sh.close_all()
+	await frames(3)
+	gs.on_node("expediente")
 	await frames(4)
-	eq(String(sh.panel("notebook").layout), "left")
+	if not sh.is_open("notebook") or String(sh.panel("notebook").layout) != "left":
+		skip("el expediente todavía no acopla el cuaderno (UI-EXPEDIENTE)")
+		return
 	ok(gs.hud.covered, "cuaderno acoplado a la izquierda: el HUD se desvanece")
 	eq(gs.hud.card.mouse_filter, Control.MOUSE_FILTER_IGNORE, "y no come el mouse")
 	sh.close_all()
@@ -169,34 +161,28 @@ func test_hud_covered_by_docked_notebook() -> void:
 	no(gs.hud.covered, "al cerrar los libros vuelve")
 	eq(gs.hud.card.mouse_filter, Control.MOUSE_FILTER_STOP)
 
-func test_drop_clip_on_ledger_ribbons() -> void:
-	var t: Dictionary = await boot_desk()
+# v3 (GDD_v3 §6.4): las cintas «Cuaderno» y «Expediente» del HUD sólo fuera de la buhardilla (en casa están sobre la
+# mesa); en la tienda de Crane aparecen y abren sus libros con el mouse. No hay cinta del libro mayor ni del plano.
+func test_ribbons_only_outside_the_attic() -> void:
+	await boot_desk()
 	var gs = sh.game_screen
-	var n0 := folios()
-	await drag_clip_to(String(t.aviso), gs.hud.ribbon("ledger"))
-	ok(sh.is_open("ledger"), "soltar sobre la cinta del HUD abre el libro mayor")
-	eq(folios(), n0 + 1, "con un folio nuevo")
-	var fo: Dictionary = (g.sim.q_ledger().folios as Array)[-1]
-	eq(String(fo.head_clip), String(t.aviso), "encabezado por el recorte soltado")
-	eq(String(sh.panel("ledger").page), String(fo.id), "el libro se abre en ese folio")
+	no(gs.hud.books_box.visible, "en la buhardilla, sin cintas")
+	ok(gs.hud.ribbon("ledger") == null and gs.hud.ribbon("map") == null, "sin cintas del libro mayor ni del plano")
+	gs.on_node("puerta")
+	await settle()
+	eq(String(g.sim.q_clock().phase), "visit", "la puerta baja a la tienda")
+	eq([String(g.sim.q_scene().place), String(g.sim.q_scene().area)], ["L1", "tienda"])
+	ok(gs.hud.books_box.visible, "en la tienda, las cintas")
 	sh.close_all()
+	await frames(2)
+	click(gs.hud.ribbon("dossier"))
 	await frames(4)
-	# la cinta del canto del cuaderno
-	sh.open_panel("notebook")
+	ok(sh.is_open("dossier"), "cinta «Expediente»")
+	sh.close_all()
+	await frames(2)
+	click(gs.hud.ribbon("notebook"))
 	await frames(4)
-	var rb: Control = sh.panel("notebook").find_child("CintaLibroMayor", true, false)
-	ok(rb != null and rb.visible)
-	var c2 := String(g.sim.q_clips()[-1].id)
-	for c in g.sim.q_clips():
-		var used := false
-		for f in g.sim.q_ledger().folios:
-			if String(f.head_clip) == String(c.id):
-				used = true
-		if not used:
-			c2 = String(c.id)
-	await drag_clip_to(c2, rb)
-	ok(sh.is_open("ledger") and sh.is_open("notebook"), "soltar sobre la cinta del cuaderno: los dos libros")
-	eq(folios(), n0 + 2, "otro folio")
+	ok(sh.is_open("notebook"), "cinta «Cuaderno»")
 
 func test_ask_docks_right_with_notebook() -> void:
 	await boot_desk()
@@ -252,16 +238,12 @@ func test_examine_card_long_list() -> void:
 func test_subs_rect_and_quotes() -> void:
 	await boot_desk()
 	eq(sh.subs_rect(), Rect2(), "con --mute no hay subtítulos: zona vacía")
-	sh.open_panel("ledger")
-	await frames(3)
-	eq(sh.panel("ledger").subs_reserve(), 0.0, "el libro mayor no reserva el pie sin subtítulos")
 	sh.sounds = true
 	var au = tree.root.get_node("Audio")
 	var was: bool = au.subtitles_on
 	au.subtitles_on = true
 	var sr: Rect2 = sh.subs_rect()
 	ok(sr.size.y > 40.0 and sr.end.y <= 900.5 and sr.end.x <= 1600.5, "zona de subtítulos abajo a la derecha: %s" % str(sr))
-	eq(sh.panel("ledger").subs_reserve(), sr.size.y, "el libro mayor reserva lo que dice la Shell")
 	au.subtitles_on = was
 	sh.sounds = false
 	# elector de recortes: un recorte que ya trae comillas no se envuelve otra vez

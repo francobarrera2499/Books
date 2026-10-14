@@ -1,7 +1,5 @@
 {
-  "_nota": "W1-BIBLE. Listas cerradas, iguales para todas las conclusiones (GDD §8.2, ARCHITECTURE §4.6). Los ids de verbos, relaciones y estados se muestran cambiando «_» por espacio. Claves extra respecto del ejemplo de §4.6 (documentadas en su propio _nota): contracciones, london_places, camden_entities; campos extra: assertions[].channels/about_holmes/says_alive, ad_forms[].label/when/to_s/canary, sensors[*].char/place/assertion_kinds/visits/show/from_day, report_cats[].clip_voice.",
-  "verbos": ["ceder", "vender", "comprar", "matar", "disparar", "ocultar", "suprimir", "vigilar", "pagar", "escribir", "dictar", "volver", "preparar", "separarse_de", "seguir", "hallar"],
-  "relaciones": ["lee_a", "paga_a", "vigila_a", "obedece_a", "usa_a", "busca_a"],
+  "_nota": "W1-BIBLE; v3 (GDD_v3 §0.2): sin plantillas, verbos, relaciones, estados ni «Lo que me preguntaron». Listas cerradas (ARCHITECTURE §4.6). Claves extra respecto del ejemplo de §4.6 (documentadas en su propio _nota): contracciones, london_places, camden_entities; campos extra: assertions[].channels/about_holmes/says_alive, ad_forms[].label/when/to_s/canary, sensors[*].char/place/assertion_kinds/visits/show/from_day, report_cats[].clip_voice.",
   "medios": [
     {"id": "sala_lectura", "label": "la Sala de Lectura", "ch": "kbm", "entities": ["hombre_de_la_canastilla"]},
     {"id": "consultorio", "label": "el consultorio de Watson", "ch": "kw", "entities": ["watson"]},
@@ -9,51 +7,6 @@
     {"id": "la_calle", "label": "la calle", "ch": "ks", "entities": ["muchacho_de_gorra"]},
     {"id": "columna", "label": "los avisos del Times", "ch": "kt", "entities": ["times"]}
   ],
-  "estados": ["vivo", "muerto", "desconocido"],
-  "_templates_nota": "GDD §8.4. Rótulos «Campo: ___» con el artículo dentro del rótulo; ninguno presupone un hecho. accept.kinds = tipos de entidad del índice; accept.list = lista cerrada de este archivo (para medios valen también sus entities). Cada línea llena lleva sus «pruebas». Ids de campo: T1 fuente_a/dice_a/fuente_b/dice_b · T2 fuente/calla/consta_en · T3 persona/es · T4 documento/redacto · T5 persona/hizo/que/a/con/donde/cuando · T6 persona/relacion/a_quien/por_medio/y_de · T7 persona/estado · T8 persona/lugar/dia · T9 persona/usa_a/como/para/a_quien.",
-  "templates": {
-    "T1": {"name": "Contradicción", "lines": [
-      {"fields": [{"id": "fuente_a", "label": "Fuente A: ___", "accept": {"kinds": ["documento", "persona"]}}, {"id": "dice_a", "label": "Dice: ___", "accept": {"kinds": ["concepto", "objeto", "fecha", "persona", "lugar", "suceso", "documento"]}}]},
-      {"fields": [{"id": "fuente_b", "label": "Fuente B: ___", "accept": {"kinds": ["documento", "persona"]}}, {"id": "dice_b", "label": "Dice: ___", "accept": {"kinds": ["concepto", "objeto", "fecha", "persona", "lugar", "suceso", "documento"]}}]}
-    ]},
-    "T2": {"name": "Omisión", "lines": [
-      {"fields": [{"id": "fuente", "label": "Fuente: ___", "accept": {"kinds": ["documento", "persona"]}}, {"id": "calla", "label": "No dice: ___", "accept": {"kinds": ["concepto", "objeto", "fecha", "persona", "lugar", "suceso"]}}]},
-      {"fields": [{"id": "consta_en", "label": "Sí aparece en: ___", "accept": {"kinds": ["documento", "persona"]}}]}
-    ]},
-    "T3": {"name": "Identidad", "lines": [
-      {"fields": [{"id": "persona", "label": "Persona: ___", "accept": {"kinds": ["persona"]}}]},
-      {"fields": [{"id": "es", "label": "En realidad es: ___", "accept": {"kinds": ["persona"]}}]}
-    ]},
-    "T4": {"name": "Autoría", "lines": [
-      {"fields": [{"id": "documento", "label": "Documento: ___", "accept": {"kinds": ["documento"]}}]},
-      {"fields": [{"id": "redacto", "label": "Lo escribió: ___", "accept": {"kinds": ["persona"]}}]}
-    ]},
-    "T5": {"name": "Hecho", "lines": [
-      {"fields": [{"id": "persona", "label": "Persona: ___", "accept": {"kinds": ["persona"]}}, {"id": "hizo", "label": "Hizo: ___", "accept": {"list": "verbos"}}, {"id": "que", "label": "Qué o a quién: ___", "accept": {"kinds": ["persona", "objeto", "documento", "concepto", "lugar"]}}]},
-      {"optional": true, "fields": [{"id": "a", "label": "A o contra: ___", "accept": {"kinds": ["persona", "lugar", "objeto"]}}]},
-      {"optional": true, "fields": [{"id": "con", "label": "Con: ___", "accept": {"kinds": ["objeto", "concepto"]}}]},
-      {"optional": true, "fields": [{"id": "donde", "label": "Dónde: ___", "accept": {"kinds": ["lugar", "concepto", "suceso"]}}]},
-      {"optional": true, "fields": [{"id": "cuando", "label": "Cuándo: ___", "accept": {"kinds": ["fecha", "suceso", "concepto"]}}]}
-    ]},
-    "T6": {"name": "Relación", "lines": [
-      {"fields": [{"id": "persona", "label": "Persona: ___", "accept": {"kinds": ["persona"]}}, {"id": "relacion", "label": "Relación: ___", "accept": {"list": "relaciones"}}, {"id": "a_quien", "label": "A quién: ___", "accept": {"kinds": ["persona"]}}, {"id": "por_medio", "label": "Por medio de: ___", "accept": {"list": "medios"}}]},
-      {"optional": true, "fields": [{"id": "y_de", "label": "Y de: ___", "accept": {"list": "medios"}}]}
-    ]},
-    "T7": {"name": "Estado", "lines": [
-      {"fields": [{"id": "persona", "label": "Persona: ___", "accept": {"kinds": ["persona"]}}]},
-      {"fields": [{"id": "estado", "label": "Estado en marzo de 1894: ___", "accept": {"list": "estados"}}]}
-    ]},
-    "T8": {"name": "Paradero", "lines": [
-      {"fields": [{"id": "persona", "label": "Persona: ___", "accept": {"kinds": ["persona"]}}]},
-      {"fields": [{"id": "lugar", "label": "Lugar: ___", "accept": {"kinds": ["lugar"]}}]},
-      {"fields": [{"id": "dia", "label": "Día: ___", "accept": {"kinds": ["fecha", "suceso"]}}]}
-    ]},
-    "T9": {"name": "Propósito", "lines": [
-      {"fields": [{"id": "persona", "label": "Persona: ___", "accept": {"kinds": ["persona"]}}]},
-      {"fields": [{"id": "usa_a", "label": "Usa a: ___", "accept": {"kinds": ["persona"]}}, {"id": "como", "label": "Como: ___", "accept": {"kinds": ["concepto", "objeto", "persona"]}}]},
-      {"fields": [{"id": "para", "label": "Para: ___", "accept": {"list": "verbos"}}, {"id": "a_quien", "label": "A quién: ___", "accept": {"kinds": ["persona"]}}]}
-    ]}
-  },
   "assertions": [
     {"id": "as.pared", "kind": "cebo", "topic": "pared", "requires": ["reichenbach", "pared"], "ad_text": "la pared era a pique", "phrase": "La pared era a pique, ¿no, ${addr}?", "about_holmes": true, "channels": ["kw", "kh", "kt"]},
     {"id": "as.cayeron", "kind": "cebo", "topic": "cayeron", "requires": ["reichenbach", "profesor_moriarty"], "ad_text": "cayeron los dos", "phrase": "Cayeron los dos, ¿no es cierto, ${addr}?", "about_holmes": true, "channels": ["kw", "kh", "kt"]},
@@ -125,27 +78,17 @@
   },
   "_diary_nota": "D36, una línea por acto observable o ciego y una por llegada (GDD §7.4). Cada plantilla es UNA oración (≤40 palabras): sus tags van en un tramo que cubre toda la línea, recortable de una vez. Búsqueda de plantilla: «<tipo>.<lugar>.<área>» → «<tipo>.<lugar>» → «<tipo>.<char>» → «<tipo>». Variables: ${fecha} = ui_text core.wd_corto.<día> con mayúscula inicial + día del mes (GDD §7.4: «Mar. 27»), ${franja} = M, T, N o ui_text core.slot.dawn / core.slot.N para amanecer y noche (las etiquetas de fechas son de W1-ENG, ui_text/core.json), ${lugar} (q_places name), ${seat}, ${titulo} (puede llevar [[mención]] del doc), ${frase} (frase exacta mostrada antes de decirla), ${quien} (label del personaje), ${que} (epígrafe de lo presentado o de lo recibido: «sobre, matasellos S.W.»), ${monto} («un chelín»), ${encargo}, ${texto} (primera oración del aviso, telegrama o carta, sin su punto final, a lo sumo 20 palabras), ${destino}, ${n}, ${resumen} («dos recortes y un asiento», «sin novedad», «lo quemé»). Después de Markup.fill se aplican lists.contracciones. [[@act|…]] = entidad runtime del acto (ctx.act); lo que va dentro de [[@act|…]] (${seat}, ${frase}, ${que}, ${monto}, ${quien}, ${encargo}, ${texto}, ${destino}, ${n}, ${lugar}) es texto plano, sin marcado. stay es opcional (franja gastada en casa). Las etiquetas a:acto_* son las del canal que observa ese tipo de acto (C6).",
   "report_cats": [
-    {"cat": "holmes_vive", "entry_match": [{"tpl": "T7", "all": {"persona": ["holmes"], "estado": ["vivo"]}}], "clip_tags": ["c:holmes_vive"]},
-    {"cat": "regreso_jueves", "entry_match": [{"tpl": "T8", "all": {"persona": ["holmes"], "dia": ["jueves", "jueves_5_abril"]}}, {"tpl": "T5", "all": {"persona": ["holmes"], "hizo": ["volver"]}}], "clip_tags": ["c:regreso_jueves"]},
-    {"cat": "baker_street", "clip_tags": ["c:baker_street"], "entry_template_values": {"T8": {"lugar": ["baker_street", "221b"]}}},
-    {"cat": "camden", "entry_match": [{"tpl": "*", "all": {"*": ["camden_house", "casa_vacia"]}}], "clip_tags": ["c:camden"]},
+    {"cat": "holmes_vive", "pregunta": [{"q": ["Q5"], "respuestas": ["holmes"]}], "clip_tags": ["c:holmes_vive"]},
+    {"cat": "regreso_jueves", "pregunta": [{"q": ["Q10"], "respuestas": ["holmes"]}], "clip_tags": ["c:regreso_jueves"]},
+    {"cat": "baker_street", "pregunta": [{"q": ["Q10"], "respuestas": ["holmes"]}], "clip_tags": ["c:baker_street"]},
+    {"cat": "camden", "pregunta": [{"q": ["Q10"], "respuestas": ["moran", "harris", "autor_heavy_game"]}], "clip_tags": ["c:camden"]},
     {"cat": "watson_privado", "clip_doc_cats": ["watson_privado"], "clip_tags": ["c:watson_privado"]},
     {"cat": "original_p", "clip_copy_class": ["P"]},
-    {"cat": "moran_autor", "entry_match": [{"tpl": "T4", "all": {"redacto": ["moran", "autor_heavy_game", "harris"]}}, {"tpl": "T5", "all": {"persona": ["moran", "autor_heavy_game", "harris"], "hizo": ["matar", "disparar"]}}, {"tpl": "T9", "all": {"persona": ["moran", "autor_heavy_game", "harris"]}}, {"tpl": "T3", "all": {"es": ["moran", "autor_heavy_game", "harris"]}}]},
-    {"cat": "paradero_extranjero", "clip_tags": ["c:paradero_extranjero"], "entry_template_values": {"T8": {"lugar": ["montpellier", "grenoble", "paris"]}}},
-    {"cat": "verdadero", "entry_conclusions": ["C2", "C3", "C4", "C5", "C14"], "entry_ink": true, "clip_tags": ["c:verdadero"]},
-    {"cat": "falso_verificable", "entry_template_values": {"T8": {"lugar": ["@londres_falso"]}}},
+    {"cat": "moran_autor", "pregunta": [{"q": ["Q6", "Q7", "Q8"], "respuestas": ["moran", "harris", "autor_heavy_game"]}, {"q": ["Q9"]}]},
+    {"cat": "paradero_extranjero", "clip_tags": ["c:paradero_extranjero"]},
+    {"cat": "verdadero", "pregunta": [{"q": ["Q1", "Q2"], "tinta": true}], "clip_tags": ["c:verdadero"]},
+    {"cat": "falso_verificable", "pregunta": [{"q": ["Q10"], "lapiz": true, "kind": "persona", "no_respuestas": ["holmes", "moran", "harris", "autor_heavy_game"]}]},
     {"cat": "respuesta_s", "clip_voice": ["B"]}
   ],
-  "_report_cats_nota": "Lo que Moran ve en cada elemento de un informe (GDD §7.3, §9.7): un asiento por lo que DICEN sus campos visibles, nunca por la respuesta oculta de una conclusión (si no, Moran sería un oráculo de corrección: §9.4, §11). entry_match = [{tpl ('*' = cualquiera), all: {campo ('*' = cualquiera): [valores]}}], basta una forma con TODOS sus campos; entry_template_values = algún campo de una plantilla con uno de esos valores; entry_conclusions (sólo verdadero) = los valores coinciden con los de esa conclusión y, con entry_ink, el asiento está en tinta (sellado: un lápiz sin fundamento no da crédito); un recorte por sus etiquetas c:, por las visible_cats de su doc o por la clase de su ejemplar. M1 original_p · M2 holmes_vive · M3 watson_privado · M4 moran_autor · M5 camden/regreso_jueves · M9 falso_verificable (@londres_falso = lugar de london_places que no es el verdadero) · M12 paradero_extranjero · crédito: verdadero · F2: holmes_vive/regreso_jueves/baker_street/camden · respuesta_s: recorte de una respuesta firmada «—S.» (voz B, procedencia visible), variante de M8.",
-  "preguntas": [
-    {"id": "q.pell.1", "src": "D23#punto_uno", "who": "pell"},
-    {"id": "q.pell.2", "src": "D23#punto_dos", "who": "pell"},
-    {"id": "q.pell.3", "src": "D23#punto_tres", "who": "pell"},
-    {"id": "q.m6", "src": "S:M6.donde"},
-    {"id": "q.m7", "src": "S:M7.donde_duerme"},
-    {"id": "q.hc06", "src": "S:HC06.g"},
-    {"id": "q.m8", "src": "R:M8.*", "who": "pell"}
-  ],
-  "_preguntas_nota": "GDD_v2 §B.5/§B.6.1 (PROGRESIÓN): página «Lo que me preguntaron» y la línea 6 de Pendientes. Son CITAS de personajes (el juego no redacta preguntas propias): doc#tramo (aparece cuando el documento está en casa), S:escena.línea (cuando se dijo), R:reacción.* (cuando se entregó). who: quién la dijo si la fuente no lo trae. Nunca se marcan resueltas ni pendientes."
+  "_report_cats_nota": "GDD_v3 §6.10 (dueño de los datos: CORE; lector: MoranAgent.report_cats, REACCIONES). Lo que Moran ve en cada elemento de un informe o de «Mostrar» (GDD §7.3, §9.7). Recorte: por sus etiquetas c: (clip_tags), por las visible_cats de su doc (clip_doc_cats), por la clase de su ejemplar (clip_copy_class) o por la voz del documento runtime de origen (clip_voice). Pregunta ({kind: \"pregunta\", id}): por lo que la hoja DICE (Dossier.item_view: q, answer, inked), nunca por si cierra: pregunta = [{q: [ids], respuestas?: [entidades] (sin la clave = cualquier respuesta, incluso vacía), no_respuestas?: [entidades], kind?: tipo de entidad de la respuesta, tinta?: true (sólo en tinta), lapiz?: true (sólo en lápiz)}]; basta una forma. Las respuestas se comparan tal cual (harris, moran y autor_heavy_game están listados: Moran no aplica alias). M1 original_p · M2 holmes_vive · M3 watson_privado · M4 moran_autor · M5 camden/regreso_jueves/baker_street · M9 falso_verificable · M12 paradero_extranjero · crédito: verdadero (Q1 o Q2 en tinta) · F2: holmes_vive/regreso_jueves/baker_street/camden · respuesta_s: recorte de una respuesta firmada «—S.» (voz B), variante de M8."
 }

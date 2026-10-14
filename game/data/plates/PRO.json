@@ -1,5 +1,5 @@
 {
- "_nota": "W2-PLACES-A. Lámina del prólogo (GDD §3.2, §5): Pell y Harris en la buhardilla; en el vidrio, el reflejo de Lisle; por la ventana, Parker junto a la puerta y, enfrente, Cotter. Nodo del contrato §4.8: N:PRO.harris (C10 Ia, C13.R3). Escrito con un generador de trabajo no versionado (.work/w2placesa/): este JSON es la fuente de verdad; la buhardilla es la de places/L1.json.",
+ "_nota": "W2-PLACES-A. Lámina del prólogo (GDD §3.2, §5): Pell y Harris en la buhardilla; en el vidrio, el reflejo de Lisle; por la ventana, Parker junto a la puerta y, enfrente, Cotter. Nodo del contrato §4.8: N:PRO.harris (C10 Ia, C13.R3). Escrito con un generador de trabajo no versionado (.work/w2placesa/): este JSON es la fuente de verdad; la buhardilla es la de places/L1.json. v3 (CONTENIDO, GDD_v3 §6.4): la lámina repite sólo lo útil de la buhardilla (tintero, bandeja, estante, ventana, la calle y enfrente) y lo que cuenta la escena; la decoración (escritorio, cajón, calendario, sello, lámpara, atril, libro, tijera, monedas, silla, mesita, pliegos, notas de lectura, estuche, gas, estufa, letrero, puesto, farol, tomos) queda como prop sin examen. El libro de conclusiones es ahora la carpeta del expediente (prop expediente). N:PRO.harris y N:M7.ceniza: rasgo_de_harris (Q6) y, en la ceniza, senas_del_mayor (Q8 B).",
  "id": "PRO",
  "name": "Recuerdo del prólogo: el encargo",
  "fixed": true,
@@ -88,6 +88,30 @@
     ],
     "yaw": 18,
     "pitch": 8
+   }
+  },
+  {
+   "id": "expediente",
+   "area": "*",
+   "pos": [
+    0.66,
+    1.4,
+    -0.8
+   ],
+   "look": [
+    0.36,
+    0.77,
+    -1.64
+   ],
+   "fov": 50,
+   "orbit": {
+    "pivot": [
+     0.36,
+     0.8,
+     -1.62
+    ],
+    "yaw": 12,
+    "pitch": 6
    }
   }
  ],
@@ -193,20 +217,6 @@
    }
   },
   {
-   "id": "tomos",
-   "type": "small.tome_set",
-   "pos": [
-    -0.24,
-    0.76,
-    -2.05
-   ],
-   "rot": 0.0,
-   "p": {
-    "n": 5,
-    "first": 2
-   }
-  },
-  {
    "id": "atril",
    "type": "l1.reading_stand",
    "pos": [
@@ -230,9 +240,9 @@
    "id": "tintero",
    "type": "small.ink_pot",
    "pos": [
-    0.27,
+    0.1,
     0.76,
-    -2.1
+    -1.84
    ],
    "rot": 0.0
   },
@@ -240,9 +250,9 @@
    "id": "sello",
    "type": "small.stamp",
    "pos": [
-    0.4,
+    0.44,
     0.76,
-    -1.74
+    -2.08
    ],
    "rot": 0.0
   },
@@ -273,24 +283,14 @@
    }
   },
   {
-   "id": "libro_mayor",
-   "type": "l1.ledger_open",
+   "id": "expediente",
+   "type": "l1.dossier_folder",
    "pos": [
     0.38,
     0.76,
     -1.62
    ],
    "rot": -6.0
-  },
-  {
-   "id": "tijera",
-   "type": "small.scissors",
-   "pos": [
-    -0.05,
-    0.76,
-    -1.52
-   ],
-   "rot": -35.0
   },
   {
    "id": "monedas",
@@ -772,169 +772,24 @@
  ],
  "nodes": [
   {
-   "id": "escritorio",
-   "prop": "escritorio",
-   "noun": "escritorio",
-   "anchor": {
-    "c": [
-     0.0,
-     0.38,
-     -1.8
-    ],
-    "s": [
-     1.52,
-     0.78,
-     0.77
-    ]
-   },
-   "examine": "Un escritorio de pedestales, de tapa de cuero gastada; en el borde del cuero hay cortes de tijera.",
-   "tags": [
-    "e:escritorio_de_lisle"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "cajon",
-   "prop": "escritorio",
-   "noun": "cajón",
-   "anchor": {
-    "c": [
-     0.0,
-     0.675,
-     -1.395
-    ],
-    "s": [
-     0.5,
-     0.11,
-     0.06
-    ]
-   },
-   "examine": "El cajón del centro cierra mal. Dentro, doblada en cuatro, una [[galerada|prueba de imprenta]] con un sello: «1.ª prueba — lector: E. L.».",
-   "tags": [
-    "e:galerada",
-    "e:cajon_del_escritorio"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "calendario",
-   "prop": "calendario",
-   "noun": "calendario",
-   "anchor": {
-    "c": [
-     0.06,
-     0.83,
-     -2.07
-    ],
-    "s": [
-     0.15,
-     0.15,
-     0.1
-    ]
-   },
-   "examine": "Un [[calendario_de_escritorio|calendario perpetuo]] de tarjetas que se cambian a mano.",
-   "tags": [
-    "e:calendario_de_escritorio"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
    "id": "tintero",
    "prop": "tintero",
    "noun": "tintero",
    "anchor": {
     "c": [
-     0.31,
-     0.79,
-     -2.1
+     0.11,
+     0.81,
+     -1.84
     ],
     "s": [
-     0.2,
-     0.07,
-     0.08
+     0.24,
+     0.14,
+     0.22
     ]
    },
    "examine": "Un tintero de vidrio con tapa de latón y una pluma de acero.",
    "tags": [
     "e:tintero_de_lisle"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "sello",
-   "prop": "sello",
-   "noun": "sello",
-   "anchor": {
-    "c": [
-     0.45,
-     0.805,
-     -1.74
-    ],
-    "s": [
-     0.2,
-     0.1,
-     0.08
-    ]
-   },
-   "examine": "Un [[sello_visto|sello de goma]] que dice «Confirmado», con su almohadilla de tinta en una caja de lata.",
-   "tags": [
-    "e:sello_visto"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "lampara",
-   "prop": "lampara",
-   "noun": "lámpara",
-   "anchor": {
-    "c": [
-     0.62,
-     1.0,
-     -2.0
-    ],
-    "s": [
-     0.28,
-     0.48,
-     0.28
-    ]
-   },
-   "examine": "Una lámpara de mesa de gas, con tubo de goma y pantalla opalina. Está encendida.",
-   "tags": [
-    "e:luz_de_gas"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "atril",
-   "prop": "atril",
-   "noun": "atril",
-   "anchor": {
-    "c": [
-     -0.58,
-     0.9,
-     -1.98
-    ],
-    "s": [
-     0.44,
-     0.3,
-     0.32
-    ]
-   },
-   "examine": "Un atril de lectura con una pinza de latón para sujetar la hoja.",
-   "tags": [
-    "e:atril_de_lisle"
    ],
    "cls": "I",
    "area": "buhardilla",
@@ -965,218 +820,6 @@
    "when": {}
   },
   {
-   "id": "libro_mayor",
-   "prop": "libro_mayor",
-   "noun": "libro de conclusiones",
-   "anchor": {
-    "c": [
-     0.38,
-     0.775,
-     -1.62
-    ],
-    "s": [
-     0.5,
-     0.04,
-     0.36
-    ]
-   },
-   "examine": "Un libro grande, de renglones y columnas rojas: el libro de conclusiones. En la primera hoja, a pluma: «Correcciones».",
-   "tags": [
-    "e:libro_mayor"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "tijera",
-   "prop": "tijera",
-   "noun": "tijera",
-   "anchor": {
-    "c": [
-     -0.05,
-     0.77,
-     -1.52
-    ],
-    "s": [
-     0.17,
-     0.03,
-     0.17
-    ]
-   },
-   "examine": "Una [[tijera|tijera]] de corrector, de hojas largas y punta roma.",
-   "tags": [
-    "e:tijera"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "monedas",
-   "prop": "monedas",
-   "noun": "monedas",
-   "anchor": {
-    "c": [
-     0.69,
-     0.77,
-     -1.5
-    ],
-    "s": [
-     0.12,
-     0.03,
-     0.1
-    ]
-   },
-   "examine": "Unas [[monedas|monedas]] sobre la mesa: chelines, peniques y un soberano.",
-   "tags": [
-    "e:monedas"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "silla",
-   "prop": "silla",
-   "noun": "silla",
-   "anchor": {
-    "c": [
-     0.08,
-     0.45,
-     -1.06
-    ],
-    "s": [
-     0.52,
-     0.9,
-     0.52
-    ]
-   },
-   "examine": "Una silla de escritorio de brazos curvos, con el asiento gastado.",
-   "tags": [],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "mesita",
-   "prop": "mesita",
-   "noun": "mesita",
-   "anchor": {
-    "c": [
-     -1.6,
-     0.36,
-     -1.55
-    ],
-    "s": [
-     0.78,
-     0.72,
-     0.52
-    ]
-   },
-   "examine": "Una mesita de patas torneadas, arrimada al faldón del techo.",
-   "tags": [],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "concordancia",
-   "prop": "concordancia",
-   "noun": "notas de lectura",
-   "anchor": {
-    "c": [
-     -1.74,
-     0.755,
-     -1.6
-    ],
-    "s": [
-     0.26,
-     0.08,
-     0.32
-    ]
-   },
-   "examine": "Un cuaderno grueso de tapas de hule, cerrado con una cinta: las [[concordancia|notas de lectura]] de E. L., llenas de fichas sujetas con alfileres.",
-   "tags": [
-    "e:concordancia"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "estuche",
-   "prop": "estuche",
-   "noun": "estuche",
-   "anchor": {
-    "c": [
-     -1.42,
-     0.75,
-     -1.42
-    ],
-    "s": [
-     0.18,
-     0.08,
-     0.1
-    ]
-   },
-   "examine": "Un estuche de cuero para anteojos, abierto y vacío; tiene el nombre de un óptico del Strand.",
-   "tags": [
-    "e:anteojos_azules"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "brazo_gas",
-   "prop": "brazo_gas",
-   "noun": "brazo de gas",
-   "anchor": {
-    "c": [
-     -1.1,
-     1.72,
-     -2.0
-    ],
-    "s": [
-     0.2,
-     0.3,
-     0.3
-    ]
-   },
-   "examine": "Un brazo de gas de pared con globo de vidrio esmerilado; el techo de encima está ahumado.",
-   "tags": [
-    "e:luz_de_gas"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "estufa",
-   "prop": "estufa",
-   "noun": "estufa",
-   "anchor": {
-    "c": [
-     1.3,
-     1.0,
-     -1.78
-    ],
-    "s": [
-     0.6,
-     2.0,
-     0.6
-    ]
-   },
-   "examine": "Una [[estufa|estufa]] de hierro de las que llaman tortugas; el caño sale por el techo inclinado.",
-   "tags": [
-    "e:estufa"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
    "id": "estante",
    "prop": "estante",
    "noun": "estante",
@@ -1192,9 +835,9 @@
      1.12
     ]
    },
-   "examine": "Un estante bajo con diccionarios, una guía [[baedeker|Baedeker]] de Londres y pruebas de imprenta viejas atadas con cordel.",
+   "examine": "Un estante bajo con diccionarios y pruebas de imprenta viejas. Ahí dejó el señor Pell las crónicas del cliente: cuatro cuadernillos de la Strand y dos libros.",
    "tags": [
-    "e:baedeker"
+    "e:estante"
    ],
    "cls": "I",
    "area": "buhardilla",
@@ -1274,103 +917,6 @@
    "when": {}
   },
   {
-   "id": "media_luna",
-   "prop": "enfrente",
-   "noun": "letrero",
-   "anchor": {
-    "c": [
-     -0.47,
-     -2.23,
-     -7.38
-    ],
-    "s": [
-     0.9,
-     0.9,
-     0.2
-    ]
-   },
-   "examine": "Un letrero antiguo sobre una tienda de enfrente: una media luna de latón con cara.",
-   "tags": [
-    "e:media_luna"
-   ],
-   "cls": "I",
-   "area": "*",
-   "when": {}
-  },
-  {
-   "id": "puesto_libros",
-   "prop": "enfrente",
-   "noun": "caballete",
-   "anchor": {
-    "c": [
-     -6.055,
-     -5.38,
-     -7.21
-    ],
-    "s": [
-     2.44,
-     1.9,
-     0.85
-    ]
-   },
-   "examine": "Un caballete con libros de a penique en la vereda de enfrente, bajo un toldo de hule.",
-   "tags": [
-    "e:puesto_de_libros"
-   ],
-   "cls": "I",
-   "area": "*",
-   "when": {}
-  },
-  {
-   "id": "farol",
-   "prop": "farol",
-   "noun": "farol",
-   "anchor": {
-    "c": [
-     -2.75,
-     -4.63,
-     -6.98
-    ],
-    "s": [
-     0.5,
-     3.4,
-     0.5
-    ]
-   },
-   "examine": "Un farol de gas de hierro fundido, con travesaño para la escalera del farolero.",
-   "tags": [
-    "e:luz_de_gas"
-   ],
-   "cls": "I",
-   "area": "*",
-   "when": {}
-  },
-  {
-   "id": "tomos",
-   "prop": "tomos",
-   "noun": "tomos",
-   "anchor": {
-    "c": [
-     -0.24,
-     0.89,
-     -2.05
-    ],
-    "s": [
-     0.36,
-     0.27,
-     0.2
-    ]
-   },
-   "examine": "Cinco [[tomos|tomos encuadernados]] de la [[strand|Strand]], volúmenes II a VI, que el señor Pell acaba de dejar; entre las hojas asoman papeles.",
-   "tags": [
-    "e:tomos",
-    "e:strand"
-   ],
-   "cls": "I",
-   "area": "*",
-   "when": {}
-  },
-  {
    "id": "harris",
    "prop": "harris",
    "noun": "caballero",
@@ -1388,7 +934,7 @@
    },
    "examine": "El [[harris|mayor Harris]], de pie con las manos a la espalda: alto, ancho de hombros, de [[bigote|bigote canoso]] enorme y [[chistera|chistera de ópera]].",
    "tags": [
-    "a:harris_es_moran",
+    "a:rasgo_de_harris",
     "a:tirador",
     "e:harris",
     "e:bigote",
@@ -1550,25 +1096,23 @@
    "when": {}
   },
   {
-   "id": "encargo",
-   "prop": "encargo",
-   "noun": "encargo",
+   "id": "expediente",
+   "prop": "expediente",
+   "noun": "expediente",
    "anchor": {
     "c": [
-     -0.28,
-     0.77,
-     -1.6
+     0.38,
+     0.775,
+     -1.62
     ],
     "s": [
-     0.34,
-     0.03,
-     0.3
+     0.3,
+     0.05,
+     0.36
     ]
    },
-   "examine": "Unas hojas del encargo, escritas a máquina y a pluma, firmadas por Josiah Pell, con fechas de entrega subrayadas.",
-   "tags": [
-    "e:encargo"
-   ],
+   "examine": "Una carpeta de cartón atada con cinta roja. En la tapa, a pluma: «Holmes». Adentro, el [[encargo|encargo]] del señor Pell.",
+   "tags": [],
    "cls": "I",
    "area": "*",
    "when": {}

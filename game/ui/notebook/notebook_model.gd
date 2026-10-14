@@ -1,6 +1,6 @@
 # ui/notebook/notebook_model.gd — lógica pura del cuaderno (sin nodos; testeable headless). Dueño: W3-NOTEBOOK.
 # Contrato: ARCHITECTURE §6.5 (GDD§14.1, §8.1–8.3, §7.4, §13).
-# Entradas: lo que devuelve GameSim (q_clips, q_index, q_pairs, q_diary, q_marginalia; sin etiquetas ocultas) y
+# Entradas: lo que devuelve GameSim (q_clips, q_index, q_diary, q_marginalia; sin etiquetas ocultas; v3: sin pares) y
 # text_fn = Callable(key: String, vars: Dictionary) -> String (ui_text). Nada aquí distingue lo importante: todo filtro
 # y todo orden se derivan de lo visible (texto, entidades del epígrafe, línea de fuente, fecha de la crónica).
 #   fold(s)                              minúsculas sin tildes (ñ -> n), para buscar

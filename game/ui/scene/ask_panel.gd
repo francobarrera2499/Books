@@ -11,6 +11,9 @@
 # GDD_v2 §C.3: con pocos temas (≤7) la lista va entera y sin buscador. Con más: el buscador, «De esta conversación» (lo
 #   nombrado en esta visita, ≤6), «Recientes» (lo último que entró al índice, ≤6) y «Todo el índice» plegado. La
 #   pestaña «Decir» aparece sólo si hay algo que decir ante este personaje.
+# GDD_v3 §5.2 (UI-MUNDO): modo "donde" («¿Dónde consigo…?», Crane desde que se presentó): la lista de q_donde() (≤7 a la
+#   vista; lo ya preguntado va abajo, plegado bajo «Ya lo pregunté»), la frase exacta de Lisle y «Preguntar» ->
+#   ask_donde {char, item}. Gratis y sin límite.
 extends PanelContainer
 
 signal said(res: Dictionary)
@@ -36,10 +39,12 @@ var _ok: Button
 var _empty: Label
 var _shown: Array = []         # ids en el orden del ItemList ("" = encabezado; ALL_ID = desplegar todo)
 var _all_open := false
+var _more_open := false        # «¿Dónde consigo…?»: lo nuevo que no entra en las 7 filas, plegado
 
 const LIST_MAX := 7
 const SECTION_MAX := 6
 const ALL_ID := "__todo_el_indice__"
+const MORE_ID := "__mas_donde__"
 
 func _init(p_link = null) -> void:
 	link = p_link if p_link != null else SimLink.new()
@@ -56,8 +61,8 @@ func _init(p_link = null) -> void:
 	var bar := HBoxContainer.new()
 	bar.add_theme_constant_override("separation", 4)
 	var group := ButtonGroup.new()
-	for m in ["ask", "assert"]:
-		var b := Widgets.ink_tab(link.t("sceneui.verb." + m), group)
+	for m in ["ask", "assert", "donde"]:
+		var b := Widgets.ink_tab(link.t("mundo.verb.donde") if m == "donde" else link.t("sceneui.verb." + m), group)
 		b.pressed.connect(set_mode.bind(m))
 		_tabs[m] = b
 		bar.add_child(b)
@@ -109,6 +114,7 @@ func open(p_char: String, p_label: String, p_mode := "ask") -> void:
 	char_label = p_label
 	_search.text = ""
 	_all_open = false
+	_more_open = false
 	visible = true
 	set_mode(p_mode)
 	link.play("sfx.papel")
@@ -122,9 +128,15 @@ func set_mode(m: String) -> void:
 		_tabs[m].set_pressed_no_signal(true)
 	_tabs["assert"].visible = not _assertions().is_empty() or m == "assert"
 	_tabs["ask"].visible = not link.qa("q_topics", [char_id]).is_empty() or m == "ask"
-	_title.text = link.t("sceneui.ask.title", {"quien": SimLink.cap(char_label)})
-	_ok.text = link.t("sceneui.%s.ok" % m)
-	options = link.qa("q_topics", [char_id]) if m == "ask" else _assertions()
+	_tabs["donde"].visible = has_donde(char_id) or m == "donde"
+	if m == "donde":
+		_title.text = link.t("mundo.donde.title", {"quien": SimLink.cap(char_label)})
+		_ok.text = link.t("mundo.donde.ok")
+		options = donde_options()
+	else:
+		_title.text = link.t("sceneui.ask.title", {"quien": SimLink.cap(char_label)})
+		_ok.text = link.t("sceneui.%s.ok" % m)
+		options = link.qa("q_topics", [char_id]) if m == "ask" else _assertions()
 	_search.visible = m == "ask" and options.size() > LIST_MAX
 	chosen = ""
 	_fill_list()
@@ -150,11 +162,39 @@ func action() -> Dictionary:
 		return {}
 	if mode == "ask":
 		return {"t": "ask", "char": char_id, "topic": chosen}
+	if mode == "donde":
+		return {"t": "ask_donde", "char": char_id, "item": chosen}
 	return {"t": "assert", "char": char_id, "assertion": chosen}
 
 func phrase() -> String:
 	var a := action()
+	if mode == "donde":
+		for o in options:
+			if String(o.id) == chosen:
+				return String(o.get("label", ""))
+		return ""
 	return link.preview(a) if not a.is_empty() else ""
+
+# ¿Este personaje tiene «¿Dónde consigo…?» ahora? (sección donde de su diálogo, Crane ya presentado, algo que ofrecer)
+func has_donde(cid: String) -> bool:
+	var r = link.repo()
+	if r == null or not r.dialogue(cid).has("donde"):
+		return false
+	return link.flag("sc.donde") and not link.qa("q_donde").is_empty()
+
+# [{id, label, asked}] de q_donde(): lo no preguntado primero (orden del archivo), lo preguntado al final.
+func donde_options() -> Array:
+	var fresh: Array = []
+	var asked: Array = []
+	for it in link.qa("q_donde"):
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var row := {"id": String(it.get("id", "")), "label": String(it.get("phrase", it.get("id", ""))), "asked": bool(it.get("asked", false))}
+		if row.asked:
+			asked.append(row)
+		else:
+			fresh.append(row)
+	return fresh + asked
 
 func confirm() -> void:
 	var a := action()
@@ -193,6 +233,10 @@ func _on_item(i: int) -> void:
 		_all_open = not _all_open
 		_fill_list()
 		return
+	if id == MORE_ID:
+		_more_open = not _more_open
+		_fill_list()
+		return
 	choose(id)
 
 func _fill_list() -> void:
@@ -200,7 +244,32 @@ func _fill_list() -> void:
 	_shown.clear()
 	var q := _search.text.strip_edges().to_lower()
 	var any := false
-	if q != "" or mode != "ask" or options.size() <= LIST_MAX:
+	if mode == "donde":
+		# ≤7 filas a la vista (GDD_v3 §5.2, GDD_v2 §C.1); lo ya preguntado, abajo y plegado; si lo nuevo tampoco entra, el
+		# resto va plegado bajo «Más…» (verificador v3: con todo conocido y nada preguntado eran 10 filas)
+		var asked: Array = options.filter(func(o): return bool(o.get("asked", false)))
+		var fresh: Array = options.filter(func(o): return not bool(o.get("asked", false)))
+		var room := LIST_MAX - (0 if asked.is_empty() else 1)
+		var more: Array = []
+		if fresh.size() > room:
+			more = fresh.slice(room - 1)
+			fresh = fresh.slice(0, room - 1)
+		for o in fresh:
+			_add(String(o.label), String(o.id))
+			any = true
+		if not more.is_empty():
+			_add((Widgets.FOLD_OPEN if _more_open else Widgets.FOLD_CLOSED) + link.t("mundo.donde.mas"), MORE_ID)
+			any = true
+			if _more_open:
+				for o in more:
+					_add("  " + String(o.label), String(o.id))
+		if not asked.is_empty():
+			_add((Widgets.FOLD_OPEN if _all_open else Widgets.FOLD_CLOSED) + link.t("mundo.donde.ya"), ALL_ID)
+			any = true
+			if _all_open:
+				for o in asked:
+					_add("  " + String(o.label), String(o.id))
+	elif q != "" or mode != "ask" or options.size() <= LIST_MAX:
 		for o in options:
 			var lab := String(o.get("label", o.id))
 			if q != "" and not lab.to_lower().contains(q):
@@ -235,7 +304,10 @@ func _fill_list() -> void:
 	_empty.visible = not any
 	_list.visible = any
 	if _empty.visible:
-		_empty.text = link.t("sceneui.%s.none" % mode) if q == "" else link.t("sceneui.picker.nada_busqueda")
+		if mode == "donde":
+			_empty.text = link.t("mundo.donde.none")
+		else:
+			_empty.text = link.t("sceneui.%s.none" % mode) if q == "" else link.t("sceneui.picker.nada_busqueda")
 
 func _add(lab: String, id: String) -> void:
 	var i := _list.add_item(lab)
@@ -277,7 +349,7 @@ func shown_ids() -> Array:
 func _update_phrase() -> void:
 	var ph := phrase()
 	if ph == "":
-		_phrase.text = link.t("sceneui.%s.pick" % mode)
+		_phrase.text = link.t("mundo.donde.pick") if mode == "donde" else link.t("sceneui.%s.pick" % mode)
 		_phrase.add_theme_color_override("font_color", Paper.ink("tenue"))
 		_ok.disabled = true
 	else:

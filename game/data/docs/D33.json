@@ -14,6 +14,7 @@
   ],
   "parts": [
     {"id": "p1", "text": "Ventas de la semana.\n{{#nelson e:vida_de_nelson|Mar. 20 — [[vida_de_nelson|Vida de Nelson]], 1s\\. 6d., a un marino retirado; regateó el medio chelín como si fuera Trafalgar.}}\n{{#hewitt e:strand_marzo_1894|Jue. 22 — [[strand_marzo_1894|La Strand de marzo]], 6d.; quería al detective de antes y se llevó al gordo.}}"},
+    {"id": "p1b", "when": {"tk": {"gte": "2.M"}}, "text": "Compras de la semana.\nMié. 28 — Lote de papel de imprenta, al peso, de la imprenta de la [[strand|Strand]]: {{#lote_pruebas a:corte_por_orden e:gobierno e:pedido_del_fo e:pruebas_americanas|pruebas que mandaron rehacer en noviembre por orden de un [[gobierno|ministerio]], según el que las trajo.}} 3 chelines; las pongo en la mesa de saldos."},
     {"id": "p2", "when": {"all": [{"day": {"gte": 10}}, {"counter": {"name": "delivered.HC07", "gte": 1}}]}, "text": "{{#jue5 e:anciano e:librero d:1894-04-05|Jue. 5 abr. — Un [[anciano|anciano]], [[librero|librero]] (dice).}} {{#tree_worship e:tree_worship e:anciano|[[british_birds|British Birds]], [[catullus|Catullus]], [[holy_war|The Holy War]], [[tree_worship|The Origin of Tree Worship]].}} {{#gremio e:precio_de_gremio|[[precio_de_gremio|Precio de colega]].}} {{#direccion a:librero_falso e:church_street e:letra e:librero h:F.librero_en_crane|Dirección, de su puño: <ink=lapiz>esquina de [[church_street|Church Street]], [[kensington|Kensington]]</ink>.}} Se los lleva."}
   ],
   "words": 97

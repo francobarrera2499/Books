@@ -30,7 +30,7 @@
        {"all": [{"day": 8}, {"event_count": {"type": "task", "where": {"char": "wiggins", "day": [3, 4, 5, 6, 7]}, "gte": 1}}]},
        {"all": [{"day": {"gte": 9}}, {"event_count": {"type": "task", "where": {"char": "wiggins", "day": [3, 4, 5, 6, 7, 8]}, "gte": 1}}]}
      ]},
-     "text": "Se saca el mondadientes de la boca. —{{#conduit a:harris_es_moran e:conduit_street|El que usted me mandó seguir entró en una casa de [[conduit_street|Conduit Street]] con una cabeza de [[tigre|tigre]] en la entrada, jefe, y ahí los criados no conocen a ningún [[harris|mayor]]: dicen «el coronel».}} Pregunté en la escalera de servicio; adentro no entré, que eso no está en la tarifa."},
+     "text": "Se saca el mondadientes de la boca. —El que usted me mandó seguir entró en una casa con una cabeza de [[tigre|tigre]] en la entrada, jefe. {{#conduit a:rasgo_de_harris e:conduit_street e:harris|En la casa de [[conduit_street|Conduit Street]] no conocen a ningún [[harris|mayor]]: le dicen «el coronel».}} Pregunté a los criados en la escalera de servicio; adentro no entré, que eso no está en la tarifa."},
     {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes", "muerte_de_holmes", "reichenbach"]}, "when": {"flag": "wiggins_aliado"}, "text": "Un caballero nos pagaba la vieja tarifa, jefe, y nunca nos pidió nada sucio. Los diarios dicen que se cayó a una cascada. Los diarios dicen muchas cosas."},
     {"id": "holmes.extrano", "layer": "tema", "match": {"topic": ["holmes", "muerte_de_holmes", "reichenbach"]}, "text": "Escupe a un costado. —De ese no se habla con desconocidos, jefe."},
     {"id": "mycroft", "layer": "tema", "match": {"topic": ["mycroft"]}, "text": "A ese no se lo sigue, jefe: nunca se sale de su camino."},

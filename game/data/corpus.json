@@ -1,0 +1,7 @@
+{
+  "_nota": "GDD_v3 §3.5 (dueño: CORE). Crónicas activas en esta iteración. DataRepo no carga los documentos de `inactivas` (quedan en el repo, intactos) y los expone con inactive_docs(); sus ejemplares y fichas de catálogo desaparecen con ellos. Nombrar un documento inactivo en una ruta, un huevo, un match.doc o un ref es error de datos (lint, T38). Un futuro «capítulo siguiente» los reactiva moviéndolos de lista. El pedido decía «las otras 18»; son 20 (las 24 historias de la Strand menos FINA, GREE, SCAN y TWIS).",
+  "activas": ["D03", "D01.GREE", "D01.SCAN", "D01.TWIS", "D43", "D44"],
+  "inactivas": ["D01.BERY", "D01.BLUE", "D01.BOSC", "D01.CARD", "D01.COPP", "D01.CROO", "D01.ENGR", "D01.FIVE", "D01.GLOR",
+                "D01.IDEN", "D01.MUSG", "D01.NAVA", "D01.NOBL", "D01.REDH", "D01.REIG", "D01.RESI", "D01.SILV", "D01.SPEC",
+                "D01.STOC", "D01.YELL"]
+}

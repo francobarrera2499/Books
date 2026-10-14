@@ -32,6 +32,10 @@ class Blank extends Button:
 	var none_text := ""
 	var clear_text := ""         # si no está vacío, primera opción del menú para dejar el campo en blanco
 	var shown_fn: Callable = Callable()   # (value) -> String: cómo se lee el campo lleno (el menú sigue con options.label)
+	# playtest v3: vacío, un hueco ancho con borde punteado y «elegir…» (como la respuesta del expediente); lleno, se lee
+	# como parte del renglón. empty_w = ancho mínimo del hueco vacío.
+	var dashed := false
+	var empty_w := 170.0
 	var _popup: PopupMenu
 	func _init(p_placeholder := "___") -> void:
 		placeholder = p_placeholder
@@ -78,6 +82,27 @@ class Blank extends Button:
 		text = (shown if shown != "" else label_of(value)) if value != "" else placeholder
 		modulate = Color(1, 1, 1, 1)
 		add_theme_color_override("font_color", Paper.ink("negra") if value != "" else Paper.ink("tenue"))
+		if dashed:
+			custom_minimum_size.x = empty_w if value == "" else 0.0
+			alignment = HORIZONTAL_ALIGNMENT_CENTER if value == "" else HORIZONTAL_ALIGNMENT_LEFT
+			queue_redraw()
+	func set_dashed(on: bool, w := 170.0) -> void:
+		dashed = on
+		empty_w = w
+		_sync()
+	func _draw() -> void:
+		if not dashed or value != "":
+			return
+		var r := Rect2(Vector2(1, 1), size - Vector2(2, 2))
+		var c := Color(Paper.ink("lapiz"), 0.85 if is_hovered() else 0.6)
+		var pts := [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y), r.position]
+		for i in 4:
+			var a: Vector2 = pts[i]
+			var b: Vector2 = pts[i + 1]
+			var n := maxi(2, int(a.distance_to(b) / 8.0))
+			for k in n:
+				if k % 2 == 0:
+					draw_line(a.lerp(b, float(k) / n), a.lerp(b, float(k + 1) / n), c, 1.3)
 	func _open() -> void:
 		_popup.clear()
 		if options.is_empty():
@@ -202,8 +227,12 @@ func _ensure_built() -> void:
 	Widgets.restyle(fp, func(): fp.add_theme_stylebox_override("panel", Paper.flat(Color(1, 1, 1, 0.0) if Paper.hc_on() else Color(1, 1, 1, 0.28), Color(Paper.ink("tenue"), 0.8), [1, 1, 1, 1], 1, [18, 12, 18, 12])))
 	final_rtl = RichTextLabel.new()
 	final_rtl.bbcode_enabled = false
-	final_rtl.fit_content = true
-	final_rtl.scroll_active = false
+	# playtest v3: con tres ítems el informe (texto final manuscrito) ocupaba toda la altura de la pantalla: la caja crece
+	# con el texto hasta FINAL_MAX_K de la pantalla y después se desplaza (rueda)
+	final_rtl.fit_content = false
+	final_rtl.scroll_active = true
+	final_rtl.resized.connect(func(): _fit_final.call_deferred())
+	final_rtl.finished.connect(func(): _fit_final.call_deferred())
 	final_rtl.selection_enabled = false
 	final_rtl.context_menu_enabled = false
 	final_rtl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -304,6 +333,19 @@ func refresh() -> void:
 	else:
 		final_rtl.add_text(display_text(txt))
 	send_button.disabled = a.is_empty() or txt == ""
+	_fit_final.call_deferred()
+
+const FINAL_MAX_K := 0.26   # alto máximo de la caja del texto final, × alto de la pantalla
+func _fit_final() -> void:
+	if final_rtl == null or not is_instance_valid(final_rtl) or not final_rtl.is_inside_tree():
+		return
+	var cap := maxf(120.0, get_viewport().get_visible_rect().size.y * FINAL_MAX_K)
+	var h := float(final_rtl.get_content_height())
+	if h <= 0.0:
+		h = float(SimLink.px("doc")) * 1.6
+	var want := roundf(minf(h + 2.0, cap))
+	if absf(final_rtl.custom_minimum_size.y - want) > 1.0:
+		final_rtl.custom_minimum_size.y = want
 
 # Sólo para mostrar (el texto enviado es el de q_preview, intacto): la raya pegada a lo que sigue (U+2060) y «E. L.» sin
 # corte (U+00A0), para que la firma «—E. L.» no quede partida en dos renglones.
@@ -424,7 +466,7 @@ func _set_foot_visible(on: bool) -> void:
 			b.mouse_filter = Control.MOUSE_FILTER_STOP if on else Control.MOUSE_FILTER_IGNORE
 
 func _on_sim_changed(kind: String, _p: Dictionary) -> void:
-	if visible and ["index", "clock", "clip", "entry", "report"].has(kind) and not _refresh_queued:
+	if visible and ["index", "clock", "clip", "dossier", "report"].has(kind) and not _refresh_queued:
 		_refresh_queued = true
 		(func():
 			_refresh_queued = false

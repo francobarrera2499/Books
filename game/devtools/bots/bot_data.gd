@@ -44,7 +44,8 @@ static func structural(rel: String) -> bool:
 			return false
 	if rel.begins_with("entities/"):
 		var f := rel.get_file()
-		return f == "core.json" or f == "struct.json" or f.begins_with("places_") or f.begins_with("v2_")   # v2_*: entidades del sistema v2 (papeles de fisica.json)
+		# v2_*: entidades del sistema v2 (papeles de fisica.json); v3_core / v3_reacciones: de los paquetes de estructura v3
+		return f == "core.json" or f == "struct.json" or f.begins_with("places_") or f.begins_with("v2_") or f == "v3_core.json" or f == "v3_reacciones.json"
 	return true
 
 static func _clear(p: String) -> void:
@@ -157,7 +158,11 @@ static func inside_project(p: String) -> bool:
 # ¿Puede jugarse en serio este dataset? {ok, errors:[...], docs:int, routes:{cid: [ids de rutas ★ completas]}, missing:[cid]}
 # (missing = obligatoria sin ninguna ruta ★ elegible sin fragmentos faltantes).
 static func content_report(r) -> Dictionary:
-	var out := {"ok": true, "errors": (r.errors() as Array).slice(0, 12), "docs": (r.docs() as Dictionary).size(), "routes": {}, "missing": []}
+	# El largo de los tramos y exámenes etiquetados (≤30 palabras, GDD_v3 §6.2) es una regla de redacción: se informa
+	# aparte (long) y no vuelve injugable el dataset.
+	var all_e: Array = r.errors()
+	var errs: Array = all_e.filter(func(e): return not String(e).contains("(máx. 30, GDD_v3 §6.2)"))
+	var out := {"ok": true, "errors": errs.slice(0, 12), "long": all_e.size() - errs.size(), "docs": (r.docs() as Dictionary).size(), "routes": {}, "missing": []}
 	if not out.errors.is_empty():
 		out.ok = false
 	for cid in RouteDB.mandatory(r):

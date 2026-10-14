@@ -8,6 +8,10 @@
 # Efectos de mundo: el estado vive en st.react.world (dueño W2-REACT) y se consulta con los accesores de abajo
 #   (WorldModel/Clock/Dialogue/UI): withdrawn, closed, variants, silhouettes, nodes, lines, torn, scenes, scene_extra,
 #   events, payments. Flags: sólo los que el registro §3.9 asigna a Effects (EFFECT_FLAGS, canal_cerrado.*).
+# v3 (GDD_v3 §4): retirar/devolver copias "relacionada" (HA5/HA6: el original del acto, que vuelve solo al amanecer con
+#   una marca a lápiz: st.react.world.marcas[copia] = [{tk, texto, mano, iid}], accesor marcas()); alterar_lugar con
+#   `dias` (capas con ventana; conviven: place_variant = "registrada+techos"); rastros N: de una variante con duración
+#   llevan to_tk; withdrawn[c].rid (examine «missing/<copia>»: withdrawn_by).
 # Dependencia: react no precarga sim/ (§1); WorldModel se carga con load() en tiempo de ejecución. `sink` (tests) lo
 #   reemplaza: objeto con instantiate_doc(st, repo, tpl, vars, meta) -> String y deliver(st, repo, view, how).
 extends RefCounted
@@ -21,7 +25,23 @@ const Latency = preload("res://core/react/latency.gd")
 const EFFECT_FLAGS := ["watson_avisado", "watson_expuesto", "consulta_cerrada_hasta", "hudson_cerrada", "wiggins_aliado",
 	"wiggins_quemado", "pell_despedido", "seguido_por_cochero"]
 const WORLD_KEYS := {"withdrawn": {}, "closed": {}, "variants": {}, "silhouettes": [], "nodes": [], "lines": [], "torn": {},
-	"scenes": {}, "scene_extra": {}, "events": [], "payments": []}
+	"scenes": {}, "scene_extra": {}, "events": [], "payments": [], "marcas": {}, "returns": []}
+# v3 (GDD_v3 §4): variantes de lugar que conviven (techos + registrada): el nombre compuesto es la lista ordenada unida
+# con "+" ("registrada+techos"); data/places/L1.json define esa combinación como una variante más.
+const VARIANT_JOIN := "+"
+# Tope de intrusiones por partida (GDD_v3 §4.1; el usuario: «2-3 por partida»): contador "intrusiones" (lo suma
+# alterar_lugar en L1). Lo miran las condiciones de HA6/M1 al disparar y el Director al entregar (dos en cola a la vez).
+const MAX_INTRUSIONES := 3
+
+# ¿La regla cambia la pieza (alterar_lugar en L1, también en su variante blanda)? = es una intrusión.
+static func alters_home(rule: Dictionary) -> bool:
+	var effs: Array = RDB._as_arr(rule.get("efecto", [])).duplicate()
+	if typeof(rule.get("variante_blanda")) == TYPE_DICTIONARY:
+		effs.append_array(RDB._as_arr(rule.variante_blanda.get("efecto", [])))
+	for e in effs:
+		if typeof(e) == TYPE_DICTIONARY and String(e.get("op", "")) == "alterar_lugar" and String(e.get("place", "")) == "L1":
+			return true
+	return false
 const WM_PATH := "res://core/sim/world_model.gd"
 
 static var sink = null
@@ -109,6 +129,7 @@ static func apply(st, repo, inst: Dictionary, soft: bool) -> void:
 	# Variante blanda (D1): un rastro-fragmento queda si la variante conserva el efecto que lo produce (M1 blanda: la
 	# buhardilla igual queda registrada, con ceniza y pisada, §12.1.3) y cae si no (HB5 blanda: sin préstamo no hay recibo).
 	if not overflow:
+		var var_to: Dictionary = inst.get("_var_to", {}) if typeof(inst.get("_var_to")) == TYPE_DICTIONARY else {}
 		for r in RDB.nodo_rastros(st, repo, rule, inst):
 			if soft and not _node_in_effects(String(r.nodo), effs):
 				continue
@@ -116,10 +137,15 @@ static func apply(st, repo, inst: Dictionary, soft: bool) -> void:
 			var kind := ref.get_slice(":", 0)
 			var body := ref.substr(kind.length() + 1)
 			var place := body.get_slice(".", 0) if kind == "N" else ""
-			st.react.world.nodes.append({"ref": ref, "kind": kind, "place": place, "node": body.substr(body.find(".") + 1) if body.contains(".") else body,
+			var rec := {"ref": ref, "kind": kind, "place": place, "node": body.substr(body.find(".") + 1) if body.contains(".") else body,
 				"tags": RDB._as_arr(r.get("tags", [])).duplicate(), "from_tk": int(inst.get("due_tk", 0)), "rid": String(inst.get("rid", "")),
-				"iid": String(inst.get("iid", ""))})
+				"iid": String(inst.get("iid", ""))}
+			# v3: el rastro de una variante con duración (la ventana abierta, el registro) dura lo que la variante
+			if var_to.has(place):
+				rec["to_tk"] = int(var_to[place])
+			st.react.world.nodes.append(rec)
 			applied.append("nodo")
+	inst.erase("_var_to")
 	inst["applied"] = applied
 
 # Regla de la instancia; sin rid, efectos en línea (Dialogue: {iid:"LINE.<uid>", rid:"", efecto:[ops], char, line, anchor}).
@@ -206,13 +232,18 @@ static func _apply_op(st, repo, rule: Dictionary, inst: Dictionary, e: Dictionar
 			var copies: Array = []
 			if String(e.get("copias", "")) == "informadas":
 				copies = RDB._as_arr(a.get("copies", [])).duplicate()
+			elif String(e.get("copias", "")) == "relacionada":
+				# v3 (HA5/HA6): el original relacionado con el acto, si todavía está en casa cuando entran
+				for c in RDB._as_arr(a.get("relacionada", [])):
+					if RDB.copy_at_home(st, repo, String(c), tk):
+						copies.append(String(c))
 			if e.has("copy"):
 				copies.append(String(e.copy))
 			var to_tk := -1
 			if e.get("dias") != null and e.has("dias"):
 				to_tk = TimeKey.tk(day + int(e.dias), "dawn")
 			for c in copies:
-				w.withdrawn[String(c)] = {"from_tk": tk, "to_tk": to_tk, "by": String(inst.iid)}
+				w.withdrawn[String(c)] = {"from_tk": tk, "to_tk": to_tk, "by": String(inst.iid), "rid": rid}
 			inst["withdrawn"] = copies
 		"cerrar":
 			var target := _fill_name(String(e.get("target", "")), inst).replace("canal:*", "canal:" + String(inst.get("channel", "")))
@@ -231,12 +262,55 @@ static func _apply_op(st, repo, rule: Dictionary, inst: Dictionary, e: Dictionar
 			var name := _fill_name(String(e.get("name", "")), inst)
 			return _set_flag(st, name, e.get("value", true))
 		"alterar_lugar":
-			w.variants[String(e.get("place", ""))] = {"variant": String(e.get("variant", "")), "from_tk": tk, "rid": rid}
+			# v3: dias = la variante dura hasta el amanecer de (día + dias) (GDD_v3 §4.3: «hasta el final del día siguiente»
+			# = dias 2); sin dias, para siempre. Varias variantes conviven (capas): place_variant las combina.
+			var place := String(e.get("place", ""))
+			var vto := -1
+			if e.get("dias") != null and e.has("dias"):
+				vto = TimeKey.tk(day + int(e.dias), "dawn")
+			var prev = w.variants.get(place)
+			var layers: Array = []
+			if typeof(prev) == TYPE_DICTIONARY:
+				if typeof(prev.get("layers")) == TYPE_ARRAY:
+					layers = (prev.layers as Array).duplicate(true)
+				elif String(prev.get("variant", "")) != "":
+					layers.append({"variant": String(prev.variant), "from_tk": int(prev.get("from_tk", 0)), "to_tk": int(prev.get("to_tk", -1)), "rid": String(prev.get("rid", ""))})
+			layers.append({"variant": String(e.get("variant", "")), "from_tk": tk, "to_tk": vto, "rid": rid})
+			w.variants[place] = {"variant": String(e.get("variant", "")), "from_tk": tk, "to_tk": vto, "rid": rid, "layers": layers}
+			# v3 (GDD_v3 §4.1; el usuario: «2-3 por partida»): cada cambio de la pieza es una intrusión; HA6 y M1 no
+			# disparan con 3 ya ocurridas (condición {"counter": {"name": "intrusiones", "lt": 3}})
+			if place == "L1" and String(e.get("variant", "")) != "":
+				st.react.counters["intrusiones"] = int(st.react.counters.get("intrusiones", 0)) + 1
+			if vto >= 0:
+				if typeof(inst.get("_var_to")) != TYPE_DICTIONARY:
+					inst["_var_to"] = {}
+				inst._var_to[place] = vto
 		"devolver":
 			# Los originales vuelven intactos (Ley 3). No son documentos runtime: no se «entregan» con deliver (WorldModel
 			# sólo entrega instancias de st.world.docs); se levanta el retiro y se avisa a WorldModel con return_copy. El
 			# paquete del mostrador de Crane es el documento de la propia reacción (HB10: carta con entrega mostrador_crane).
-			var back: Array = RDB._as_arr(a.get("copies", [])).duplicate()
+			# v3 (HA5/HA6): copias "relacionada" + al "amanecer": vuelve solo al amanecer siguiente a su lugar del estante,
+			# con una marca chica a lápiz (marca {texto, mano}) que WorldModel.view muestra al margen (Effects.marcas).
+			var back: Array = []
+			if String(e.get("copias", "")) == "relacionada":
+				back = RDB._as_arr(inst.get("withdrawn", [])).duplicate()
+			else:
+				back = RDB._as_arr(a.get("copies", [])).duplicate()
+			if String(e.get("al", "")) == "amanecer":
+				var rtk := TimeKey.tk(day + 1, "dawn")
+				var mk = e.get("marca", {})
+				# entraron de noche mientras Lisle dormía (se aplica al amanecer): «la mañana siguiente» (Crane oyó los pasos,
+				# techos.manana) es ésta; lo que se llevaron igual falta todo el día y vuelve al amanecer siguiente
+				var ya := TimeKey.slot_of(tk) == "dawn"
+				if ya:
+					st.react.counters["techos.manana"] = int(st.react.counters.get("techos.manana", 0)) + 1
+				for c in back:
+					w.returns.append({"copy": String(c), "tk": rtk, "iid": String(inst.iid), "rid": rid,
+						"marca": mk.duplicate(true) if typeof(mk) == TYPE_DICTIONARY else {}, "cuenta": not ya})
+				# la mañana siguiente cuenta aunque no se hayan llevado nada (variante blanda: sólo la ventana)
+				w.returns.append({"copy": "", "tk": rtk, "iid": String(inst.iid), "rid": rid, "marca": {}, "cuenta": not ya})
+				inst["returns_at"] = rtk
+				return true
 			for c in back:
 				w.withdrawn.erase(String(c))
 				_return_copy(st, String(c))
@@ -524,9 +598,104 @@ static func access_closed(st, target: String, day: int) -> bool:
 		return false
 	return day >= int(r.from_day) and (int(r.to_day) < 0 or day <= int(r.to_day))
 
-static func place_variant(st, place: String) -> String:
+# Variante del lugar en tk (-1 = ahora). v3: capas con ventana from/to; si conviven varias, nombre compuesto ordenado
+# ("registrada+techos"). Un registro sin capas (formato anterior) vale siempre.
+static func place_variant(st, place: String, tk := -1) -> String:
 	var r = _w(st).variants.get(place)
-	return String(r.variant) if typeof(r) == TYPE_DICTIONARY else ""
+	if typeof(r) != TYPE_DICTIONARY:
+		return ""
+	if typeof(r.get("layers")) != TYPE_ARRAY:
+		return String(r.get("variant", ""))
+	var t := tk if tk >= 0 else _now(st)
+	var names: Array = []
+	for l in r.layers:
+		if typeof(l) != TYPE_DICTIONARY:
+			continue
+		var f := int(l.get("from_tk", 0))
+		var u := int(l.get("to_tk", -1))
+		if t >= f and (u < 0 or t < u) and String(l.get("variant", "")) != "" and not names.has(String(l.variant)):
+			names.append(String(l.variant))
+	names.sort()
+	return VARIANT_JOIN.join(PackedStringArray(names))
+
+# Variantes activas por separado (["registrada", "techos"]).
+static func place_variants(st, place: String, tk := -1) -> Array:
+	var v := place_variant(st, place, tk)
+	return [] if v == "" else Array(v.split(VARIANT_JOIN, false))
+
+static func _now(st) -> int:
+	if st.get("now_tk") != null and int(st.now_tk) >= 0:
+		return int(st.now_tk)
+	var c = st.clock if typeof(st.clock) == TYPE_DICTIONARY else {}
+	var slot := String(c.get("slot", "M"))
+	return TimeKey.tk(int(c.get("day", 0)), slot if TimeKey.ORD.has(slot) else "M")
+
+# v3 (GDD_v3 §4.2): al amanecer, lo que se llevaron los de Holmes vuelve a su lugar con la marca a lápiz. Lo llama el
+# Director en on_time(dawn). Cuenta la «mañana siguiente» de cada intrusión por los techos en st.react.counters
+# ["techos.manana"] (lo usa la línea de Crane pasos_techo: {"counter": {"name": "techos.manana", "gte": 1}}).
+static func process_returns(st, repo, tk: int) -> void:
+	init_world(st)
+	var w: Dictionary = st.react.world
+	var keep: Array = []
+	var counted := {}
+	for r in w.returns:
+		if typeof(r) != TYPE_DICTIONARY:
+			continue
+		if int(r.get("tk", 0)) > tk:
+			keep.append(r)
+			continue
+		var iid := String(r.get("iid", ""))
+		if not counted.has(iid) and bool(r.get("cuenta", true)):
+			counted[iid] = true
+			st.react.counters["techos.manana"] = int(st.react.counters.get("techos.manana", 0)) + 1
+		var c := String(r.get("copy", ""))
+		if c == "":
+			continue
+		var wd = w.withdrawn.get(c)
+		# si entretanto otro (M1) se lo llevó, vuelve cuando ése lo devuelva
+		if typeof(wd) == TYPE_DICTIONARY and String(wd.get("by", "")) == iid:
+			w.withdrawn.erase(c)
+		var mk: Dictionary = r.get("marca", {}) if typeof(r.get("marca")) == TYPE_DICTIONARY else {}
+		if String(mk.get("texto", "")) != "":
+			if typeof(w.marcas.get(c)) != TYPE_ARRAY:
+				w.marcas[c] = []
+			w.marcas[c].append({"tk": int(r.tk), "texto": String(mk.texto), "mano": String(mk.get("mano", "copista")), "iid": iid})
+		_return_copy(st, c)
+		st.note("tray", {"returned": c, "by": iid})
+	w.returns = keep
+
+# Marcas a lápiz de un ejemplar visibles en tk (-1 = ahora): [{tk, texto, mano, iid}] (origen del bloque = iid, P, sin
+# etiquetas). WorldModel.view (CORE) las arma como bloques «margen».
+static func marcas(st, copy_id: String, tk := -1) -> Array:
+	var m = _w(st).marcas.get(copy_id)
+	if typeof(m) != TYPE_ARRAY:
+		return []
+	var t := tk if tk >= 0 else _now(st)
+	var out: Array = []
+	for x in m:
+		if typeof(x) == TYPE_DICTIONARY and int(x.get("tk", 0)) <= t:
+			out.append(x.duplicate(true))
+	return out
+
+# Pendientes de volver (para depuración y tests): [{copy, tk, iid, rid}].
+static func pending_returns(st) -> Array:
+	var out: Array = []
+	for r in _w(st).returns:
+		if typeof(r) == TYPE_DICTIONARY and String(r.get("copy", "")) != "":
+			out.append(r.duplicate(true))
+	return out
+
+# Quién se llevó un ejemplar que falta ahora ("" si no falta): rid de la reacción (HA5, HA6, M1, HB5…). Para
+# examine {ref: "missing/<copia>"} (GDD_v3 §4.4).
+static func withdrawn_by(st, copy_id: String, tk := -1) -> String:
+	var t := tk if tk >= 0 else _now(st)
+	if not copy_withdrawn(st, copy_id, t):
+		return ""
+	var r: Dictionary = _w(st).withdrawn.get(copy_id, {})
+	var rid := String(r.get("rid", ""))
+	if rid == "":
+		rid = String(r.get("by", "")).get_slice(".", 1)
+	return rid
 
 # Siluetas visibles en un lugar y día (HC02 Wiggins desde el 3, M3 en L4, M11 cochero, HB8b reemplaza a Wiggins).
 static func silhouettes(st, place: String, day: int) -> Array:
@@ -545,7 +714,7 @@ static func silhouettes(st, place: String, day: int) -> Array:
 static func extra_nodes(st, place: String, tk: int) -> Array:
 	var out: Array = []
 	for n in _w(st).nodes:
-		if String(n.place) == place and tk >= int(n.from_tk):
+		if String(n.place) == place and tk >= int(n.from_tk) and (int(n.get("to_tk", -1)) < 0 or tk < int(n.get("to_tk", -1))):
 			out.append(n.duplicate(true))
 	return out
 

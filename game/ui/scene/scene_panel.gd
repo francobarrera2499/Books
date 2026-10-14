@@ -30,6 +30,10 @@
 # GDD_v2 §C.3 (revelado progresivo, q_ui vía SimLink.flags): al principio la banda con lo dicho y «Preguntar»; «Mostrar»
 #   aparece con sc.mostrar (hay algo que mostrar), «Decir» cuando hay afirmaciones posibles, «Pagar»/«Encargar» sólo ante
 #   quien los acepta, y «Tijera» con desk.tijera.
+# GDD_v3 §5.1–§5.2 (UI-MUNDO): ante quien tiene una sección «donde» en su diálogo (Crane) y desde que se presentó
+#   (sc.donde), el verbo «¿Dónde consigo…?» abre la lista de q_donde() en el panel de preguntar (modo "donde"): la frase
+#   de Lisle y «Preguntar» -> ask_donde {char, item}; si revela un lugar, Lisle lo anota en el plano. Se muestra o se
+#   presenta un recorte o una pregunta del expediente ({kind: "clip" | "pregunta", id}, §6.10).
 extends CanvasLayer
 
 signal said(res: Dictionary)
@@ -46,6 +50,7 @@ const AskPanel = preload("res://ui/scene/ask_panel.gd")
 const ItemPicker = preload("res://ui/scene/item_picker.gd")
 const PresentBar = preload("res://ui/scene/present_bar.gd")
 const LisleNote = preload("res://ui/scene/lisle_note.gd")
+const Cursors = preload("res://ui/desk/cursors.gd")
 
 const LAYER := 40
 const BAND_H := 262.0
@@ -69,7 +74,7 @@ class CastBlock extends VBoxContainer:
 		if k == "ent":
 			# un chip del índice = preguntar por ese tema: sólo si todavía contesta (si no, «Preguntar» ya no se ofrece)
 			return panel._verbs(char_id).has("ask")
-		return k == "clip" or k == "entry"
+		return k == "clip" or k == "pregunta"
 	func _drop_data(_at: Vector2, data) -> void:
 		var k := String(data.get("kind", ""))
 		if k == "ent":
@@ -98,7 +103,7 @@ var picker
 var present_bar
 var note
 var _title: Label
-var _tijera_btn: Button
+var _tijera_btn: BaseButton
 var _cast: VBoxContainer
 var _cast_scroll: ScrollContainer
 var _sep: VSeparator
@@ -182,15 +187,15 @@ func _build() -> void:
 	_title.clip_text = true
 	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	head.add_child(_title)
-	_tijera_btn = Widgets.ink_button(link.t("sceneui.tijera"))
-	_tijera_btn.toggle_mode = true
+	# GDD_v3 §6.7: la tijera es un ícono suelto (sin recuadro ni la palabra), como en el lector y las tarjetas
+	_tijera_btn = Cursors.scissors_button(26)
 	_tijera_btn.toggled.connect(set_tijera)
 	head.add_child(_tijera_btn)
 	left.add_child(head)
 	transcript = Transcript.new(link)
 	transcript.clipped.connect(_on_clipped)
 	transcript.failed.connect(_on_clip_failed)
-	transcript.tijera_changed.connect(func(on): _tijera_btn.set_pressed_no_signal(on))
+	transcript.tijera_changed.connect(func(on): Cursors.paint_scissors(_tijera_btn, on))
 	left.add_child(transcript)
 	_sep = VSeparator.new()
 	h.add_child(_sep)
@@ -323,7 +328,7 @@ func _connect_game() -> void:
 		_connected = true
 
 func _on_sim_changed(kind: String, _payload: Dictionary) -> void:
-	if ["line", "visit", "scene", "clock", "index", "flag", "clip", "entry"].has(kind):
+	if ["line", "visit", "scene", "clock", "index", "flag", "clip", "dossier"].has(kind):
 		_queue_refresh()
 
 func _queue_refresh() -> void:
@@ -386,7 +391,7 @@ func request_present(char_id: String, data: Dictionary) -> bool:
 	var item := {"kind": String(data.get("kind", "")), "id": String(data.get("id", ""))}
 	phase = String(link.qd("q_clock").get("phase", phase))
 	if phase == "confront":
-		if not ["clip", "entry"].has(item.kind) or item.id == "":
+		if not ["clip", "pregunta"].has(item.kind) or item.id == "":
 			return false
 		_conf_item = item
 		_queue_confront()
@@ -430,7 +435,7 @@ func refresh() -> void:
 func present(char_id: String, item: Dictionary) -> bool:
 	if phase != "visit" or not _present_char(char_id):
 		return false
-	if not ["clip", "entry"].has(String(item.get("kind", ""))) or String(item.get("id", "")) == "":
+	if not ["clip", "pregunta"].has(String(item.get("kind", ""))) or String(item.get("id", "")) == "":
 		return false
 	close_sub()
 	_update_dock(char_id)
@@ -445,6 +450,8 @@ func focus_char(char_id: String) -> void:
 		open_ask(char_id, "ask")
 	elif _verbs(char_id).has("assert"):
 		open_ask(char_id, "assert")
+	elif _verbs(char_id).has("donde"):
+		open_ask(char_id, "donde")
 
 func open_ask(char_id: String, mode := "ask") -> void:
 	close_sub()
@@ -496,7 +503,7 @@ func sub_open() -> String:
 
 func set_tijera(on: bool) -> void:
 	transcript.set_tijera(on)
-	_tijera_btn.set_pressed_no_signal(on)
+	Cursors.paint_scissors(_tijera_btn, on)
 
 func leave() -> void:
 	if phase == "visit" and not _visit_free():
@@ -599,13 +606,15 @@ func _cast_block(cid: String, label: String, vs: Array) -> Control:
 	row.add_theme_constant_override("h_separation", 6)
 	row.add_theme_constant_override("v_separation", 2)
 	for v in vs:
-		var btn := Widgets.ink_button(link.t("sceneui.verb." + String(v)))
+		var btn := Widgets.ink_button(link.t("mundo.verb.donde") if String(v) == "donde" else link.t("sceneui.verb." + String(v)))
 		btn.name = "Verbo_" + String(v)
 		match String(v):
 			"ask":
 				btn.pressed.connect(open_ask.bind(cid, "ask"))
 			"assert":
 				btn.pressed.connect(open_ask.bind(cid, "assert"))
+			"donde":
+				btn.pressed.connect(open_ask.bind(cid, "donde"))
 			"present":
 				btn.pressed.connect(open_picker.bind(cid))
 			"pay":
@@ -634,6 +643,9 @@ func _verbs(cid: String) -> Array:
 			out.append("ask")
 		if not ask_panel.assertions_for(cid).is_empty():
 			out.append("assert")
+	# «¿Dónde consigo…?» (Crane, desde que se presentó): gratis y sin límite, aunque ya no conteste preguntas
+	if dl.has("donde") and link.flag("sc.donde", _flags) and not link.qa("q_donde").is_empty():
+		out.append("donde")
 	if link.flag("sc.mostrar", _flags):
 		out.append("present")
 	var lines: Array = dl.get("lines", [])
@@ -720,6 +732,9 @@ func _epigraph(sc: Dictionary) -> String:
 func _on_said(res: Dictionary) -> void:
 	sub_changed.emit("")
 	said.emit(res)
+	# «¿Dónde consigo…?»: si la respuesta de Crane puso un lugar en el plano, Lisle lo anota (forma, no contenido)
+	if String(res.get("revealed", "")) != "" or (typeof(res.get("revealed", null)) == TYPE_BOOL and bool(res.revealed)):
+		note.say(link.t("mundo.donde.plano"))
 	refresh()
 
 func _on_failed(err: String) -> void:

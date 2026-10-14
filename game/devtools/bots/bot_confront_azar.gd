@@ -11,8 +11,8 @@ func pol_confront(_step_n: int) -> Dictionary:
 	var items: Array = []
 	for cl in _clip_ids():
 		items.append({"kind": "clip", "id": String(cl)})
-	for eid in _sorted(sim.st.ded.get("entries", {}).keys()):
-		items.append({"kind": "entry", "id": String(eid)})
+	for h in (sim.q_dossier().get("inked", []) as Array) + (sim.q_dossier().get("open", []) as Array):
+		items.append({"kind": "pregunta", "id": String(h.id)})
 	if items.is_empty():
 		return {}
 	return rnd_pick(items, "confront")

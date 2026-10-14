@@ -1,0 +1,32 @@
+{
+  "_nota": "Fixture de bots (CORE-EXPEDIENTE, GDD_v3 §1.8). El texto definitivo es de CONTENIDO. Contrato: D04#clausula (Q1.R3), D04#cajista (Q4.R1, a:corte_por_orden + e:gobierno).",
+  "id": "D04",
+  "entity": "pruebas_americanas",
+  "title": "Pruebas de imprenta para Estados Unidos de «El problema final», anuladas",
+  "src_type": "prueba",
+  "class": "I",
+  "date": "1893-11-14",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [
+    160,
+    115
+  ],
+  "copies": [
+    {
+      "id": "D04@Crane",
+      "holder": "Crane",
+      "class": "I",
+      "via": "shelf",
+      "from": "1.M",
+      "to": "10.M"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "{{#clausula a:raspadura_registrada e:reichenbach e:raspadura|En la roca, una marca reciente.}} {{#cajista a:corte_por_orden e:cajista e:pedido_del_fo e:gobierno|El cajista quitó el párrafo por pedido del [[gobierno|gobierno]].}}"
+    }
+  ],
+  "words": 20
+}

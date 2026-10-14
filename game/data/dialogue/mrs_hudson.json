@@ -4,16 +4,17 @@
   "label": "Mrs. Hudson",
   "intro": "Mrs. Hudson, dueña del 221B",
   "addr": "Mrs. Hudson",
+  "addr_anon": "señora",
   "sensor": "K-H",
   "max_questions": 3,
   "trait": "cofia",
   "closing": "Se seca las manos en el delantal. —Tengo la olla en el fuego, sir.",
   "ask_phrase": {
     "default": "Perdone, ${addr}: ¿qué sabe usted de ${topic}?",
-    "alquiler": "¿Tiene cuartos para alquilar, Mrs. Hudson?",
-    "cuartos": "¿Tiene cuartos para alquilar, Mrs. Hudson?",
-    "221b": "¿Quién vive arriba, Mrs. Hudson?",
-    "holmes": "¿Cómo era el señor Holmes como inquilino, Mrs. Hudson?"
+    "alquiler": "¿Tiene cuartos para alquilar, ${addr}?",
+    "cuartos": "¿Tiene cuartos para alquilar, ${addr}?",
+    "221b": "¿Quién vive arriba, ${addr}?",
+    "holmes": "¿Cómo era el señor Holmes como inquilino, ${addr}?"
   },
   "lines": [
     {"id": "af.pared", "layer": "afirmacion", "match": {"assertion": ["as.pared"]}, "text": "De paredes no sé nada, sir. El señor Holmes no me contaba sus viajes, sir."},

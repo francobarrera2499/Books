@@ -1,0 +1,1530 @@
+{
+ "_nota": "Fixture del grafo (CORE-EXPEDIENTE; GDD_v3 §1.7, §2): las conclusiones del fixture v2 convertidas a preguntas con los mismos ids (C2…C13, para no reescribir los tests), dos grupos por variante y rutas de exactamente dos fragmentos. C6 (pares de canal) no tiene equivalente v3 y no está; C10 es la pregunta del cebo (Q9) y C11/C12/C13 toman dos fragmentos de cada ruta. Para que cada ruta de dos fragmentos cubra los dos grupos y quede enlazada, el fixture suma e:diogenes a N:L2.cotter_canastilla, e:bala a D03#air_guns y e:camden_house a S:M7.trichinopolis.",
+ "max_abiertas": 3,
+ "mostrar_todas": "8.dawn",
+ "alias": [],
+ "preguntas": [
+  {
+   "id": "C2",
+   "orden": 1,
+   "obligatoria": true,
+   "texto": "C2",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "fina"
+     ],
+     "grupos": [
+      {
+       "id": "sin_raspadura",
+       "tags": [
+        "fina_impreso_sin_raspadura"
+       ]
+      },
+      {
+       "id": "registrada",
+       "tags": [
+        "raspadura_registrada"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "fina",
+       "reichenbach",
+       "roca",
+       "pared",
+       "raspadura"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C2",
+     "rutas": [
+      {
+       "id": "C2.R1",
+       "star": false,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D02#clausula",
+         "copy": "D02@L1"
+        },
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@tomo"
+        }
+       ],
+       "cut_by": [
+        "M1"
+       ],
+       "from": "P.N"
+      },
+      {
+       "id": "C2.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D05#marque",
+         "copy": "D05@BM"
+        },
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@Crane"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C2.R3",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D04#clausula",
+         "copy": "D04@Crane"
+        },
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@BM"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C2.R4",
+       "star": false,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D29a#tachadura",
+         "copy": "D29a@L4"
+        },
+        {
+         "ref": "D03#sheer"
+        }
+       ],
+       "cut_by": [
+        "HB5",
+        "HB4"
+       ],
+       "from": "1.M"
+      },
+      {
+       "id": "C2.R5",
+       "star": false,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D01N#fina_fo",
+         "copy": "D01N@tomo"
+        },
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@tomo"
+        }
+       ],
+       "cut_by": [
+        "M1"
+       ],
+       "from": "P.N"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C3",
+   "orden": 2,
+   "obligatoria": true,
+   "texto": "C3",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "fina"
+     ],
+     "grupos": [
+      {
+       "id": "a_pique",
+       "tags": [
+        "fina_a_pique"
+       ]
+      },
+      {
+       "id": "cornisa",
+       "tags": [
+        "cornisa_existe"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "reichenbach",
+       "pared",
+       "sendero",
+       "cornisa"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C3",
+     "rutas": [
+      {
+       "id": "C3.R1",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D05#corniche",
+         "copy": "D05@BM"
+        },
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@Crane"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C3.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D07#linea",
+         "copy": "D07@Crane"
+        },
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@BM"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C3.R3",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D08#kanzel",
+         "copy": "D08@BM"
+        },
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@Crane"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C3.R4",
+       "star": false,
+       "deps": "garantizada",
+       "frags": [
+        {
+         "ref": "R:D27.texto"
+        },
+        {
+         "ref": "D03#sheer"
+        }
+       ],
+       "cut_by": [
+        "M1"
+       ]
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C4",
+   "orden": 3,
+   "obligatoria": true,
+   "texto": "C4",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "bienes",
+       "tags": [
+        "bienes_a_mycroft"
+       ]
+      },
+      {
+       "id": "en_vida",
+       "tags": [
+        "en_vida"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes",
+       "mycroft",
+       "bienes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C4",
+     "rutas": [
+      {
+       "id": "C4.R1",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D03#a_mycroft",
+         "copy": "D03@Crane"
+        },
+        {
+         "ref": "D18#calendars",
+         "copy": "D18@L6"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C4.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D03#a_mycroft",
+         "copy": "D03@BM"
+        },
+        {
+         "ref": "D19#indice",
+         "copy": "D19@BM"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C4.R3",
+       "star": false,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D03#a_mycroft"
+        },
+        {
+         "ref": "D30#recibo",
+         "copy": "D30@L3"
+        }
+       ],
+       "cut_by": [
+        "HB6"
+       ],
+       "from": "1.M"
+      },
+      {
+       "id": "C4.R4",
+       "star": false,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D03#a_mycroft"
+        },
+        {
+         "ref": "D29b#surcos",
+         "copy": "D29b@L4"
+        }
+       ],
+       "cut_by": [
+        "HB4"
+       ],
+       "from": "1.M"
+      },
+      {
+       "id": "C4.R5",
+       "star": false,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D03#a_mycroft"
+        },
+        {
+         "ref": "L:hudson.mycroft_paga"
+        }
+       ],
+       "cut_by": [
+        "HB6"
+       ],
+       "from": "1.M"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C5",
+   "orden": 4,
+   "obligatoria": true,
+   "texto": "C5",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "cartas_coronel"
+     ],
+     "grupos": [
+      {
+       "id": "documento",
+       "tags": [
+        "estilo_cartas_coronel"
+       ]
+      },
+      {
+       "id": "redacto",
+       "tags": [
+        "estilo_o_rostro_moran"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "tigre",
+       "desague",
+       "cruel",
+       "bigote",
+       "cazador"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C5",
+     "rutas": [
+      {
+       "id": "C5.R1",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D09#desague",
+         "copy": "D09@BM"
+        },
+        {
+         "ref": "D11#desague",
+         "copy": "D11@BM"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C5.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D09#cruel",
+         "copy": "D09@Crane"
+        },
+        {
+         "ref": "D10#cruel",
+         "copy": "D10@Crane"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C5.R3",
+       "star": false,
+       "deps": "garantizada",
+       "frags": [
+        {
+         "ref": "R:D28.anglo"
+        },
+        {
+         "ref": "D10#portada",
+         "copy": "D10@BM"
+        }
+       ],
+       "cut_by": [
+        "M1"
+       ]
+      },
+      {
+       "id": "C5.R4",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D09#nota_redactor",
+         "copy": "D09@BM"
+        },
+        {
+         "ref": "D10#frontispicio",
+         "copy": "D10@BM"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C7",
+   "orden": 5,
+   "obligatoria": true,
+   "texto": "C7",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "cartas_a_maquina"
+     ],
+     "grupos": [
+      {
+       "id": "vigila",
+       "tags": [
+        "me_vigila_de_cerca"
+       ]
+      },
+      {
+       "id": "vinculo",
+       "tags": [
+        "vinculo_mycroft"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "diogenes",
+       "pall_mall",
+       "mycroft",
+       "asiento",
+       "remington",
+       "giro_ahorrare"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C7",
+     "rutas": [
+      {
+       "id": "C7.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "S:HC06.b_kbm"
+        },
+        {
+         "ref": "D31#para_mholmes",
+         "copy": "D31@L5"
+        }
+       ],
+       "cut_by": [],
+       "from": "8.T"
+      },
+      {
+       "id": "C7.R3",
+       "star": false,
+       "deps": "garantizada",
+       "frags": [
+        {
+         "ref": "R:HA1.*"
+        },
+        {
+         "ref": "D30#recibo",
+         "copy": "D30@L3"
+        }
+       ],
+       "cut_by": [
+        "HB6",
+        "M1"
+       ],
+       "from": "2.dawn"
+      },
+      {
+       "id": "C7.R4",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "N:L2.cotter_canastilla"
+        },
+        {
+         "ref": "D01.GREE#founders",
+         "copy": "D01.GREE@BM"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C7.R6",
+       "star": false,
+       "deps": "columna",
+       "frags": [
+        {
+         "ref": "R:HC01.sobre"
+        },
+        {
+         "ref": "D01.GREE#pall_mall",
+         "copy": "D01.GREE@BM"
+        }
+       ],
+       "cut_by": [
+        "M1"
+       ],
+       "from": "1.M"
+      },
+      {
+       "id": "C7.R7",
+       "star": false,
+       "deps": "opcional",
+       "frags": [
+        {
+         "ref": "L:wiggins.vieja_tarifa"
+        },
+        {
+         "ref": "D01.GREE#whitehall",
+         "copy": "D01.GREE@BM"
+        }
+       ],
+       "cut_by": [
+        "HB8b"
+       ],
+       "from": "3.M"
+      },
+      {
+       "id": "C7.R8",
+       "star": false,
+       "deps": "garantizada",
+       "frags": [
+        {
+         "ref": "R:HA1.giro"
+        },
+        {
+         "ref": "S:HC06.a"
+        }
+       ],
+       "cut_by": [
+        "M1"
+       ],
+       "from": "8.T"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C8",
+   "orden": 6,
+   "obligatoria": true,
+   "texto": "C8",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "identidad",
+       "tags": [
+        "identidad_holmes"
+       ]
+      },
+      {
+       "id": "actividad",
+       "tags": [
+        "actividad_posterior_a_mayo_1891"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "monografia_97",
+       "opusculo",
+       "mr_m_holmes",
+       "letra"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C8",
+     "rutas": [
+      {
+       "id": "C8.R1",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D13#muestra97",
+         "copy": "D13@BM"
+        },
+        {
+         "ref": "D12#n97",
+         "copy": "D12@BM"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C8.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D14#opusculo",
+         "copy": "D14@BM"
+        },
+        {
+         "ref": "D44#oficios_mano",
+         "copy": "D44@Crane"
+        }
+       ],
+       "cut_by": [],
+       "from": "1.M"
+      },
+      {
+       "id": "C8.R3",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "S:HC06.c"
+        },
+        {
+         "ref": "D31#telegramas",
+         "copy": "D31@L5"
+        }
+       ],
+       "cut_by": [],
+       "from": "8.T"
+      },
+      {
+       "id": "C8.R4",
+       "star": false,
+       "deps": "columna",
+       "frags": [
+        {
+         "ref": "R:HC01.no_lo_es"
+        },
+        {
+         "ref": "D12#dedicatoria",
+         "copy": "D12@BM"
+        }
+       ],
+       "cut_by": [
+        "M1"
+       ],
+       "from": "1.M"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C9",
+   "orden": 7,
+   "obligatoria": true,
+   "texto": "C9",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "preparativos",
+       "tags": [
+        "preparativos_221b"
+       ]
+      },
+      {
+       "id": "jueves",
+       "tags": [
+        "dia_jueves"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "jueves",
+       "221b",
+       "mycroft"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C9",
+     "rutas": [
+      {
+       "id": "C9.R1",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "S:HC05.jueves_a"
+        },
+        {
+         "ref": "N:L3.ventanas_abiertas"
+        }
+       ],
+       "cut_by": [],
+       "from": "8.M"
+      },
+      {
+       "id": "C9.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "S:HC06.e"
+        },
+        {
+         "ref": "N:L3.cajon"
+        }
+       ],
+       "cut_by": [],
+       "from": "9.T"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C10",
+   "orden": 8,
+   "obligatoria": true,
+   "texto": "C10",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "moran",
+      "autor_heavy_game",
+      "@alias:harris"
+     ],
+     "grupos": [
+      {
+       "id": "cebo",
+       "tags": [
+        "cebo"
+       ]
+      },
+      {
+       "id": "busca",
+       "tags": [
+        "busca_a_holmes"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "harris",
+       "moran",
+       "bigote",
+       "cabrito",
+       "donde",
+       "adjetivos_repetidos"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C10",
+     "rutas": [
+      {
+       "id": "C10.Ca",
+       "star": true,
+       "deps": "columna",
+       "frags": [
+        {
+         "ref": "D10#cabrito_atado",
+         "copy": "D10@BM"
+        },
+        {
+         "ref": "S:M6.donde"
+        }
+       ],
+       "cut_by": [],
+       "from": "5.dawn"
+      },
+      {
+       "id": "C10.Cb",
+       "star": true,
+       "deps": "columna",
+       "frags": [
+        {
+         "ref": "D11#no_bala",
+         "copy": "D11@BM"
+        },
+        {
+         "ref": "S:M7.donde_duerme"
+        }
+       ],
+       "cut_by": [],
+       "from": "7.night"
+      }
+     ]
+    },
+    {
+     "id": "B",
+     "principal": false,
+     "respuestas": [
+      "moran",
+      "harris"
+     ],
+     "grupos": [
+      {
+       "id": "harris",
+       "tags": [
+        "harris_es_moran"
+       ]
+      },
+      {
+       "id": "moran",
+       "tags": [
+        "harris_es_moran"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "harris",
+       "moran",
+       "bigote",
+       "adjetivos_repetidos",
+       "conduit_street"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Harris es Moran.",
+     "rutas": [
+      {
+       "id": "C10.Id",
+       "star": false,
+       "deps": "opcional",
+       "from": "3.M",
+       "frags": [
+        {
+         "ref": "L:wiggins.conduit"
+        },
+        {
+         "ref": "D17#moran_conduit",
+         "copy": "D17@Crane"
+        }
+       ],
+       "cut_by": [
+        "HB8b",
+        "M4"
+       ]
+      },
+      {
+       "id": "C10.Ia",
+       "star": true,
+       "deps": "fija",
+       "from": "1.M",
+       "frags": [
+        {
+         "ref": "N:PRO.harris"
+        },
+        {
+         "ref": "D16#moran",
+         "copy": "D16@BM"
+        }
+       ],
+       "cut_by": []
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C11",
+   "orden": 9,
+   "obligatoria": true,
+   "texto": "C11",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "moran"
+     ],
+     "grupos": [
+      {
+       "id": "autor",
+       "tags": [
+        "autor_moran"
+       ]
+      },
+      {
+       "id": "arma",
+       "tags": [
+        "arma_de_aire",
+        "disparo_desde_fuera"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "adair",
+       "moran",
+       "disparo",
+       "bala",
+       "fusil_de_aire",
+       "park_lane"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C11",
+     "rutas": [
+      {
+       "id": "C11.R1",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D10#bala_blanda",
+         "copy": "D10@BM"
+        },
+        {
+         "ref": "D03#air_guns",
+         "copy": "D03@Crane"
+        }
+       ],
+       "cut_by": [],
+       "from": "8.M"
+      },
+      {
+       "id": "C11.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D11#mejor_tiro",
+         "copy": "D11@BM"
+        },
+        {
+         "ref": "N:L7.linea_de_tiro"
+        }
+       ],
+       "cut_by": [],
+       "from": "5.M"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C12",
+   "orden": 10,
+   "obligatoria": true,
+   "texto": "C12",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "librero"
+     ],
+     "grupos": [
+      {
+       "id": "falso",
+       "tags": [
+        "librero_falso"
+       ]
+      },
+      {
+       "id": "rasgo",
+       "tags": [
+        "rasgo_holmes"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "librero",
+       "church_street",
+       "letra",
+       "amarillo"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C12",
+     "rutas": [
+      {
+       "id": "C12.R1",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "N:L1.librero_dedos"
+        },
+        {
+         "ref": "D17#church_street",
+         "copy": "D17@Crane"
+        }
+       ],
+       "cut_by": [],
+       "from": "10.M"
+      },
+      {
+       "id": "C12.R3",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D33#direccion",
+         "copy": "D33@Crane"
+        },
+        {
+         "ref": "D12#dedicatoria",
+         "copy": "D12@BM"
+        }
+       ],
+       "cut_by": [],
+       "from": "10.M"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C13",
+   "orden": 11,
+   "obligatoria": true,
+   "texto": "C13",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "lugar",
+    "documento",
+    "objeto",
+    "fecha",
+    "concepto",
+    "suceso"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "moran",
+      "@alias:harris"
+     ],
+     "grupos": [
+      {
+       "id": "tirador",
+       "tags": [
+        "tirador"
+       ]
+      },
+      {
+       "id": "escondite",
+       "tags": [
+        "escondite_preparado"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "camden_house",
+       "harris",
+       "moran",
+       "cheroot",
+       "221b"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C13",
+     "rutas": [
+      {
+       "id": "C13.R1",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "N:L8.guillotina"
+        },
+        {
+         "ref": "S:M7.trichinopolis"
+        }
+       ],
+       "cut_by": [],
+       "from": "8.M"
+      },
+      {
+       "id": "C13.R2",
+       "star": true,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "S:AGENTE.militar"
+        },
+        {
+         "ref": "S:PRO.cace_india"
+        }
+       ],
+       "cut_by": [],
+       "from": "7.M"
+      },
+      {
+       "id": "C13.R3",
+       "star": false,
+       "deps": "fija",
+       "frags": [
+        {
+         "ref": "D32#llave_harris",
+         "copy": "D32@L3"
+        },
+        {
+         "ref": "N:PRO.harris"
+        }
+       ],
+       "cut_by": [
+        "M5"
+       ],
+       "from": "7.M"
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  }
+ ],
+ "_pistas_falsas": [],
+ "huella": {
+  "holmes": [
+   "C2",
+   "C3",
+   "C4",
+   "C7",
+   "C8",
+   "C9"
+  ],
+  "moran": [
+   "C5",
+   "C10",
+   "C11",
+   "C13"
+  ]
+ }
+}

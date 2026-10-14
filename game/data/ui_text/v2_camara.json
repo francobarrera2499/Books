@@ -17,7 +17,7 @@
     "cam.verbo.go": "bajar",
     "cam.verbo.leave": "subir",
     "cam.monedas": "En la bolsa: ${cuanto}.",
-    "cam.tomos.cabeza": "Los tomos de la Strand",
+    "cam.tomos.cabeza": "Las crónicas del cliente",
     "cam.tomos.vol": "Tomo ${n} (${semestre} de ${anio})",
     "cam.tomos.sem1": "enero a junio",
     "cam.tomos.sem2": "julio a diciembre",

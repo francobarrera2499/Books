@@ -1,4 +1,5 @@
-# Unit: core/text/clip_rules.gd (W1-ENG). §5.1 / GDD§8.1: snap, oración, 40 palabras, herencia ≥50 % con empate.
+# Unit: core/text/clip_rules.gd (CORE-EXPEDIENTE). §5.1 / GDD§8.1 / GDD_v3 §6.2: snap, oración (salvo un bloque corto,
+# ≤15 palabras en total, que se recorta entero), 15 palabras (mas_de_15), herencia ≥50 % con empate.
 extends "res://tests/test_base.gd"
 
 const M = preload("res://core/text/markup.gd")
@@ -46,8 +47,10 @@ func test_snap_empty():
 	eq(CR.snap(p, s[0], s[1]).err, "vacio", "sólo puntuación y espacios")
 	no(CR.snap(p, 999, 5).ok, "fuera de rango")
 
+const LONG := " Relleno uno dos tres cuatro cinco seis siete ocho nueve diez once doce."
+
 func test_snap_cross_sentence():
-	var p := _pp("Primera oración aquí. Segunda oración allá.")
+	var p := _pp("Primera oración aquí. Segunda oración allá." + LONG)
 	var s := _sel(p, "aquí. Segunda")
 	var r := CR.snap(p, s[0], s[1])
 	no(r.ok)
@@ -58,7 +61,7 @@ func test_snap_cross_sentence():
 	ok(CR.snap(p, s3[0], s3[1]).ok, "el espacio tras el punto tampoco")
 
 func test_snap_newline_cuts():
-	var p := _pp("línea uno\nlínea dos")
+	var p := _pp("línea uno\nlínea dos" + LONG)
 	var s := _sel(p, "uno\nlínea")
 	eq(CR.snap(p, s[0], s[1]).err, "cruza_oracion")
 
@@ -69,18 +72,27 @@ func test_snap_abbreviation_inside_ok():
 	ok(r.ok, str(r))
 	eq(r.words, 6)
 
-func test_snap_40_words():
+func test_snap_15_words():
 	var w := PackedStringArray()
 	for i in 45:
 		w.append("p%d" % i)
 	var p := _pp(" ".join(w) + ".")
 	var all := CR.snap(p, 0, p.plain.length())
-	eq(all.err, "mas_de_40")
+	eq(all.err, "mas_de_15")
 	eq(all.words, 45)
-	var forty := CR.snap(p, 0, p.plain.find("p39") + 3)
-	ok(forty.ok, str(forty))
-	eq(forty.words, 40)
-	eq(CR.snap(p, 0, p.plain.find("p40") + 1).err, "mas_de_40")
+	var fifteen := CR.snap(p, 0, p.plain.find("p14") + 3)
+	ok(fifteen.ok, str(fifteen))
+	eq(fifteen.words, 15)
+	eq(CR.snap(p, 0, p.plain.find("p15") + 1).err, "mas_de_15")
+
+# GDD_v3 §2.4 (T4): un bloque corto (una tarjeta de examen de ≤15 palabras) se recorta entero aunque tenga dos oraciones.
+func test_short_block_crosses_sentences():
+	var p := _pp("Está abierta. Yo no la abrí.")
+	var r := CR.snap(p, 0, p.plain.length())
+	ok(r.ok, str(r))
+	eq(r.text, "Está abierta. Yo no la abrí.")
+	var cl := CR.max_legal_clips(p)
+	eq([cl[0].from, cl[0].to], [0, p.plain.length()], "el bloque entero es un recorte máximo")
 
 func _clip(src: String, needle: String) -> Dictionary:
 	var p := _pp(src)
@@ -115,6 +127,18 @@ func test_inherit_half_threshold():
 	var h_m := CR.inherit(p, p.plain.find("mención"), p.plain.find("mención") + 3)
 	eq(h_m.ents, ["m1"], "mención que interseca")
 	eq(h_m.tramo, "")
+
+# playtest v3: la línea física (#fisica) hereda con ≥25 % («Papel crema grueso, 20 × 24 cm; escrito a máquina»)
+func test_inherit_fisica_quarter():
+	var src := "{{#fisica a:me_vigila_de_cerca e:papel_crema_grueso|Papel crema grueso, 20 × 24 cm; escrito a máquina (la «s» queda algo alzada, la «t» sale pálida); el borde de arriba, cortado a tijera.}}"
+	var h := _clip(src, "Papel crema grueso, 20 × 24 cm; escrito a máquina")
+	ok(h.frac < 0.5 and h.frac >= 0.25, "cubre entre 25 y 50 %% (%.2f)" % h.frac)
+	eq(h.tags, ["a:me_vigila_de_cerca"], "y hereda: describe un solo objeto")
+	ok(bool(h.inherited))
+	var h2 := _clip(src, "Papel crema")
+	eq(h2.tags, [], "dos palabras (<25 %) no")
+	var src2 := "{{#otro a:x|Papel crema grueso, 20 × 24 cm; escrito a máquina (la «s» queda algo alzada, la «t» sale pálida); el borde de arriba, cortado a tijera.}}"
+	eq(_clip(src2, "Papel crema grueso, 20 × 24 cm; escrito a máquina").tags, [], "otro tramo: sigue el 50 por ciento")
 
 func test_inherit_winner_max_fraction():
 	# A corto (2 palabras) totalmente cubierto gana sobre B largo parcialmente cubierto
@@ -152,7 +176,7 @@ func test_max_legal_clips():
 	var src := "Corta uno. " + " ".join(w) + ". Otra corta aquí."
 	var p := _pp(src)
 	var cl := CR.max_legal_clips(p)
-	eq(cl.size(), 1 + 6 + 1, "1 + ventanas de 40 en 45 palabras + 1")
+	eq(cl.size(), 1 + 31 + 1, "1 + ventanas de 15 en 45 palabras + 1")
 	eq(p.plain.substr(cl[0].from, cl[0].to - cl[0].from), "Corta uno.")
 	for c in cl:
 		var r := CR.snap(p, c.from, c.to - c.from)
@@ -170,3 +194,19 @@ func test_d05_fixture_marque():
 	has(h.tags, "a:raspadura_registrada")
 	has(h.ents, "pared")
 	has(h.ents, "raspadura")
+
+# GDD_v3 §6.2 / §7.2 P1: un recorte de 15 palabras tiene que poder heredar las etiquetas de cualquier tramo etiquetado,
+# así que un tramo con a:/c: de 31 palabras es error de datos (Markup.lint); 30 se admite, y sin etiquetas hasta 40.
+func test_tagged_tramo_max_30_words_lint():
+	var w := func(n: int) -> String: return " ".join(PackedStringArray(range(n).map(func(i): return "palabra")))
+	var e31 := M.lint("{{#t a:x|%s.}}" % w.call(31))
+	ok(str(e31).contains("31 palabras con etiquetas a:/c:"), str(e31))
+	ok(str(M.lint("{{#t c:verdadero|%s.}}" % w.call(31))).contains("con etiquetas a:/c:"), "también c:")
+	eq(M.lint("{{#t a:x|%s.}}" % w.call(30)), [], "30 palabras etiquetadas: legal")
+	eq(M.lint("{{#t e:roca|%s.}}" % w.call(31)), [], "sin a:/c:, el tope es el general")
+	# y con 30, una ventana legal de 15 hereda (≥50 %)
+	var p := _pp("{{#t a:x|%s.}}" % w.call(30))
+	var best := 0.0
+	for c in CR.max_legal_clips(p):
+		best = maxf(best, float(CR.inherit(p, int(c.from), int(c.to)).frac))
+	ok(best >= 0.5, "ventana de 15 sobre 30 palabras hereda: %.2f" % best)

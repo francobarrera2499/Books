@@ -11,6 +11,8 @@ const Model = preload("res://ui/epilogue/epilogue_model.gd")
 const Screen = preload("res://ui/epilogue/epilogue_screen.gd")
 const Credits = preload("res://ui/epilogue/credits.gd")
 const BluePencil = preload("res://ui/epilogue/blue_pencil.gd")
+const ExpModel = preload("res://ui/expediente/expediente_model.gd")
+const ExpFake = preload("res://devtools/drivers/v3exp_fake.gd")
 const Clipper = preload("res://core/deduction/clipper.gd")
 const TimeKey = preload("res://core/util/timekey.gd")
 const SelMap = preload("res://ui/reader/selection_mapper.gd")
@@ -68,10 +70,14 @@ func test_f1_paragraphs_and_variants() -> void:
 	eq(String(b[i_llega + 1].kind), "line", "después de la llegada, Crane (escena EPI)")
 	var i04 := k.find("epilogo.04.park_lane")
 	ok(i04 >= 0, "Park Lane")
-	for v in ["reconoce_los_libros", "teoria_correcta", "nota_de_s_h"]:
+	for v in ["teoria_correcta", "nota_de_s_h"]:
 		ok(k.find("epilogo.04.park_lane+" + v) > i04, "variante agregada después de la base: " + v)
-	ok(k.find("epilogo.04.park_lane+reconoce_los_libros") < k.find("epilogo.04.park_lane+teoria_correcta"), "orden de endings.json")
-	has(k, "epilogo.05.hueco+tomos_devueltos")
+	# GDD_v3 §1.4/§3.6: el librero (V.C12) y los tomos (V.C14) ya no son preguntas: sus variantes siguen a sus flags
+	var fl: Dictionary = sim.st.flags
+	eq(k.has("epilogo.04.park_lane+reconoce_los_libros"), bool(fl.get("vio_libros_park", false)), "V.C12 sigue a vio_libros_park")
+	if k.has("epilogo.04.park_lane+reconoce_los_libros"):
+		ok(k.find("epilogo.04.park_lane+reconoce_los_libros") < k.find("epilogo.04.park_lane+teoria_correcta"), "orden de endings.json")
+	eq(k.has("epilogo.05.hueco+tomos_devueltos"), bool(fl.get("curiosidad_tomos", false)), "V.C14 sigue a curiosidad_tomos")
 	has(k, "epilogo.11.noche+noche_baker_street", "la noche que eligió")
 	no(k.has("epilogo.11.noche+times_del_viernes"))
 	has(k, "epilogo.12.publicar+nota_de_s_h", "F1: silencio hasta que el autor lo autorice")
@@ -162,64 +168,69 @@ func test_end_scene_lines() -> void:
 	var p = _sim("pasivo")
 	eq(Model.end_lines(p).size(), 5, "END.F4")
 
+# ------------------------------------------------------------------ lápiz azul (UI-EXPEDIENTE, GDD_v3 §6.10)
+# El expediente devuelto: cada hoja nacida (en tinta: el texto de Lisle; a lápiz: respuesta y pruebas), con las notas
+# azules de q_blue_pencil al margen de su pregunta ({kind, q, note}; una hoja completa que no cierra trae «Falta» y
+# «Corríjalo»), tachado en la que no cierra, firma según haya o no algo que corregir. Doble suelto (sin bots).
+func _pencil_fake():
+	var f = ExpFake.new(null, repo())
+	var a: String = f.add_clip({"text": "La senda termina de pronto en la pared.", "origin": "D03", "doc": "D03", "src_line": "x"})
+	var b: String = f.add_clip({"text": "Une marque fraîche sur la roche.", "origin": "D05", "doc": "D05", "src_line": "y"})
+	f.options = [{"id": "raspadura", "label": "Raspadura", "kind": "concepto"}, {"id": "sendero", "label": "Sendero", "kind": "lugar"}]
+	f.add_question({"id": "Q1", "text": "¿Qué no contó Watson?", "ink_text": "Watson vio en la roca una raspadura fresca."})
+	f.add_question({"id": "Q2", "text": "¿Qué pasó en la cascada?"})
+	f.add_question({"id": "Q3", "text": "¿Quién me escribe las cartas sin firma?"})
+	f.ink("Q1", "raspadura", [a, b])
+	f.drafts["Q2"] = {"answer": "sendero", "proofs": [a, b]}
+	f.blue = [{"kind": "missing", "q": "Q2", "note": "Falta: lo que no se ve desde el sendero."},
+		{"kind": "wrong", "q": "Q2", "note": "Corríjalo: la cornisa no se ve desde el sendero."},
+		{"kind": "missing", "q": "Q3", "note": "Falta: de quién es la mano que escribe a máquina."}]
+	return f
+
 func test_pencil() -> void:
-	var p = _sim("pasivo")
-	if not _ready_or_skip(p):
-		return
-	var v := Model.pencil(p)
-	eq(v.missing.size(), 12, "faltan las doce obligatorias")
+	var f = _pencil_fake()
+	var v := ExpModel.pencil(f)
+	eq(v.rows.map(func(r): return r.q), ["Q1", "Q2", "Q3"], "toda hoja nacida: primero las de tinta")
+	eq(String(v.rows[0].state), "tinta")
+	eq(String(v.rows[0].ink_text), "Watson vio en la roca una raspadura fresca.", "en tinta, el texto de Lisle")
+	eq(v.rows[1].notes, ["Falta: lo que no se ve desde el sendero.", "Corríjalo: la cornisa no se ve desde el sendero."], "las dos notas de la hoja que no cierra")
+	ok(bool(v.rows[1].wrong), "Q2 no cierra")
+	no(bool(v.rows[2].wrong), "Q3 sólo falta")
+	eq(int(v.wrong_n), 1)
 	eq(String(v.sign), repo().text("epilogo.lapiz.firma_corrijase"))
+	eq(String(v.header), repo().text("exp.lapiz.encabezado"), "el encabezado habla del expediente")
+	no(String(v.header).to_lower().contains("conclusi"), "sin «libro de conclusiones» (GDD_v3 §0.2)")
 	no(bool(v.nothing))
-	var d = _sim("deductor")
-	var w := Model.pencil(d)
-	ok(bool(w.nothing), "deductor: nada que corregir")
+	ok(ExpModel.draft_summary(f, v.rows[1]).contains("Sendero"), "el borrador a lápiz con su respuesta")
+	f.blue = []
+	var w := ExpModel.pencil(f)
+	ok(bool(w.nothing), "nada que corregir")
 	eq(String(w.sign), repo().text("epilogo.lapiz.firma_tirese"))
-	var n := 0
-	for pg in w.pages:
-		n += pg.rows.size()
-	eq(n, d.st.ded.entries.size(), "toda la libreta (menos las reglas)")
+	var e := ExpModel.pencil(ExpFake.new(null, repo()))
+	eq(e.rows, [], "sin preguntas")
+	eq(String(e.empty), repo().text("exp.lapiz.sin_preguntas"))
 
 func test_pencil_wrong_entries_get_notes() -> void:
-	# Los bots no dejan asientos erróneos (verifican antes de escribir): se arma uno sobre la partida del deductor —un
-	# asiento sellado vuelto a lápiz y sin sus «según»: valores de la conclusión, pero no se sostiene—.
-	var sim = _sim("deductor", 8, true)
-	if not _ready_or_skip(sim):
-		return
-	var sealed: Dictionary = sim.st.ded.sealed
-	var cid := String(sealed.keys()[0])
-	var eid := String(sealed[cid])
-	sealed.erase(cid)
-	var e: Dictionary = sim.st.ded.entries[eid]
-	e["ink"] = "lapiz"
-	for ln in e.lines:
-		ln["support"] = []
-	if not sim.q_blue_pencil().any(func(x): return String(x.kind) == "wrong"):
-		fail("el asiento armado no quedó erróneo: %s" % str(sim.q_blue_pencil()))
-		return
-	var v := Model.pencil(sim)
-	ok(int(v.wrong_n) > 0)
-	var rows: Array = []
-	for pg in v.pages:
-		rows.append_array(pg.rows.filter(func(r): return bool(r.wrong)))
-	eq(rows.size(), int(v.wrong_n))
-	for r in rows:
-		ok(String(r.note).begins_with("Corríjalo"), "nota «Corríjalo: …»: %s" % r.note)
+	var f = _pencil_fake()
 	var bp = BluePencil.new()
 	bp.fast = true
 	tree.root.add_child(bp)
-	bp.open(sim, null)
+	bp.open(f, null)
 	bp.start()
-	for r in rows:
-		has(bp.notes(), String(r.note), "la nota azul se muestra")
-	var strike = bp.find_child("Tachado", true, false)
-	ok(strike != null, "tachado azul")
-	if strike != null and strike.label != null and strike.label.has_method("get_character_bounds"):
+	for n in ["Falta: lo que no se ve desde el sendero.", "Corríjalo: la cornisa no se ve desde el sendero.", "Falta: de quién es la mano que escribe a máquina."]:
+		has(bp.notes(), n, "la nota azul se muestra")
+	var strikes: Array = bp.find_children("Tachado", "", true, false)
+	eq(strikes.size(), 1, "un tachado: la hoja que no cierra")
+	ok(bp.find_child("Hoja_Q2", true, false).is_ancestor_of(strikes[0]), "sobre Q2")
+	var strike = strikes[0]
+	if strike.label != null and strike.label.has_method("get_character_bounds"):
 		for _f in 3:
 			await tree.process_frame
 		var rs: Array = strike.rows()
-		eq(rs.size(), strike.label.get_line_count(), "un trazo por renglón del asiento (no uno entre renglones)")
+		eq(rs.size(), strike.label.get_line_count(), "un trazo por renglón (no uno entre renglones)")
 		for r in rs:
 			ok(float(r.x1) > float(r.x0) + 20.0, "el trazo cubre el texto del renglón: %s" % str(r))
+	ok(bp.close_rect().size.x > 0.0, "«Cerrar» a la vista")
 	bp.free()
 
 func test_page_marks_and_snapshot_and_shelf() -> void:
@@ -321,8 +332,8 @@ func test_screen_f1_full_flow() -> void:
 	eq(String(s.stage), "concordancia", "el último gesto")
 	eq(sim.st.ded.clips.size(), before + 1, "un recorte real")
 	var last: Dictionary = sim.st.ded.clips[sim.st.ded.clips.keys().max()]
-	eq(String(last.get("tramo", "")), "hombre_alto", "el recorte es la oración del hombre alto")
-	eq(String(last.get("text", "")), String(t.text), "la oración entera, entre punto y punto")
+	eq(String(last.get("tramo", "")), "hombre_alto", "el recorte es el hombre alto (tramo corto, GDD_v3 §6.2)")
+	eq(String(last.get("text", "")), String(t.text), "el tramo entero")
 	for _f in 6:
 		await tree.process_frame
 	ok(bool(s.state().strip), "la tira pegada en la concordancia")

@@ -48,6 +48,14 @@ func save_other_version() -> bool:
 		return false
 	return String(r.get("header", {}).get("content", "")) != String(repo.content_hash())
 
+# GDD_v3 §1.7: hay un guardado legible pero de una versión anterior a la v3 (sólo se ofrece partida nueva).
+func save_too_old() -> bool:
+	if not has_save():
+		return false
+	var EL = load(LOG_SCRIPT)
+	var r: Dictionary = EL.read(save_path)
+	return bool(r.get("ok", false)) and int(r.get("header", {}).get("v", 0)) < EL.VERSION
+
 func has_save() -> bool:
 	var p := _abs(save_path)
 	return FileAccess.file_exists(p) or FileAccess.file_exists(p + ".tmp") or FileAccess.file_exists(p + ".bak")
@@ -80,6 +88,10 @@ func continue_session() -> bool:
 			notice.emit("core.save.ninguna")
 		else:
 			notice.emit("core.save.corrupta")
+		return false
+	# GDD_v3 §1.7: un guardado de antes de la v3 no se repite (las acciones cambiaron); no se toca el archivo
+	if int(r.header.get("v", 0)) < EL.VERSION:
+		notice.emit("v3core.save.otra_version")
 		return false
 	_header = r.header
 	var other_version: bool = String(_header.get("content", "")) != String(repo.content_hash())

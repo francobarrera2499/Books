@@ -11,9 +11,7 @@
 #   ask/assert     panel de escena → «Preguntar»/«Afirmar» → tema → confirmar
 #   report_submit  compositor del informe (modo, ítems, entregar) · confront: vista de la confrontación (refutar/callar)
 #   compose_*      compositores de anuncio, telegrama y carta
-#   pass_clean, folio_open, entry_new, entry_set, entry_support_add, practice: el libro mayor (API de sus clics; el lote
-#                  con on_lot, el clic de la casilla «Al sello», para que las ranuras del sello lo muestren)
-#   link           cuaderno (soltar una tarjeta sobre otra → formulario del cotejo) · clip_measure: lector con la regla
+#   dq_answer, dq_proof, dq_confirm: el Expediente Holmes (API de sus clics: selector, ranuras, «Pasar en limpio»)
 #   epílogo        la pantalla de W4-EPILOGUE (advance = clic en «Seguir»; la oferta de publicar en dos pasos; la tijera
 #                  sobre la Strand con do_cut; «Cerrar el libro» del lápiz azul aplica leave y vuelve al título)
 #   el resto (recortes de texto y de láminas, papeletas, copia en Somerset House): Game.act, con el lector abierto en la
@@ -136,6 +134,7 @@ func summary(sc: Dictionary) -> Dictionary:
 	return {"key": key, "expect": String(sc.get("expect", "")), "ending": _ending, "phase": _phase,
 		"actions": (sc.get("actions", []) as Array).size(), "log": _log_n,
 		"fails": fails, "fallbacks": fallbacks, "via_ui": via_ui, "via_api": via_api, "shots": shots.size(), "hash": _hash,
+		"full_log": _full_log,
 		"notes": notes_seen.slice(0, 40), "prof": prof}
 
 # ------------------------------------------------------------------ espera y capturas
@@ -207,7 +206,7 @@ func before(a: Dictionary, i: int, marks: Array) -> void:
 	# las familias de paneles: al pasar a otra, se cierra lo que quedó abierto (como el jugador)
 	var fam := _family(t)
 	if fam != _last_verb:
-		for k in ["ledger", "notebook", "map", "ad", "telegram", "letter"]:
+		for k in ["dossier", "notebook", "map", "ad", "telegram", "letter"]:
 			if shell.is_open(k) and _family_panel(fam) != k:
 				shell.close_kind(k)
 		if shell.reader_open() and fam != "reader":
@@ -226,7 +225,18 @@ func _track() -> void:
 		_ending = String(en.get("ending", ""))
 	_hash = g.sim.state_hash()
 	_phase = String(g.sim.q_clock().phase)
-	_log_n = g.sim.actions_log().size()
+	_log_n = g.sim.actions_log().filter(func(x): return not _is_look(x)).size()
+	_full_log = (g.sim.actions_log() as Array).duplicate(true)
+	_full_n = _full_log.size()
+
+# Playtest v3: la carpeta avisa al sim la primera vez que muestra una hoja (examine «sheet/<qid>»: Pendientes deja de
+# anunciarla). Es una acción de la UI, como «read»; los guiones no la traen: se tolera y la reproducción usa el registro
+# real (con ellas), que sin ellas tiene que ser el guion.
+static func _is_look(x) -> bool:
+	return typeof(x) == TYPE_DICTIONARY and String(x.get("t", "")) == "examine" and String(x.get("ref", "")).begins_with("sheet/")
+
+var _full_log: Array = []
+var _full_n := 0
 
 func after(a: Dictionary, i: int) -> void:
 	var t := String(a.t)
@@ -239,16 +249,14 @@ func after(a: Dictionary, i: int) -> void:
 			notes_seen.append(s)
 
 static func _family(t: String) -> String:
-	if t in ["pass_clean", "folio_open", "entry_new", "entry_set", "entry_support_add", "entry_support_remove", "entry_delete", "practice"]:
-		return "ledger"
-	if t == "link":
-		return "notebook"
+	if t in ["dq_answer", "dq_proof", "dq_confirm"]:
+		return "dossier"
 	if t in ["clip_text", "clip_measure"]:
 		return "reader"
 	return t
 
 static func _family_panel(fam: String) -> String:
-	return fam if fam in ["ledger", "notebook"] else ""
+	return fam if fam in ["dossier", "notebook"] else ""
 
 func _check_mode(ph: String, where: String) -> void:
 	var gsc = gs()
@@ -305,10 +313,8 @@ func do_action(a: Dictionary, i: int) -> void:
 		"compose_telegram", "compose_letter":
 			tried = true
 			await _ui_mail(a)
-		"pass_clean", "folio_open", "entry_new", "entry_set", "entry_support_add", "practice":
-			tried = await _ui_ledger(a)
-		"link":
-			tried = await _ui_link(a)
+		"dq_answer", "dq_proof", "dq_confirm":
+			tried = await _ui_dossier(a)
 		"clip_measure":
 			tried = await _ui_measure(a)
 		"read":
@@ -322,11 +328,12 @@ func do_action(a: Dictionary, i: int) -> void:
 	if g.sim == null:
 		return
 	var lg: Array = g.sim.actions_log()
-	if tried and lg.size() == n0 + 1 and _same(lg[-1], a):
+	var extra: Array = lg.slice(n0).filter(func(x): return not _is_look(x))
+	if tried and extra.size() == 1 and _same(extra[-1], a):
 		via_ui[t] = int(via_ui.get(t, 0)) + 1
 		_track()
 		return
-	if lg.size() > n0:
+	if not extra.is_empty():
 		# el widget aplicó otra cosa (o más de una): es una falla de UI y el guion ya no se puede seguir al pie de la letra
 		fails.append("#%d %s: el widget aplicó %s" % [i, J.stringify_canon(a).left(120), J.stringify_canon(lg.slice(n0)).left(240)])
 		return
@@ -691,69 +698,32 @@ func _ui_mail(a: Dictionary) -> void:
 	if shell.is_open(kind):
 		shell.close_kind(kind)
 
-func _ui_ledger(a: Dictionary) -> bool:
-	var lg = shell.panel("ledger") if shell.is_open("ledger") else shell.open_panel("ledger")
+# dq_answer / dq_proof / dq_confirm: el Expediente Holmes (GDD_v3 §6.1) con su API de automatización (lo mismo que los
+# clics: el selector de la respuesta, soltar un recorte en una ranura, «Pasar en limpio»).
+func _ui_dossier(a: Dictionary) -> bool:
+	var ex = shell.panel("dossier") if shell.is_open("dossier") else shell.open_panel("dossier")
 	await fr(3)
-	if lg == null:
+	if ex == null or not ex.has_method("set_answer"):
 		return false
+	var q := String(a.get("q", ""))
+	ex.select(q)
+	await fr(1)
 	match String(a.t):
-		"pass_clean":
-			# las casillas «Al sello» con su clic (on_lot = toggle_lot + refresh): el lote se ve en las ranuras del sello
-			var want: Array = (a.get("entries", []) as Array).map(func(x): return String(x))
-			for e in (lg.lot as Array).duplicate():
-				if not want.has(String(e)):
-					lg.on_lot(String(e))
-			for e in want:
-				if not (lg.lot as Array).has(e):
-					lg.on_lot(e)
-			await fr(2)
-			lg.stamp()
-			await fr(4)
-			await snap("sello")
-			var cf = lg.confirm_dialog() if lg.has_method("confirm_dialog") else null
-			if cf != null and _press_confirm(cf):
-				pass
+		"dq_answer":
+			ex.set_answer(q, String(a.get("value", "")))
+		"dq_proof":
+			var c := String(a.get("clip", ""))
+			if c == "":
+				ex.clear_proof(q, int(a.get("slot", 0)))
 			else:
-				lg.confirm_stamp()
-			await fr(16)
-			await snap("libro_mayor_pasada")
-		"folio_open":
-			lg.new_folio_from(String(a.get("clip", "")))
-		"entry_new":
-			var fo := String(a.get("folio", ""))
-			if fo != "" and fo != "varios":
-				lg.show_page(fo)
-			elif fo == "varios":
-				lg.show_page("varios")
-			lg.new_entry(String(a.get("template", "")))
-		"entry_set":
-			lg.set_field(String(a.entry), int(a.line), String(a.field), String(a.value))
-		"entry_support_add":
-			lg.add_support(String(a.entry), int(a.line), String(a.item))
-		"practice":
-			lg.practice(String(a.entry))
+				ex.set_proof(q, int(a.get("slot", 0)), c)
+		"dq_confirm":
+			ex.confirm(q)
+			await fr(8)
+			await snap("expediente_" + q)
 	await fr(2)
 	return true
 
-func _ui_link(a: Dictionary) -> bool:
-	var nb = shell.panel("notebook") if shell.is_open("notebook") else shell.open_panel("notebook")
-	await fr(4)
-	if nb == null or not nb.has_method("request_link"):
-		return false
-	nb.request_link(String(a.get("a", "")), String(a.get("b", "")))
-	await fr(4)
-	var form = nb.overlay_panel() if nb.has_method("overlay_panel") else null
-	if form == null:
-		return false
-	var le = form.get_meta("note_edit") if form.has_meta("note_edit") else null
-	if le is LineEdit:
-		(le as LineEdit).text = String(a.get("note", ""))
-	await snap("cotejo")
-	_press_confirm(form)
-	await fr(6)
-	return true
-
-# GDD_v2 §C.4: la regla y «Anotar la medida» ya no existen; clip_measure (partidas viejas) va por Game.act.
 func _ui_measure(_a: Dictionary) -> bool:
 	return false
 
@@ -932,7 +902,7 @@ func _do_epilogue(a: Dictionary, i: int, n0: int) -> void:
 					await epi_pause()
 				await fr(10)
 	# verificación: el registro recibió exactamente esta acción (con la sesión ya cerrada, lo anotado al cambiar el sim)
-	var n1: int = g.sim.actions_log().size() if g.sim != null else _log_n
+	var n1: int = g.sim.actions_log().size() if g.sim != null else _full_n
 	var last: Dictionary = (g.sim.actions_log()[-1] if g.sim != null and n1 > 0 else _last_act)
 	if tried and n1 == n0 + 1 and _same(last, a):
 		via_ui[t] = int(via_ui.get(t, 0)) + 1

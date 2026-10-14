@@ -13,8 +13,8 @@
     {"id": "D11@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
   ],
   "parts": [
-    {"id": "p1", "text": "{{#desague a:estilo_o_rostro_moran e:desague e:tigre|Al [[tigre|tigre]] herido se lo sigue por [[desague|el desagüe]], y no por el monte.}} {{#no_bala a:cebo e:cabrito e:tigre|Un [[cabrito|cabrito]] que no bala no atrae a ningún [[tigre|tigre]].}} {{#hacerlo_balar a:cebo e:cabrito|Hay que hacerlo balar.}}"},
-    {"id": "p2", "text": "{{#mejor_tiro a:autor_moran e:moran e:fusil_de_aire|En el regimiento me llamaban el mejor tiro de la India, y no conozco [[fusil_de_aire|fusil de aire]] que me hiciera quedar mal.}}"}
+    {"id": "p1", "text": "{{#desague e:desague e:tigre|Al [[tigre|tigre]] herido se lo sigue por [[desague|el desagüe]], y no por el monte.}} {{#no_bala a:cebo e:cabrito e:tigre|Un [[cabrito|cabrito]] que no bala no atrae a ningún [[tigre|tigre]].}} {{#hacerlo_balar a:cebo e:cabrito|Hay que hacerlo balar.}}"},
+    {"id": "p2", "text": "{{#mejor_tiro a:tiro_de_cazador e:moran e:fusil_de_aire|En el regimiento me llamaban el mejor tiro de la India, y no conozco [[fusil_de_aire|fusil de aire]] que me hiciera quedar mal.}}"}
   ],
   "words": 75
 }

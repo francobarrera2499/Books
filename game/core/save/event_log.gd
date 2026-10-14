@@ -8,7 +8,7 @@ extends RefCounted
 
 const J = preload("res://core/util/j.gd")
 
-const VERSION := 1
+const VERSION := 3   # GDD_v3 §1.7: cabecera "v": 3; un guardado v < 3 no se repite (sólo partida nueva)
 
 var path: String
 
@@ -46,6 +46,7 @@ static func read(path: String) -> Dictionary:
 		res = parse_text(J.read_text(path + ".bak"))
 		recovered = "bak"
 	res["recovered"] = recovered
+	res["v"] = int(res.get("header", {}).get("v", 0))
 	return res
 
 static func parse_text(text: String) -> Dictionary:

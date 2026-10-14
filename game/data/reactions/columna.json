@@ -14,7 +14,7 @@
       "rastro": [
         {"tpl": "texto", "texto": "Sobre sin remitente. {{#sobre a:me_vigila_de_cerca e:matasellos_sw|Matasellos de [[pall_mall|Pall Mall]], S.W., lunes 26 de marzo, 11.45 de la noche.}}\nDentro, un recorte del [[st_james_gazette|St James's Gazette]] del jueves 18 de enero: «La aritmética del doctor Watson», por E. L., Holywell Street. «Si el doctor no sabe en qué miembro lleva la bala, ¿cómo creerle que la [[pared|pared]] era a pique?» {{#no_lo_es a:actividad_posterior_a_mayo_1891 e:letra h:F.no_lo_es|Al margen, a lápiz blando y con buena letra: <f=manuscrito><ink=lapiz>No lo es.</ink></f>}}"}
       ],
-      "corta": [], "agrega": ["C3", "C7.R6", "C8.R4"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q2", "Q3", "Q5"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HC02", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-S",
@@ -26,9 +26,9 @@
       "latencia": {"tipo": "fija", "tk": "3.dawn"},
       "efecto": [{"op": "silueta", "who": "wiggins", "desde": "3.dawn"}],
       "rastro": [
-        {"tpl": "silueta", "nodo": "N:*.sil_wiggins", "tags": ["a:ancla_ks", "e:muchacho_de_gorra"]}
+        {"tpl": "silueta", "nodo": "N:*.sil_wiggins", "tags": ["a:ancla_ks", "a:chicos_de_holmes", "e:muchacho_de_gorra", "e:muchacho"]}
       ],
-      "corta": [], "agrega": ["C6"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q3", "Q8"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HC03", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 0, "canal": "correo",
@@ -42,7 +42,7 @@
       "rastro": [
         {"tpl": "en_mano", "texto": "{{#en_mano a:me_vigila_de_cerca a:latencia_s|Sobre sin sello ni matasellos, deslizado por debajo de la puerta antes del alba.}}"}
       ],
-      "corta": [], "agrega": ["C7", "C9.R3"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q3", "Q10"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HC04", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 4, "canal": "invitacion",
@@ -57,7 +57,7 @@
       "rastro": [
         {"tpl": "tarjeta", "texto": "{{#tarjeta a:vinculo_mycroft e:sala_de_forasteros|[[mycroft|Mr. Mycroft Holmes]] estará en la [[sala_de_forasteros|Sala de Forasteros]] de 16:45 a 19:40, martes y miércoles.}}"}
       ],
-      "corta": [], "agrega": ["C7.R1"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q3"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HC05", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-H",
@@ -75,7 +75,7 @@
         {"tpl": "jueves_a", "nodo": "S:HC05.jueves_a", "tags": ["a:dia_jueves", "e:jueves", "e:mycroft", "e:221b"]},
         {"tpl": "jueves_b", "nodo": "S:HC05.jueves_b", "tags": ["a:preparativos_221b", "e:shag"]}
       ],
-      "corta": [], "agrega": ["C9.R1", "C9.R2", "C9.R5"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q10"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HC06", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 4, "canal": "L5",
@@ -95,7 +95,7 @@
         {"tpl": "f", "nodo": "D46#fisica", "tags": ["a:vinculo_mycroft", "e:papel_crema_grueso"]},
         {"tpl": "g", "nodo": "S:HC06.g", "tags": []}
       ],
-      "corta": [], "agrega": ["C6", "C7.R2", "C7.R8", "C8.R3", "C9.R2"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q3", "Q5", "Q10"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HC07", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 5, "canal": "en_persona",
@@ -110,7 +110,7 @@
         {"tpl": "dedos", "nodo": "N:L1.librero_dedos", "tags": ["a:rasgo_holmes", "e:amarillo", "e:librero"]},
         {"tpl": "sombra", "nodo": "N:L1.librero_sombra", "tags": ["a:librero_falso", "e:sombra", "e:librero"]}
       ],
-      "corta": [], "agrega": ["C12.R1", "C12.R3", "C12.R4"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HC08", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 5, "canal": "en_persona",
@@ -124,7 +124,7 @@
       "rastro": [
         {"tpl": "libros", "nodo": "N:PARK.libros", "tags": ["e:tree_worship", "e:librero"]}
       ],
-      "corta": [], "agrega": ["C12.R2"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HC09", "tipo": "columna", "lado": "holmes", "voz": "B", "nivel": 5, "canal": "en_persona",
@@ -151,7 +151,7 @@
       "rastro": [
         {"tpl": "texto", "texto": "AL LECTOR DE HOLYWELL STREET. — {{#ancla a:ancla_kt a:latencia_s|[[@act|Busca usted testigos del 4 de mayo.]]}} {{#fuente a:remite_journal e:journal_de_geneve|Hubo tres [[guias|guías]], un [[pastor|pastor]] y un médico; los cuatro primeros hablaron en francés, y lo dijeron en [[ginebra|Ginebra]].}} —S."}
       ],
-      "corta": [], "agrega": ["C6", "C9.R3"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q3", "Q10"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HA0", "tipo": "columna", "lado": "mycroft", "voz": "A", "nivel": 0, "canal": "prologo",
@@ -166,7 +166,7 @@
       "rastro": [
         {"tpl": "texto", "texto": "{{#visitas a:me_vigila_de_cerca|Lunes, nueve y cuarto de la noche: tuvo usted visitas.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: lea lo que quiera; no publique lo que no sabe.}}"}
       ],
-      "corta": [], "agrega": ["C7.R1", "C7.R3", "C7.R8"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q3"], "variante_blanda": null, "exento_d2": true
     }
   ]
 }

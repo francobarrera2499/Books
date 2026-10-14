@@ -6,6 +6,9 @@
 # - test_prologo: data/scenes/PRO.json (prólogo y tutorial) con las mismas reglas de texto.
 # - test_dialogos y test_documentos: reglas generales sobre dialogue/, scenes/ (salvo PRO), reactions/, docs/, places/,
 #   plates/ y entities/ (los dueños son TEXTOS-DIÁLOGOS y TEXTOS-DOCUMENTOS; GDD_v2 §F.3).
+# - test_v3_vocabulario (CONTENIDO, GDD_v3 §7.2 P6): ningún texto visible de los archivos de CONTENIDO dice «conclusión»,
+#   «libro de conclusiones» ni «errata»; «asiento» sólo como la silla de la Sala de Lectura (o el asiento de una silla).
+#   v3 vuelve a usar «Pasar en limpio» (decisión 2 del usuario: el botón de la hoja del Expediente): sale del glosario.
 # Las variables ${…}, el marcado [[ent|superficie]], {{#tramo …|…}} y las etiquetas <…> no cuentan: se mira la superficie.
 extends "res://tests/test_base.gd"
 
@@ -26,7 +29,7 @@ const GENERAL := [
 const GLOSARIO := [
 	["errata", "\\berratas?\\b", false], ["libro mayor", "\\blibro mayor\\b", false], ["asiento", "\\basientos?\\b", false],
 	["folio", "\\bfolios?\\b", false], ["plantilla", "\\bplantillas?\\b", false], ["según", "\\bsegún\\b", false],
-	["pasar en limpio", "\\b(pas[aeo]\\w*|pasad[oa]s?) en limpio\\b", false], ["lote", "\\blotes?\\b", false],
+	["conclusión (v3: pregunta)", "\\bconclusi[óo]n(es)?\\b", false], ["lote", "\\blotes?\\b", false],
 	["Visto (sello)", "\\bVisto\\b", true], ["tampón", "\\btamp[óo]n", false], ["franja", "\\bfranjas?\\b", false],
 	["cotejar", "\\bcotej", false], ["marginalia", "\\bmarginalia\\b", false], ["lámina", "\\bl[áa]minas?\\b", false],
 	["papeleta", "\\bpapeletas?\\b", false], ["ujier", "\\bujier", false], ["concordancia", "\\bconcordancia", false],
@@ -57,14 +60,22 @@ const BUTTONS := ["kit.confirm.ok", "kit.confirm.back", "kit.close",
 	"shell.present.guardar", "shell.copia.corto", "shell.copia.ok", "shell.cat.leer", "shell.cat.pedir", "shell.map.ir",
 	"shell.map.volver", "shell.fb.report_ok", "shell.fb.callar", "shell.fb.errata_si", "shell.fb.errata_no",
 	"epilogue.seguir", "epilogue.tijera", "epilogue.tijera.dejar", "epilogue.publicar.ok", "epilogue.cerrar",
-	"v2d.lg.mas_tipos", "v2d.cat.cambiar", "v2d.tray.anteriores", "v2d.sc.todo", "cam.tomos.volver", "cam.estantes.volver"]
+	"v2d.lg.mas_tipos", "v2d.cat.cambiar", "v2d.tray.anteriores", "v2d.sc.todo", "cam.tomos.volver", "cam.estantes.volver",
+	"exp.pasar", "exp.volver", "exp.encargo", "exp.en_tinta", "exp.picker.borrar", "mundo.hud.expediente", "mundo.donde.ok"]
 # Ayudas de una línea (≤12 palabras).
 const HELPS := ["ledger.asiento.ayuda", "ledger.sello.tip", "ledger.erratas.sub", "ledger.tab.nuevo_folio.sub", "ledger.elija",
 	"nb.diario.tijera_ayuda", "nb.vacio.cotejos", "v2d.lg.ayuda.hoja", "v2d.lg.ayuda.conclusion", "v2d.lg.ayuda.pruebas",
 	"v2d.cat.ayuda", "cam.ayuda.mirar", "pend.mirar", "shell.pro.dormir", "sceneui.ask.pick", "sceneui.assert.pick", "shell.cat.elija",
 	"reader.tijera_ayuda"]
 # Errores en la voz de Lisle: una sola oración.
-const ERR_PREFIX := ["clip.", "entry.", "formal.", "pass.", "practice.fail", "sim.err.", "sceneui.err.", "nb.err.", "core.err.", "ledger.err."]
+const ERR_PREFIX := ["clip.", "entry.", "formal.", "pass.", "practice.fail", "sim.err.", "sceneui.err.", "nb.err.", "core.err.", "ledger.err.",
+	"exp.err.", "exp.formal.", "v3core.formal."]
+# GDD_v3 §7.2 P6: vocabulario retirado en todo texto visible de CONTENIDO.
+const V3 := [["conclusión", "\\bconclusi[óo]n(es)?\\b", false], ["errata", "\\berratas?\\b", false]]
+# «asiento» sólo como silla (Sala de Lectura, butaca): estas palabras en el mismo texto lo autorizan.
+const ASIENTO_OK := ["sala de lectura", "pedido", "número", "seat", "lámpara", "sillón", "silla", "mampara", "chapa", "lejos de"]
+# Archivos de data/ que no son de CONTENIDO (GDD_v3 §7.2).
+const NOT_MINE := ["places/L1.json", "entities/v3_core.json", "entities/v3_reacciones.json"]
 
 static func words(s: String) -> int:
 	var t := s
@@ -222,6 +233,46 @@ func test_documentos():
 		collect(read_json("res://data/" + fn), fn, "", out)
 	report(check_entries(out, exc_map()))
 
+# GDD_v3 §7.2 P6: «conclusión», «errata» y «asiento» (salvo la silla) no aparecen en ningún texto visible de CONTENIDO.
+func test_v3_vocabulario():
+	var out: Array = []
+	var skip: Array = NOT_MINE.duplicate()
+	var corpus = read_json("res://data/corpus.json")
+	if typeof(corpus) == TYPE_DICTIONARY:
+		for did in corpus.get("inactivas", []):   # crónicas desactivadas (GDD_v3 §3.5): no se ven en esta iteración
+			skip.append("docs/" + String(did).replace(".", "/") + ".json")
+	for sub in ["docs", "dialogue", "scenes", "places", "plates", "entities", "ui_text", "catalog"]:
+		walk("res://data/" + sub, sub, skip, out)
+	ok(out.size() > 1000, "textos de CONTENIDO: %d" % out.size())
+	report(check_v3(out, exc_map()))
+
+static func check_v3(entries: Array, exc: Dictionary) -> Array:
+	var bad: Array = []
+	var rules: Array = []
+	for g in V3:
+		rules.append([g[0], mk_rx(g[1], g[2])])
+	var asi := mk_rx("\\basientos?\\b", false)
+	for it in entries:
+		var rel := String(it.rel)
+		if rel.begins_with("ui_text/v3_") and rel != "ui_text/v3_plano.json":
+			continue   # textos de interfaz de otros paquetes (test_ui_text los mira con el glosario)
+		var key := String(it.key)
+		if rel.begins_with("ui_text/") and key.contains(".text."):
+			key = key.get_slice(".text.", 1)   # textos de interfaz: la excepción va por clave de ui_text
+		var txt := plain_txt(String(it.text))
+		for r in rules:
+			if (r[1] as RegEx).search(txt) != null and not exempt(exc, key, r[0]):
+				bad.append("%s · %s: «%s» (%s)" % [rel, key, r[0], txt.left(90)])
+		if asi.search(txt) != null and not exempt(exc, key, "asiento"):
+			var low := txt.to_lower()
+			var okk := false
+			for w in ASIENTO_OK:
+				if low.contains(w):
+					okk = true
+			if not okk:
+				bad.append("%s · %s: «asiento» que no es la silla (%s)" % [rel, key, txt.left(90)])
+	return bad
+
 # Las reglas mismas (para que un cambio en los patrones no las deje mudas).
 func test_reglas_detectan():
 	var probe := [
@@ -237,3 +288,12 @@ func test_reglas_detectan():
 	ok(f.any(func(s): return String(s).contains("· c:")), "glosario viejo")
 	ok(f.any(func(s): return String(s).contains("kit.close")), "botón largo")
 	no(f.any(func(s): return String(s).contains("· d:")), "texto neutro sin hallazgos: %s" % str(f))
+	var v3 := check_v3([
+		{"rel": "docs/x.json", "key": "e", "text": "Seis conclusiones confirmadas en el libro.", "ui": false},
+		{"rel": "docs/x.json", "key": "f", "text": "Una fe de erratas del doctor.", "ui": false},
+		{"rel": "docs/x.json", "key": "g", "text": "Seis asientos pasados a tinta.", "ui": false},
+		{"rel": "docs/x.json", "key": "h", "text": "Pido el libro para el asiento 214 de la Sala de Lectura.", "ui": false},
+	], {})
+	for k in ["e", "f", "g"]:
+		ok(v3.any(func(s): return String(s).contains("· %s:" % k)), "vocabulario v3 detecta %s: %s" % [k, str(v3)])
+	no(v3.any(func(s): return String(s).contains("· h:")), "el asiento de la Sala de Lectura vale")

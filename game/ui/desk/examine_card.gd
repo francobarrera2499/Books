@@ -5,12 +5,18 @@
 # links = [{text, cb: Callable, disabled?: bool}]. Pocos enlaces van en una fila; muchos (los tomos de la Strand, un
 # estante) van en lista, uno por renglón, bajo un encabezado (head) y en un desplazable de alto acotado: la tarjeta
 # nunca se sale de la pantalla.
-# v2 (GDD_v2 §C.1/§C.3): note = una línea chica no recortable bajo el examen (la cuenta de las monedas); la lista de los
-# tomos va en dos niveles (GameScreen) y nunca pasa de ≤7 renglones a la vista.
+# v2 (GDD_v2 §C.1/§C.3): note = una línea chica no recortable bajo el examen; las listas largas nunca pasan de ≤7
+# renglones a la vista.
+# v3 (GDD_v3 §6.2, §6.7): todo lo del 3D se recorta del texto de esta tarjeta. La tijera es un ícono suelto (sin
+# recuadro ni la palabra) arriba a la derecha de la tarjeta, cuando la tijera existe para Lisle (scissors_ok) y hay texto
+# recortable: clic -> scissors_toggled(on) (la pantalla de juego la toma o la deja, como C).
 extends PanelContainer
 
 signal clipped(result: Dictionary)
 signal closed
+signal scissors_toggled(on: bool)
+
+const Cursors = preload("res://ui/desk/cursors.gd")
 
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
@@ -29,6 +35,9 @@ var links_scroll: ScrollContainer
 var links_list: VBoxContainer
 var note_label: Label
 var node_id := ""
+var scissors_btn: TextureButton
+var scissors_ok: Callable = Callable()   # () -> bool: ¿la tijera ya está en la mano de Lisle? (desk.tijera)
+var _scissors_on := false
 var bottom_inset := 0.0:        # alto que tapa una banda de abajo (panel de escena): la tarjeta va encima
 	set(v):
 		bottom_inset = v
@@ -47,10 +56,26 @@ func _ready() -> void:
 	v.add_theme_constant_override("separation", 6)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(v)
+	var head := HBoxContainer.new()
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(head)
 	title_label = Widgets.label("", "SourceLine")
 	title_label.uppercase = true
 	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.add_child(title_label)
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title_label)
+	scissors_btn = TextureButton.new()
+	scissors_btn.name = "Tijera"
+	scissors_btn.texture_normal = Cursors.scissors_icon(28)
+	scissors_btn.ignore_texture_size = true
+	scissors_btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	scissors_btn.custom_minimum_size = Vector2(28, 28)
+	scissors_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	scissors_btn.focus_mode = Control.FOCUS_NONE
+	scissors_btn.tooltip_text = "C"
+	scissors_btn.visible = false
+	scissors_btn.pressed.connect(func(): scissors_toggled.emit(not _scissors_on))
+	head.add_child(scissors_btn)
 	body = ClipLabel.new()
 	body.custom_minimum_size = Vector2(MAX_W - 40.0, 0)
 	body.clipped.connect(func(r): clipped.emit(r))
@@ -98,9 +123,11 @@ func _place() -> void:
 func show_card(p_title: String, parsed: Dictionary, links: Array, src := {}, p_node := "", head := "", note := "") -> void:
 	node_id = p_node
 	title_label.text = p_title
-	title_label.visible = p_title != ""
+	title_label.visible = true
 	(body as ClipLabel).setup(parsed, src)
 	body.visible = String(parsed.get("plain", "")) != ""
+	scissors_btn.visible = body.visible and not src.is_empty() and (not scissors_ok.is_valid() or bool(scissors_ok.call()))
+	_paint_scissors()
 	note_label.text = note
 	note_label.visible = note != ""
 	for c in links_box.get_children() + links_list.get_children():
@@ -129,9 +156,19 @@ func show_card(p_title: String, parsed: Dictionary, links: Array, src := {}, p_n
 	visible = true
 	modulate.a = 0.0
 	_place.call_deferred()
+	_replace_later()
 	if _tw != null and _tw.is_valid():
 		_tw.kill()
 	_tw = Widgets.fade(self, 1.0, 0.18)
+
+# El texto (RichTextLabel con fit_content) mide su alto recién después del primer acomodo: se vuelve a ubicar un cuadro
+# más tarde (si no, una tarjeta corta quedaba con el alto de la anterior).
+func _replace_later() -> void:
+	if not is_inside_tree():
+		return
+	await get_tree().process_frame
+	if visible and is_inside_tree():
+		_place()
 
 func hide_card() -> void:
 	if not visible:
@@ -142,8 +179,18 @@ func hide_card() -> void:
 	closed.emit()
 
 func set_scissors(on: bool) -> void:
+	_scissors_on = on
 	if body != null:
 		(body as ClipLabel).set_scissors(on)
+	_paint_scissors()
+
+# Con la tijera en la mano el ícono se ve «tomado» (tinta llena); si no, tenue.
+func _paint_scissors() -> void:
+	if scissors_btn == null:
+		return
+	scissors_btn.modulate = Color(1, 1, 1, 1.0) if _scissors_on else Color(1, 1, 1, 0.62)
+	scissors_btn.rotation_degrees = -18.0 if _scissors_on else 0.0
+	scissors_btn.pivot_offset = scissors_btn.custom_minimum_size * 0.5
 
 func back() -> bool:
 	if visible:

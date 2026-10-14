@@ -1,5 +1,6 @@
-# Unit: core/sim/endings.gd (W2-SCENES). Finales en el orden de endings.json (GDD §12.1: F1, F4, F2, F3a, F3b),
-# rank §12.1.2 (F1=1, F3a=2, F3b=3, F2=4, F4=5), variantes acumulables, lápiz azul (§5.2) y congelado.
+# Unit: core/sim/endings.gd (CORE-EXPEDIENTE). Finales en el orden de endings.json (GDD §12.1: F1, F4, F2, F3a, F3b),
+# rank §12.1.2 (F1=1, F3a=2, F3b=3, F2=4, F4=5), variantes acumulables, lápiz azul y congelado. v3 (GDD_v3 §6.10): F1 =
+# Q3, Q6 y Q9 en tinta y ≥7 en tinta; F4 = menos de 6; lápiz azul por pregunta nacida.
 extends "res://tests/test_base.gd"
 
 const Fakes = preload("res://tests/fixtures/scenes/fakes.gd")
@@ -17,19 +18,19 @@ func before_each() -> void:
 func after_each() -> void:
 	Fakes.uninstall()
 
-func _st(sealed: Array, flags := {}):
+func _st(inked: Array, flags := {}):
 	var st = Fakes.state(rp, {"day": 10, "phase": "parklane"})
-	for c in sealed:
-		st.ded.sealed[c] = "AS_" + c
+	for q in inked:
+		Fakes.question(st, String(q), "holmes", ["", ""], true)
 	for k in flags:
 		st.flags[k] = flags[k]
 	return st
 
 func _final_report(st, cats: Array) -> void:
-	st.events.append({"type": "report", "seq": st.events.size() + 1, "n": 4, "mode": "items", "final": true, "items": [{"kind": "entry", "cats": cats, "copies": [], "cls": []}]})
+	st.events.append({"type": "report", "seq": st.events.size() + 1, "n": 4, "mode": "items", "final": true, "items": [{"kind": "pregunta", "cats": cats, "copies": [], "cls": []}]})
 
-const EIGHT := ["C2", "C3", "C4", "C6", "C7", "C8", "C10", "C11"]
-const SIX := ["C2", "C3", "C4", "C5", "C8", "C9"]
+const EIGHT := ["Q1", "Q2", "Q3", "Q5", "Q6", "Q7", "Q9", "Q10"]
+const SIX := ["Q1", "Q2", "Q4", "Q5", "Q8", "Q10"]
 
 func test_f1_requires_the_whole_chain():
 	var st = _st(EIGHT, {"informe_final": "errata", "moran_credito": true})
@@ -42,11 +43,12 @@ func test_f1_requires_the_whole_chain():
 		var f := {"informe_final": "errata", "moran_credito": true}
 		f.merge(broken, true)
 		eq(Endings.evaluate(_st(EIGHT, f), rp).ending, "F3b", "F1 roto por " + str(broken))
-	eq(Endings.evaluate(_st(["C2", "C3", "C4", "C5", "C6", "C7", "C8"], {"informe_final": "errata", "moran_credito": true}), rp).ending, "F3b", "sin C10")
-	eq(Endings.evaluate(_st(["C6", "C7", "C10", "C2", "C3", "C4", "C5"], {"informe_final": "errata", "moran_credito": true}), rp).ending, "F3b", "7 selladas")
+	eq(Endings.evaluate(_st(["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q10"], {"informe_final": "errata", "moran_credito": true}), rp).ending, "F3b", "sin Q9")
+	eq(Endings.evaluate(_st(["Q3", "Q6", "Q9", "Q1", "Q2", "Q4"], {"informe_final": "errata", "moran_credito": true}), rp).ending, "F3b", "6 en tinta")
+	eq(Endings.evaluate(_st(["Q3", "Q6", "Q9", "Q1", "Q2", "Q4", "Q5"], {"informe_final": "errata", "moran_credito": true}), rp).ending, "F1", "7 en tinta")
 
 func test_order_f4_before_f2_before_f3():
-	var st = _st(["C2", "C3", "C4", "C5", "C6"], {"informe_final": "items"})
+	var st = _st(["Q1", "Q2", "Q3", "Q4", "Q5"], {"informe_final": "items"})
 	_final_report(st, ["holmes_vive"])
 	eq(Endings.evaluate(st, rp).ending, "F4", "menos de 6: F4 aunque el informe sea fiel")
 	var st2 = _st(SIX, {"informe_final": "items"})
@@ -67,7 +69,7 @@ func test_order_f4_before_f2_before_f3():
 	eq(Endings.evaluate(st5, rp).ending, "F1")
 
 func test_variants_accumulate():
-	var st = _st(SIX + ["C14", "C11"], {"informe_final": "nada", "confront_estado": "completa", "watson_expuesto": true})
+	var st = _st(SIX + ["Q7"], {"informe_final": "nada", "confront_estado": "completa", "watson_expuesto": true, "curiosidad_tomos": true})
 	var r: Dictionary = Endings.evaluate(st, rp)
 	eq(r.ending, "F3a")
 	eq(r.variants.map(func(v): return v.id), ["V.confront_completa", "V.C14", "V.C11", "V.expuesto"])
@@ -108,18 +110,16 @@ func test_rank_table_real_data():
 	eq(_check_table(r), [], "endings.json real")
 
 func test_blue_pencil():
-	var st = _st(["C2", "C3", "C4", "C5", "C6", "C9", "C10", "C11", "C12", "C13"])
-	Fakes.clip(st, "RC1", "a", ["holmes"], [], "D01")
-	Fakes.clip(st, "RC2", "b", ["holmes"], [], "D02")
-	Fakes.entry(st, "AS1", "T7", [{"fields": {"persona": "holmes"}, "support": ["RC1"]}], "lapiz", {"fake_cid": "C8", "fake_ok": false})
-	Fakes.entry(st, "AS2", "T6", [{"fields": {"persona": "x"}, "support": ["RC1", "RC2"]}], "lapiz", {"fake_cid": "C7"})
-	Fakes.entry(st, "AS3", "T5", [{"fields": {"persona": "x"}, "support": ["RC1"]}], "lapiz")
-	Fakes.entry(st, "AS4", "T5", [{"fields": {"persona": "x"}, "support": ["RC1"]}], "tinta", {"fake_cid": "C2", "fake_ok": false})
+	var st = _st(["Q1", "Q2", "Q4", "Q5", "Q6", "Q7", "Q9", "Q10"])
+	Fakes.clip(st, "RC1", "a", ["holmes"], ["a:fx_g1"], "D01")
+	Fakes.clip(st, "RC2", "b", ["holmes"], ["a:fx_g1"], "D02")
+	# Q3 nacida en lápiz, completa y sin cerrar (las dos pruebas son del mismo grupo): falta + corrección
+	Fakes.question(st, "Q3", "mycroft", ["RC1", "RC2"], false)
+	# Q8 nunca nació: no cuenta
 	var bp: Array = Endings.blue_pencil(st, rp)
 	eq(bp, [
-		{"kind": "missing", "cid": "C7", "note": "Falta: quién paga el alquiler."},
-		{"kind": "missing", "cid": "C8", "note": "Falta: el estado del difunto."},
-		{"kind": "wrong", "entry": "AS1", "cid": "C8", "note": "Dele: la cornisa no se ve desde el sendero."},
+		{"kind": "missing", "q": "Q3", "note": "Falta: de quién es la mano."},
+		{"kind": "wrong", "q": "Q3", "note": "Corríjalo: otro dicta."},
 	])
 
 func test_freeze_result_and_epilogue():
@@ -150,7 +150,7 @@ func test_real_vc12_by_park_clip_and_pencil_wrong():
 	var st = load("res://core/sim/game_state.gd").new()
 	st.clock = {"day": 10, "slot": "T", "phase": "parklane"}
 	Clipper.init_state(st, r)
-	load("res://core/deduction/ledger.gd").init_state(st, r)
+	load("res://core/deduction/dossier.gd").init_state(st, r)
 	var vids := func() -> Array:
 		var out: Array = []
 		for v in Endings.evaluate(st, r).variants:
@@ -162,11 +162,15 @@ func test_real_vc12_by_park_clip_and_pencil_wrong():
 	Clipper.test_access = Callable()
 	ok(res.get("ok", false), str(res))
 	ok(bool(st.flags.get("vio_libros_park", false)), "recortar los libros caídos escribe el flag")
-	has(vids.call(), "V.C12", "Lisle reconoce los libros caídos sin C12 sellado")
+	has(vids.call(), "V.C12", "Lisle reconoce los libros caídos (v3: el librero no tiene pregunta)")
 	var ctx := {"st": st, "repo": r}
-	no(Cond.eval({"pencil_wrong": true}, ctx), "sin asientos, nada que corregir")
+	no(Cond.eval({"pencil_wrong": true}, ctx), "sin hojas completas, nada que corregir")
 	ok(Cond.eval({"pencil_wrong": false}, ctx))
-	st.ded.entries["AS001"] = {"id": "AS001", "folio": "varios", "template": "T7", "ink": "lapiz", "practice": false, "cid": "",
-		"lines": [{"fields": {"persona": "holmes"}, "support": []}, {"fields": {"estado": "vivo"}, "support": []}]}
-	ok(Cond.eval({"pencil_wrong": true}, ctx), "un lápiz con los valores de C8 sin fundamento: el lápiz azul lo marca")
+	var a: String = Clipper.inject(st, r, {"origin": "D12", "tags": ["a:identidad_holmes"], "ents": ["holmes"]})
+	var b: String = Clipper.inject(st, r, {"origin": "D13", "tags": ["a:identidad_holmes"], "ents": ["holmes"]})
+	var d: Dictionary = st.ded.dossier
+	d.born["Q5"] = {"tk": 40, "via": "test", "origin": "", "n": 0}
+	d.open["Q5"] = {"tk": 40, "n": 1}
+	d.drafts["Q5"] = {"answer": "holmes", "proofs": [a, b]}
+	ok(Cond.eval({"pencil_wrong": true}, ctx), "una hoja completa que no cierra: el lápiz azul la marca")
 	eq(Cond.validate({"pencil_wrong": 1}), ["cond.pencil_wrong: debe ser bool"])

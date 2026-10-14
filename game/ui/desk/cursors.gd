@@ -1,8 +1,9 @@
-# ui/desk/cursors.gd — cursores dibujados por código, sin archivos (GDD_v2 §D.2). Dueño: CÁMARA + AFORDANCIAS. Estática.
-# Una lupa (examinable) y una mano (usable) de 32×32 en tinta sobre papel, con un halo de papel para que se lean sobre
-# cualquier lavado. install() los asigna con Input.set_custom_mouse_cursor a CURSOR_HELP (lupa) y CURSOR_POINTING_HAND
-# (mano); WorldRoot elige la forma con Input.set_default_cursor_shape según lo que hay bajo el mouse. En alto contraste,
-# negro sobre blanco.
+# ui/desk/cursors.gd — cursores dibujados por código, sin archivos (GDD_v2 §D.2; GDD_v3 §6.5). Dueño: UI-MUNDO. Estática.
+# Una lupa (lo que se mira) y una mano (lo que se usa) de 32×32 en tinta sobre papel, con un halo de papel para que se
+# lean sobre cualquier lavado. install() los asigna con Input.set_custom_mouse_cursor a CURSOR_HELP (lupa) y
+# CURSOR_POINTING_HAND (mano); WorldRoot elige la forma con Input.set_default_cursor_shape según lo que hay bajo el
+# mouse. En alto contraste, negro sobre blanco. scissors(): la tijera (cursor sobre el texto recortable de las tarjetas
+# con la tijera en la mano) y scissors_icon(px): el ícono suelto de la tijera (sin recuadro ni palabra, §6.7).
 extends RefCounted
 
 const SIZE := 32
@@ -35,6 +36,69 @@ static func uninstall() -> void:
 	Input.set_custom_mouse_cursor(null, Input.CURSOR_POINTING_HAND)
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 	_installed = false
+
+static var _sc_tex: ImageTexture = null
+static var _sc_icons := {}
+
+static func scissors() -> ImageTexture:
+	if _sc_tex == null:
+		_sc_tex = ImageTexture.create_from_image(scissors_img(SIZE))
+	return _sc_tex
+
+static func scissors_icon(px := 28) -> ImageTexture:
+	if not _sc_icons.has(px):
+		_sc_icons[px] = ImageTexture.create_from_image(scissors_img(px))
+	return _sc_icons[px]
+
+# Botón de la tijera: el ícono suelto (sin recuadro ni la palabra), de alternar; tenue si no está en la mano.
+static func scissors_button(px := 28) -> TextureButton:
+	var b := TextureButton.new()
+	b.name = "Tijera"
+	b.texture_normal = scissors_icon(px)
+	b.ignore_texture_size = true
+	b.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	b.custom_minimum_size = Vector2(px, px)
+	b.toggle_mode = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	b.tooltip_text = "C"
+	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	b.pivot_offset = Vector2(px, px) * 0.5
+	paint_scissors(b, false)
+	b.toggled.connect(func(on): paint_scissors(b, on))
+	return b
+
+# Estado del ícono sin emitir toggled: «tomada» (tinta llena, inclinada) o tenue.
+static func paint_scissors(b: BaseButton, on: bool) -> void:
+	if b == null or not is_instance_valid(b):
+		return
+	b.set_pressed_no_signal(on)
+	b.modulate = Color(1, 1, 1, 1.0) if on else Color(1, 1, 1, 0.62)
+	b.rotation_degrees = -18.0 if on else 0.0
+
+# Tijera de tinta abierta, de n×n, con halo de papel: dos hojas que se cruzan en el eje y dos ojos redondos abajo.
+static func scissors_img(n: int, ink := INK, pap := PAPER) -> Image:
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	var k := float(n) / 32.0
+	var piv := Vector2(14.0, 14.0) * k
+	var blades := [[Vector2(3.0, 5.0) * k, piv], [Vector2(5.0, 3.0) * k, piv]]
+	var arms := [[piv, Vector2(20.5, 23.5) * k], [piv, Vector2(23.5, 20.5) * k]]
+	var rings := [Vector2(22.5, 26.0) * k, Vector2(26.0, 22.5) * k]
+	for y in n:
+		for x in n:
+			var p := Vector2(x + 0.5, y + 0.5)
+			var d := 1e9
+			for s in blades:
+				d = minf(d, _sd_capsule(p, s[0], s[1], 1.1 * k))
+			for s2 in arms:
+				d = minf(d, _sd_capsule(p, s2[0], s2[1], 0.8 * k))
+			for c in rings:
+				d = minf(d, absf(p.distance_to(c) - 3.4 * k) - 0.9 * k)
+			d = minf(d, _sd_circle(p, piv, 1.3 * k))
+			_paint(img, x, y, pap, _cov(d - 1.4 * k) * 0.9)
+			_paint(img, x, y, ink, _cov(d))
+	return img
 
 # --- distancias con signo (negativo adentro)
 static func _sd_circle(p: Vector2, c: Vector2, r: float) -> float:

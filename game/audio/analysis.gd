@@ -241,3 +241,71 @@ static func spectrogram_image(x: PackedFloat32Array, width := 600, height := 220
 		if r >= 0 and r < height:
 			for c in range(0, width, 4): img.set_pixel(c, wave_h + r, Color(0.3, 0.55, 0.9))
 	return img
+
+# ---------------------------------------------------------------- calma (GDD_v3 §6.8, T35; REACCIONES-PIEZA)
+# Nivel en dBFS (RMS) de toda la señal y de una banda (copia filtrada, HP+LP de 2.º orden).
+static func rms_db(x: PackedFloat32Array) -> float:
+	return 20.0 * log(maxf(Synth.rms(x), 1e-9)) / log(10.0)
+
+static func band_rms_db(x: PackedFloat32Array, f0: float, f1: float) -> float:
+	var y := x.duplicate()
+	Synth.band(y, f0, f1)
+	return rms_db(y)
+
+# RMS por ventanas contiguas de win_s (PackedFloat32Array, lineal).
+static func window_rms(x: PackedFloat32Array, win_s := 0.1) -> PackedFloat32Array:
+	var w: int = maxi(1, int(win_s * SR))
+	var nw: int = maxi(1, x.size() / w)
+	var out := PackedFloat32Array(); out.resize(nw)
+	for k in nw:
+		var s := 0.0
+		for i in range(k * w, mini((k + 1) * w, x.size())): s += x[i] * x[i]
+		out[k] = sqrt(s / float(w))
+	return out
+
+# Ventana de win_s más fuerte, en dBFS (RMS sin ponderar): «el tic del reloj ≤ −26 dBFS».
+static func loudest_window_db(x: PackedFloat32Array, win_s := 0.4) -> float:
+	var r := window_rms(x, win_s)
+	var m := 0.0
+	for v in r: m = maxf(m, v)
+	return 20.0 * log(maxf(m, 1e-9)) / log(10.0)
+
+# Eventos sueltos de un bucle: tramos donde el RMS por ventanas de win_s supera en rise_db a la mediana del bucle (el
+# fondo); ventanas vecinas separadas por ≤ join_s son el mismo evento (los cascos de un coche, las notas de una tonada,
+# con sus silencios de hasta 3 s).
+# Devuelve los comienzos (s). Circular: un evento que cruza el punto de bucle cuenta una vez.
+static func loop_events(x: PackedFloat32Array, win_s := 0.1, rise_db := 6.0, join_s := 3.0) -> Array:
+	var r := window_rms(x, win_s)
+	var arr := Array(r)
+	arr.sort()
+	var med: float = float(arr[arr.size() / 2]) if not arr.is_empty() else 0.0
+	var thr := med * pow(10.0, rise_db / 20.0)
+	var hot: Array = []
+	for k in r.size():
+		if r[k] > thr: hot.append(k)
+	if hot.is_empty():
+		return []
+	var join: int = maxi(1, int(join_s / win_s))
+	var starts: Array = [int(hot[0])]
+	for i in range(1, hot.size()):
+		if int(hot[i]) - int(hot[i - 1]) > join:
+			starts.append(int(hot[i]))
+	# circular: el último tramo que llega al final y el primero que empieza en 0 son uno
+	if starts.size() > 1 and int(hot[0]) <= join and r.size() - 1 - int(hot[hot.size() - 1]) <= join:
+		starts.remove_at(0)
+	var out: Array = []
+	for s in starts: out.append(float(s) * win_s)
+	return out
+
+# Menor separación (s) entre comienzos de eventos de un bucle de L segundos (circular). Sin eventos o uno solo: L.
+static func min_gap_circular(times: Array, L: float) -> float:
+	if times.size() <= 1:
+		return L
+	var t := times.duplicate()
+	t.sort()
+	var m := L
+	for i in t.size():
+		var a := float(t[i])
+		var b := float(t[(i + 1) % t.size()]) + (L if i == t.size() - 1 else 0.0)
+		m = minf(m, b - a)
+	return m

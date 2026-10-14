@@ -1,0 +1,628 @@
+{
+ "_nota": "Fixture de los tests de escenas (CORE-EXPEDIENTE, GDD_v3 §1.7, §6.10): preguntas mínimas para presentar, informar y confrontar con ítems «pregunta» (HB12 = Q3 en tinta sin pruebas de S.HC06). Etiquetas y claves del fixture.",
+ "max_abiertas": 3,
+ "mostrar_todas": "8.dawn",
+ "alias": [
+  {
+   "cuando_tinta": "Q6",
+   "equiv": [
+    "harris",
+    "moran"
+   ]
+  }
+ ],
+ "preguntas": [
+  {
+   "id": "Q1",
+   "orden": 1,
+   "obligatoria": true,
+   "texto": "Pregunta 1 del fixture.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "lugar",
+    "objeto"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fx_g1"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "fx_g2"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta 1.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta 1.",
+    "wrong": "Corríjalo 1."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q2",
+   "orden": 2,
+   "obligatoria": true,
+   "texto": "Pregunta 2 del fixture.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "lugar",
+    "objeto"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fx_g1"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "fx_g2"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta 2.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta 2.",
+    "wrong": "Corríjalo 2."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q3",
+   "orden": 3,
+   "obligatoria": true,
+   "texto": "¿Quién me escribe las cartas sin firma?",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "¿Cómo sabe lo que hice?",
+    "¿De dónde sale este papel?"
+   ],
+   "acepta": [
+    "persona"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "mycroft"
+     ],
+     "grupos": [
+      {
+       "id": "cerca",
+       "tags": [
+        "me_vigila_de_cerca"
+       ]
+      },
+      {
+       "id": "mycroft",
+       "tags": [
+        "vinculo_mycroft"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "mycroft",
+       "club_diogenes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Me las manda el hermano.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta: de quién es la mano.",
+    "wrong": "Corríjalo: otro dicta."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q4",
+   "orden": 4,
+   "obligatoria": true,
+   "texto": "Pregunta 4 del fixture.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "lugar",
+    "objeto"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fx_g1"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "fx_g2"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta 4.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta 4.",
+    "wrong": "Corríjalo 4."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q5",
+   "orden": 5,
+   "obligatoria": true,
+   "texto": "¿Quién me contesta firmando «S.»?",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "¿Quién más firmó así?",
+    "¿Qué escribió Holmes?"
+   ],
+   "acepta": [
+    "persona"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "identidad",
+       "tags": [
+        "identidad_holmes"
+       ]
+      },
+      {
+       "id": "actividad",
+       "tags": [
+        "actividad_posterior_a_mayo_1891"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Sherlock Holmes está vivo.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta: quién firma.",
+    "wrong": "Corríjalo: los muertos no firman."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q6",
+   "orden": 6,
+   "obligatoria": true,
+   "texto": "¿Quién es en realidad mi cliente?",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "¿Dónde vi esa cara?",
+    "¿Qué fuma el mayor?"
+   ],
+   "acepta": [
+    "persona"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "moran"
+     ],
+     "grupos": [
+      {
+       "id": "harris",
+       "tags": [
+        "rasgo_de_harris"
+       ]
+      },
+      {
+       "id": "moran",
+       "tags": [
+        "rasgo_de_moran"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "bigote"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "El mayor es Moran.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta: quién es el mayor.",
+    "wrong": "Corríjalo: dos rasgos."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q7",
+   "orden": 7,
+   "obligatoria": true,
+   "texto": "Pregunta 7 del fixture.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "lugar",
+    "objeto"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fx_g1"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "fx_g2"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta 7.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta 7.",
+    "wrong": "Corríjalo 7."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q8",
+   "orden": 8,
+   "obligatoria": true,
+   "texto": "Pregunta 8 del fixture.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "lugar",
+    "objeto"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fx_g1"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "fx_g2"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta 8.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta 8.",
+    "wrong": "Corríjalo 8."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q9",
+   "orden": 9,
+   "obligatoria": true,
+   "texto": "Pregunta 9 del fixture.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "lugar",
+    "objeto"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fx_g1"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "fx_g2"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta 9.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta 9.",
+    "wrong": "Corríjalo 9."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q10",
+   "orden": 10,
+   "obligatoria": true,
+   "texto": "Pregunta 10 del fixture.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "lugar",
+    "objeto"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "holmes"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fx_g1"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "fx_g2"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "holmes"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta 10.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta 10.",
+    "wrong": "Corríjalo 10."
+   },
+   "invariante": "normal"
+  }
+ ]
+}

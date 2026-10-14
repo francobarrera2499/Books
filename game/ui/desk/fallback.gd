@@ -11,7 +11,8 @@ const Paper = preload("res://ui/kit/paper.gd")
 
 const FIX := "res://tests/fixtures/integ"
 const CONTENT_DIRS := ["docs/", "dialogue/", "scenes/", "catalog/"]
-const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json", "entities/v2_fisica.json"]
+const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json", "entities/v2_fisica.json",
+	"entities/v3_core.json", "entities/v3_reacciones.json", "entities/v3_contenido.json"]  # v3 (GDD_v3 §7.1): las nombran dossier.json y reactions/
 
 static func make(kind: String, shell) -> Node:
 	match kind:

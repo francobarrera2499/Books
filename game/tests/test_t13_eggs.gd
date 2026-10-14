@@ -1,9 +1,10 @@
-# T13 — easter eggs (GDD §13, §15.5; ARCHITECTURE §4.16, §9.2). Dueño: W2-STRUCT.
-#  - 13 huevos EE01…EE13, cada uno con nota y un disparador que W2-SIM sabe leer (clip_tag, pair_tags, pairs_over) o
-#    «final» (EE12, la ficha del final);
+# T13 — easter eggs y curiosidades (GDD §13, §15.5; GDD_v3 §3.6; ARCHITECTURE §4.16, §9.2). Dueño: CORE-EXPEDIENTE.
+#  - huevos EE01…EE14 y curiosidades EE-INC01/02/06/09, cada uno con nota y un disparador que WorldModel sabe leer
+#    (clip_tag, clips_tag, clips_all, clips_over, all) o «final» (EE12, la ficha del final); sin pares (v3);
 #  - las notas de Marginalia no tienen tramos ni etiquetas (no son fuentes);
-#  - todo fragmento con x:EE.. existe como huevo y NO lleva etiquetas de C2–C13 (grupos resueltos + tags_extra);
-#  - ningún disparador pairs_over usa un fragmento de ruta de C2–C13, y ninguna ruta de C2–C13 usa un fragmento x:;
+#  - todo fragmento con x:EE.. existe como huevo y NO lleva etiquetas de grupo de ninguna pregunta del expediente;
+#    las etiquetas de los disparadores (clips_tag, clip_tag a:) tampoco son de preguntas;
+#  - ningún disparador clips_over usa un fragmento de ruta del expediente, y ninguna ruta usa un fragmento x:;
 #  - ninguna reacción se dispara por un huevo (no agregan fragmentos a ninguna ruta);
 #  - cada huevo tiene su fragmento en el contenido (faltantes → pending_content).
 # Negativos sobre tests/fixtures/struct_bad.
@@ -12,7 +13,9 @@ extends "res://tests/test_base.gd"
 const Markup = preload("res://core/text/markup.gd")
 
 const TIMEOUT_S := 60.0
-const KINDS := ["clip_tag", "pair_tags", "pairs_over", "final"]
+const KINDS := ["clip_tag", "clips_tag", "clips_all", "clips_over", "all", "final"]
+const WANT := ["EE-INC01", "EE-INC02", "EE-INC06", "EE-INC09", "EE01", "EE02", "EE03", "EE04", "EE05", "EE06", "EE07", "EE08",
+	"EE09", "EE10", "EE11", "EE12", "EE13", "EE14"]
 const CH_CODES := ["kbm", "kw", "kh", "ks", "kt"]
 
 var _rp = null
@@ -94,35 +97,36 @@ static func _text_tags(tx: String, ctx: Dictionary) -> Array:
 		out.append_array(_pref(t.tags))
 	return out
 
-# Etiquetas a: de las conclusiones C2–C13 (grupos con ${ch:x} expandido a todos los canales + tags_extra).
+# Etiquetas de grupo de todas las variantes de todas las preguntas del expediente (sin prefijo = a:).
 func _conc_tags() -> Array:
 	var out: Array = []
-	for cid in _rp.conclusions_meta().get("mandatory", []):
-		var c: Dictionary = _rp.conclusion(cid)
-		var raw: Array = c.get("tags_extra", []).duplicate()
-		for g in c.get("groups", []):
-			raw.append_array(g.get("tags", []))
-		for t in raw:
-			var s := String(t)
-			if s.contains("${ch:"):
-				var pre := s.substr(0, s.find("${ch:"))
-				for code in CH_CODES:
-					out.append("a:" + pre + code)
-			else:
-				out.append(s if s.contains(":") else "a:" + s)
+	for q in _rp.questions():
+		for v in q.get("variantes", []):
+			for g in v.get("grupos", []):
+				for t in g.get("tags", []):
+					var s := String(t)
+					out.append(s if s.contains(":") else "a:" + s)
 	return out
 
 func _route_refs() -> Array:
 	var out: Array = []
-	for cid in _rp.conclusions_meta().get("mandatory", []):
-		var c: Dictionary = _rp.conclusion(cid)
-		for r in c.get("routes", []):
-			for f in r.get("frags", []):
-				out.append(String(f.ref))
-		for k in c.get("subroutes", {}):
-			for f in c.subroutes[k].get("frags", []):
-				out.append(String(f.ref))
+	for q in _rp.questions():
+		for v in q.get("variantes", []):
+			for r in v.get("rutas", []):
+				for f in r.get("frags", []):
+					out.append(String(f.ref))
 	return out
+
+# Disparadores hoja (expande «all»).
+static func _leaves(tr) -> Array:
+	if typeof(tr) != TYPE_DICTIONARY:
+		return []
+	if tr.has("all") and typeof(tr.all) == TYPE_ARRAY:
+		var out: Array = []
+		for sub in tr.all:
+			out.append_array(_leaves(sub))
+		return out
+	return [tr]
 
 func _egg_ids() -> Array:
 	var out: Array = []
@@ -142,16 +146,34 @@ func _bad_inventory() -> Array:
 		if String(e.get("name", "")) == "" or String(e.get("note", "")) == "":
 			bad.append("%s sin nombre o sin nota" % id)
 		var tr = e.get("trigger", {})
-		if typeof(tr) != TYPE_DICTIONARY or tr.size() != 1 or not KINDS.has(String(tr.keys()[0])):
+		var main := ""
+		if typeof(tr) == TYPE_DICTIONARY:
+			for k in KINDS:
+				if tr.has(k):
+					main = k
+		if main == "":
 			bad.append("%s: disparador desconocido %s" % [id, str(tr)])
 			continue
-		var k := String(tr.keys()[0])
-		if k == "clip_tag" and not String(tr.clip_tag).contains(":"):
-			bad.append("%s: clip_tag sin prefijo" % id)
-		if k == "pair_tags" and (typeof(tr.pair_tags) != TYPE_ARRAY or tr.pair_tags.size() < 2):
-			bad.append("%s: pair_tags necesita dos etiquetas" % id)
-		if k == "pairs_over" and (typeof(tr.pairs_over) != TYPE_ARRAY or tr.pairs_over.size() < 2):
-			bad.append("%s: pairs_over necesita ≥2 fragmentos" % id)
+		if main == "all" and (typeof(tr.all) != TYPE_ARRAY or tr.all.size() < 2):
+			bad.append("%s: all necesita ≥2 disparadores" % id)
+		for lf in _leaves(tr):
+			var k := ""
+			for kk in KINDS:
+				if lf.has(kk):
+					k = kk
+			if k == "" or k == "all":
+				bad.append("%s: disparador desconocido %s" % [id, str(lf)])
+			elif k == "clip_tag" and not String(lf.clip_tag).contains(":"):
+				bad.append("%s: clip_tag sin prefijo" % id)
+			elif k == "clips_tag" and (not String(lf.clips_tag).contains(":") or int(lf.get("n", 0)) < 2):
+				bad.append("%s: clips_tag necesita prefijo y n ≥ 2" % id)
+			elif k == "clips_all" and (typeof(lf.clips_all) != TYPE_ARRAY or lf.clips_all.size() < 2):
+				bad.append("%s: clips_all necesita dos etiquetas" % id)
+			elif k == "clips_over" and (typeof(lf.clips_over) != TYPE_ARRAY or lf.clips_over.is_empty()):
+				bad.append("%s: clips_over necesita fragmentos" % id)
+			for x in ["pairs_over", "pair_tags"]:
+				if lf.has(x):
+					bad.append("%s: %s no existe en v3 (sin pares)" % [id, x])
 	return bad
 
 func _bad_notes() -> Array:
@@ -182,16 +204,24 @@ func _bad_x_fragments() -> Array:
 				bad.append("%s: x:%s no es un huevo" % [f.ref, x])
 		for t in f.tags:
 			if ctags.has(String(t)):
-				bad.append("%s: huevo con etiqueta %s de C2–C13" % [f.ref, t])
+				bad.append("%s: huevo con etiqueta %s de una pregunta" % [f.ref, t])
+	for e in _rp.eggs():
+		for lf in _leaves(e.get("trigger", {})):
+			var ts: Array = [lf.get("clip_tag", ""), lf.get("clips_tag", "")]
+			ts.append_array(lf.get("clips_all", []))
+			for t in ts:
+				if String(t).begins_with("a:") and ctags.has(String(t)):
+					bad.append("%s: el disparador usa la etiqueta %s de una pregunta" % [e.id, t])
 	return bad
 
 func _bad_route_links() -> Array:
 	var bad: Array = []
 	var routes := _route_refs()
 	for e in _rp.eggs():
-		for ref in e.get("trigger", {}).get("pairs_over", []):
-			if routes.has(String(ref)):
-				bad.append("%s: pairs_over usa el fragmento de ruta %s" % [e.id, ref])
+		for lf in _leaves(e.get("trigger", {})):
+			for ref in lf.get("clips_over", []):
+				if routes.has(String(ref)):
+					bad.append("%s: clips_over usa el fragmento de ruta %s" % [e.id, ref])
 	var xfr := {}
 	for f in _frags():
 		for t in f.tags:
@@ -199,7 +229,7 @@ func _bad_route_links() -> Array:
 				xfr[f.ref] = true
 	for ref in routes:
 		if xfr.has(ref):
-			bad.append("ruta de C2–C13 con un fragmento de huevo: %s" % ref)
+			bad.append("ruta del expediente con un fragmento de huevo: %s" % ref)
 	return bad
 
 func _bad_reactions() -> Array:
@@ -222,18 +252,22 @@ func _missing_sources() -> Array:
 			all_tags[String(t)] = true
 	var missing: Array = []
 	for e in _rp.eggs():
-		var tr: Dictionary = e.get("trigger", {})
-		if tr.has("clip_tag") and String(tr.clip_tag).begins_with("x:") and not all_tags.has(String(tr.clip_tag)):
-			missing.append("%s (%s)" % [e.id, tr.clip_tag])
-		for t in tr.get("pair_tags", []):
-			var s := String(t)
-			if s.begins_with("x:") and not all_tags.has(s):
-				missing.append("%s (%s)" % [e.id, s])
-			if s.begins_with("e:") and _rp.entity(s.substr(2)).is_empty():
-				missing.append("%s (entidad %s)" % [e.id, s])
-		for ref in tr.get("pairs_over", []):
-			if not refs.has(String(ref)):
-				missing.append("%s (%s)" % [e.id, ref])
+		for tr in _leaves(e.get("trigger", {})):
+			var tags: Array = []
+			if tr.has("clip_tag"):
+				tags.append(String(tr.clip_tag))
+			if tr.has("clips_tag"):
+				tags.append(String(tr.clips_tag))
+			tags.append_array(tr.get("clips_all", []))
+			for t in tags:
+				var s := String(t)
+				if (s.begins_with("x:") or s.begins_with("a:")) and not all_tags.has(s):
+					missing.append("%s (%s)" % [e.id, s])
+				if s.begins_with("e:") and _rp.entity(s.substr(2)).is_empty():
+					missing.append("%s (entidad %s)" % [e.id, s])
+			for ref in tr.get("clips_over", []):
+				if not refs.has(String(ref)):
+					missing.append("%s (%s)" % [e.id, ref])
 	return missing
 
 # ---------------- tests ----------------
@@ -241,16 +275,13 @@ func test_eggs_inventory() -> void:
 	eq(_bad_inventory(), [], "huevos y disparadores")
 	var ids := _egg_ids()
 	ids.sort()
-	var want: Array = []
-	for i in range(1, 14):
-		want.append("EE%02d" % i)
-	eq(ids, want, "los 13 huevos de GDD §13")
+	eq(ids, WANT, "los 14 huevos (GDD §13 + EE14) y las 4 curiosidades INC (GDD_v3 §3.6)")
 
 func test_eggs_notes_are_not_sources() -> void:
 	eq(_bad_notes(), [], "notas de Marginalia sin tramos ni errores")
 
 func test_egg_fragments_without_conclusion_tags() -> void:
-	eq(_bad_x_fragments(), [], "fragmentos de huevo sin etiquetas de C2–C13")
+	eq(_bad_x_fragments(), [], "fragmentos de huevo sin etiquetas de preguntas")
 
 func test_eggs_not_on_routes() -> void:
 	eq(_bad_route_links(), [], "huevos fuera de las rutas")
@@ -269,11 +300,11 @@ func test_checks_detect_violations_on_fixture() -> void:
 	ok(_has_sub(_bad_inventory(), "EE03: disparador desconocido"), "disparador desconocido")
 	ok(_has_sub(_bad_notes(), "EE01: la nota tiene tramos"), "nota con tramo")
 	var x := _bad_x_fragments()
-	ok(_has_sub(x, "D91#raro: huevo con etiqueta a:sin_raspadura"), "huevo con etiqueta de conclusión: %s" % str(x))
+	ok(_has_sub(x, "D91#raro: huevo con etiqueta a:sin_raspadura"), "huevo con etiqueta de pregunta: %s" % str(x))
 	ok(_has_sub(x, "x:EE99 no es un huevo"), "x: sin huevo")
 	var rl := _bad_route_links()
-	ok(_has_sub(rl, "EE02: pairs_over usa el fragmento de ruta D91#raro"), "pairs_over sobre una ruta: %s" % str(rl))
-	ok(_has_sub(rl, "ruta de C2–C13 con un fragmento de huevo: D91#raro"), "ruta con huevo")
+	ok(_has_sub(rl, "EE02: clips_over usa el fragmento de ruta D91#raro"), "clips_over sobre una ruta: %s" % str(rl))
+	ok(_has_sub(rl, "ruta del expediente con un fragmento de huevo: D91#raro"), "ruta con huevo")
 	ok(_has_sub(_bad_reactions(), "HX1"), "reacción por un huevo")
 	_rp = real
 

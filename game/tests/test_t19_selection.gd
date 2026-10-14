@@ -50,7 +50,7 @@ func test_selection_to_tramos_d05() -> void:
 		# [texto seleccionado, tramo esperado, etiqueta a: esperada o "" (sin herencia), entidad esperada]
 		["Los guías no hallaron ningún cuerpo", "aucun_corps", "a:refuta_rio_cuerpo", "guias"],
 		["El bastón herrado seguía apoyado contra la roca, «le bâton ferré appuyé", "baton", "a:refuta_baston", "roca"],
-		["Más arriba hay una cornisa que no se ve desde el sendero, «une corniche que l'on ne voit pas du sentier»", "corniche", "a:cornisa_existe", "cornisa"],
+		["Más arriba hay una cornisa que no se ve desde el sendero, «une corniche que", "corniche", "a:cornisa_existe", "cornisa"],
 		["une marque récente", "marque", "a:raspadura_registrada", "raspadura"],
 		# menos de la mitad del tramo: entidades de lo recortado, sin afirmaciones ni fecha/lugar heredados
 		["herrado seguía apoyado contra la roca", "baton", "", "roca"],
@@ -75,6 +75,11 @@ func test_selection_to_tramos_d05() -> void:
 	var pvx := SelectionMapper.preview(pt, a, b - a)
 	no(pvx.ok, "cruza oración")
 	eq(pvx.err, "cruza_oracion", "error de oración")
+	# GDD_v3 §6.2: una frase corta, ≤15 palabras
+	var long_s := "Más arriba hay una cornisa que no se ve desde el sendero, «une corniche que l'on"
+	var pvl := SelectionMapper.preview(pt, plain.find(long_s), long_s.length())
+	no(pvl.ok, "16 palabras: no se recorta")
+	eq(pvl.err, "mas_de_15", "error de largo")
 	# palabra cortada a la mitad: se extiende a palabras completas
 	var k := plain.find("hallaron")
 	var pvh := SelectionMapper.preview(pt, k + 2, 4)
@@ -231,6 +236,15 @@ func test_drag_cross_sentence_says_lisle() -> void:
 	ok(rd._note.visible, "aparece la línea de Lisle")
 	eq(rd._note_label.text, Data.repo().text("clip.cruza_oracion"), "la tira no cruza un punto")
 
+# GDD_v3 §6.2: más de 15 palabras -> la línea de Lisle «Me alcanza una frase corta.» (v3core.clip.mas_de_15).
+func test_drag_too_long_says_lisle() -> void:
+	open_reader(ViewModel.from_repo(fixture_repo("data_min"), "D05@BM"))
+	await tree.process_frame
+	await drag(0, "Más arriba hay una cornisa que no se ve desde el sendero, «une corniche que l'on ne voit")
+	eq(acts.size(), 1, "se intenta")
+	ok(rd._note.visible, "aparece la línea de Lisle")
+	eq(rd._note_label.text, Data.repo().text("v3core.clip.mas_de_15"), "una frase corta")
+
 func test_multi_block_page_reports_block_index() -> void:
 	var names := {"watson": "el doctor Watson"}
 	var b0 := Markup.parse("{{#uno a:x|Primer bloque de la columna, sin nada que ver.}}", {"names": names})
@@ -291,10 +305,18 @@ func test_wheel_zoom_and_right_click_back() -> void:
 	var p: Vector2 = r.get_global_transform_with_canvas() * SelectionMapper.char_local_pos(r, 40)
 	var z0: float = rd.zoom
 	var before: Vector2 = r.get_global_transform_with_canvas().affine_inverse() * p
+	# playtest v3: la rueda sola desplaza; Ctrl + rueda acerca
+	var sp0: Vector2 = rd._stage.position
+	wheel(p, MOUSE_BUTTON_WHEEL_DOWN, false)
+	await tree.process_frame
+	near(rd.zoom, z0, 1e-6, "la rueda sola no cambia el zoom")
+	ok(rd._stage.position.y <= sp0.y, "la rueda sola baja la hoja (o no se mueve si ya cabe)")
+	rd._stage.position = sp0
+	rd._clamp_pan()
 	for _i in 3:
 		wheel(p, MOUSE_BUTTON_WHEEL_UP)
 		await tree.process_frame
-	ok(rd.zoom > z0 * 1.3, "la rueda acerca (%.2f -> %.2f)" % [z0, rd.zoom])
+	ok(rd.zoom > z0 * 1.3, "Ctrl + rueda acerca (%.2f -> %.2f)" % [z0, rd.zoom])
 	var after: Vector2 = r.get_global_transform_with_canvas().affine_inverse() * p
 	ok(before.distance_to(after) < 1.0, "el punto bajo el puntero queda quieto")
 	for _i in 30:
@@ -312,11 +334,12 @@ func test_wheel_zoom_and_right_click_back() -> void:
 	await tree.process_frame
 	eq(closed[0], 1, "segundo clic derecho: cierra")
 
-func wheel(pos: Vector2, button: MouseButton) -> void:
+func wheel(pos: Vector2, button: MouseButton, ctrl := true) -> void:
 	for pressed in [true, false]:
 		var e := InputEventMouseButton.new()
 		e.button_index = button
 		e.pressed = pressed
+		e.ctrl_pressed = ctrl
 		e.factor = 1.0
 		e.position = pos
 		e.global_position = pos

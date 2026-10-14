@@ -121,7 +121,7 @@
         {"id": "recibo_p", "type": "l4.receipt", "pos": [0.0, 0.763, 4.8], "rot": 8, "p": {}}
       ],
       "add_nodes": [
-        {"id": "recibo", "prop": "recibo_p", "noun": "recibo", "anchor": {"c": [0.0, 0.79, 4.8], "s": [0.2, 0.06, 0.16]}, "examine": "Un [[recibo_pp_mh|recibo]] escrito a máquina, donde estaban las pruebas; la «s» queda un poco alzada sobre la línea: «Recibidas en préstamo las pruebas del doctor. — p.p. M. H.»", "tags": ["a:vinculo_mycroft", "e:remington_s_alzada"], "cls": "C", "area": "*", "when": {}}
+        {"id": "recibo", "prop": "recibo_p", "noun": "recibo", "anchor": {"c": [0.0, 0.79, 4.8], "s": [0.2, 0.06, 0.16]}, "examine": "Un [[recibo_pp_mh|recibo]] a máquina, con la «s» un poco alzada: «Recibidas en préstamo, por orden de un [[gobierno|ministerio]], las pruebas del doctor. — p.p. M. H.»", "tags": ["a:vinculo_mycroft", "e:remington_s_alzada", "a:mycroft_gobierno", "e:recibo_pp_mh"], "cls": "C", "area": "*", "when": {}}
       ]
     }
   }

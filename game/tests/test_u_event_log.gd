@@ -19,7 +19,7 @@ func _bytes(p: String) -> PackedByteArray:
 
 func test_header_shape():
 	var h := _hdr()
-	eq(h, {"v": 1, "seed": 1234, "content": "abc123", "engine": "4.7.2"})
+	eq(h, {"v": 3, "seed": 1234, "content": "abc123", "engine": "4.7.2"})
 
 func test_write_read_roundtrip():
 	var p := tmp_dir().path_join("partida.jsonl")
@@ -39,7 +39,7 @@ func test_write_read_roundtrip():
 func test_canonical_lines():
 	var txt := EventLog.to_text(_hdr(), ACTIONS)
 	var lines := txt.split("\n")
-	eq(lines[0], "{\"content\":\"abc123\",\"engine\":\"4.7.2\",\"seed\":1234,\"v\":1}")
+	eq(lines[0], "{\"content\":\"abc123\",\"engine\":\"4.7.2\",\"seed\":1234,\"v\":3}")
 	eq(lines[2], "{\"area\":\"sala\",\"place\":\"L2\",\"seat\":214,\"t\":\"go\"}", "claves ordenadas, int sin .0")
 	ok(txt.ends_with("\n"))
 	eq(lines.size(), 6, "cabecera + 4 + vacío final")

@@ -1,5 +1,5 @@
 {
-  "_nota": "Excepciones justificadas del lint de estilo T33 (GDD_v2 §A.3, §F.3). clave -> {regla: motivo}. «asiento» queda SÓLO para la silla numerada de la Sala de Lectura (GDD_v2 §A.1).",
+  "_nota": "Excepciones justificadas del lint de estilo T33 (GDD_v2 §A.3, §F.3). clave -> {regla: motivo}. «asiento» queda SÓLO para la silla numerada de la Sala de Lectura (GDD_v2 §A.1; GDD_v3 §7.2 P6: test_v3_vocabulario usa las mismas claves). v3: sin «fe de erratas» en D22 ni el «Libro de conclusiones» en el HUD (pedido del usuario: evitar «errata»).",
   "shell.cat.asiento": {"asiento": "la silla de la Sala de Lectura («Asiento 214»)"},
   "shell.cat.papeleta": {"asiento": "pido un libro para la silla de la Sala de Lectura"},
   "shell.cat.papeleta_sin": {"asiento": "pido un libro para la silla de la Sala de Lectura"},
@@ -8,8 +8,6 @@
   "v2d.cat.cambiar_t": {"asiento": "la silla de la Sala de Lectura"},
   "v2d.cat.asiento_q": {"asiento": "la silla de la Sala de Lectura"},
   "shell.copia.pedir": {"botón": "enlace de la tarjeta con el precio entre paréntesis"},
-  "shell.hud.libro": {"botón": "cinta del HUD con el nombre del objeto (3 palabras: «Libro de conclusiones»)"},
   "shell.cal.cerrar_ok": {"botón": "«Terminar la mañana»: 3 palabras con la variable"},
-  "docs/D22.json.parts[0].text": {"título viejo": "carta de enero de Lisle (1894): «fe de erratas» es su oficio y la misma oración la explica («una lista de sus errores»; GDD_v2 §A.1, D22)"},
   "epilogo.creditos.08": {"Baedeker": "colofón: crédito de una fuente real (la guía Baedeker de 1894), no un rótulo de interfaz"}
 }

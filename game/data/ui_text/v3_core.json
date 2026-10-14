@@ -1,0 +1,25 @@
+{
+  "_nota": "GDD_v3 (CORE-EXPEDIENTE). Textos que devuelve la simulación: el resultado de «Pasar en limpio», la línea de Lisle cuando un recorte es demasiado largo, los pasos del día 1 guiado (§6.9), la novedad de Pendientes y por qué apareció un lugar en el plano (§5.3). Voz de Lisle, español neutro y simple (GDD_v2 §A). Las claves de la interfaz del Expediente son exp.* (UI-EXPEDIENTE).",
+  "text": {
+    "v3core.no_cierra": "Algo no cierra.",
+    "v3core.no_se_tocan": "Algo no cierra: estas dos pruebas no se tocan.",
+    "v3core.formal.falta_respuesta": "Me falta la respuesta.",
+    "v3core.formal.faltan_pruebas": "Hacen falta dos pruebas.",
+    "v3core.formal.mismo_papel": "Las dos pruebas salen del mismo papel.",
+    "v3core.clip.mas_de_15": "Me alcanza una frase corta.",
+    "v3core.d1.leer": "Leo «El problema final», que está en el estante.",
+    "v3core.d1.pruebas": "Una respuesta y dos pruebas: dos recortes de papeles distintos.",
+    "v3core.d1.pasar": "Paso en limpio la pregunta del cliente.",
+    "v3core.pend.pregunta_nueva": "Una pregunta nueva en el expediente.",
+    "v3core.pend.sin_abiertas": "Nada abierto en el expediente: publico un aviso con el tintero o salgo a preguntar.",
+    "v3core.por_que.leer": "Lo menciona: ${titulo}.",
+    "v3core.por_que.oir": "Lo dijo ${quien}.",
+    "v3core.por_que.crane": "Me lo dijo Crane.",
+    "v3core.present.pregunta": "Mire esto que anoté, ${addr}: ${resumen}",
+    "v3core.go.desde_casa": "Primero vuelvo a mi pieza.",
+    "v3core.save.otra_version": "La partida se guardó con otra versión.",
+    "v3core.margen.fuente": "Nota a lápiz al margen de ${titulo}",
+    "v3core.margen.fuente_firma": "Nota a lápiz al margen de ${titulo} (${firma})",
+    "v3core.margen.marca": "Marca a lápiz al margen de ${titulo}"
+  }
+}

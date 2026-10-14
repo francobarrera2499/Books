@@ -1,7 +1,8 @@
 # ui/notebook/tab_clips.gd — pestaña Recortes. Dueño: W3-NOTEBOOK. Contrato: ARCHITECTURE §6.5 (GDD§14.1, §8.1).
 # Arriba: búsqueda por texto y tres filtros (Persona, Lugar, Fecha de la crónica) con sólo lo que hay en los recortes;
 # los filtros activos se ven como chips que se quitan con un clic (y un chip del índice soltado en la barra filtra).
-# Abajo: los recortes agrupados por el calendario de la crónica (mes y año; lo que no trae fecha, al final), cada uno
+# Abajo: los recortes (tarjetas, GDD_v3 §6.2, 10 px entre sí) agrupados por el calendario de la crónica (mes y año; lo
+# que no trae fecha, al final), cada uno
 # con el día de la crónica en el margen. Filtrar sólo oculta tarjetas (no reconstruye). Sin contadores (§6.1).
 # GDD_v2 §C.2 (revelado progresivo): la búsqueda aparece con nb.buscar (≥10 recortes), los filtros con nb.filtros (≥20; y
 #   cada filtro sólo si tiene ≥2 opciones), los encabezados por mes con nb.agrupar (≥2 meses de crónica). Con pocos
@@ -92,7 +93,7 @@ func _init(p_nb) -> void:
 	_scroll.name = "Lista"
 	add_child(_scroll)
 	_list = VBoxContainer.new()
-	_list.add_theme_constant_override("separation", 16)
+	_list.add_theme_constant_override("separation", ClipCard.CARD_SEP)
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_list.mouse_filter = Control.MOUSE_FILTER_PASS
 	_scroll.add_child(_list)
@@ -168,7 +169,7 @@ func refresh() -> void:
 	sync_filters()
 	_restore_scroll.call_deferred(keep)
 
-# Ancho: búsqueda y filtros en un renglón; angosto (libro al lado del libro mayor): los filtros debajo.
+# Ancho: búsqueda y filtros en un renglón; angosto (acoplado junto a la carpeta del Expediente): los filtros debajo.
 func _layout_bar(wide: bool) -> void:
 	var dest: Container = _row1 if wide else _row2
 	for k in MENU_KEYS:
@@ -203,7 +204,14 @@ func _apply() -> void:
 			if on:
 				shown += 1
 				var d := String(card.clip.get("chron_date", ""))
-				card.set_margin(str(d.substr(8, 2).to_int()) if d.length() >= 10 and d != last_date else "")
+				# playtest v3: el número suelto del margen no se entendía; «día 4» tampoco (se leía como el día 4 de la
+				# partida): es la fecha de la crónica, «4 may.»; sin el encabezado del mes (antes de nb.agrupar), con el año
+				var ml := ""
+				if d.length() >= 10 and d != last_date:
+					ml = Model.day_label(nb.text_fn(), d)
+					if not bool(g.get("grouped", true)):
+						ml += "\n" + d.substr(0, 4)
+				card.set_margin(ml)
 				last_date = d
 		g.head.visible = shown > 0 and bool(g.get("grouped", true))
 		any = any or shown > 0
@@ -308,7 +316,7 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_VISIBILITY_CHANGED:
 		set_process(is_visible_in_tree())
 
-# Arrastre cerca del borde de la lista: desplaza (para soltar un recorte sobre otro lejano).
+# Arrastre cerca del borde de la lista: desplaza (para llegar con el recorte a lo que no se ve).
 func _process(delta: float) -> void:
 	if not is_inside_tree() or not get_viewport().gui_is_dragging():
 		return

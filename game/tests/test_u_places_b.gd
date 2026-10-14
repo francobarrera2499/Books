@@ -161,11 +161,10 @@ func test_contract_nodes_and_tags() -> void:
 # existe; los rastros que nombran un nodo mío llevan esas etiquetas; cada refutación lleva a:refuta_<x>.
 func test_struct_refs_to_my_nodes() -> void:
 	var r = repo()
-	# _pistas_falsas (nota de W2-STRUCT con las refutaciones) no la expone conclusions_meta: se lee del archivo ya cargado
-	var raw = r.get("_conc_file")
-	var meta: Dictionary = raw if raw is Dictionary else {}
-	if r.conclusions().is_empty():
-		pending_content("data/conclusions.json (W2-STRUCT)"); return
+	# v3 (CONTENIDO): las rutas son las de las preguntas del Expediente (data/dossier.json); _pistas_falsas va en el mismo archivo
+	var meta: Dictionary = r.dossier()
+	if r.questions().is_empty():
+		pending_content("data/dossier.json (CORE)"); return
 	var mine := {}
 	for pid in _all_mine(): mine[pid] = _place(pid)
 	var refs: Array = []   # [ref, tags_requeridos, origen]
@@ -178,7 +177,7 @@ func test_struct_refs_to_my_nodes() -> void:
 			for x in v:
 				if x is String and str(x).begins_with("N:"): refs.append([str(x), [], src])
 				else: rec.call(x, src, rec)
-	for c in r.conclusions(): walk.call(c, "conclusión " + str(c.get("id", "")), walk)
+	for c in r.questions(): walk.call(c, "pregunta " + str(c.get("id", "")), walk)
 	for rx in r.reactions(): walk.call(rx, "reacción " + str(rx.get("id", "")), walk)
 	var falsas: Array = meta.get("_pistas_falsas", [])
 	for f in falsas:

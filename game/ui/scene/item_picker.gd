@@ -1,15 +1,15 @@
-# ui/scene/item_picker.gd — selector de recortes y asientos (presentar, refutar, informe). Dueño: W3-SCENEUI.
+# ui/scene/item_picker.gd — selector de recortes y preguntas del expediente (presentar, refutar, informe). Dueño: UI-MUNDO.
 # Uso: var p = ItemPicker.new(link); add_child(p); p.open("Presentar al doctor Watson"); p.picked.connect(func(item): …)
-#   open(title, kinds := ["clip","entry"]) · close() · picked(item {kind, id}) · closed (Volver / fe_volver).
-# Pestañas «Recortes» / «Asientos» (InkTab), búsqueda por texto, tarjetas en orden de más reciente a más viejo. Recorte:
-#   su texto entre «» (o el epígrafe si es de lámina) y su línea de fuente. Asiento: nombre de plantilla, resumen con los
-#   rótulos «Campo: valor» y «a lápiz» / «en tinta». Nada distingue lo importante (§6.1): todas las tarjetas son iguales.
+#   open(title, kinds := ["clip","pregunta"]) · close() · picked(item {kind, id}) · closed (Volver / fe_volver).
+# Pestañas «Recortes» / «Preguntas» (InkTab), búsqueda por texto, tarjetas en orden de más reciente a más viejo. Recorte:
+#   su texto entre «» (o el epígrafe si es de lámina) y su línea de fuente. Pregunta (GDD_v3 §6.10): su texto, la respuesta
+#   de la hoja y «a lápiz» / «en tinta». Nada distingue lo importante (§6.1): todas las tarjetas son iguales.
 # Las tarjetas también se arrastran (DnD §6.3: {"kind","id"}; vista previa = Chip).
 # Extras (tests/drivers): cards() -> [{kind, id, node}], pick(kind, id), set_tab(kind), set_query(text).
 # fit_height(max_h): achica la lista para que el panel entero no pase de max_h (la confrontación: no tapar la afirmación).
 # GDD_v2 §C.1/§C.3: las pestañas sólo si las dos tienen algo; el buscador sólo con más de siete tarjetas. open(..., {merged:
-#   true}) (confrontación): una sola lista, primero las conclusiones confirmadas (en tinta), después los recortes y al final
-#   los borradores, cada grupo del más reciente al más viejo.
+#   true}) (confrontación): una sola lista, primero las preguntas en tinta, después los recortes y al final las de
+#   lápiz, cada grupo del más reciente al más viejo.
 extends PanelContainer
 
 signal picked(item: Dictionary)
@@ -18,6 +18,7 @@ signal closed
 const Paper = preload("res://ui/kit/paper.gd")
 const Widgets = preload("res://ui/kit/widgets.gd")
 const SimLink = preload("res://ui/scene/sim_link.gd")
+const ClipCard = preload("res://ui/notebook/clip_card.gd")
 
 const BODY_CHARS := 150
 const LIST_H := 300.0
@@ -29,6 +30,7 @@ class Card extends PanelContainer:
 	var item := {}
 	var chip_text := ""
 	var _hover := false
+	var bare := false   # integración v3 (GDD_v3 §6.2): lleva adentro la tarjeta del cuaderno (ClipCard.tarjeta)
 	func _init(p_item: Dictionary, p_chip: String) -> void:
 		item = p_item
 		chip_text = p_chip
@@ -38,13 +40,19 @@ class Card extends PanelContainer:
 		mouse_exited.connect(func(): _hover = false; _restyle())
 		Widgets.restyle(self, _restyle)
 	func _restyle() -> void:
+		if bare:
+			var e := StyleBoxEmpty.new()
+			add_theme_stylebox_override("panel", e)
+			modulate = Color(0.93, 0.93, 0.93) if _hover else Color(1, 1, 1)
+			return
 		var sb := Paper.style("diario_hueso", {"margin": 14, "margin_v": 8, "radius": 1, "shadow_size": 3 if not _hover else 6, "shadow_y": 1 if not _hover else 2})
 		if _hover:
 			sb.bg_color = Paper.shade("diario_hueso", 0.04)
 		add_theme_stylebox_override("panel", sb)
 	func _gui_input(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT and not ev.pressed:
-			if get_global_rect().has_point(get_global_mouse_position()) or not is_inside_tree():
+			# la posición del evento (local), no la del cursor del sistema: un clic soltado sobre la tarjeta la elige
+			if Rect2(Vector2.ZERO, size).has_point(ev.position) or not is_inside_tree():
 				chosen.emit(item)
 				accept_event()
 	func _get_drag_data(_at: Vector2):
@@ -52,7 +60,7 @@ class Card extends PanelContainer:
 		return item.duplicate()
 
 var link
-var kinds: Array = ["clip", "entry"]
+var kinds: Array = ["clip", "pregunta"]
 var tab := "clip"
 var _title: Label
 var _tabs := {}
@@ -62,6 +70,7 @@ var _scroll: ScrollContainer
 var _empty: Label
 var _cards: Array = []
 var merged := false
+var exclude := {}               # "kind|id" -> true: lo que no se ofrece (lo que ya está en el informe)
 var _bar: HBoxContainer
 
 func _init(p_link = null) -> void:
@@ -90,8 +99,8 @@ func _init(p_link = null) -> void:
 	_bar = bar
 	bar.add_theme_constant_override("separation", 4)
 	var group := ButtonGroup.new()
-	for k in ["clip", "entry"]:
-		var b := Widgets.ink_tab(link.t("sceneui.picker.clips") if k == "clip" else link.t("sceneui.picker.entries"), group)
+	for k in ["clip", "pregunta"]:
+		var b := Widgets.ink_tab(link.t("sceneui.picker.clips") if k == "clip" else link.t("mundo.picker.preguntas"), group)
 		b.pressed.connect(set_tab.bind(k))
 		_tabs[k] = b
 		bar.add_child(b)
@@ -120,22 +129,29 @@ func _init(p_link = null) -> void:
 	_empty.visible = false
 	_list.add_child(_empty)
 
-func open(title: String, p_kinds: Array = ["clip", "entry"], opts := {}) -> void:
+func open(title: String, p_kinds: Array = ["clip", "pregunta"], opts := {}) -> void:
 	kinds = p_kinds.duplicate()
+	for i in kinds.size():
+		if String(kinds[i]) == "entry":
+			kinds[i] = "pregunta"   # v2 -> v3: los asientos del libro mayor son ahora preguntas del expediente
 	merged = bool(opts.get("merged", false))
+	exclude = {}
+	for x in opts.get("exclude", []):
+		if typeof(x) == TYPE_DICTIONARY:
+			exclude["%s|%s" % [String(x.get("kind", "")), String(x.get("id", ""))]] = true
 	_title.text = title
 	_search.text = ""
 	var has_clips: bool = not link.qa("q_clips").is_empty()
-	var has_entries: bool = not _entry_ids().is_empty()
-	var both: bool = kinds.has("clip") and kinds.has("entry") and has_clips and has_entries
+	var has_qs: bool = not _question_ids().is_empty()
+	var both: bool = kinds.has("clip") and kinds.has("pregunta") and has_clips and has_qs
 	for k in _tabs:
 		_tabs[k].visible = not merged and both and kinds.has(k)
 	if not kinds.has(tab):
 		tab = String(kinds[0])
 	# primera vez: la pestaña con material (recortes si hay)
-	if kinds.has("clip") and not has_clips and kinds.has("entry") and has_entries:
-		tab = "entry"
-	elif kinds.has("entry") and not has_entries and kinds.has("clip"):
+	if kinds.has("clip") and not has_clips and kinds.has("pregunta") and has_qs:
+		tab = "pregunta"
+	elif kinds.has("pregunta") and not has_qs and kinds.has("clip"):
 		tab = "clip"
 	_tabs[tab].button_pressed = true
 	visible = true
@@ -180,18 +196,12 @@ func _on_chosen(item: Dictionary) -> void:
 	close()
 	picked.emit({"kind": String(item.get("kind", "")), "id": String(item.get("id", ""))})
 
-func _entry_ids() -> Array:
-	var led: Dictionary = link.qd("q_ledger")
-	var ids: Array = []
-	for k in ["varios", "erratas"]:
-		for e in led.get(k, []):
-			ids.append(String(e))
-	for f in led.get("folios", []):
-		for e in f.get("entries", []):
-			ids.append(String(e))
-	ids.sort()
-	ids.reverse()
-	return ids
+# Preguntas a la vista en el expediente (en tinta y abiertas), las de tinta primero.
+func _question_ids() -> Array:
+	return link.questions().map(func(h): return String(h.get("id", "")))
+
+func _question_inked(qid: String) -> bool:
+	return String(link.question(qid).get("state", "")) == "tinta"
 
 func _fill() -> void:
 	for c in _list.get_children():
@@ -203,13 +213,12 @@ func _fill() -> void:
 	var items: Array = []
 	if merged:
 		var drafts: Array = []
-		if kinds.has("entry"):
-			for e in _entry_ids():
-				var ink := String(link.qd("q_entry", [e]).get("ink", "lapiz"))
-				if ink == "tinta":
-					items.append({"kind": "entry", "id": e})
+		if kinds.has("pregunta"):
+			for qid in _question_ids():
+				if _question_inked(qid):
+					items.append({"kind": "pregunta", "id": qid})
 				else:
-					drafts.append({"kind": "entry", "id": e})
+					drafts.append({"kind": "pregunta", "id": qid})
 		if kinds.has("clip"):
 			var cl0: Array = link.qa("q_clips")
 			cl0.reverse()
@@ -222,11 +231,13 @@ func _fill() -> void:
 		for c in cl:
 			items.append({"kind": "clip", "id": String(c.get("id", ""))})
 	else:
-		for e in _entry_ids():
-			items.append({"kind": "entry", "id": e})
+		for qq in _question_ids():
+			items.append({"kind": "pregunta", "id": qq})
 	_search.visible = items.size() > SEARCH_MIN or q != ""
-	_bar.visible = _search.visible or _tabs["clip"].visible or _tabs["entry"].visible
+	_bar.visible = _search.visible or _tabs["clip"].visible or _tabs["pregunta"].visible
 	for it in items:
+		if exclude.has("%s|%s" % [String(it.kind), String(it.id)]):
+			continue
 		var info: Dictionary = link.item_info(it)
 		if not bool(info.get("ok", false)):
 			continue
@@ -240,13 +251,23 @@ func _fill() -> void:
 		if q != "":
 			_empty.text = link.t("sceneui.picker.nada_busqueda")
 		else:
-			_empty.text = link.t("sceneui.picker.no_clips") if tab == "clip" else link.t("sceneui.picker.no_entries")
+			_empty.text = link.t("sceneui.picker.no_clips") if tab == "clip" else link.t("mundo.picker.no_preguntas")
 	_empty.visible = _cards.is_empty()
 	_scroll.scroll_vertical = 0
 
 func _make_card(it: Dictionary, info: Dictionary) -> Control:
 	var card := Card.new(it, SimLink.short(String(info.body), 48))
 	card.chosen.connect(_on_chosen)
+	# GDD_v3 §6.2: un recorte se muestra con la misma tarjeta del cuaderno (la letra del documento, la línea de fuente)
+	if String(it.get("kind", "")) == "clip" and link.sim() != null:
+		var c: Dictionary = link.sim().q_clip(String(it.id))
+		if not c.is_empty():
+			card.bare = true
+			card._restyle()
+			var tj := ClipCard.tarjeta(link.sim(), c, 360.0, {"name": "Tarjeta"})
+			tj.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			card.add_child(tj)
+			return card
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 2)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE

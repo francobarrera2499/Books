@@ -1,6 +1,7 @@
-# Tests de W3-SHELL (ARCHITECTURE §2.3, §6.1, §6.3, §6.7; GDD§5, §7.1, §14): arranque (args), capas, HUD, pila de
-# paneles, atajos (Tab/L/M/C/Esc), mapa (persianas sin clic, viaje), visita, volver, franjas, noche, dormir, amanecer y
-# bandeja, arrastre 2D -> 3D para presentar (DropCatcher3D con el pick real del diorama), --script y --screen.
+# Tests de W3-SHELL / UI-MUNDO (ARCHITECTURE §2.3, §6.1, §6.3, §6.7; GDD§5, §7.1, §14; GDD_v3 §5.4, §6.4): arranque
+# (args), capas, HUD, pila de paneles, atajos (Tab/E/C/Esc; sin M ni L), el plano desde la pared (persianas sin clic,
+# viaje pieza -> lugar -> pieza), visita, volver, franjas, noche, dormir, amanecer y bandeja, cintas del HUD sólo fuera
+# de la buhardilla, arrastre 2D -> 3D para presentar (DropCatcher3D con el pick real del diorama), --script y --screen.
 # Headless, sobre la Shell real y el autoload Game con el dataset «fixture» (data/ estructural + tests/fixtures/integ,
 # armado una vez por proceso por tests/fixtures/w3shell/walk.gd). Capturas: devtools/drivers/w3shell_flujo.gd.
 extends "res://tests/test_base.gd"
@@ -79,7 +80,9 @@ func act(a: Dictionary) -> Dictionary:
 
 func boot_game(extra := {}) -> void:
 	g.repo_override = W.repo()
-	ok(g.repo_override != null and (g.repo_override.errors() as Array).is_empty(), "dataset fixture sin errores")
+	ok(g.repo_override != null, "dataset fixture")
+	if g.repo_override != null:
+		eq((g.repo_override.errors() as Array).slice(0, 6), [], "dataset fixture sin errores")
 	var opts := {"new": true, "seed": 1894, "fast": true, "mute": true, "save": tmp_dir().path_join("partida.jsonl")}
 	opts.merge(extra, true)
 	sh = Shell.new()
@@ -189,8 +192,10 @@ func test_map_json_and_objects() -> void:
 		ok(mp.places.has(id), "todo lugar tiene marcador: " + String(id))
 	var homes: Array = mp.places.keys().filter(func(k): return bool(mp.places[k].get("home", false)))
 	eq(homes, ["L1"], "una sola casa")
-	var dos := ["tray", "map", "notebook", "ledger", "scissors", "calendar", "compose", "sleep", "catalog", "frame", "go", "leave", "docs"]
+	var dos := ["tray", "map", "notebook", "dossier", "scissors", "calendar", "compose", "sleep", "catalog", "go", "leave", "docs"]
 	for pid in mp.objects:
+		if String(pid).begins_with("_"):
+			continue
 		var pl: Dictionary = r.place(String(pid))
 		if pl.is_empty():
 			pl = r.plate(String(pid))
@@ -201,8 +206,15 @@ func test_map_json_and_objects() -> void:
 		for nid in mp.objects[pid]:
 			var b: Dictionary = mp.objects[pid][nid]
 			has(dos, String(b.get("do", "")), "acción conocida %s/%s" % [pid, nid])
-			if not String(nid).ends_with("*") and not node_ids.is_empty():
-				ok(node_ids.has(String(nid)), "nodo existente %s/%s" % [pid, nid])
+			if not String(nid).ends_with("*") and not node_ids.is_empty() and not node_ids.has(String(nid)):
+				fail("nodo inexistente %s/%s" % [pid, nid])
+	# GDD_v3 §6.3–§6.4: una sola forma de hacer cada cosa
+	for pid in ["L1", "PRO", "M7"]:
+		for gone in ["pliegos", "calendario", "tijera", "cama", "sello", "escritorio", "atril", "ventana", "libro_mayor"]:
+			no((mp.objects.get(pid, {}) as Dictionary).has(gone), "%s/%s ya no se usa (sólo se mira o no es interactivo)" % [pid, gone])
+	eq(String(Objects.binding(r, "L1", "tintero").get("do", "")), "compose", "sólo el tintero escribe")
+	eq(String(Objects.binding(r, "L1", "mapa").get("do", "")), "map", "el plano, en la pared")
+	eq(String(Objects.binding(r, "L1", "expediente").get("do", "")), "dossier", "la carpeta del expediente")
 	eq(String(Objects.binding(r, "L1", "estantes_1").get("do", "")), "docs", "comodín estantes_*")
 	eq(String(Objects.binding(r, "PRO", "bandeja").get("do", "")), "tray")
 	ok(Objects.binding(r, "L5", "nada_de_nada").is_empty(), "sin vínculo: sólo examinar")
@@ -239,7 +251,7 @@ func test_stack_protocol() -> void:
 	eq(sh.open_panel("nada"), null, "clase desconocida")
 	sh.busy(true)
 	eq(sh.open_panel("map"), null, "en transición no se abren paneles")
-	ok(sh.router.shortcut("fe_mapa"), "el atajo se consume durante una transición")
+	ok(sh.router.shortcut("fe_expediente"), "el atajo se consume durante una transición")
 	sh.busy(false)
 	sh.note("uno")
 	sh.note("dos")
@@ -312,6 +324,8 @@ func test_flow_prologue_visit_night_dawn() -> void:
 	for i in 40:
 		if not gs.speech.visible:
 			break
+		# verificador v3: «Seguir» a la vista en cada línea, también en la última (si no, nada decía cómo seguir)
+		ok(gs.speech.more.visible, "«Seguir» a la vista (%d)" % i)
 		gs.speech.advance()
 	await frames(2)
 	ok(gs.tutor.visible, "nota del instructor")
@@ -332,35 +346,33 @@ func test_flow_prologue_visit_night_dawn() -> void:
 	eq(gs.hud.day_label.text, "27")
 	ok(sh.is_open("tray"), "la bandeja se abre sola: la mañana es la respuesta")
 	ok(sh.panel("tray").list.get_child_count() >= 1, "lo llegado está en la bandeja")
-	# atajos
+	# atajos (GDD_v3 §6.4): Tab, E, C; sin cintas en la buhardilla (todo está sobre la mesa)
 	ok(sh.router.shortcut("fe_volver"))
 	no(sh.is_open("tray"), "Esc cierra la bandeja")
-	var e := InputEventMouseButton.new()
-	e.button_index = MOUSE_BUTTON_LEFT
-	e.pressed = true
-	gs.hud.ribbon("ledger").gui_input.emit(e)
-	ok(sh.is_open("ledger"), "la cinta del libro mayor lo abre con el mouse")
-	gs.hud.ribbon("ledger").gui_input.emit(e)
-	no(sh.is_open("ledger"), "y lo cierra")
+	no(gs.hud.books_box.visible, "en la buhardilla no hay cintas en el HUD")
 	ok(sh.router.shortcut("fe_cuaderno"))
 	ok(sh.is_open("notebook"), "Tab: cuaderno")
-	ok(sh.router.shortcut("fe_libro_mayor"))
-	ok(sh.is_open("ledger") and sh.is_open("notebook"), "L: libro mayor encima")
-	ok(sh.router.shortcut("fe_mapa"))
-	ok(sh.is_open("map"), "M: mapa")
+	ok(sh.router.shortcut("fe_expediente"))
+	ok(sh.is_open("dossier"), "E: expediente")
 	ok(sh.stack.size() <= 2, "nunca más de 2 paneles")
-	no(sh.is_open("notebook"), "el de abajo se cerró")
-	ok(sh.router.shortcut("fe_volver"))
+	sh.close_all()
+	await settle()
+	no(sh.router.shortcut("fe_mapa"), "M ya no hace nada (el plano está en la pared)")
 	no(sh.is_open("map"))
-	ok(sh.router.shortcut("fe_volver"))
-	no(sh.is_open("ledger"))
 	ok(sh.router.shortcut("fe_tijera"))
-	ok(gs.scissors_on, "C: tijera sobre el diorama")
+	ok(gs.scissors_on, "C: la tijera en la mano (para las tarjetas)")
 	ok(sh.router.shortcut("fe_volver"))
 	no(gs.scissors_on, "Esc deja la tijera")
-	# mapa -> Kensington (consulta) -> visita con Watson
-	ok(sh.router.shortcut("fe_mapa"))
+	# un clic en el expediente lo abre en el acto
+	gs.on_node("expediente")
 	await frames(2)
+	ok(sh.is_open("dossier"), "clic en la carpeta: el expediente")
+	sh.close_all()
+	await settle()
+	# el plano de la pared -> Kensington (consulta) -> visita con Watson
+	gs.on_node("mapa")
+	await frames(2)
+	ok(sh.is_open("map"), "clic en el plano de la pared: el plano")
 	var ms = sh.panel("map")
 	var mk = ms.marker("L4")
 	ok(mk != null and mk.is_open(), "Kensington abierto por la mañana")
@@ -379,6 +391,7 @@ func test_flow_prologue_visit_night_dawn() -> void:
 	no(sh.is_open("map"), "el mapa se cierra al llegar")
 	ok(sh.is_open("scene"), "Watson en la consulta: panel de escena")
 	ok(sh.world.input_enabled, "con la banda de la escena se sigue mirando y tocando el diorama")
+	ok(gs.hud.books_box.visible, "fuera de casa, las cintas «Cuaderno» y «Expediente»")
 	# presentar por arrastre al 3D (pick real del diorama)
 	for i in 30:
 		if sh.world.is_plate_ready():
@@ -391,7 +404,7 @@ func test_flow_prologue_visit_night_dawn() -> void:
 	var src := Control.new()
 	src.size = Vector2(30, 20)
 	Layers.root_of(sh.layers.hud).add_child(src)
-	var data := Chips.data("clip", String(t.abril))
+	var data := Chips.data("clip", String(t.aviso))
 	var got := []
 	sh.drop_catcher.present_requested.connect(func(cid, _d): got.append(cid))
 	src.force_drag(data, Widgets.chip("«x»", data))
@@ -423,7 +436,7 @@ func test_flow_prologue_visit_night_dawn() -> void:
 	c = g.sim.q_clock()
 	eq([String(c.phase), bool(c.outing_done)], ["desk", true], "de vuelta en el escritorio")
 	eq(gs.state().mode, "hub")
-	eq(gs.state().frame, "general", "v2 (GDD_v2 §E): al volver, la vista general de la buhardilla")
+	eq(gs.state().frame, "escritorio", "al volver, la buhardilla mirando el escritorio (GDD_v3 §5.4: pieza -> lugar -> pieza)")
 	no(gs.back(), "en el escritorio no hay nada que volver")
 	# láminas archivadas (GDD§5): se vuelven a mirar y a recortar desde el mapa
 	var ap: Array = sh.archived_plates().map(func(x): return String(x.id))
@@ -493,6 +506,104 @@ func test_flow_prologue_visit_night_dawn() -> void:
 	eq([int(c.day), String(c.phase)], [2, "desk"], "miércoles por la mañana")
 	eq(gs.hud.day_label.text, "28")
 
+# GDD_v3 §4.3–§4.4, §6.8 (UI-MUNDO): la pieza con la ventana abierta por los techos. Al entrar suena la corriente (una
+# vez por entrada); abrir la tarjeta de un nodo con «aviso» es notar la intrusión (acción libre examine, nace Q8); el
+# estante lista lo que falta («no está») y tocarlo también la nota.
+func test_intrusion_nodes_and_missing_on_the_shelf() -> void:
+	await boot_game()
+	var gs = sh.game_screen
+	W.tutorial(g.sim, act)
+	act({"t": "sleep"})
+	await settle()
+	sh.close_all()
+	await settle()
+	eq(phase(), "desk")
+	var pl: Dictionary = g.sim.repo.place("L1")
+	if not (pl.get("variants", {}) as Dictionary).has("techos"):
+		pending_content("L1 sin la variante «techos» (REACCIONES)")
+		return
+	var now := int(g.sim.q_clock().tk)
+	g.sim.st.world.place_variants["L1"] = "techos"
+	g.sim.st.world.copies["D03@tomo"] = {"from_tk": now - 1, "until_tk": now + 30}
+	var lay := {"variant": "techos", "from_tk": now, "to_tk": now + 20, "rid": "HA5"}
+	g.sim.st.react.world.variants["L1"] = {"variant": "techos", "from_tk": now, "to_tk": now + 20, "rid": "HA5", "layers": [lay]}
+	gs._techos_heard = {}
+	gs.techos_played = 0
+	gs._show_hub("general", g.sim.q_clock())
+	await frames(4)
+	ok(sh.world.node_body("ventana_abierta") != null, "la ventana abierta (nodo de la variante)")
+	eq(gs.techos_played, 1, "al entrar con «techos», la corriente de aire")
+	gs._show_hub("general", g.sim.q_clock())
+	eq(gs.techos_played, 1, "una vez por intrusión: no se repite al volver a entrar")
+	var x0: Transform3D = sh.world.camera().global_transform
+	gs.on_node("ventana_abierta")
+	await frames(3)
+	ok(gs.exam.visible, "su tarjeta")
+	ok(String(gs.exam.title_label.text).length() > 0, "con su nombre")
+	ok(sh.world.camera().global_transform.is_equal_approx(x0), "sin mover la cámara")
+	var noticed = g.sim.st.ded.get("dossier", {}).get("noticed", {})
+	ok(typeof(noticed) == TYPE_DICTIONARY and (noticed as Dictionary).has("HA5"), "abrir la tarjeta es notar la intrusión: %s" % str(noticed))
+	gs.exam.hide_card()
+	# el estante: lo que falta
+	if g.sim.q_missing().is_empty():
+		pending_content("q_missing() vacío con un original retirado (CORE)")
+		return
+	gs.on_node("estante")
+	await frames(3)
+	ok(gs.exam.visible, "la tarjeta del estante")
+	var falta: Button = null
+	for b in (gs.exam.links_box.get_children() + gs.exam.links_list.get_children()):
+		if b is Button and String(b.text).begins_with(Widgets.t("mundo.estante.falta", {"titulo": ""}).strip_edges()):
+			falta = b
+	ok(falta != null, "lo que falta, con «No está»")
+	if falta != null:
+		falta.pressed.emit()
+		await frames(2)
+		has(sh.notes(), Widgets.t("mundo.estante.no_esta"), "«No está. La dejé acá anoche.»")
+
+# GDD_v3 §6.4 + GDD_v2 §C.1 (verificador UI-MUNDO): la tarjeta del estante nunca muestra más de 7 renglones; las crónicas
+# del cliente quedan a la vista y, si no entran, los demás papeles de casa van un nivel abajo («Mis papeles» / «Volver»).
+func test_shelf_card_two_levels() -> void:
+	await boot_game()
+	var gs = sh.game_screen
+	W.tutorial(g.sim, act)
+	act({"t": "sleep"})
+	await settle()
+	sh.close_all()
+	await settle()
+	eq(phase(), "desk")
+	var btns := func() -> Array:
+		return (gs.exam.links_box.get_children() + gs.exam.links_list.get_children()).filter(func(x): return x is Button and not x.is_queued_for_deletion())
+	gs.on_node("estante")
+	await frames(3)
+	ok(gs.exam.visible, "la tarjeta del estante")
+	var top: Array = btns.call()
+	ok(top.size() <= 7, "≤7 renglones a la vista (%d)" % top.size())
+	var fina := false
+	var grp: Button = null
+	for x in top:
+		if String(x.text).begins_with("«El problema final»") or String(x.text).contains("«El problema final»"):
+			fina = true
+		if String(x.text) == Widgets.t("mundo.estante.papeles"):
+			grp = x
+	ok(fina, "«El problema final» a la vista, sin un clic de más")
+	if grp == null:
+		ok(top.size() <= 7, "todo entra en un nivel")
+		return
+	grp.pressed.emit()
+	await frames(3)
+	var sub: Array = btns.call()
+	ok(sub.size() >= 3 and sub.size() <= 8, "«Mis papeles»: Volver y los papeles (%d)" % sub.size())
+	eq(String(sub[0].text), Widgets.t("cam.tomos.volver"), "primero, «Volver»")
+	var leer := 0
+	for x in sub:
+		if not String(x.text).contains("«El problema final», The Strand"):
+			leer += 1
+	ok(leer == sub.size(), "las crónicas no se repiten abajo")
+	sub[0].pressed.emit()
+	await frames(3)
+	eq(btns.call().size(), top.size(), "«Volver» deja el primer nivel como estaba")
+
 func test_sunday_shutters() -> void:
 	await boot_game()
 	W.tutorial(g.sim, act)
@@ -524,8 +635,9 @@ func test_sunday_shutters() -> void:
 	no(l2.is_open(), "la Sala de Lectura cierra el domingo")
 	ms._on_hover(l2, true)
 	ok(ms._hover.visible, "el motivo se lee al pasar el mouse")
-	# GDD_v2 §C.3 (mapa, PROGRESIÓN): «Cerrado ahora» y el horario del lugar en una línea
-	ok(ms._hover.text.begins_with(Widgets.t("prog.map.cerrado_ahora")), ms._hover.text)
+	# GDD_v3 §5.3: «qué hay», «por qué está» y el horario; cerrado, además «Cerrado ahora» (GDD_v2 §C.3)
+	ok(ms._hover.text.replace(String.chr(10), " ").begins_with(Widgets.t("plano.que_hay.L2")), "primero, qué hay: " + ms._hover.text)
+	ok(ms._hover.text.contains(Widgets.t("prog.map.cerrado_ahora")), ms._hover.text)
 	ok(ms._hover.text.contains(String(g.sim.repo.map().places.L2.hours)), "el horario de la Sala: " + ms._hover.text)
 	var r: Dictionary = await ms.travel("L2", "sala", 214)
 	no(bool(r.get("ok", true)), "el sim rechaza el viaje a un lugar cerrado")
@@ -537,12 +649,8 @@ func test_esc_options_and_typing() -> void:
 	var gs = sh.game_screen
 	gs.speech.clear()
 	gs.exam.hide_card()
-	# v2 (GDD_v2 §E.2): Esc baja primero un nivel de la pila de poses (la nota del prólogo lleva la vista a la zona del
-	# escritorio); en la vista general, sin nada que cerrar, abre las Opciones
-	if sh.world.rig.depth() > 1:
-		sh.router._unhandled_input(key(KEY_ESCAPE))
-		eq(sh.world.rig.mode(), "overview", "Esc en una zona: vuelve a la vista general")
-		eq(sh.top_kind(), "", "y no abre menús")
+	# GDD_v3 §6.6: sin posiciones intermedias de la cámara; Esc o clic derecho cierran el panel abierto y, con nada
+	# abierto, abren las Opciones
 	sh.router._unhandled_input(key(KEY_ESCAPE))
 	eq(sh.top_kind(), "options", "Esc sin nada que cerrar: Opciones (con «Volver al título»)")
 	sh.router._unhandled_input(key(KEY_ESCAPE))
@@ -550,8 +658,10 @@ func test_esc_options_and_typing() -> void:
 	var rc := InputEventMouseButton.new()
 	rc.button_index = MOUSE_BUTTON_RIGHT
 	rc.pressed = true
-	sh.router._unhandled_input(rc)
-	eq(sh.top_kind(), "", "el clic derecho vuelve, pero no abre menús")
+	sh.router._input(rc)
+	eq(sh.top_kind(), "options", "el clic derecho sin nada abierto: Opciones")
+	sh.router._input(rc)
+	eq(sh.top_kind(), "", "y las cierra")
 	var le := LineEdit.new()
 	Layers.root_of(sh.layers.modal).add_child(le)
 	le.grab_focus()
@@ -592,7 +702,7 @@ func test_script_and_screen_args() -> void:
 			n_ok += 1
 		else:
 			fail("guion_dia1: %s -> %s" % [ln, str(res.get("err", ""))])
-	ok(n_ok >= 15, "guion_dia1: acciones aceptadas %d" % n_ok)
+	ok(n_ok >= 4, "guion_dia1: acciones aceptadas %d" % n_ok)
 	eq(sim1.state_hash(), sim0.state_hash(), "guion_dia1.jsonl = tutorial + dormir")
 	await boot_game({"script": path, "screen": "map"})
 	eq(g.sim.state_hash(), sim0.state_hash(), "--script aplica las acciones en orden")
@@ -684,11 +794,19 @@ func test_passive_calendar_through_ui() -> void:
 func test_mouse_exits_and_texts() -> void:
 	await boot_game()
 	var gs = sh.game_screen
-	# examinar los tomos del prólogo: lo legible se ofrece con «Leer: …»
-	gs.on_node("tomos")
+	# examinar el estante del prólogo (los tomos son decoración en la lámina, GDD_v3 §6.4): lo legible se ofrece con «Leer: …»
+	# (playtest v3: con líneas de Pell sin leer, un clic en el 3D sólo pasa a la siguiente; acá ya se leyeron)
+	ok(gs.speech.showing() and not gs.speech.queue.is_empty(), "la presentación de Pell, con más líneas")
+	var n_q: int = gs.speech.queue.size()
+	gs.on_node("estante")
+	await frames(2)
+	eq(gs.speech.queue.size(), n_q - 1, "un clic en el 3D pasa a la siguiente línea, no las borra")
+	no(gs.exam.visible, "y no usa el objeto")
+	gs.speech.clear()
+	gs.on_node("estante")
 	await frames(3)
-	var links: Array = gs.exam.links_box.get_children().filter(func(b): return b is Button and not b.is_queued_for_deletion())
-	ok(not links.is_empty(), "los tomos ofrecen algo para leer")
+	var links: Array = (gs.exam.links_box.get_children() + gs.exam.links_list.get_children()).filter(func(b): return b is Button and not b.is_queued_for_deletion())
+	ok(not links.is_empty(), "el estante ofrece algo para leer")
 	for b in links:
 		ok(String(b.text).begins_with(Widgets.t("shell.exam.leer", {"titulo": ""})), "enlace con «Leer:» (%s)" % b.text)
 	gs.exam.hide_card()

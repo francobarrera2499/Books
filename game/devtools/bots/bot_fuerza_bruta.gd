@@ -1,19 +1,21 @@
-# devtools/bots/bot_fuerza_bruta.gd — fuerza bruta SIN las pruebas (W3-BOTS; §9.3, GDD §8.9 primer caso, §11, T10).
-# No usa ningún oráculo: sale cada franja a un lugar abierto al azar, pide papeletas al azar del catálogo, recorta
-# TODO lo legible con recortes legales máximos (una oración, ≤40 palabras; cada nodo del diorama por separado) y en cada
-# pasada arma asientos nuevos con plantilla, valores y «según» al azar (cumpliendo sólo la forma: cada línea llena con
-# su recorte, ≥2 orígenes, ≤4 recortes). GDD §8.9: ~10⁻¹⁰ por lote; nunca debe superar al deductor.
+# devtools/bots/bot_fuerza_bruta.gd — fuerza bruta (§9.3; GDD_v3 §1.9, T10): sin ningún oráculo. Sale cada franja a un
+# lugar abierto al azar, pide papeletas al azar del catálogo, recorta TODO lo legible con recortes legales máximos (una
+# oración, ≤15 palabras; cada nodo del diorama por separado) y en cada pregunta abierta prueba una respuesta al azar
+# (entre las opciones del índice) con DOS recortes al azar de papeles distintos, hasta MAX_TRIES intentos por pregunta.
+# GDD_v3 §1.9: p ≈ 2·10⁻⁴ por intento; presupuesto de T10: cierra ≤5 % de las preguntas en 20 semillas.
 extends "res://devtools/bots/bot_base.gd"
 
-const TEMPLATES := ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9"]
+const MAX_TRIES := 100
 
 func _init_bot() -> void:
 	bot_name = "fuerza_bruta"
 	deduce = false
 	value_mode = "random"
+	max_attempts = MAX_TRIES
 
 func pol_desk_extra() -> void:
 	clip_everything(self)
+	random_tries(self, MAX_TRIES, false)
 
 func pol_in_visit() -> void:
 	clip_everything(self)
@@ -25,58 +27,50 @@ func pol_in_visit() -> void:
 func pol_outing() -> Dictionary:
 	return random_outing(self)
 
-func pol_lot(n: int) -> Array:
-	var out: Array = []
-	var tries := 0
-	while out.size() < n and tries < 6 * maxi(n, 1):
-		tries += 1
-		var e := random_entry()
-		if e != "" and not out.has(e):
-			out.append(e)
-	return out if out.size() == n else []
+func pol_confirm() -> Array:
+	return []
 
-# Asiento nuevo con plantilla, valores y «según» al azar; "" si no hay con qué cumplir la forma.
-func random_entry() -> String:
-	var ids := _clip_ids()
+# Intentos al azar en cada pregunta abierta: respuesta al azar (o la del canon si `knows`) y un par al azar de recortes
+# de orígenes distintos; hasta max_tries por pregunta en total (per_call por llamada). Devuelve las que cerró.
+static func random_tries(b, max_tries: int, knows: bool, per_call := 10) -> Array:
+	var closed: Array = []
+	var ids: Array = b._clip_ids()
 	if ids.size() < 2:
-		return ""
-	var tid := String(rnd_pick(TEMPLATES, "tpl"))
-	var tpl: Dictionary = repo.template(tid)
-	var lines: Array = []
-	var used: Array = []
-	for li in (tpl.get("lines", []) as Array).size():
-		var ln: Dictionary = tpl.lines[li]
-		var row := {"fields": {}, "support": []}
-		if bool(ln.get("optional", false)) and rnd01("opt") < 0.5:
-			lines.append(row)
-			continue
-		for fd in ln.get("fields", []):
-			var cands := _field_candidates(fd)
-			if not cands.is_empty():
-				row.fields[String(fd.id)] = String(rnd_pick(cands, "val"))
-		if not row.fields.is_empty() and used.size() < Ledger.MAX_CLIPS:
-			var cl := String(rnd_pick(ids, "segun"))
-			row.support.append(cl)
-			if not used.has(cl):
-				used.append(cl)
-		lines.append(row)
-	if used.is_empty():
-		return ""
-	# ≥2 orígenes (si no, el chequeo formal lo rechaza sin gastar la pasada y el bot no aprendería nada)
-	var origins := Ledger.origins_of(sim.st, used)
-	if origins.size() < 2 and used.size() < Ledger.MAX_CLIPS:
-		for k in 8:
-			var cl2 := String(rnd_pick(ids, "segun2"))
-			if not Ledger.origins_of(sim.st, [cl2]).is_empty() and not origins.has(Ledger.origins_of(sim.st, [cl2])[0]):
-				for row2 in lines:
-					if not (row2.fields as Dictionary).is_empty():
-						row2.support.append(cl2)
+		return closed
+	var dv: Dictionary = b.sim.q_dossier()
+	for h in dv.get("open", []):
+		var q := String(h.id)
+		var n := 0
+		var guard := 0
+		while int(b.attempt.get(q, 0)) < max_tries and n < per_call and guard < per_call * 4:
+			guard += 1
+			var ans := ""
+			if knows:
+				for v in b._valid_answers(q):
+					if b._answer_ok(q, String(v)):
+						ans = String(v)
 						break
-				used.append(cl2)
+				if ans == "":
+					break
+			else:
+				var opts: Array = b.sim.q_answer_options(q)
+				if opts.is_empty():
+					break
+				ans = String(b.rnd_pick(opts, "ans").id)
+			var c1 := String(b.rnd_pick(ids, "p1"))
+			var c2 := String(b.rnd_pick(ids, "p2"))
+			var o1 := String(Clipper.get_clip(b.sim.st, c1).get("origin", ""))
+			var o2 := String(Clipper.get_clip(b.sim.st, c2).get("origin", ""))
+			if c1 == c2 or o1 == o2:
+				continue
+			n += 1
+			if not b._write_sheet(q, ans, c1, c2):
 				break
-	if Ledger.origins_of(sim.st, used).size() < 2:
-		return ""
-	return _write_entry({"template": tid, "lines": lines}, "varios")
+			var r: Dictionary = b.act({"t": "dq_confirm", "q": q}, true)
+			if bool(r.get("inked", false)):
+				closed.append(q)
+				break
+	return closed
 
 # ---------------------------------------------------------------- utilidades compartidas (recorta_todo, solo_bm…)
 # Recorta con recortes legales máximos todo lo legible ahora (documentos, líneas de la escena, nodos del diorama).

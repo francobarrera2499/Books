@@ -1,0 +1,11 @@
+{
+  "_nota": "GDD_v3 §7.1 (REACCIONES-PIEZA). Entidades nuevas de las intrusiones en la pieza (§4): los de Holmes entran por los techos y la ventana (HA5, HA6); los de Moran, por la puerta (M1). `muchacho` es persona: es respuesta de Q8 (variante A).",
+  "entities": [
+    {"id": "techos", "kind": "lugar", "name": "los techos de Holywell Street", "index": "techos (Holywell Street)", "noun": "techos"},
+    {"id": "muchacho", "kind": "persona", "name": "un muchacho", "index": "muchacho (por los techos)", "noun": "muchacho"},
+    {"id": "traba", "kind": "objeto", "name": "la traba de la ventana", "index": "traba de la ventana (buhardilla)", "noun": "traba"},
+    {"id": "cerradura", "kind": "objeto", "name": "la cerradura de la puerta", "index": "cerradura de la puerta (buhardilla)", "noun": "cerradura"},
+    {"id": "suela_chica", "kind": "concepto", "name": "la marca de una suela chica", "index": "suela chica (hollín del alféizar)", "noun": "suela"},
+    {"id": "hoja_ventana", "kind": "objeto", "name": "la hoja de la ventana", "index": "hoja baja de la ventana (buhardilla)", "noun": "ventana"}
+  ]
+}

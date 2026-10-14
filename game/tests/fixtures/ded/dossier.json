@@ -1,0 +1,230 @@
+{
+ "_nota": "Fixture W2-DED convertido a v3 (CORE-EXPEDIENTE, GDD_v3 §1.7): preguntas con dos grupos por variante, sin rutas (los tests de recorte y T4 sólo miran los grupos). Sin práctica (C1) ni pares de canal (C6).",
+ "max_abiertas": 3,
+ "mostrar_todas": "8.dawn",
+ "alias": [],
+ "preguntas": [
+  {
+   "id": "C2",
+   "orden": 1,
+   "obligatoria": true,
+   "texto": "Pregunta C2.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "objeto",
+    "lugar"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "raspadura"
+     ],
+     "grupos": [
+      {
+       "id": "sin_raspadura",
+       "tags": [
+        "fina_impreso_sin_raspadura"
+       ]
+      },
+      {
+       "id": "registrada",
+       "tags": [
+        "raspadura_registrada"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "fina",
+       "raspadura"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C2.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C10",
+   "orden": 2,
+   "obligatoria": true,
+   "texto": "Pregunta C10.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "objeto",
+    "lugar"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "harris"
+     ],
+     "grupos": [
+      {
+       "id": "cebo",
+       "tags": [
+        "cebo"
+       ]
+      },
+      {
+       "id": "busca",
+       "tags": [
+        "busca_a_holmes"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "harris",
+       "moran"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C10.",
+     "rutas": []
+    },
+    {
+     "id": "B",
+     "principal": false,
+     "respuestas": [
+      "moran"
+     ],
+     "grupos": [
+      {
+       "id": "harris",
+       "tags": [
+        "harris_es_moran"
+       ]
+      },
+      {
+       "id": "moran",
+       "tags": [
+        "retrato_moran"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "harris",
+       "moran"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C10 (B).",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "C12",
+   "orden": 3,
+   "obligatoria": true,
+   "texto": "Pregunta C12.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "objeto",
+    "lugar"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "librero"
+     ],
+     "grupos": [
+      {
+       "id": "librero_falso",
+       "tags": [
+        "librero_falso"
+       ]
+      },
+      {
+       "id": "rasgo",
+       "tags": [
+        "rasgo_holmes"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "librero"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C12.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  }
+ ]
+}

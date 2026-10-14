@@ -1,15 +1,16 @@
-# T7 — fechas, días de la semana y conocimiento (GDD §2.4, §15.5; ARCHITECTURE §4.14, §9.2). Dueño: W2-STRUCT.
+# T7 — fechas, días de la semana y conocimiento (GDD §2.4, §15.5; ARCHITECTURE §4.14, §9.2). Dueño: CONTENIDO (GDD_v3 §7.2;
+# antes W2-STRUCT). v3: las conclusiones C1–C14 son las preguntas Q1–Q10 del Expediente (data/dossier.json, GDD_v3 §1–§2).
 #  - schedule.days = calendario real de 1894 (Pascua el 25-mar, días de la semana por algoritmo propio) y 1903-10-01;
 #  - toda fecha con día de la semana escrita en data/ coincide con el calendario;
 #  - knowable: nadie dice un hecho de canon_bible (h:F.x) antes de poder saberlo (docs por su date; líneas, nodos y
 #    rastros por el primer día en que pueden aparecer);
 #  - nadie relaciona a Moran con Adair antes del mar. 3 (día 8); ningún texto público de 1894 da un paradero de Holmes;
 #    el poder de Mycroft no es público; lint de anacronismos (london_period §7, GDD §2.4);
-#  - toda cita src_en está en tests/fixtures/canon (docs y canon_bible); ninguna ruta de conclusión obligatoria ni
+#  - toda cita src_en está en tests/fixtures/canon (docs y canon_bible); ninguna ruta de pregunta obligatoria ni
 #    refutación usa un fragmento ⚠ (w:).
-# Además (test_struct_*): autocontroles de aceptación de W2-STRUCT sobre sus propios datos (esquema, inventario de
-# reacciones GDD §9.6–9.7, contrato de refs §4.8, rutas ★, selección de rastro, finales). Contenido ajeno faltante
-# → pending_content.
+# Además (test_struct_*): autocontroles sobre los datos estructurales (esquema, inventario de reacciones GDD §9.6–9.7 +
+# HA5/HA6 de GDD_v3 §4.2, contrato de refs de GDD_v3 §2.1, rutas ★, ley de la huella v3, selección de rastro, finales v3).
+# Contenido ajeno faltante → pending_content.
 extends "res://tests/test_base.gd"
 
 const Markup = preload("res://core/text/markup.gd")
@@ -26,7 +27,7 @@ const ADAIR_IDS := ["ronald_adair", "asesinato_de_adair", "suceso_park_lane", "p
 const HOLMES_IDS := ["holmes", "sigerson", "corresponsal_s"]
 const FOREIGN_1894 := ["montpellier", "grenoble", "paris", "lyon", "francia"]
 const POWER_IDS := ["foreign_office", "pedido_del_fo"]
-const MY_FILES := ["schedule.json", "conclusions.json", "reactions/", "endings.json", "easter_eggs.json", "entities/struct.json"]
+const MY_FILES := ["schedule.json", "dossier.json", "corpus.json", "reactions/", "endings.json", "easter_eggs.json", "entities/struct.json"]
 const EPILOGUE_FILES := ["docs/D38.json", "ui_text/epilogo.json", "ui_text/epilogue_ui.json", "scenes/EPI.json"]
 # Anacronismos (marzo–abril de 1894): [patrón, sensible a mayúsculas]. Términos del GDD §2.4 y london_period §7.
 # Marylebone: sólo la ESTACIÓN (1899; GDD §2.5); el barrio, Marylebone Road y Marylebone Lane (FINA, Vere Street) existen.
@@ -42,27 +43,26 @@ const ANACHRONISMS := [
 	["Langdale", true], ["Porlock", true], ["Baskerville", false], ["Valley of Fear", false], ["valle del (miedo|terror)", false],
 	["Return of Sherlock Holmes", false], ["regreso de Sherlock Holmes", false], ["Empty House", false],
 ]
-# Contrato §4.8 (refs por conclusión; L:hudson.* = L:mrs_hudson.*).
+# Contrato GDD_v3 §2.1 (refs por pregunta, todas las variantes y rutas; L:hudson.* = L:mrs_hudson.*). Q6.R5 usa la
+# tarjeta del cliente de FINA (NC.FINA#tic; las seis NC.* llevan #tic).
 const CONTRACT := {
-	"C1": ["D43#hombro", "D44#pierna", "D43#john_h", "D01.TWIS#james", "D01.SPEC#hudson", "D01.SCAN#turner", "D01.SCAN#boda", "D44#conoce_mary", "D01.FIVE#madre", "D44#madre_muerta", "D01.FIVE#una_mujer", "D01.SCAN#marzo_1888", "D44#july7", "D44#septiembre", "D01.REDH#abril", "D01.REDH#octubre"],
-	"C2": ["D02#clausula", "D05#marque", "D04#clausula", "D29a#tachadura", "D01N#fina_fo", "D03#sheer"],
-	"C3": ["D05#corniche", "N:RB.foto.linea", "D08#kanzel", "R:D27.texto", "D03#sheer"],
-	"C4": ["D03#a_mycroft", "D18#calendars", "D19#indice", "D30#recibo", "D29b#surcos", "L:mrs_hudson.mycroft_paga"],
-	"C5": ["D09#desague", "D11#desague", "D09#cruel", "D10#cruel", "R:D28.anglo", "D10#portada", "D09#nota_redactor", "D10#frontispicio"],
-	"C6": ["J:go", "N:*.sil_wiggins", "AD:prologo", "R:HC10.texto", "AD:*", "R:HB1.col", "S:HC06.b_kbm", "S:HC06.b_kw", "S:HC06.b_kh", "R:HA1.*", "R:HB1.carta", "R:HB4.carta", "L:mrs_hudson.ordenes"],
-	"C7": ["R:HA1.fisica", "R:HA0.fisica", "D46#fisica", "R:HA1.fisica", "R:HC04.tarjeta", "S:HC06.b_*", "D31#para_mholmes", "R:HA0.*", "R:HA1.*", "D30#recibo", "N:L2.cotter_canastilla", "N:L2.cesto_tiras", "D01.GREE#founders", "L:watson.escribi_mycroft", "R:HB5.recibo", "R:HB1.carta", "R:HC01.sobre", "D01.GREE#pall_mall", "L:wiggins.vieja_tarifa", "D01.GREE#whitehall", "R:HA1.giro", "S:HC06.a"],
-	"C8": ["D13#muestra97", "D12#n97", "D14#opusculo", "D44#oficios_mano", "S:HC06.c", "D31#telegramas", "R:HC01.no_lo_es", "D12#dedicatoria", "D13#jartum", "D34#ruinas", "D35#califa"],
-	"C9": ["S:HC05.jueves_a", "N:L3.ventanas_abiertas", "N:L3.shag", "S:HC06.e", "N:L3.cajon", "R:HB*.col", "D31#ruta"],
-	"C10": ["N:PRO.harris", "D16#moran", "S:M7.inteligente", "D10#adjetivos", "D23#cruel", "L:wiggins.conduit", "D17#moran_conduit", "D10#cabrito_atado", "S:M6.donde", "D11#no_bala", "S:M7.donde_duerme", "R:HB7.col", "R:M2.nota", "R:HB9.carta", "D11#hacerlo_balar"],
-	"C11": ["D15.0403#whist", "D15.0403#nadie_oyo", "D03#air_guns", "D10#bala_blanda", "N:L7.linea_de_tiro", "D11#mejor_tiro", "D16#moran"],
-	"C12": ["N:L1.librero_dedos", "D14#amarillo", "N:L1.librero_sombra", "D33#direccion", "D17#church_street", "D12#dedicatoria", "R:D37.precio", "N:PARK.libros", "D33#tree_worship"],
-	"C13": ["N:L8.guillotina", "N:L8.ceniza", "S:M7.trichinopolis", "S:AGENTE.militar", "S:PRO.cace_india", "D10#apostarse", "D32#llave_harris", "N:PRO.harris", "R:M10.linea"],
-	"C14": ["D01N#mi_james", "D01N#nov93", "D18#mary", "D20#subasta", "D45#duelo", "N:L4.hueco_estante", "N:L4.crespon"],
+	"Q1": ["D03#sheer", "D05#marque", "D04#clausula", "D02#clausula", "D29a#tachadura", "D01N#fina_fo"],
+	"Q2": ["D03#sheer", "D05#corniche", "N:RB.foto.linea", "D08#kanzel", "R:D27.texto"],
+	"Q3": ["S:HC06.b_*", "D31#para_mholmes", "N:L2.cotter_canastilla", "D01.GREE#founders", "R:HA1.fisica", "D46#fisica", "N:L2.cesto_tiras", "R:HA1.*", "D30#recibo", "R:HC01.sobre", "D01.GREE#pall_mall", "L:wiggins.vieja_tarifa", "D01.GREE#whitehall", "R:HA1.giro", "S:HC06.a"],
+	"Q4": ["D04#cajista", "D01.GREE#cuentas", "D33#lote_pruebas", "D01N#fina_fo", "D29a#tachadura", "R:HB5.recibo"],
+	"Q5": ["D12#n97", "D13#muestra97", "D44#oficios_mano", "D14#opusculo", "S:HC06.c", "D31#telegramas", "D12#dedicatoria", "R:HC01.no_lo_es"],
+	"Q6": ["N:PRO.harris", "D16#moran", "S:M7.inteligente", "D10#adjetivos", "D23#cruel", "D10#cruel", "N:M7.ceniza", "D11#trichinopolis", "NC.FINA#tic", "L:wiggins.conduit", "D17#moran_conduit"],
+	"Q7": ["D15.0403#whist", "D10#bala_blanda", "D16#moran", "D11#mejor_tiro", "D10#aire"],
+	"Q8": ["N:L1.ventana_abierta", "D43#oyen_todo", "L:crane.pasos_techo", "D44#pilluelos", "N:*.sil_wiggins", "N:L1.ceniza_escritorio", "S:M7.trichinopolis", "N:M7.ceniza"],
+	"Q9": ["D10#cabrito_atado", "S:M6.donde", "D11#no_bala", "S:M7.donde_duerme", "R:HB7.col", "D11#hacerlo_balar", "R:M2.nota", "R:HB9.carta"],
+	"Q10": ["N:L3.ventanas_abiertas", "S:HC05.jueves_a", "N:L3.cajon", "S:HC06.e", "N:L3.shag", "S:M7.trichinopolis", "N:L8.ceniza", "S:PRO.cace_india", "S:AGENTE.militar", "N:PRO.harris", "D32#llave_harris"],
 	"_pistas_falsas": ["D03#baston", "D05#baton", "D03#hopeless", "D19#presume", "D03#steiler", "R:D27.texto", "D18#calendars", "D19#indice", "D04#cajista", "D01N#fina_fo", "D34#ruinas", "D35#califa", "D05#corniche", "D15.0403#nada_falta", "N:L7.azafranes", "N:L3.cajon", "D15.0405#meunier"],
 }
+# Ley de la huella v3 (GDD_v3 §4.2, T5): las etiquetas de los grupos de estas preguntas (dossier.json) cuentan como huella.
+const HUELLA := {"holmes": ["Q3", "Q5", "Q8"], "mycroft": ["Q3", "Q5", "Q8"], "moran": ["Q6", "Q8", "Q9", "Q10"]}
 # GDD §9.6–9.7 (+ respuestas, §10 W2-STRUCT).
 const HOLMES_RIDS := ["HC01", "HC02", "HC03", "HC04", "HC05", "HC06", "HC07", "HC08", "HC09", "HC10", "HA0", "HA1", "HA2", "HA3", "HA4",
-	"HB1", "HB2", "HB2b", "HB3", "HB4", "HB5", "HB6", "HB7", "HB8", "HB8b", "HB9", "HB10", "HB11", "HB12", "HB13"]
+	"HA5", "HA6", "HB1", "HB2", "HB2b", "HB3", "HB4", "HB5", "HB6", "HB7", "HB8", "HB8b", "HB9", "HB10", "HB11", "HB12", "HB13"]
 const MORAN_RIDS := ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"]
 const OTHER_RIDS := ["HB14", "D27", "D28", "D37", "L6copia"]
 
@@ -673,19 +673,19 @@ func _frag_index() -> Dictionary:
 				idx[u.ref] = tags
 	return idx
 
-static func _conc_refs(c: Dictionary, with_apoyo := false) -> Array:
+static func _q_refs(q: Dictionary, principal_only := false) -> Array:
 	var out: Array = []
-	for r in c.get("routes", []):
-		for f in r.get("frags", []):
-			out.append(String(f.ref))
-	for k in c.get("subroutes", {}):
-		for f in c.subroutes[k].get("frags", []):
-			out.append(String(f.ref))
-	if with_apoyo:
-		for a in c.get("_apoyo", []):
-			for x in a.get("frags", []):
-				out.append(String(x))
+	for v in q.get("variantes", []):
+		if principal_only and not bool(v.get("principal", false)):
+			continue
+		for r in v.get("rutas", []):
+			for f in r.get("frags", []):
+				out.append(String(f.ref))
 	return out
+
+func _pistas_falsas() -> Array:
+	var pf = _rp.files().get("dossier.json", {}).get("_pistas_falsas", [])
+	return pf if typeof(pf) == TYPE_ARRAY else []
 
 func test_no_unverified_in_routes() -> void:
 	var r := _bad_unverified()
@@ -695,15 +695,16 @@ func test_no_unverified_in_routes() -> void:
 
 func _bad_unverified() -> Dictionary:
 	var idx := _frag_index()
-	var mand: Array = _rp.conclusions_meta().get("mandatory", [])
 	var bad: Array = []
 	var resolved := 0
 	var missing := 0
 	var refs := {}
-	for cid in mand:
-		for r in _conc_refs(_rp.conclusion(cid)):
-			refs[r] = cid
-	for pf in _rp.files().get("conclusions.json", {}).get("_pistas_falsas", []):
+	for q in _rp.questions():
+		if not bool(q.get("obligatoria", false)):
+			continue
+		for r in _q_refs(q, true):
+			refs[r] = String(q.id)
+	for pf in _pistas_falsas():
 		for r in pf.get("refutaciones", []):
 			refs[String(r)] = "refutación %s" % pf.id
 	for k in idx:
@@ -768,12 +769,12 @@ func test_struct_files_valid() -> void:
 	var bad: Array = []
 	for e in _rp.errors():
 		var rel := String(e).get_slice(":", 0)
-		if _mine(rel) or String(e).begins_with("conclusions "):
+		if _mine(rel) or String(e).begins_with("dossier "):
 			bad.append(e)
-	for rel in ["schedule.json", "conclusions.json", "endings.json", "easter_eggs.json", "entities/struct.json", "reactions/columna.json",
+	for rel in ["schedule.json", "dossier.json", "corpus.json", "endings.json", "easter_eggs.json", "entities/struct.json", "reactions/columna.json",
 			"reactions/mycroft.json", "reactions/holmes.json", "reactions/moran.json", "reactions/respuestas.json"]:
 		ok(_rp.files().has(rel), "existe data/%s" % rel)
-	# conclusiones con contenido ajeno faltante no son errores de W2-STRUCT: el repo sólo informa tramos de docs existentes
+	# preguntas con contenido ajeno faltante no son errores estructurales: el repo sólo informa tramos de docs existentes
 	var own: Array = []
 	for e in bad:
 		if not String(e).contains("el documento no tiene el tramo") and not String(e).contains("ejemplar '"):
@@ -793,7 +794,7 @@ func test_struct_reaction_inventory() -> void:
 	for rid in HOLMES_RIDS + MORAN_RIDS + OTHER_RIDS:
 		ok(ids.has(rid), "reacción %s" % rid)
 	eq(ids.size(), HOLMES_RIDS.size() + MORAN_RIDS.size() + OTHER_RIDS.size(), "sin reacciones de más")
-	eq(HOLMES_RIDS.size(), 30, "Holmes: 30 (GDD §15.2)")
+	eq(HOLMES_RIDS.size(), 32, "Holmes: 30 (GDD §15.2) + HA5 y HA6 (GDD_v3 §4.2)")
 	eq(MORAN_RIDS.size(), 12, "Moran: 12")
 	var cols := 0
 	var gars := 0
@@ -804,16 +805,29 @@ func test_struct_reaction_inventory() -> void:
 		if String(r.get("tipo", "")) == "garantizada_por_acto" or r.has("garantizada_si"):
 			gars += 1
 	eq(cols, 11, "Holmes: 11 de columna")
-	eq(gars, 3, "Holmes: 3 garantizadas por acto (HA1, HA3, HB1 en K-T)")
+	eq(gars, 4, "Holmes: 4 garantizadas por acto (HA1, HA3, HB1 en K-T; HA5, GDD_v3 §4.2)")
 	var mcols := 0
 	for rid in MORAN_RIDS:
 		if String(ids.get(rid, {}).get("tipo", "")) == "columna":
 			mcols += 1
 	eq(mcols, 3, "Moran: 3 de columna (M6–M8)")
 
+func _group_tags(qids: Array) -> Array:
+	var out: Array = []
+	for qid in qids:
+		for v in _rp.question(String(qid)).get("variantes", []):
+			for g in v.get("grupos", []):
+				for t in g.get("tags", []):
+					var s := String(t)
+					if not s.contains(":"):
+						s = "a:" + s
+					if not out.has(s):
+						out.append(s)
+	return out
+
 func test_struct_cuts_have_soft_variant_and_footprint() -> void:
-	var c6 := ["acto_", "ancla_", "me_vigila_de_cerca", "vinculo_mycroft", "identidad_holmes", "actividad_posterior_a_mayo_1891"]
-	var c10 := ["harris_es_moran", "cebo", "busca_a_holmes", "tirador", "escondite_preparado"]
+	var hu = _rp.dossier().get("huella", {})
+	var table: Dictionary = hu if typeof(hu) == TYPE_DICTIONARY and not hu.is_empty() else HUELLA
 	var bad: Array = []
 	for r in _rp.reactions():
 		if r.get("corta", []).is_empty():
@@ -824,47 +838,43 @@ func test_struct_cuts_have_soft_variant_and_footprint() -> void:
 		for u in _units():
 			if String(u.get("rid", "")) == String(r.id):
 				tags.append_array(_unit_tags(u))
-		var want: Array = c10 if String(r.lado) == "moran" else c6
+		var want := _group_tags(table.get(String(r.lado), table.get("holmes", [])))
 		var hit := false
 		for t in tags:
-			for w in want:
-				if String(t).begins_with("a:" + w):
-					hit = true
+			if want.has(String(t)):
+				hit = true
 		if not hit:
-			bad.append("%s: corta sin dejar huella (T5)" % r.id)
-	eq(bad, [], "D1 y ley de la huella")
+			bad.append("%s: corta sin dejar huella (T5 v3)" % r.id)
+	eq(bad, [], "D1 y ley de la huella v3")
 
 func test_struct_contract_refs() -> void:
 	var bad: Array = []
-	var concs := {}
-	for c in _rp.conclusions():
-		var base := String(c.id).get_slice(".", 0)
-		if not concs.has(base):
-			concs[base] = []
-		concs[base].append_array(_conc_refs(c, true))
-	for cid in CONTRACT:
-		if cid == "_pistas_falsas":
+	var have_q := {}
+	for q in _rp.questions():
+		have_q[String(q.id)] = _q_refs(q)
+	for qid in CONTRACT:
+		if qid == "_pistas_falsas":
 			continue
-		var have: Array = concs.get(cid, [])
-		for ref in CONTRACT[cid]:
+		var have: Array = have_q.get(qid, [])
+		for ref in CONTRACT[qid]:
 			if not _satisfied(String(ref), have):
-				bad.append("%s: falta %s" % [cid, ref])
+				bad.append("%s: falta %s" % [qid, ref])
 	var pf: Array = []
-	for p in _rp.files().get("conclusions.json", {}).get("_pistas_falsas", []):
+	for p in _pistas_falsas():
 		pf.append_array(p.get("refutaciones", []))
 		pf.append_array(p.get("origen", []))
 	for ref in CONTRACT["_pistas_falsas"]:
 		if not pf.has(ref):
 			bad.append("pistas falsas: falta %s" % ref)
-	eq(bad, [], "toda ruta de §10.4 con las refs del contrato §4.8")
+	eq(bad, [], "toda ruta de GDD_v3 §2.1 con las refs del contrato")
 	var rx := RegEx.new()
-	rx.compile("^(D\\d+[A-Za-z]?(\\.[A-Z0-9]+)?#[a-z0-9_]+|N:[A-Za-z0-9*]+(\\.[a-z0-9_]+)+|S:[A-Z0-9.]+\\.[a-z0-9_*]+|L:[a-z_]+\\.[a-z0-9_]+|R:[A-Za-z0-9*]+\\.[A-Za-z0-9_.*]+|J:[a-z_.A-Z0-9]+|AD:[a-z*]+|M:[A-Za-z0-9.]+)$")
+	rx.compile("^((D\\d+[A-Za-z]?|NC)(\\.[A-Z0-9]+)?#[a-z0-9_]+|N:[A-Za-z0-9*]+(\\.[a-z0-9_]+)+|S:[A-Z0-9.]+\\.[a-z0-9_*]+|L:[a-z_]+\\.[a-z0-9_]+|R:[A-Za-z0-9*]+\\.[A-Za-z0-9_.*]+|J:[a-z_.A-Z0-9]+|AD:[a-z*]+)$")
 	var bad2: Array = []
-	for c in _rp.conclusions():
-		for r in _conc_refs(c, true):
+	for q in _rp.questions():
+		for r in _q_refs(q):
 			if rx.search(r) == null:
-				bad2.append("%s: %s" % [c.id, r])
-	eq(bad2, [], "sintaxis de ref (§4.8)")
+				bad2.append("%s: %s" % [q.id, r])
+	eq(bad2, [], "sintaxis de ref (ARCHITECTURE §4.8, sin M: en v3)")
 
 # Una ref del contrato con selector (R:<rid>.col|carta|*) se cumple con un ejemplo concreto de esa reacción.
 static func _satisfied(ref: String, have: Array) -> bool:
@@ -923,9 +933,9 @@ func _r_ref_ok(ref: String) -> bool:
 func test_struct_reaction_refs_resolve() -> void:
 	var bad: Array = []
 	var refs: Array = []
-	for c in _rp.conclusions():
-		refs.append_array(_conc_refs(c, true))
-	for p in _rp.files().get("conclusions.json", {}).get("_pistas_falsas", []):
+	for q in _rp.questions():
+		refs.append_array(_q_refs(q))
+	for p in _pistas_falsas():
 		refs.append_array(p.get("refutaciones", []))
 		refs.append_array(p.get("origen", []))
 	for r in refs:
@@ -948,80 +958,57 @@ static func _route_keys(frags: Array) -> Array:
 
 func test_struct_star_routes_disjoint() -> void:
 	var bad: Array = []
-	for cid in _rp.conclusions_meta().get("mandatory", []):
-		var c: Dictionary = _rp.conclusion(cid)
+	for q in _rp.questions():
+		if not bool(q.get("obligatoria", false)) or String(q.get("invariante", "normal")) != "normal":
+			continue
 		var stars: Array = []
-		for r in c.get("routes", []):
-			if not bool(r.get("star", false)):
+		for v in q.get("variantes", []):
+			if not bool(v.get("principal", false)):
 				continue
-			var frags: Array = []
-			if r.has("pair"):
-				for k in r.pair:
-					var sr: Dictionary = c.get("subroutes", {}).get(k, {})
-					if not bool(sr.get("star", false)):
-						bad.append("%s %s: subruta %s no es ★" % [cid, r.id, k])
-					frags.append_array(sr.get("frags", []))
-			else:
-				frags = r.get("frags", [])
-			stars.append(_route_keys(frags))
+			for r in v.get("rutas", []):
+				if bool(r.get("star", false)):
+					stars.append(_route_keys(r.get("frags", [])))
 		var found := false
 		for i in stars.size():
 			for j in range(i + 1, stars.size()):
 				if not _any_in(stars[i], stars[j]):
 					found = true
 		if not found:
-			bad.append("%s: no hay dos rutas ★ sin ejemplar común" % cid)
-	eq(bad, [], "≥2 rutas ★ disjuntas por conclusión obligatoria")
+			bad.append("%s: no hay dos rutas ★ sin ejemplar común" % q.id)
+	eq(bad, [], "≥2 rutas ★ disjuntas por pregunta obligatoria (GDD_v3 §2.2)")
 
-func test_struct_conclusion_shape() -> void:
-	var meta: Dictionary = _rp.conclusions_meta()
-	eq(meta.mandatory, ["C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13"])
-	eq(meta.lot_counts, ["C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14"])
-	var lists: Dictionary = _rp.lists()
+# GDD_v3 §1.2–§1.7: diez preguntas, todas obligatorias; respuestas y claves que existen; textos en tinta y lápiz azul.
+func test_struct_dossier_shape() -> void:
+	var ids: Array = []
+	for q in _rp.questions():
+		ids.append(String(q.id))
+	eq(ids, ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10"], "Q1–Q10 en orden")
 	var bad: Array = []
-	var practice := 0
-	for c in _rp.conclusions():
-		var tpl: Dictionary = _rp.template(String(c.template))
-		if tpl.is_empty():
-			bad.append("%s: plantilla %s" % [c.id, c.template])
-			continue
-		var fields := {}
-		for li in tpl.lines.size():
-			for f in tpl.lines[li].fields:
-				fields[String(f.id)] = li
-		for g in c.groups:
-			if int(g.line) < 0 or int(g.line) >= tpl.lines.size():
-				bad.append("%s: grupo %s en línea %d" % [c.id, g.id, g.line])
-		for f in c.answers:
-			if not fields.has(f):
-				bad.append("%s: campo %s no está en %s" % [c.id, f, c.template])
-				continue
-			var acc = c.answers[f]
-			if typeof(acc) == TYPE_DICTIONARY:
-				if not lists.has(String(acc.get("list", ""))):
-					bad.append("%s.%s: lista %s" % [c.id, f, acc])
-				continue
-			for v in acc:
-				var s := String(v).trim_prefix("@alias:")
-				var in_list := false
-				for ln in lists.keys():
-					if typeof(lists[ln]) == TYPE_ARRAY and lists[ln].has(s):
-						in_list = true
-				if _rp.entity(s).is_empty() and not in_list:
-					bad.append("%s.%s: valor %s inexistente" % [c.id, f, s])
-		for e in c.get("keys", {}).get("entities", []):
-			if _rp.entity(String(e)).is_empty():
-				bad.append("%s: clave %s inexistente" % [c.id, e])
-		var v: Dictionary = c.get("validate", {})
-		if TimeKey.of(v.get("from", "")) < 0:
-			bad.append("%s: validate.from" % c.id)
-		if String(c.kind) == "practica":
-			practice += 1
-			eq(String(c.get("practice_origins", "")), "pasajes", "%s practice_origins" % c.id)
-	eq(practice, 8, "C1: ocho pares INC (C1.01…C1.10)")
-	eq(String(_rp.conclusion("C12").validate.until), "10.M")
-	eq(String(_rp.conclusion("C13").validate.until), "10.M")
-	eq(bad, [], "forma de conclusions.json")
+	for q in _rp.questions():
+		if not bool(q.get("obligatoria", false)):
+			bad.append("%s: no es obligatoria" % q.id)
+		if String(q.get("texto", "")) == "" or (q.get("dudas", []) as Array).size() < 2:
+			bad.append("%s: texto o dudas" % q.id)
+		var bp: Dictionary = q.get("blue_pencil", {})
+		if String(bp.get("missing", "")) == "" or String(bp.get("wrong", "")) == "":
+			bad.append("%s: lápiz azul" % q.id)
+		for v in q.get("variantes", []):
+			if String(v.get("tinta", "")).strip_edges() == "":
+				bad.append("%s.%s: sin texto en tinta" % [q.id, v.id])
+			for a in v.get("respuestas", []):
+				var s := String(a).trim_prefix("@alias:")
+				if _rp.entity(s).is_empty():
+					bad.append("%s.%s: respuesta %s inexistente" % [q.id, v.id, s])
+				elif not (q.get("acepta", []) as Array).has(String(_rp.entity(s).get("kind", ""))):
+					bad.append("%s.%s: respuesta %s de un tipo que la pregunta no acepta" % [q.id, v.id, s])
+			for e in v.get("claves", {}).get("entities", []):
+				if _rp.entity(String(e)).is_empty():
+					bad.append("%s.%s: clave %s inexistente" % [q.id, v.id, e])
+			var hasta := String(v.get("valida", {}).get("hasta", "10.M"))
+			if TimeKey.of(hasta) < 0:
+				bad.append("%s.%s: valida.hasta" % [q.id, v.id])
+	eq(bad, [], "forma de dossier.json")
+	eq(String(_rp.question("Q8").get("invariante", "")), "desde_nacimiento", "Q8 se evalúa desde que nace (GDD_v3 §2.2)")
 
 func test_struct_schedule_rules() -> void:
 	var sch: Dictionary = _rp.schedule()
@@ -1048,8 +1035,6 @@ func test_struct_schedule_rules() -> void:
 		ok(sch.voice_b.has(str(k)), "voice_b[%d]" % k)
 	eq(sch.voice_b.get("6", ""), "10.dawn", "domingo → tanda del jueves")
 	eq(sch.voice_b.get("9", ""), "10.M", "miércoles → en persona")
-	eq(int(sch.passes.get("9.N", 0)), 2)
-	eq(int(sch.passes.get("P.N", -1)), 0)
 	eq(sch.reports.size(), 4)
 	ok(bool(sch.reports[3].get("final", false)), "informe final")
 	ok(bool(sch.places.L1.areas.tienda.get("free", false)), "tienda de Crane free")
@@ -1077,14 +1062,16 @@ func test_struct_endings() -> void:
 		eq(Cond.validate(v.cond), [], "cond de %s" % v.id)
 	for want in ["V.confront_completa", "V.confront_incompleta", "V.C12", "V.C14", "V.expuesto", "V.C11", "V.F1", "V.publica"]:
 		has(vids, want, "variante GDD §12.2")
-	# F1 con todo lo pedido; F3b siempre
-	var st := {"flags": {"informe_final": "errata", "moran_credito": true}, "ded": {"sealed": {}}, "events": []}
-	for c in ["C2", "C3", "C4", "C5", "C6", "C7", "C8", "C10"]:
-		st.ded.sealed[c] = "AS"
-	ok(Cond.eval(en.endings[0].cond, {"st": st, "repo": _rp}), "F1 con C6, C7, C10 y 8 selladas, errata y crédito")
+	# F1 con todo lo pedido (GDD_v3 §6.10); F3b siempre
+	var st := {"flags": {"informe_final": "errata", "moran_credito": true}, "ded": {"dossier": {"inked": {}}}, "events": []}
+	for q in ["Q1", "Q2", "Q3", "Q5", "Q6", "Q7", "Q9"]:
+		st.ded.dossier.inked[q] = {"variant": "A", "tk": 0}
+	ok(Cond.eval(en.endings[0].cond, {"st": st, "repo": _rp}), "F1 con Q3, Q6, Q9 y 7 en tinta, informe trampa y crédito")
 	st.flags["holmes_entregado"] = true
 	no(Cond.eval(en.endings[0].cond, {"st": st, "repo": _rp}), "F1 no si entregó a Holmes")
 	ok(Cond.eval(en.endings[4].cond, {"st": st, "repo": _rp}), "F3b siempre")
+	var st4 := {"flags": {}, "ded": {"dossier": {"inked": {"Q1": {}, "Q2": {}}}}, "events": []}
+	ok(Cond.eval(en.endings[1].cond, {"st": st4, "repo": _rp}), "F4 con menos de seis en tinta")
 
 # Cada combinación de canal × tema × n (HB1/HB2) y de flags/contadores (notas de Moran, HB10) elige UNA plantilla.
 func test_struct_rastro_selection_unique() -> void:

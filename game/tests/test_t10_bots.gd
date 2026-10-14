@@ -1,15 +1,15 @@
-# T10 (W3-BOTS; GDD §15.5, §8.9, §11, §7.7; ARCHITECTURE §9.2/§9.3): bots. Los 11 bots de §9.3 juegan partidas
-# completas (prólogo → epílogo) por GameSim.apply. Verifica: el deductor (oráculo de rutas ★) alcanza el mejor final y
-# es la cota: ningún bot logra un `rank` mejor que el del deductor con la misma semilla; el pasivo termina en F4; la pesca
-# (fundamentos correctos, valores al azar) no sella C6, C7 y C10 en la misma partida en más del 5 % (15 partidas; con
-# --slow las 200 del criterio y más semillas por bot); el novato mide el Acto III (palabras/180 × 1,3). Cada bot además hace lo
-# que lo define (si no, la cota sería vacía): cebo pone avisos, informa-todo entrega ítems, sólo-BM sólo va a la Sala,
-# el acusador al azar nunca calla, el presentador al azar le muestra cosas a Mycroft, etc.
+# T10 (W3-BOTS; CORE-EXPEDIENTE, GDD_v3 §2.4, §1.9; GDD §15.5, §8.9, §11, §7.7; ARCHITECTURE §9.2/§9.3): bots. Los 12
+# bots de §9.3 (+ sabelotodo, v3) juegan partidas completas (prólogo → epílogo) por GameSim.apply. Verifica: el deductor
+# (oráculo de rutas ★, hojas verificadas con Dossier.check) alcanza el mejor final y es la cota: ningún bot logra un `rank`
+# mejor que el del deductor con la misma semilla; el pasivo termina en F4; presupuestos (§1.9): fuerza bruta (respuesta y
+# par al azar, 100 intentos por pregunta) cierra ≤5 % de las preguntas que intenta (3 semillas; --slow: las 20 del
+# criterio); sabelotodo (respuesta correcta, par al azar, 50 intentos) se mide y se imprime, sin umbral; el novato emite
+# read, examine y dq_* y mide el Acto III (palabras/180 × 1,3). Cada bot además hace lo que lo define (si no, la cota
+# sería vacía): cebo pone avisos, informa-todo entrega ítems, sólo-BM sólo va a la Sala, el acusador al azar nunca calla,
+# el presentador al azar le muestra cosas a Mycroft, etc.
 # Dataset «fixture» (estructura real de data/ + contenido mínimo de tests/fixtures/{integ,bots}); sobre data/ real
-# cuando el contenido esté completo (si no: pending_content con lo que falta): el deductor debe sellar todas las
-# obligatorias sin fallas del oráculo (una ruta ★ que el plan da por obtenible y no lo es, falla) y ser la cota; fuerza
-# bruta y recorta-todo sobre data/ real sólo con --slow (minutos de CPU). Presupuesto de reloj por partida
-# (salvaguarda contra bucles): 120 s (600 s para los pesados sobre data/ real).
+# cuando el contenido esté completo (si no: pending_content con lo que falta). Presupuesto de reloj por partida
+# (salvaguarda contra bucles): 120 s (600 s para los pesados).
 extends "res://tests/test_base.gd"
 
 const TIMEOUT_S := 1200.0
@@ -21,15 +21,15 @@ const SEEDS := [1]
 const SEEDS_SLOW := [1, 2, 3]
 const RANDOM_SEEDS := [1, 2]
 const RANDOM_SEEDS_SLOW := [1, 2, 3, 4, 5]
-const RANDOM := ["pesca", "fuerza_bruta", "confront_azar", "mycroft_azar"]
-const HEAVY := ["fuerza_bruta"]   # ~10 s por partida (estado grande: cada apply copia el estado); una semilla salvo --slow
+const RANDOM := ["pesca", "fuerza_bruta", "sabelotodo", "confront_azar", "mycroft_azar"]
+const HEAVY := ["fuerza_bruta", "sabelotodo"]   # ~35 s por partida (cientos de dq_confirm); una semilla salvo --slow
 # Sobre data/ real, recortar todo cuesta minutos (≈2.600 apply, ~60 ms cada uno al final: GameSim._apply copia el estado):
 # sólo con --slow y con más presupuesto de reloj (carga del PC: la suite normal no los corre).
-const HEAVY_REAL := ["fuerza_bruta", "recorta_todo"]
+const HEAVY_REAL := ["fuerza_bruta", "sabelotodo", "recorta_todo"]
 const HEAVY_REAL_BUDGET_MS := 600000
-const PESCA_N := 15
-const PESCA_N_SLOW := 200
-const PESCA_BUDGET := 0.05
+const BRUTE_N := 3
+const BRUTE_N_SLOW := 20
+const BRUTE_BUDGET := 0.05
 const ACT3_MAX_MIN := 60.0
 
 static var _fx = null
@@ -70,9 +70,9 @@ func _clean(res: Dictionary, label: String) -> void:
 
 # ------------------------------------------------------------------ registro
 func test_t10_registry():
-	eq(RunBots.BOTS.size(), 11)
-	for name in ["deductor", "novato", "pasivo", "pesca", "fuerza_bruta", "recorta_todo", "cebo", "informa_todo", "solo_bm",
-			"confront_azar", "mycroft_azar"]:
+	eq(RunBots.BOTS.size(), 12)
+	for name in ["deductor", "novato", "pasivo", "pesca", "fuerza_bruta", "sabelotodo", "recorta_todo", "cebo", "informa_todo",
+			"solo_bm", "confront_azar", "mycroft_azar"]:
 		has(RunBots.BOTS, name)
 		var b = RunBots.make(name)
 		ok(b != null, "bot " + name)
@@ -100,7 +100,8 @@ func test_t10_deductor_is_upper_bound():
 		eq(d.get("oracle", []), [], lb + " fallas del oráculo")
 		eq(int(d.rank), best, lb + " el deductor alcanza el mejor final (%s)" % d.ending)
 		for cid in RouteDB.mandatory(r):
-			has(d.sealed, String(cid), lb + " sella")
+			has(d.sealed, String(cid), lb + " pasa en limpio")
+		ok(int(d.confirms) - int(d.confirms_inked) <= 1, lb + " sólo pasa en limpio hojas verificadas (salvo, quizá, la del día 1 guiado): %d de %d" % [int(d.confirms_inked), int(d.confirms)])
 		ok(bool(d.flags.get("moran_credito", false)), lb + " crédito ante Moran")
 		eq(String(d.flags.get("informe_final", "")), "errata", lb + " errata a medida")
 		# determinismo del bot: misma semilla, mismo resultado
@@ -115,7 +116,7 @@ func test_t10_pasivo_f4():
 		var p := _run(r, "fx", "pasivo", seed)
 		_clean(p, "pasivo/s%d" % seed)
 		eq(String(p.ending), "F4", "pasivo/s%d" % seed)
-		eq(p.sealed, [], "pasivo/s%d no sella" % seed)
+		eq(p.sealed, [], "pasivo/s%d nada en tinta" % seed)
 
 func test_t10_no_bot_beats_deductor():
 	var r = _fixture()
@@ -142,12 +143,14 @@ func _behaves(name: String, b: Dictionary, d: Dictionary, lb: String) -> void:
 	match name:
 		"novato":
 			ok(int(b.words_read) > 0, lb + " lee")
+			for t in ["read", "dq_answer", "dq_proof", "dq_confirm"]:
+				ok(v.has(t), lb + " emite " + t)
 			eq(b.get("blocked", {}), {}, lb + " verbos no enseñados que necesitó")
 			ok(float(b.est_minutes_act.get("III", 0.0)) > 0.0, lb + " mide el Acto III")
 		"pesca":
-			ok(int(b.passes) >= 3, lb + " pasa en limpio (%d)" % int(b.passes))
-		"fuerza_bruta":
-			ok(int(b.passes) >= 3, lb + " pasa en limpio (%d)" % int(b.passes))
+			ok(int(b.confirms) >= 3, lb + " pasa en limpio (%d)" % int(b.confirms))
+		"fuerza_bruta", "sabelotodo":
+			ok(int(b.confirms) >= 10, lb + " pasa en limpio (%d)" % int(b.confirms))
 			ok(int(v.get("clip_text", {}).get("free", 0)) > int(d.verbs.get("clip_text", {}).get("free", 0)), lb + " recorta más que el deductor")
 		"recorta_todo":
 			ok(int(v.get("clip_text", {}).get("free", 0)) > int(d.verbs.get("clip_text", {}).get("free", 0)), lb + " recorta más que el deductor")
@@ -172,25 +175,28 @@ func _behaves(name: String, b: Dictionary, d: Dictionary, lb: String) -> void:
 			for m in b.get("mycroft", []):
 				ok(bool(m.get("ok", false)), lb + " presentación aceptada por el sim: " + str(m))
 
-func test_t10_pesca_budget():
+# GDD_v3 §1.9 / §2.4: fuerza bruta cierra ≤5 % de las preguntas que intenta; sabelotodo se mide (sin umbral).
+func test_t10_brute_force_budget():
 	var r = _fixture()
-	var n := PESCA_N_SLOW if slow else PESCA_N
-	var hits := 0
-	var sealed_any := 0
+	var n := BRUTE_N_SLOW if slow else BRUTE_N
+	var tried := 0
+	var closed := 0
 	for i in n:
 		var seed := 1000 + i
-		var p := RunBots.run_one(r, "pesca", seed, 20000, 120000)
-		eq(String(p.get("runaway", "")), "", "pesca/s%d salvaguarda" % seed)
-		eq(String(p.get("phase", "")), "done", "pesca/s%d termina" % seed)
-		var s: Array = p.get("sealed", [])
-		if s.has("C6") and s.has("C7") and s.has("C10"):
-			hits += 1
-		if not s.is_empty():
-			sealed_any += 1
-		ok(int(p.rank) >= _best_rank(r), "pesca/s%d" % seed)
-	var rate := float(hits) / float(n)
-	print("T10 pesca: %d partidas, C6+C7+C10 en %d (%.1f %%), alguna conclusión sellada en %d" % [n, hits, rate * 100.0, sealed_any])
-	ok(rate <= PESCA_BUDGET, "pesca sella C6, C7 y C10 en %.1f %% de %d partidas (> 5 %%)" % [rate * 100.0, n])
+		var p := RunBots.run_one(r, "fuerza_bruta", seed, 40000, 600000)
+		eq(String(p.get("runaway", "")), "", "fuerza_bruta/s%d salvaguarda" % seed)
+		eq(String(p.get("phase", "")), "done", "fuerza_bruta/s%d termina" % seed)
+		tried += (p.get("attempts", {}) as Dictionary).size()
+		closed += (p.get("sealed", []) as Array).size()
+		ok(int(p.rank) >= _best_rank(r), "fuerza_bruta/s%d" % seed)
+	var rate := float(closed) / float(maxi(tried, 1))
+	print("T10 fuerza bruta: %d partidas, %d preguntas intentadas, %d cerradas (%.1f %%)" % [n, tried, closed, rate * 100.0])
+	ok(tried > 0, "intenta")
+	ok(rate <= BRUTE_BUDGET, "fuerza bruta cierra %.1f %% de las preguntas (> 5 %%)" % [rate * 100.0])
+	var sb := _run(r, "fx", "sabelotodo", 1, 600000)
+	_clean(sb, "sabelotodo")
+	var st := (sb.get("attempts", {}) as Dictionary).size()
+	print("T10 sabelotodo (respuesta correcta, par al azar, 50 intentos): %d de %d preguntas en tinta, %d confirmaciones" % [(sb.sealed as Array).size(), st, int(sb.confirms)])
 
 func test_t10_novato_act3():
 	var r = _fixture()
@@ -242,14 +248,17 @@ func test_t10_play_cli_session():
 	# revisión de documento (--doc)
 	var s3 = PS.new(r, 1)
 	s3.echo = false
-	s3.review_doc("D09")
+	s3.review_doc("D16")
 	eq(int(s3.fails), 0, "\n".join(s3.out))
-	ok("\n".join(s3.out).contains("C5.R1 D09#desague"), "lista los fragmentos de contrato")
+	ok("\n".join(s3.out).contains("Q7.R2 D16#moran"), "lista los fragmentos de contrato: " + "\n".join(s3.out))
 	s3.fails = 0
 	s3.review_doc("NO_EXISTE")
 	eq(int(s3.fails), 1)
-	var pt: Dictionary = r.parse_text("{{#x a:foo|Uno dos. Tres cuatro.}}")
-	ok(String(s3.tramo_check(pt, pt.tramos[0])).contains("cruza_oracion"), "tramo que cruza oraciones: el recorte de prueba no es legal")
+	var long_t := " ".join(PackedStringArray(range(32).map(func(i): return "palabra")))
+	var pt: Dictionary = r.parse_text("{{#x a:foo|%s.}}" % long_t)
+	ok(String(s3.tramo_check(pt, pt.tramos[0])) != "", "tramo de 32 palabras: ninguna ventana de 15 lo hereda (GDD_v3 §6.2)")
+	var pt2: Dictionary = r.parse_text("{{#x a:foo|Uno dos tres cuatro.}}")
+	eq(String(s3.tramo_check(pt2, pt2.tramos[0])), "", "tramo corto: el recorte de prueba lo hereda")
 
 # ------------------------------------------------------------------ data/ real
 func test_t10_real_data():
@@ -284,27 +293,27 @@ func test_t10_real_data():
 		float(nv.get("play_minutes", 0.0)), str(nv.get("play_minutes_act", {})), float(nv.get("est_minutes", 0.0)), str(nv.get("est_minutes_act", {})), ACT3_MAX_MIN])
 	ok(a3 > 0.0, "Acto III medido en minutos de juego")
 	ok(a3 <= ACT3_MAX_MIN, "Acto III del novato: %.1f min de juego > %.0f (adelantar material, GDD §15.7)" % [a3, ACT3_MAX_MIN])
-	var hits := 0
-	var n := 50 if slow else 10
-	for i in n:
-		var s: Array = RunBots.run_one(r, "pesca", 2000 + i, 20000, 120000).get("sealed", [])
-		if s.has("C6") and s.has("C7") and s.has("C10"):
-			hits += 1
-	ok(float(hits) / n <= PESCA_BUDGET, "real/pesca: %d de %d" % [hits, n])
+	if slow:
+		var tried := 0
+		var closed := 0
+		for i in 5:
+			var fb := RunBots.run_one(r, "fuerza_bruta", 2000 + i, 40000, HEAVY_REAL_BUDGET_MS)
+			tried += (fb.get("attempts", {}) as Dictionary).size()
+			closed += (fb.get("sealed", []) as Array).size()
+		ok(float(closed) / float(maxi(tried, 1)) <= BRUTE_BUDGET, "real/fuerza bruta: %d de %d" % [closed, tried])
 
 # Sondas del oráculo sobre data/ real (W4-BALANCE): partidas del deductor que la estándar no recorre. Un foco sin
-# compañeras opcionales, un jugador que deja pasar los primeros días y otro foco con C12. Cada una: sin fallas del
-# oráculo (una ruta ★ que el plan da por obtenible y no lo es) y partida limpia. Detectó D1 (C6.R1 «failed»:[5]).
+# compañeras opcionales y un jugador que deja pasar los primeros días. Cada una: sin fallas del oráculo (una ruta ★ que
+# el plan da por obtenible y no lo es) y partida limpia.
 func test_t10_real_oracle_probes():
 	var r = _real_repo()
 	if not bool(BotData.content_report(r).ok):
 		pending_content("T10 sondas del oráculo: contenido incompleto")
 		return
 	var probes := [
-		{"label": "foco C2-C3-C5-C6-C8-C10", "focus": ["C2", "C3", "C5", "C6", "C8", "C10"], "idle": 0},
+		{"label": "foco Q1-Q2-Q3-Q5-Q6-Q9", "focus": ["Q1", "Q2", "Q3", "Q5", "Q6", "Q9"], "idle": 0},
 		{"label": "tardío día 5", "focus": [], "idle": 5},
 		{"label": "tardío día 8", "focus": [], "idle": 8},
-		{"label": "foco C6-C7-C10-C2-C3-C5-C8-C12-C4", "focus": ["C6", "C7", "C10", "C2", "C3", "C5", "C8", "C12", "C4"], "idle": 0},
 	]
 	for pr in probes:
 		var b = RunBots.make("deductor")

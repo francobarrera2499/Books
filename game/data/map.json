@@ -1,5 +1,5 @@
 {
- "_nota": "W3-SHELL (ARCHITECTURE §4.17, §6.7). Plano de Londres dibujado por código, en milímetros sobre una hoja de 600×420 (proyección simple; Londres de 1894: sin Kingsway ni Aldwych). booth_zones: clases de Charles Booth (A–G, mapa de la pobreza de 1889–1891), aproximadas y sólo de sabor; booth_colors: sus tintas. objects: qué hace cada objeto 3D al tocarlo (ui/desk/objects.gd); clave = lugar o lámina (id de data/places o data/plates), nodo con comodín final «*». places.<L>.hours: una línea de horario (GDD_v2 §C.3, se ve al pasar el mouse). Qué lugares aparecen lo decide schedule.reveal (GDD_v2 §B.3; antes places.L8.show).",
+ "_nota": "W3-SHELL (ARCHITECTURE §4.17, §6.7). Plano de Londres dibujado por código, en milímetros sobre una hoja de 600×420 (proyección simple; Londres de 1894: sin Kingsway ni Aldwych). booth_zones: clases de Charles Booth (A–G, mapa de la pobreza de 1889–1891), aproximadas y sólo de sabor; booth_colors: sus tintas. places.<L>.new_side: dónde va el sello «Nuevo» si arriba/abajo tapa otro rótulo (left|right; UI-MUNDO). objects: qué hace cada objeto 3D al tocarlo (ui/desk/objects.gd); clave = lugar o lámina (id de data/places o data/plates), nodo con comodín final «*». places.<L>.hours: una línea de horario (GDD_v2 §C.3, se ve al pasar el mouse). Qué lugares aparecen lo decide schedule.reveal (GDD_v2 §B.3; antes places.L8.show).",
  "size_mm": [
   600,
   420
@@ -79,6 +79,7 @@
     9,
     9
    ],
+   "new_side": "left",
    "hours": "De 10 a 15, salvo el domingo. Un chelín por búsqueda."
   },
   "L7": {
@@ -1218,199 +1219,17 @@
    "veil": "polvo"
   }
  },
- "objects": {
-  "L1": {
-   "bandeja": {
-    "do": "tray"
-   },
-   "mapa": {
-    "do": "map"
-   },
-   "cuaderno": {
-    "do": "notebook"
-   },
-   "libro_mayor": {
-    "do": "ledger"
-   },
-   "sello": {
-    "do": "ledger"
-   },
-   "tijera": {
-    "do": "scissors"
-   },
-   "calendario": {
-    "do": "calendar"
-   },
-   "tintero": {
-    "do": "compose"
-   },
-   "pliegos": {
-    "do": "compose"
-   },
-   "tomos": {
-    "do": "docs",
-    "via": [
-     "tome"
-    ]
-   },
-   "escritorio": {
-    "do": "docs",
-    "via": [
-     "desk"
-    ],
-    "rest": true
-   },
-   "atril": {
-    "do": "docs",
-    "via": [
-     "desk"
-    ],
-    "rest": true
-   },
-   "cama": {
-    "do": "sleep"
-   },
-   "ventana": {
-    "do": "frame",
-    "frame": "ventana"
-   },
-   "puerta": {
-    "do": "go",
-    "place": "L1",
-    "area": "tienda"
-   },
-   "escalera_tienda": {
-    "do": "leave"
-   },
-   "mostrador": {
-    "do": "docs",
-    "via": [
-     "counter"
-    ]
-   },
-   "libro_ventas": {
-    "do": "docs",
-    "via": [
-     "counter"
-    ]
-   },
-   "estantes_*": {
-    "do": "docs",
-    "via": [
-     "shelf"
-    ]
-   },
-   "revistas": {
-    "do": "docs",
-    "via": [
-     "shelf"
-    ]
-   }
-  },
-  "PRO": {
-   "bandeja": {
-    "do": "tray"
-   },
-   "libro_mayor": {
-    "do": "ledger"
-   },
-   "sello": {
-    "do": "ledger"
-   },
-   "tijera": {
-    "do": "scissors"
-   },
-   "calendario": {
-    "do": "calendar"
-   },
-   "tintero": {
-    "do": "compose"
-   },
-   "tomos": {
-    "do": "docs",
-    "via": [
-     "tome"
-    ]
-   },
-   "escritorio": {
-    "do": "docs",
-    "via": [
-     "desk"
-    ],
-    "rest": true
-   },
-   "atril": {
-    "do": "docs",
-    "via": [
-     "desk"
-    ],
-    "rest": true
-   },
-   "ventana": {
-    "do": "frame",
-    "frame": "ventana"
-   }
-  },
-  "M7": {
-   "bandeja": {
-    "do": "tray"
-   },
-   "libro_mayor": {
-    "do": "ledger"
-   },
-   "sello": {
-    "do": "ledger"
-   },
-   "tijera": {
-    "do": "scissors"
-   },
-   "calendario": {
-    "do": "calendar"
-   },
-   "tintero": {
-    "do": "compose"
-   },
-   "pliegos": {
-    "do": "compose"
-   },
-   "tomos": {
-    "do": "docs",
-    "via": [
-     "tome"
-    ]
-   },
-   "escritorio": {
-    "do": "docs",
-    "via": [
-     "desk"
-    ],
-    "rest": true
-   },
-   "atril": {
-    "do": "docs",
-    "via": [
-     "desk"
-    ],
-    "rest": true
-   },
-   "ventana": {
-    "do": "frame",
-    "frame": "ventana"
-   }
-  },
-  "L2": {
-   "catalogo": {
-    "do": "catalog"
-   },
-   "papeletas": {
-    "do": "catalog"
-   },
-   "asiento": {
-    "do": "catalog"
-   },
-   "mesa_del_puesto": {
-    "do": "catalog"
-   }
+  "objects": {
+    "_nota": "GDD_v3 §6.4 (UI-MUNDO): sólo es interactivo lo útil; un clic lo usa en el acto. Mano = vínculo vivo; lo demás, lupa (tarjeta de examen). El tintero es el único lugar para escribir (sin «pliegos»); el plano está sólo en la pared (nodo mapa); el calendario, la tijera y el libro mayor ya no son objetos de la mesa (calendario: el HUD; tijera: C y el ícono de las tarjetas). estante: los papeles de casa (crónicas, D02, D21, D09@L1 y lo devuelto; skip = documentos que viven en otro objeto: el encargo está en el expediente) y los faltantes con «No está.». En las láminas PRO y M7 la carpeta del expediente y los tomos son props sin examen (CONTENIDO, GDD_v3 §6.4): ahí el expediente se abre con E.",
+    "L1": {"bandeja": {"do": "tray"}, "mapa": {"do": "map"}, "cuaderno": {"do": "notebook"}, "expediente": {"do": "dossier"},
+           "tintero": {"do": "compose"}, "estante": {"do": "docs", "via": ["tome", "desk"], "rest": true, "skip": ["D23"]},
+           "puerta": {"do": "go", "place": "L1", "area": "tienda"}, "escalera_tienda": {"do": "leave"},
+           "mostrador": {"do": "docs", "via": ["counter"]}, "libro_ventas": {"do": "docs", "via": ["counter"]},
+           "estantes_*": {"do": "docs", "via": ["shelf"]}, "revistas": {"do": "docs", "via": ["shelf"]}},
+    "PRO": {"bandeja": {"do": "tray"}, "tintero": {"do": "compose"}, "expediente": {"do": "dossier"},
+            "estante": {"do": "docs", "via": ["tome", "desk"], "rest": true, "skip": ["D23"]}},
+    "M7": {"bandeja": {"do": "tray"}, "tintero": {"do": "compose"},
+           "estante": {"do": "docs", "via": ["tome", "desk"], "rest": true, "skip": ["D23"]}},
+    "L2": {"catalogo": {"do": "catalog"}, "papeletas": {"do": "catalog"}, "asiento": {"do": "catalog"}, "mesa_del_puesto": {"do": "catalog"}}
   }
- }
 }

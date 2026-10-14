@@ -7,13 +7,19 @@
 #   siguiente_salida       → (D+1).M: se resuelve en la primera salida (go) de ese día o a la noche (M1, M2)
 #   siguiente_comunicacion → act_tk: su línea espera la próxima nota de Pell/«H.» o M7/M8 (MoranAgent.next_lines)
 #   dias {n}               → amanecer de D+n
+#   intrusion (v3, HA5/HA6) → lo que ve Cotter en el momento (K-BM, K-T): act_tk (ocurre mientras Lisle sigue afuera en
+#                            esa salida: se aplica al volver, Director.on_leave); lo que cuenta otro sensor esa noche
+#                            (K-W, K-H): (D+1).M (la primera salida del día siguiente). Si Lisle no sale, de noche
+#                            (mientras duerme: el Director la aplica al amanecer siguiente).
 # how_for: cómo llega un documento (correo | en_mano | mostrador_crane | columna | noticias).
 extends RefCounted
 
 const TimeKey = preload("res://core/util/timekey.gd")
 const RDB = preload("res://core/react/reaction_db.gd")
 
-static func due_tk(st, repo, rule: Dictionary, act_tk: int) -> int:
+const INTRUSION_NEXT_DAY := ["K-W", "K-H"]
+
+static func due_tk(st, repo, rule: Dictionary, act_tk: int, channel := "") -> int:
 	var lat = rule.get("latencia", {})
 	if typeof(lat) != TYPE_DICTIONARY:
 		return -1
@@ -35,6 +41,10 @@ static func due_tk(st, repo, rule: Dictionary, act_tk: int) -> int:
 			return TimeKey.tk(d + 1, "M")
 		"dias":
 			return TimeKey.tk(d + maxi(1, int(lat.get("n", 1))), "dawn")
+		"intrusion":
+			if INTRUSION_NEXT_DAY.has(channel):
+				return TimeKey.tk(d + 1, "M")
+			return act_tk
 	return -1
 
 static func voice_b_tk(repo, act_day: int) -> int:

@@ -4,6 +4,7 @@ extends "res://tests/test_base.gd"
 
 const Fakes = preload("res://tests/fixtures/scenes/fakes.gd")
 const Composers = preload("res://core/scenes/composers.gd")
+const Deps = preload("res://core/scenes/deps.gd")
 const Markup = preload("res://core/text/markup.gd")
 const J = preload("res://core/util/j.gd")
 
@@ -186,8 +187,8 @@ func _report_st(opts := {}):
 	var st = _st(opts)
 	Fakes.clip(st, "RC1", "En la pared, una marca reciente.", ["pared"], ["a:raspadura_registrada", "c:verdadero"], "D05", {"copy": "D05@BM", "cls": "I", "src_line": "Journal de Genève, prensa extranjera"})
 	Fakes.clip(st, "RC2", "Lo atribuí a algún cabrero.", ["raspadura"], ["a:raspadura_registrada"], "D02", {"copy": "D02@L1", "cls": "P"})
-	Fakes.entry(st, "AS1", "T8", [{"fields": {"persona": "holmes"}, "support": ["RC1"]}, {"fields": {"lugar": "meiringen"}, "support": ["RC2"]}])
-	st.react["cats"] = {"RC1": ["verdadero"], "RC2": ["original_p"], "AS1": ["paradero_extranjero"]}
+	Fakes.question(st, "Q5", "holmes", ["RC1", "RC2"], false)
+	st.react["cats"] = {"RC1": ["verdadero"], "RC2": ["original_p"], "Q5": ["paradero_extranjero"]}
 	return st
 
 func test_report_due_and_errors():
@@ -204,13 +205,14 @@ func test_report_due_and_errors():
 	eq(Composers.act_report_submit(st, rp, {"mode": "items", "items": [{"kind": "clip", "id": "RC1"}, {"kind": "clip", "id": "RC1"}]}).err, "forma", "repetido")
 	eq(Composers.act_report_submit(st, rp, {"mode": "items", "items": [{"kind": "clip", "id": "X"}]}).err, "no_existe")
 	eq(Composers.act_report_submit(st, rp, {"mode": "nada", "items": [{"kind": "clip", "id": "RC1"}]}).err, "forma")
-	eq(Composers.act_report_submit(st, rp, {"mode": "items", "items": [{"kind": "clip", "id": "RC1"}, {"kind": "clip", "id": "RC2"}, {"kind": "entry", "id": "AS1"}, {"kind": "clip", "id": "RC1"}]}).err, "forma", "≤3")
+	eq(Composers.act_report_submit(st, rp, {"mode": "items", "items": [{"kind": "clip", "id": "RC1"}, {"kind": "clip", "id": "RC2"}, {"kind": "pregunta", "id": "Q5"}, {"kind": "clip", "id": "RC1"}]}).err, "forma", "≤3")
+	eq(Composers.act_report_submit(st, rp, {"mode": "items", "items": [{"kind": "entry", "id": "AS1"}]}).err, "forma", "v3: sin asientos")
 	eq(Composers.act_report_submit(st, rp, {"mode": "otro", "items": []}).err, "forma")
 	eq(J.stringify_canon({"s": st.scenes, "f": st.flags, "p": st.pending_events}), before, "errores no mutan")
 
 func test_report_items_event():
 	var st = _report_st({"day": 2, "phase": "night", "slot": "N"})
-	var a := {"t": "report_submit", "mode": "items", "items": [{"kind": "clip", "id": "RC1"}, {"kind": "entry", "id": "AS1"}]}
+	var a := {"t": "report_submit", "mode": "items", "items": [{"kind": "clip", "id": "RC1"}, {"kind": "pregunta", "id": "Q5"}]}
 	var pv := Composers.preview(st, rp, a)
 	var r: Dictionary = Composers.act_report_submit(st, rp, a)
 	ok(r.ok, str(r))
@@ -218,11 +220,12 @@ func test_report_items_event():
 	eq(r.text, pv, "el texto final es el de la vista previa")
 	ok(String(r.text).begins_with("Informe n.º 1, para el mayor Harris"), r.text)
 	ok(String(r.text).contains("1. «En la pared, una marca reciente.» (Journal de Genève, prensa extranjera)"), r.text)
-	ok(String(r.text).contains("2. Persona: Sherlock Holmes · Lugar: Meiringen"), r.text)
+	ok(String(r.text).contains("2. " + Deps.question_summary(st, rp, "Q5")), r.text)
+	ok(String(r.text).contains("Holmes."), "la respuesta en lápiz va en el informe: " + r.text)
 	var ev: Dictionary = st.pending_events[0]
 	eq([ev.type, ev.n, ev.mode, ev.final], ["report", 1, "items", false])
 	eq(ev.items[0], {"kind": "clip", "cats": ["verdadero"], "copies": ["D05@BM"], "cls": ["I"]})
-	eq(ev.items[1], {"kind": "entry", "cats": ["paradero_extranjero"], "copies": ["D05@BM", "D02@L1"], "cls": ["I", "P"], "values": {"lugar": "meiringen", "persona": "holmes"}})
+	eq(ev.items[1], {"kind": "pregunta", "cats": ["paradero_extranjero"], "copies": ["D05@BM", "D02@L1"], "cls": ["I", "P"], "q": "Q5", "answer": "holmes", "inked": false})
 	no(str(ev).contains("raspadura_registrada"), "sin etiquetas ocultas en el evento")
 	no(st.flags.has("informe_final"))
 	eq(Composers.report_status(st, rp).due, false, "ya entregado")

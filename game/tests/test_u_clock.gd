@@ -1,4 +1,4 @@
-# W2-SIM: reloj y fases (§3.2): horarios, pasadas (9.N = 2), franjas cruzadas, día 6 sólo T, escenas fijas M6/M7,
+# W2-SIM / CORE-EXPEDIENTE: reloj y fases (§3.2): horarios, pasar en limpio sin cupo por franja (GDD_v3 §1.6), franjas cruzadas, día 6 sólo T, escenas fijas M6/M7,
 # anuncios (oficina, uno por día, sáb -> lun, prólogo -> día 1), informes, salidas y el día 10 fijo hasta el epílogo.
 extends "res://tests/test_base.gd"
 
@@ -50,38 +50,19 @@ func test_place_open_windows():
 	eq(Clock.place_open(r, st, "L6", "registro", 3, "M").reason, "cerrado")
 	eq(Clock.place_open(r, st, "L6", "registro", 4, "M").open, true)
 
-func test_passes_per_slot():
-	var r = Kit.repo()
-	eq(Clock.passes_for(r, 0, "N"), 0, "P.N")
-	eq(Clock.passes_for(r, 3, "T"), 1)
-	eq(Clock.passes_for(r, 9, "N"), 2, "9.N = 2")
-	eq(Clock.passes_for(r, 10, "M"), 1)
-	eq(Clock.passes_for(r, 4, "night"), 0)
-
-func test_pass_consumed_and_reset():
+# GDD_v3 §1.6: pasar en limpio no tiene cupo por franja ni gasta tiempo; sin intentos limitados; no en el epílogo.
+func test_confirm_has_no_slot_quota():
 	var s = _at(1, "M")
-	ok(s.apply({"t": "entry_new", "folio": "varios", "template": "T1"}).ok)
-	eq(s.q_clock().passes_left, 1)
-	eq(s.apply({"t": "pass_clean", "entries": ["AS001"]}).err, "lote", "lote mal formado no gasta")
-	eq(s.q_clock().passes_left, 1)
-	var r: Dictionary = s.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]})
-	ok(r.ok and not r.inked, "pasada fallida: ok, sin tinta")
-	eq(s.q_clock().passes_left, 0, "se gastó")
-	eq(s.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]}).err, "sin_pasada")
+	no(s.q_clock().has("passes_left"), "v3: sin pasadas por franja")
+	no(s.q_clock().has("lot_size"))
+	for i in 3:
+		var r: Dictionary = s.apply({"t": "dq_confirm", "q": "Q1"})
+		eq(String(r.get("err", "")), "formal", "hoja vacía: error de forma, no «Algo no cierra.»: %s" % str(r))
+	eq(int(s.st.ded.dossier.attempts.get("Q1", 0)), 0, "los errores de forma no registran intento")
 	ok(s.apply({"t": "go", "place": "L3", "area": "calle"}).ok)
-	eq(s.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]}).err, "fase", "no durante la visita")
+	eq(String(s.apply({"t": "dq_confirm", "q": "Q1"}).err), "formal", "también fuera de casa (la cinta Expediente): no es error de fase")
 	ok(s.apply({"t": "leave"}).ok)
-	eq(s.q_clock().passes_left, 0, "misma franja")
-	ok(s.apply({"t": "end_slot"}).ok)
-	eq(s.q_clock().passes_left, 1, "vuelve a 0 en end_slot")
-
-func test_two_passes_on_9N():
-	var s = _at(9, "N")
-	ok(s.apply({"t": "entry_new", "folio": "varios", "template": "T1"}).ok)
-	eq(s.q_clock().passes_left, 2)
-	ok(s.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]}).ok)
-	ok(s.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]}).ok)
-	eq(s.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]}).err, "sin_pasada")
+	eq([s.q_clock().day, s.q_clock().slot], [1, "M"], "pasar en limpio no gasta la franja")
 
 func test_crossed_tks():
 	var a := {"day": 0, "slot": "N"}
@@ -212,10 +193,8 @@ func test_day10_fixed_flow_to_done():
 	eq(s.q_clock().phase, "confront")
 	ok(s.apply({"t": "confront", "step": 4, "item": {}}).ok)
 	eq(s.q_clock().phase, "final_report")
-	eq(s.q_clock().passes_left, 1, "10.M = 1")
 	ok(s.q_report_status().due and s.q_report_status().final)
-	ok(s.apply({"t": "entry_new", "folio": "varios", "template": "T1"}).ok)
-	ok(s.apply({"t": "pass_clean", "entries": ["AS002"]}).ok, "lote de 1 el día 10")
+	eq(String(s.apply({"t": "dq_confirm", "q": "Q1"}).err), "formal", "el día 10 todavía se pasa en limpio (no es error de fase)")
 	ok(s.apply({"t": "report_submit", "mode": "quemar", "items": []}).ok)
 	c = s.q_clock()
 	eq([c.day, c.slot, c.phase], [10, "T", "parklane"])
@@ -238,7 +217,8 @@ func test_day10_fixed_flow_to_done():
 	eq(s.apply({"t": "publish_errata", "yes": false}).err, "ya_decidido")
 	ok(s.apply({"t": "leave"}).ok)
 	eq(s.q_clock().phase, "done")
-	eq(s.apply({"t": "clip_measure", "src": {"kind": "doc", "ref": "D29b@L4"}}).err, "fin")
+	eq(s.apply({"t": "clip_text", "src": {"kind": "doc", "ref": "D29b@L4", "part": 0, "block": 0}, "from": 0, "len": 4}).err, "fin")
+	eq(s.apply({"t": "dq_confirm", "q": "Q1"}).err, "fin")
 	eq(s.apply({"t": "leave"}).err, "fin")
 
 func test_prologue_sleep_requires_tutorial():

@@ -1,9 +1,8 @@
-# world/affordance/affordance_post.gd — quad de afordancias (GDD_v2 §D.3). Dueño: CÁMARA + AFORDANCIAS.
+# world/affordance/affordance_post.gd — quad del contorno bajo el mouse (GDD_v3 §6.5). Dueño: UI-MUNDO.
 # MeshInstance3D con QuadMesh 2x2 colgado de la cámara (mismo patrón que world/post/engraving_post.gd, que no se toca):
 # dibuja affordance.gdshader DESPUÉS del look (misma render_priority máxima, sorting_offset mayor) leyendo sólo el
 # buffer normal_roughness. Capa de render 20 (como el look): una cámara de miniaturas la excluye.
-# API: attach(cam) -> nodo · find(cam) · set_reveal_all(on) · set_palette(ink, paper) · set_high_contrast(on) ·
-#   set_show_usable(on) · set_param(n, v) · param(n).
+# API: attach(cam) -> nodo · find(cam) · set_high_contrast(on) · set_param(n, v) · param(n).
 extends MeshInstance3D
 
 const NODE_NAME := "AffordancePost"
@@ -11,7 +10,6 @@ const LAYER := 1 << 19
 const SHADER := "res://world/affordance/affordance.gdshader"
 
 var mat: ShaderMaterial
-var reveal_all := false
 
 static func attach(cam: Camera3D) -> MeshInstance3D:
 	var ex := cam.get_node_or_null(NODE_NAME) as MeshInstance3D
@@ -51,17 +49,6 @@ func _on_theme() -> void:
 	var ti := get_node_or_null("/root/ThemeInstaller")
 	if ti != null and "high_contrast" in ti:
 		set_high_contrast(bool(ti.high_contrast))
-
-func set_reveal_all(on: bool) -> void:
-	reveal_all = on
-	mat.set_shader_parameter("reveal_all", on)
-
-func set_show_usable(on: bool) -> void:
-	mat.set_shader_parameter("show_usable", on)
-
-func set_palette(ink: Color, paper: Color) -> void:
-	mat.set_shader_parameter("ink", ink)
-	mat.set_shader_parameter("paper", paper)
 
 func set_high_contrast(on: bool) -> void:
 	mat.set_shader_parameter("high_contrast", on)

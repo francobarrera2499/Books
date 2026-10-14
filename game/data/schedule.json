@@ -15,8 +15,6 @@
     {"day": 11, "key": "E", "date": "1903-10-01", "weekday": "jue", "label": "Octubre de 1903", "slots": [], "mail": false, "times": false}
   ],
   "slot_hours": {"M": "9–13", "T": "13–18", "N": "18–22"},
-  "passes": {"default": 1, "P.N": 0, "9.N": 2, "10.M": 1},
-  "lot": {"default": 2, "day10": 1},
   "reports": [
     {"n": 1, "tk": "2.night"},
     {"n": 2, "tk": "5.night"},

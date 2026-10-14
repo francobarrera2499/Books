@@ -68,11 +68,21 @@ func _has_save() -> bool:
 	var g = get_tree().root.get_node_or_null("Game")
 	return g != null and bool(g.has_save())
 
+func _old_save() -> bool:
+	var g = get_tree().root.get_node_or_null("Game") if is_inside_tree() else null
+	return g != null and g.has_method("save_too_old") and bool(g.save_too_old())
+
 func _build_menu() -> void:
 	for c in menu.get_children():
 		c.queue_free()
 	if _has_save():
 		menu.add_child(_item(Widgets.t("shell.title.continuar"), _continue))
+	elif _old_save():
+		# GDD_v3 §1.7: guardado de antes de la v3: se avisa y sólo se ofrece partida nueva
+		var note := Widgets.marginal(Widgets.t("v3core.save.otra_version"))
+		note.name = "OtraVersion"
+		note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		menu.add_child(note)
 	menu.add_child(_item(Widgets.t("shell.title.nueva"), _new))
 	menu.add_child(_item(Widgets.t("shell.title.opciones"), _options))
 	menu.add_child(_item(Widgets.t("shell.title.salir"), _quit))
@@ -105,7 +115,7 @@ func _continue() -> void:
 	shell.continue_game()
 
 func _new() -> void:
-	if not _has_save():
+	if not _has_save() and not _old_save():
 		if shell != null:
 			shell.new_game()
 		return

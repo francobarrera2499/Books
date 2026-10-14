@@ -17,7 +17,7 @@ func test_plan_from_start():
 	var p := Fe.plan(r, 0, [], RouteDB.mandatory(r))
 	ok(p.ok, str(p.unmet))
 	eq(p.unmet, [])
-	eq(p.routes.size(), 12, "una ruta ★ elegida por conclusión")
+	eq(p.routes.size(), 11, "una ruta ★ elegida por pregunta obligatoria")
 	ok(p.plan.size() > 0)
 	var seen := {}
 	var last := -1
@@ -76,8 +76,8 @@ func test_match_units():
 func test_plan_prefers_routes_without_player_acts():
 	var F = load("res://core/graph/feasibility.gd")
 	eq(F.DEPS_RANK, {"fija": 0, "columna": 1, "garantizada": 2, "opcional": 3})
-	var r = repo()
-	var RouteDB = load("res://core/graph/route_db.gd")
+	# v3: sobre el fixture del grafo (en data/ real las rutas con contenido pendiente las mide T3).
+	var r = _r()
 	var p: Dictionary = F.plan(r, load("res://core/util/timekey.gd").idx(1, "M"), [], RouteDB.mandatory(r))
 	ok(bool(p.get("ok", false)), "plan de las obligatorias desde 1.M")
 	var deps := {}
@@ -85,4 +85,6 @@ func test_plan_prefers_routes_without_player_acts():
 		for rt in RouteDB.routes(r, String(cid)):
 			if String(rt.id) == String(p.routes[cid]):
 				deps[String(cid)] = String(rt.get("deps", ""))
-	eq(String(deps.get("C6", "")) in ["fija", "columna"], true, "C6 sin anuncio-cebo ni HB1: %s" % str(deps))
+	ok(not deps.is_empty(), "el plan elige rutas: %s" % str(deps))
+	for cid in deps:
+		ok(deps[cid] != "opcional" or RouteDB.routes(r, String(cid)).all(func(x): return String(x.get("deps", "")) == "opcional" or not bool(x.eligible)), "%s: elige opcional teniendo otra: %s" % [cid, str(deps)])

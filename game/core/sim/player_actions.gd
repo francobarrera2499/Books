@@ -1,8 +1,7 @@
-# core/sim/player_actions.gd — despacho de acciones a sus manejadores (§3.5). Dueño: W2-SIM. Contrato: ARCHITECTURE §3.8.
-# Única capa que crea folios (Ledger.create_folio, T14) y la que hace cumplir lo que es del reloj y del mundo alrededor
-# de los manejadores de otros paquetes:
+# core/sim/player_actions.gd — despacho de acciones a sus manejadores (§3.5; GDD_v3 §1.7). Dueño: CORE-EXPEDIENTE.
+# Hace cumplir lo que es del reloj y del mundo alrededor de los manejadores de otros módulos:
 #   - accesibilidad de la fuente antes de recortar (§5.1) y tope de recortes «de memoria» por visita;
-#   - pasadas por franja (Clock.passes_left; la pasada se gasta si el validador devuelve ok);
+#   - Expediente (dq_answer, dq_proof, dq_confirm: core/deduction/dossier.gd) y examine (intrusión notada, §4.4);
 #   - oficina y día de publicación de anuncios (el evento `ad` se difiere al amanecer de la publicación);
 #   - telegramas y cartas: su evento sale al cerrar la franja (outbox);
 #   - informes: el que corresponde ahora, una vez; el final lleva a Park Lane;
@@ -16,8 +15,7 @@ const Clock = preload("res://core/sim/clock.gd")
 const WorldModel = preload("res://core/sim/world_model.gd")
 const Diary = preload("res://core/sim/diary.gd")
 const Clipper = preload("res://core/deduction/clipper.gd")
-const Ledger = preload("res://core/deduction/ledger.gd")
-const Validator = preload("res://core/deduction/validator.gd")
+const Dossier = preload("res://core/deduction/dossier.gd")
 const Dialogue = preload("res://core/scenes/dialogue.gd")
 const Confrontation = preload("res://core/scenes/confrontation.gd")
 const Composers = preload("res://core/scenes/composers.gd")
@@ -29,27 +27,23 @@ const DEFAULT_MAX_QUESTIONS := 3
 static func dispatch(st, repo, a: Dictionary) -> Dictionary:
 	var t := String(a.get("t", ""))
 	match t:
-		"clip_text", "clip_plate", "clip_measure":
+		"clip_text", "clip_plate":
 			return _clip(st, repo, a)
-		"link", "unlink":
-			return _ext(st, repo, a)
-		"folio_open":
-			return act_folio_open(st, repo, a)
-		"entry_new", "entry_set", "entry_support_add", "entry_support_remove", "entry_delete", "practice":
-			return _ext(st, repo, a)
+		"clip_drop":
+			return _res(Clipper.act_drop(st, repo, a))
 		"read":
-			return Reveal.act_read(st, repo, a, WorldModel.view(st, repo, String(a.get("view", ""))))
-		"pass_clean":
-			# GDD_v2 §B.7: confirmar pide la práctica hecha (día 1, notas de Lisle); el sello no se muestra hasta entonces
-			if not Tutorial.practice_done(st):
-				return {"ok": false, "err": "practica_pendiente"}
-			if Clock.passes_left(st, repo) <= 0:
-				return {"ok": false, "err": "sin_pasada"}
-			var rp := _ext(st, repo, a)
-			if rp.get("ok", false):
-				st.clock.passes_used = int(st.clock.get("passes_used", 0)) + 1
-				st.note("pass", {"inked": bool(rp.get("inked", false))})
-			return rp
+			var v := WorldModel.view(st, repo, String(a.get("view", "")))
+			var rr := Reveal.act_read(st, repo, a, v)
+			if bool(rr.get("ok", false)):
+				var part := int(a.get("part", 0))
+				var pages: Array = v.get("pages", [])
+				if part >= 0 and part < pages.size():
+					Dossier.on_read(st, repo, String(a.get("view", "")), pages[part])
+			return rr
+		"dq_answer", "dq_proof", "dq_confirm", "ask_donde":
+			return _ext(st, repo, a)
+		"examine":
+			return act_examine(st, repo, a)
 		"go":
 			return Clock.act_go(st, repo, a)
 		"leave":
@@ -94,16 +88,10 @@ static func _ext(st, repo, a: Dictionary) -> Dictionary:
 	match t:
 		"clip_text": return _res(Clipper.act_clip_text(st, repo, a))
 		"clip_plate": return _res(Clipper.act_clip_plate(st, repo, a))
-		"clip_measure": return _res(Clipper.act_clip_measure(st, repo, a))
-		"link": return _res(Clipper.act_link(st, repo, a))
-		"unlink": return _res(Clipper.act_unlink(st, repo, a))
-		"entry_new": return _res(Ledger.act_entry_new(st, repo, a))
-		"entry_set": return _res(Ledger.act_entry_set(st, repo, a))
-		"entry_support_add": return _res(Ledger.act_entry_support_add(st, repo, a))
-		"entry_support_remove": return _res(Ledger.act_entry_support_remove(st, repo, a))
-		"entry_delete": return _res(Ledger.act_entry_delete(st, repo, a))
-		"practice": return _res(Validator.act_practice(st, repo, a))
-		"pass_clean": return _res(Validator.act_pass_clean(st, repo, a))
+		"dq_answer": return _res(Dossier.act_answer(st, repo, a))
+		"dq_proof": return _res(Dossier.act_proof(st, repo, a))
+		"dq_confirm": return _res(Dossier.act_confirm(st, repo, a))
+		"ask_donde": return _res(Dialogue.act_ask_donde(st, repo, a))
 		"ask": return _res(Dialogue.act_ask(st, repo, a))
 		"assert": return _res(Dialogue.act_assert(st, repo, a))
 		"present": return _res(Dialogue.act_present(st, repo, a))
@@ -123,17 +111,53 @@ static func _res(r) -> Dictionary:
 		r["ok"] = not r.has("err")
 	return r
 
-static func act_folio_open(st, repo, a: Dictionary) -> Dictionary:
-	if st.handlers.has("folio_open"):
-		return _res(st.handlers["folio_open"].call(st, repo, a))
-	var clip := String(a.get("clip", ""))
-	if Clipper.get_clip(st, clip).is_empty():
-		return {"ok": false, "err": "no_existe"}
-	var fid := Ledger.create_folio(st, repo, clip)
-	if fid == "":
-		return {"ok": false, "err": "no_existe"}
-	st.note("folio", {"id": fid})
-	return {"ok": true, "folio": fid}
+# examine {ref: "hub/<nodo>" | "missing/<copia>" | "sheet/<qid>"} (GDD_v3 §4.4; sheet: playtest v3): ciega y libre. Un nodo con `aviso` (o un original que
+# falta) registra la intrusión notada de esa reacción; lo demás no hace nada.
+static func act_examine(st, repo, a: Dictionary) -> Dictionary:
+	var ref := String(a.get("ref", ""))
+	var kind := ref.get_slice("/", 0)
+	var x := ref.substr(kind.length() + 1)
+	if x == "":
+		return {"ok": false, "err": "forma"}
+	var rid := ""
+	match kind:
+		"hub":
+			rid = node_aviso(st, repo, x)
+		"missing":
+			rid = missing_by(st, repo, x)
+		"sheet":
+			# playtest v3: abrir una hoja del expediente (Pendientes deja de anunciarla como nueva)
+			return Dossier.act_look(st, repo, x)
+		_:
+			return {"ok": false, "err": "forma"}
+	return Dossier.act_examine(st, repo, a, rid)
+
+# `aviso` (id de reacción) del nodo de la buhardilla de ahora, o "".
+static func node_aviso(st, repo, node: String) -> String:
+	var snap := WorldModel.hub_snapshot(st, repo)
+	if snap.is_empty() or not (snap.get("nodes", []) as Array).has(node):
+		return ""
+	var nd = snap.get("node_defs", {}).get(node)
+	if typeof(nd) == TYPE_DICTIONARY and String(nd.get("aviso", "")) != "":
+		return String(nd.aviso)
+	var pl: Dictionary = repo.place(WorldModel.HOME)
+	var lst: Array = (pl.get("nodes", []) as Array).duplicate()
+	var vs = pl.get("variants", {})
+	if typeof(vs) == TYPE_DICTIONARY:
+		for k in WorldModel._sorted_keys(vs):
+			if typeof(vs[k]) == TYPE_DICTIONARY:
+				lst.append_array(vs[k].get("add_nodes", []))
+	for n in lst:
+		if typeof(n) == TYPE_DICTIONARY and String(n.get("id", "")) == node:
+			return String(n.get("aviso", ""))
+	return ""
+
+# Reacción que se llevó un original que falta ahora en casa ("" si no falta).
+static func missing_by(st, repo, copy_id: String) -> String:
+	for m in WorldModel.missing(st, repo):
+		if String(m.get("copy", "")) == copy_id:
+			return String(m.get("rid", ""))
+	return ""
 
 # ---------------- recortes ----------------
 static func _src_doc(repo, st, view: String) -> Dictionary:
@@ -146,7 +170,7 @@ static func source_accessible(st, repo, a: Dictionary) -> bool:
 	match String(a.get("t", "")):
 		"clip_plate":
 			return not WorldModel.plate_snapshot(st, repo, String(a.get("plate", ""))).is_empty() and _plate_now_ok(st, repo, String(a.get("plate", "")))
-		"clip_text", "clip_measure":
+		"clip_text":
 			var src: Dictionary = a.get("src", {})
 			var ref := String(src.get("ref", ""))
 			match String(src.get("kind", "")):
@@ -179,29 +203,7 @@ static func _plate_now_ok(st, repo, pid: String) -> bool:
 			return true
 	return false
 
-# GDD_v2 §C.5.6: la regla ya no existe en la interfaz; `clip_measure` sigue en Actions.SPEC para reproducir partidas
-# viejas y se resuelve como el recorte de la línea de descripción física (tramo #fisica) de la primera hoja del
-# documento. Sin esa línea (escenas, datos viejos) sigue el recorte de medida de siempre.
-static func measure_as_fisica(st, repo, a: Dictionary) -> Dictionary:
-	var src = a.get("src", {})
-	if typeof(src) != TYPE_DICTIONARY or String(src.get("kind", "")) != "doc":
-		return {}
-	var view := String(src.get("ref", ""))
-	var v := WorldModel.view(st, repo, view)
-	var pages: Array = v.get("pages", [])
-	if pages.is_empty():
-		return {}
-	for bi in (pages[0] as Array).size():
-		for tr in pages[0][bi].get("parsed", {}).get("tramos", []):
-			if String(tr.get("id", "")) == "fisica":
-				return {"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": 0, "block": bi}, "from": int(tr.from), "len": int(tr.to) - int(tr.from)}
-	return {}
-
 static func _clip(st, repo, a: Dictionary) -> Dictionary:
-	if String(a.get("t", "")) == "clip_measure":
-		var fa := measure_as_fisica(st, repo, a)
-		if not fa.is_empty():
-			a = fa
 	# El escritorio muestra el hub («hub»): recortarlo (rectángulo o texto de examen «hub/<nodo>») archiva la buhardilla
 	# de ahora como lámina (WorldModel.archive_hub) y el recorte la nombra; si el recorte falla, la lámina nueva se borra.
 	var hub := {}

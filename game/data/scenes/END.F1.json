@@ -7,12 +7,12 @@
     {"id": "pasos", "who": "lisle", "text": "Sáb. 7 de abril, a las once. Suben la escalera unos pasos largos que no conozco."},
     {"id": "entra", "who": "holmes", "text": "Se quita el sombrero en la puerta; esta vez la sombra es de su tamaño. —No se levante, señor Lisle: ya nos conocemos."},
     {"id": "errata", "who": "holmes", "text": "—Su informe del jueves fue una trampa ejemplar. Usted le dijo al tigre dónde iba a estar yo, y era verdad: ahí estuvo mi [[busto|busto]]."},
-    {"id": "corrige", "who": "holmes", "when": {"pencil_wrong": true}, "text": "Hojea el [[libro_mayor|libro de conclusiones]] de pie, con un lápiz azul en la mano. —Una de sus conclusiones no es literalmente cierta. Se la dejo marcada."},
-    {"id": "blancos", "who": "holmes", "when": {"all": [{"pencil_wrong": false}, {"sealed_count": {"of": "mandatory", "lt": 12}}]}, "text": "Hojea el [[libro_mayor|libro de conclusiones]] de pie. —Hum. No hay errores; hay huecos. Lo que falta no se corrige: se busca."},
-    {"id": "nada", "who": "holmes", "when": {"all": [{"pencil_wrong": false}, {"sealed_count": {"of": "mandatory", "gte": 12}}]}, "text": "Hojea el [[libro_mayor|libro de conclusiones]] de pie, hasta la última página. —Hum. Nada que corregir."},
+    {"id": "corrige", "who": "holmes", "when": {"pencil_wrong": true}, "text": "Hojea el [[libro_mayor|expediente]] de pie, con un lápiz azul en la mano. —Una de sus respuestas no es literalmente cierta. Se la dejo marcada."},
+    {"id": "blancos", "who": "holmes", "when": {"all": [{"pencil_wrong": false}, {"pencil_missing": true}]}, "text": "Hojea el [[libro_mayor|expediente]] de pie. —Hum. No hay errores; hay huecos. Lo que falta no se corrige: se busca."},
+    {"id": "nada", "who": "holmes", "when": {"all": [{"pencil_wrong": false}, {"pencil_missing": false}]}, "text": "Hojea el [[libro_mayor|expediente]] de pie, hasta la última hoja. —Hum. Nada que corregir."},
     {"id": "silencio", "who": "holmes", "when": {"not": {"flag_eq": {"confront_estado": "completa"}}}, "text": "—Le pido lo mismo que al doctor: silencio, hasta que el autor lo autorice."},
     {"id": "silencio_jueves", "who": "holmes", "when": {"flag_eq": {"confront_estado": "completa"}}, "text": "—Le pido lo mismo que el jueves, y lo mismo que al doctor: silencio, hasta que el autor lo autorice."},
-    {"id": "tomos", "who": "holmes", "text": "Apoya la mano sobre los [[tomos|cinco tomos]]. —Y devuélvalos usted, sin nombre, a un estante de [[kensington|Kensington]]. Se ve desordenado."},
+    {"id": "tomos", "who": "holmes", "text": "Apoya la mano sobre los [[cuadernillos|cuadernillos]] de la Strand. —Y devuélvalos usted, sin nombre, a un estante de [[kensington|Kensington]]. Se ve desordenado."},
     {"id": "nombre", "who": "lisle", "text": "No me dijo su nombre. No hacía falta: conocía su letra por dos palabras a lápiz en el margen de mi carta de enero."}
   ]
 }

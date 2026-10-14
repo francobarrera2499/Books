@@ -1,5 +1,6 @@
-# T18 (W2-SCENES): confrontación del librero (GDD §8.8, ARCHITECTURE §5.7): un grupo refutador por afirmación,
-# callar no cuenta como error, ≤3 errores (el 3.º termina), una sola vez; 4 aciertos -> completa y errata del librero.
+# T18 (W2-SCENES; CORE-EXPEDIENTE): confrontación del librero (GDD §8.8, ARCHITECTURE §5.7, GDD_v3 §6.10): un grupo
+# refutador por afirmación (1: rasgo_de_moran), con un recorte o una pregunta EN TINTA (sus dos pruebas); callar no
+# cuenta como error, ≤3 errores (el 3.º termina), una sola vez; 4 aciertos -> completa y oferta del librero.
 extends "res://tests/test_base.gd"
 
 const Fakes = preload("res://tests/fixtures/scenes/fakes.gd")
@@ -21,18 +22,19 @@ func after_each() -> void:
 
 func _st():
 	var st = Fakes.state(rp, {"day": 10, "slot": "M", "phase": "confront", "place": "L1", "visit_id": "S.HC07", "scene": "HC07", "chars": ["librero"]})
-	Fakes.clip(st, "RCH", "Un trabajo inteligente, inteligente.", ["adjetivos_repetidos"], ["a:harris_es_moran"], "S.M7")
+	Fakes.clip(st, "RCH", "Un trabajo inteligente, inteligente.", ["adjetivos_repetidos"], ["a:rasgo_de_moran"], "S.M7")
 	Fakes.clip(st, "RCC", "Más arriba hay una cornisa.", ["cornisa"], ["a:cornisa_existe"], "D05")
 	Fakes.clip(st, "RCR", "En la pared, una marca reciente.", ["raspadura"], ["a:raspadura_registrada"], "D05")
 	Fakes.clip(st, "RCA", "Asiento 214: los guías hablaron al Journal.", [{"id": "act.5", "label": "asiento 214, mar. 27"}], ["a:ancla_kbm", "a:me_vigila_de_cerca"], "R.HA1.1")
 	Fakes.clip(st, "RCL", "Dirección de su puño: esquina de Church Street.", ["librero"], ["a:librero_falso"], "D33")
 	Fakes.clip(st, "RCX", "Un perro perdido.", ["perro"], ["a:ruido", "e:perro"], "D15.0327")
-	Fakes.clip(st, "RCCAM", "La guillotina engrasada.", ["guillotina"], ["a:harris_es_moran", "f:secreto_camden"], "N.L8")
-	Fakes.entry(st, "ASH", "T3", [{"fields": {"persona": "harris"}, "support": ["RCH"]}, {"fields": {"es": "moran"}, "support": ["RCX"]}])
+	Fakes.clip(st, "RCCAM", "La guillotina engrasada.", ["guillotina"], ["a:rasgo_de_moran", "f:secreto_camden"], "N.L8")
+	Fakes.question(st, "Q6", "moran", ["RCH", "RCX"], true)
+	Fakes.question(st, "Q7", "moran", ["RCH", "RCX"], false)
 	return st
 
 func _go(st, step: int, id := "") -> Dictionary:
-	var item := {} if id == "" else {"kind": "entry" if id.begins_with("AS") else "clip", "id": id}
+	var item := {} if id == "" else {"kind": "pregunta" if id.begins_with("Q") else "clip", "id": id}
 	return Confrontation.act_confront(st, rp, {"step": step, "item": item})
 
 func _texts(r: Dictionary) -> Array:
@@ -70,9 +72,13 @@ func test_one_group_per_statement():
 	var st2 = _st()
 	_go(st2, 1)
 	ok(_go(st2, 2, "RCC").hit, "cornisa_existe también refuta la 2")
-	# asiento: etiquetas por Validator.entry_tags
+	# pregunta en tinta: las etiquetas de sus dos pruebas; en lápiz se puede mostrar, pero no acierta
 	var st3 = _st()
-	ok(_go(st3, 1, "ASH").hit, "un asiento con harris_es_moran refuta la 1")
+	ok(_go(st3, 1, "Q6").hit, "una pregunta en tinta con rasgo_de_moran refuta la 1")
+	var st4 = _st()
+	var r4 := _go(st4, 1, "Q7")
+	ok(r4.ok, str(r4))
+	no(r4.hit, "en lápiz no acierta")
 
 func test_silence_is_not_an_error():
 	var st = _st()
@@ -165,6 +171,7 @@ func test_bad_actions_do_not_mutate():
 	eq(_go(st, 2).err, "paso")
 	eq(_go(st, 1, "RCNADA").err, "no_existe")
 	eq(Confrontation.act_confront(st, rp, {"step": 1, "item": {"kind": "pair", "id": "RCH"}}).err, "forma")
+	eq(Confrontation.act_confront(st, rp, {"step": 1, "item": {"kind": "entry", "id": "AS001"}}).err, "forma", "v3: sin asientos")
 	eq(Confrontation.act_confront(st, rp, {"step": 1, "item": "x"}).err, "forma")
 	eq(J.stringify_canon({"s": st.scenes, "f": st.flags, "q": st.seq}), before)
 	eq(st.pending_events, [], "la confrontación no es pública")

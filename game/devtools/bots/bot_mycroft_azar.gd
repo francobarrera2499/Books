@@ -2,7 +2,7 @@
 # juega como el deductor (rutas ★, crédito ante Moran, confrontación con el grupo correcto), pero el día 8 o 9, en una
 # franja T/N con la Sala de Forasteros abierta, va al Diógenes y le presenta a Mycroft recortes o asientos AL AZAR (hasta
 # MAX_PRESENTS por visita, o hasta que Mycroft acepte o se vaya). Primer error tolerado; el segundo cierra la Sala
-# (forasteros_cerrada; la portería y D31 siguen). Si por azar presenta un asiento sellado de C6/C7, Mycroft ofrece la
+# (forasteros_cerrada; la portería y D31 siguen). Si por azar presenta Q3 en tinta (sin pruebas de S.HC06), Mycroft ofrece la
 # errata a medida (HB12) — nunca un final mejor que el del deductor. Prefiere franjas que el itinerario deja libres; si el
 # 9.N llega sin visita, va igual y replanifica.
 extends "res://devtools/bots/bot_deductor.gd"
@@ -45,8 +45,8 @@ func pol_in_visit() -> void:
 		var items: Array = []
 		for cl in _clip_ids():
 			items.append({"kind": "clip", "id": String(cl)})
-		for eid in _sorted(sim.st.ded.get("entries", {}).keys()):
-			items.append({"kind": "entry", "id": String(eid)})
+		for h in (sim.q_dossier().get("inked", []) as Array) + (sim.q_dossier().get("open", []) as Array):
+			items.append({"kind": "pregunta", "id": String(h.id)})
 		if items.is_empty():
 			return
 		var it: Dictionary = rnd_pick(items, "mycroft")

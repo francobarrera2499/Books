@@ -18,7 +18,7 @@
     {"id": "af.vive", "layer": "afirmacion", "match": {"assertion": ["vive"]}, "text": "Toma rapé sin apuro. —Eso, señor Lisle, no se dice en este club, ni en ningún otro que yo frecuente."},
     {"id": "af.otras", "layer": "afirmacion", "match": {"assertion": ["cebo", "canario"]}, "text": "—Mi hermano le habría corregido eso con lápiz azul, señor Lisle. Yo no traje lápiz."},
 
-    {"id": "hb12_exito", "layer": "tema", "reaction": "HB12", "text": "Mira la conclusión sin tocarla, como quien lee una lápida bien grabada. —{{#exito a:vinculo_mycroft e:mycroft|Su último informe, señor Lisle: ¿me permite dictarle una corrección a medida para el mayor?}} Dicto muy bien; pregúntele a mi escribiente."},
+    {"id": "hb12_exito", "layer": "tema", "reaction": "HB12", "text": "Mira la hoja sin tocarla, como quien lee una lápida bien grabada. —{{#exito a:vinculo_mycroft e:mycroft|Su último informe, señor Lisle: ¿me permite dictarle una corrección a medida para el mayor?}} Dicto muy bien; pregúntele a mi escribiente."},
     {"id": "hb12_error_1", "layer": "tema", "reaction": "HB12", "text": "Aparta el papel con dos dedos, sin leerlo. —{{#error1 a:vinculo_mycroft e:mycroft|Otra vez, señor Lisle: no tengo toda la tarde, y mi escribiente tampoco.}}"},
     {"id": "hb12_error_2", "layer": "tema", "reaction": "HB12", "text": "Se pone de pie, lo que en él es todo un acontecimiento. —Usted confundió mi pereza con mi ignorancia. {{#error2 a:vinculo_mycroft e:mycroft|Buenas tardes; lo demás se lo dirá la máquina, como siempre.}}"},
 

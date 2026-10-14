@@ -1,16 +1,5 @@
 # W3-SHELL: acciones de prueba (una por línea)
+{"part":0,"t":"read","view":"D23@L1"}
 {"from":124,"len":77,"src":{"block":0,"kind":"doc","part":0,"ref":"D23@L1"},"t":"clip_text"}
-{"from":86,"len":71,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.REDH@tomo"},"t":"clip_text"}
-{"from":230,"len":86,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.REDH@tomo"},"t":"clip_text"}
-{"a":"RC0002","b":"RC0003","note":"","t":"link"}
-{"clip":"RC0002","t":"folio_open"}
-{"folio":"FO001","t":"entry_new","template":"T1"}
-{"entry":"AS001","field":"fuente_a","line":0,"t":"entry_set","value":"redh"}
-{"entry":"AS001","field":"dice_a","line":0,"t":"entry_set","value":"abril_27_1890"}
-{"entry":"AS001","field":"fuente_b","line":1,"t":"entry_set","value":"redh"}
-{"entry":"AS001","field":"dice_b","line":1,"t":"entry_set","value":"octubre_9_1890"}
-{"entry":"AS001","item":"RC0002","line":0,"t":"entry_support_add"}
-{"entry":"AS001","item":"RC0003","line":1,"t":"entry_support_add"}
-{"entry":"AS001","t":"practice"}
 {"fields":{"suceso":"suceso_reichenbach"},"form":"testigo","t":"compose_ad"}
 {"t":"sleep"}

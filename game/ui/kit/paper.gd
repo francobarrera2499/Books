@@ -17,6 +17,7 @@ const PAPERS := {
 	"registro": Color("e9e2d0"),
 	"libro_mayor": Color("efe6d2"),
 	"cuaderno": Color("f2ecdc"),
+	"tarjeta": Color("e9dcb8"),          # cartulina de la nota del cliente (NC.*, GDD_v3 §3.2, §6.7)
 }
 const INKS := {
 	"negra": Color("1b1712"),

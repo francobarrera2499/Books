@@ -1,9 +1,10 @@
-# core/sim/game_sim.gd — la única puerta de la simulación (§3.1, §3.4, §3.7). Dueño: W2-SIM. Contrato: ARCHITECTURE §3.8.
+# core/sim/game_sim.gd — la única puerta de la simulación (§3.1, §3.4, §3.7; GDD_v3 §1.7). Dueño: CORE-EXPEDIENTE.
 # apply(a): 1 Actions.normalize + shape_error · 2 fase permitida · 3 Tutorial.allowed · 4 PlayerActions.dispatch
 #   (ok:false -> se restaura el estado previo: nada muta ni se registra) · 5 numerar st.pending_events -> st.events y,
 #   por cada uno, Diary.on_event + Director.on_public_event; líneas automáticas de la visita · 6 por cada tk cruzado
 #   (Clock.crossed_tks): eventos diferidos de ese tk (anuncios al amanecer de su publicación), llegadas estáticas,
-#   Director.on_time(tk) · 7 registro de la acción; changed(kind, payload) por cada st.notes; se vacían.
+#   Director.on_time(tk), Reveal.update y Dossier.update (nacimientos y tope del Expediente) · 7 registro de la acción;
+#   changed(kind, payload) por cada st.notes; se vacían.
 # Nunca emite "reaction" (no existe registro de reacciones).
 # Costura de tests: _init/replay aceptan `handlers` (t -> Callable) que reemplazan manejadores de OTROS paquetes.
 extends RefCounted
@@ -25,8 +26,7 @@ const Tutorial = preload("res://core/sim/tutorial.gd")
 const Endings = preload("res://core/sim/endings.gd")
 const Clipper = preload("res://core/deduction/clipper.gd")
 const Index = preload("res://core/deduction/index.gd")
-const Ledger = preload("res://core/deduction/ledger.gd")
-const Validator = preload("res://core/deduction/validator.gd")
+const Dossier = preload("res://core/deduction/dossier.gd")
 const Director = preload("res://core/react/director.gd")
 const HolmesAgent = preload("res://core/react/holmes_agent.gd")
 const MoranAgent = preload("res://core/react/moran_agent.gd")
@@ -56,7 +56,7 @@ func _init(p_repo, p_seed: int, handlers := {}) -> void:
 	Reveal.init_state(st, repo)
 	Tutorial.init_state(st, repo)
 	Clipper.init_state(st, repo)
-	Ledger.init_state(st, repo)
+	Dossier.init_state(st, repo)
 	HolmesAgent.init_state(st, repo)
 	MoranAgent.init_state(st, repo)
 	Director.init_state(st, repo)
@@ -66,6 +66,7 @@ func _init(p_repo, p_seed: int, handlers := {}) -> void:
 	WorldModel.sync_scene_lines(st, repo)
 	_say_tutorial_line()
 	Reveal.update(st, repo)
+	Dossier.update(st, repo)
 	st.pending_events.clear()
 	st.notes.clear()
 
@@ -158,12 +159,15 @@ func _apply(a: Dictionary, live: bool, rollback := true) -> Dictionary:
 		Reveal.update(st, repo, tk)
 		# escena fija abierta en este mismo tk (M6 al amanecer, M7 a las 22 h): líneas que el director le agregó
 		WorldModel.sync_scene_extra(st, repo)
+		WorldModel.sync_scene_lines(st, repo)
+		Dossier.update(st, repo)
 		st.now_tk = -1
 	WorldModel.after_events(st, repo)
 	WorldModel.sync_scene_lines(st, repo)
 	WorldModel.sync_scene_extra(st, repo)
 	WorldModel.check_eggs(st, repo)
 	Reveal.update(st, repo)
+	Dossier.update(st, repo)
 	var step_after := String(Tutorial.step(st).get("id", ""))
 	if step_after != step_before:
 		_say_tutorial_line()
@@ -246,29 +250,23 @@ func clip_text(src: Dictionary, from: int, length: int) -> Dictionary:
 func clip_plate(plate: String, hits: Array, touched: Array, area_frac: float) -> Dictionary:
 	return apply({"t": "clip_plate", "plate": plate, "hits": hits, "touched": touched, "area_frac": area_frac})
 
-func clip_measure(src: Dictionary) -> Dictionary:
-	return apply({"t": "clip_measure", "src": src})
-
 func read(view: String, part := 0) -> Dictionary:
 	return apply({"t": "read", "view": view, "part": part})
 
-func link(a: String, b: String, note := "") -> Dictionary:
-	return apply({"t": "link", "a": a, "b": b, "note": note})
+func dq_answer(q: String, value: String) -> Dictionary:
+	return apply({"t": "dq_answer", "q": q, "value": value})
 
-func folio_open(clip: String) -> Dictionary:
-	return apply({"t": "folio_open", "clip": clip})
+func dq_proof(q: String, slot: int, clip: String) -> Dictionary:
+	return apply({"t": "dq_proof", "q": q, "slot": slot, "clip": clip})
 
-func entry_new(folio: String, template: String) -> Dictionary:
-	return apply({"t": "entry_new", "folio": folio, "template": template})
+func dq_confirm(q: String) -> Dictionary:
+	return apply({"t": "dq_confirm", "q": q})
 
-func entry_set(entry: String, line: int, field: String, value: String) -> Dictionary:
-	return apply({"t": "entry_set", "entry": entry, "line": line, "field": field, "value": value})
+func examine(ref: String) -> Dictionary:
+	return apply({"t": "examine", "ref": ref})
 
-func entry_support_add(entry: String, line: int, item: String) -> Dictionary:
-	return apply({"t": "entry_support_add", "entry": entry, "line": line, "item": item})
-
-func pass_clean(entries: Array) -> Dictionary:
-	return apply({"t": "pass_clean", "entries": entries})
+func ask_donde(char_id: String, item: String) -> Dictionary:
+	return apply({"t": "ask_donde", "char": char_id, "item": item})
 
 func go(place: String, area := "", seat := 0) -> Dictionary:
 	return apply({"t": "go", "place": place, "area": area, "seat": seat})
@@ -326,7 +324,6 @@ func q_clock() -> Dictionary:
 	var rep := Clock.report_due(st, repo)
 	return {"day": day, "slot": String(c.slot), "phase": String(c.phase), "date_label": _day_label(day),
 		"weekday": String(Clock.day_info(repo, day).get("weekday", "")), "outing_done": bool(c.outing_done),
-		"passes_left": Clock.passes_left(st, repo), "lot_size": int(Validator.lot_size(st, repo)),
 		"report_due": not rep.is_empty(), "report_n": int(rep.get("n", 0)), "tk": Clock.cur_tk(st),
 		"slot_label": repo.text("core.slot." + String(c.slot)), "scene": String(c.get("scene", "")),
 		"coins_d": int(st.world.get("coins_d", 0)), "tutorial": Tutorial.step(st)}
@@ -352,7 +349,8 @@ func q_places() -> Array:
 			"open": bool(op.open), "reason": String(op.reason), "streets": (pl.get("streets", []) as Array).duplicate(), "free": free,
 			"can_go": bool(op.open) and String(c.phase) == "desk" and (free or not bool(c.outing_done)),
 			"needs_seat": WorldModel.place_needs_seat(repo, p), "new": news.has(p),
-			"hours": String(mpl.get("hours", "")) if typeof(mpl) == TYPE_DICTIONARY else ""})
+			"hours": String(mpl.get("hours", "")) if typeof(mpl) == TYPE_DICTIONARY else "",
+			"que_hay": "plano.que_hay." + p, "por_que": Reveal.why(st, repo, p)})
 	return out
 
 # ¿Está el lugar en el mapa? (L1 siempre.)
@@ -377,7 +375,9 @@ func q_tray(day := -1) -> Array:
 		else:
 			var cp: Dictionary = repo.copy(v)
 			title = String(repo.doc(String(cp.get("doc", ""))).get("title", "")) if not cp.is_empty() else v
-		out.append({"view": v, "title": title, "stamp": _stamp(int(it.tk)), "how": String(it.get("how", "")), "tk": int(it.tk)})
+		# read: el jugador ya abrió ese papel (playtest v3: al continuar, la bandeja se abre sola sólo si hay algo sin leer)
+		out.append({"view": v, "title": title, "stamp": _stamp(int(it.tk)), "how": String(it.get("how", "")), "tk": int(it.tk),
+			"read": Reveal.was_read(st, v)})
 	return out
 
 func _stamp(tk: int) -> String:
@@ -424,6 +424,8 @@ func q_clips() -> Array:
 	var ids: Array = clips.keys()
 	ids.sort()
 	for id in ids:
+		if Clipper.is_dropped(st, String(id)):
+			continue   # tirado por el jugador (playtest v3): no se ofrece más
 		var v := Clipper.visible(st, String(id))
 		if not v.is_empty():
 			out.append(v)
@@ -457,21 +459,6 @@ func q_act(id: String) -> Dictionary:
 func q_line(uid: String) -> Dictionary:
 	return WorldModel.line(st, repo, uid)
 
-func q_pairs() -> Array:
-	var out: Array = []
-	var pairs = st.ded.get("pairs", {})
-	if typeof(pairs) != TYPE_DICTIONARY:
-		return out
-	var ids: Array = pairs.keys()
-	ids.sort()
-	for id in ids:
-		var p = pairs[id]
-		if typeof(p) == TYPE_DICTIONARY:
-			var o: Dictionary = p.duplicate(true)
-			o["id"] = String(id)
-			out.append(o)
-	return out
-
 func q_diary() -> Array:
 	return Diary.entries(st, repo)
 
@@ -489,61 +476,31 @@ func q_marginalia() -> Array:
 		return a.id < b.id)
 	return out
 
-func q_ledger() -> Dictionary:
-	var rules: Array = []
-	for k in ["rules.1", "rules.2", "rules.3", "rules.4", "rules.5", "rules.6"]:
-		rules.append(repo.text(k))
-	var entries = st.ded.get("entries", {})
-	var folios = st.ded.get("folios", {})
-	if typeof(entries) != TYPE_DICTIONARY:
-		entries = {}
-	if typeof(folios) != TYPE_DICTIONARY:
-		folios = {}
-	var varios: Array = []
-	var erratas: Array = []   # página «Erratas inocentes» (práctica C1, §6.6; Ledger.PAGES)
-	var by_folio := {}
-	var eids: Array = entries.keys()
-	eids.sort()
-	for eid in eids:
-		var f := String(entries[eid].get("folio", "varios"))
-		if f == "varios" or f == "":
-			varios.append(String(eid))
-		elif f == "erratas":
-			erratas.append(String(eid))
-		else:
-			if not by_folio.has(f):
-				by_folio[f] = []
-			by_folio[f].append(String(eid))
-	var fl: Array = []
-	var fids: Array = folios.keys()
-	fids.sort()
-	for fid in fids:
-		var fo = folios[fid]
-		fl.append({"id": String(fid), "head_clip": String(fo.get("head_clip", fo.get("clip", ""))) if typeof(fo) == TYPE_DICTIONARY else "",
-			"entries": by_folio.get(String(fid), [])})
-	return {"rules_title": repo.text("rules.title"), "rules_page": rules, "varios": varios, "erratas": erratas, "folios": fl}
+# ---------------- v3: Expediente Holmes (GDD_v3 §1.7) ----------------
+# {open:[H], inked:[H]}, H = {id, text, origin, doubts, state, answer:{id,label}|null, proofs:[clip|null, clip|null],
+# formal, ink_text, variant}. Las preguntas en espera no aparecen.
+func q_dossier() -> Dictionary:
+	return Dossier.view(st, repo)
 
-func q_entry(id: String) -> Dictionary:
-	var entries = st.ded.get("entries", {})
-	if typeof(entries) != TYPE_DICTIONARY or not entries.has(id):
-		return {}
-	var e: Dictionary = entries[id].duplicate(true)
-	e["id"] = id
-	if not e.has("ink"):
-		e["ink"] = "lapiz"
-	# v2 (§B.7): mientras la práctica del día 1 no se hizo, el borrador se mira con el chequeo de la práctica (pasajes, no
-	# orígenes): las dos fechas de REDH salen del mismo papel y el libro marcaba «Una sola fuente» justo antes de «Confirmar
-	# práctica». Confirmar de verdad sigue pidiendo la práctica hecha (practica_pendiente) y dos fuentes.
-	e["formal"] = Ledger.formal_codes(st, repo, entries[id], bool(entries[id].get("practice", false)) or not Tutorial.practice_done(st))
-	return e
+# Respuestas posibles de una pregunta: entidades del índice con kind ∈ acepta, por label.
+func q_answer_options(q: String) -> Array:
+	return Dossier.answer_options(st, repo, q)
 
-func q_templates() -> Dictionary:
-	return repo.lists().get("templates", {}).duplicate(true)
+# «¿Dónde consigo…?» de Crane: [{id, phrase, asked}] (≤7 a la vista lo decide la interfaz; preguntados al final).
+func q_donde() -> Array:
+	return Dialogue.donde_items(st, repo, "crane")
 
+# Originales que faltan ahora en casa (intrusiones, GDD_v3 §4): [{copy, title}].
+func q_missing() -> Array:
+	var out: Array = []
+	for m in WorldModel.missing(st, repo):
+		out.append({"copy": String(m.copy), "title": String(m.title)})
+	return out
+
+# Medios (canales) para compositores y mostrar; las listas de plantillas ya no existen (v3).
 func q_lists() -> Dictionary:
 	var l: Dictionary = repo.lists()
-	return {"verbos": l.get("verbos", []).duplicate(), "relaciones": l.get("relaciones", []).duplicate(),
-		"medios": l.get("medios", []).duplicate(true), "estados": l.get("estados", []).duplicate()}
+	return {"medios": l.get("medios", []).duplicate(true)}
 
 func q_scene() -> Dictionary:
 	var v: Dictionary = st.world.get("visit", {})
@@ -625,11 +582,10 @@ func q_report_status() -> Dictionary:
 func q_confront() -> Dictionary:
 	return Confrontation.status(st)
 
-# step: paso del prólogo (bloquea); day1: paso de la primera conclusión (notas de Lisle, guía; {} cuando no hay);
-# practice_done: confirmar ya no pide la práctica.
+# step: paso del prólogo (bloquea); day1: paso del día 1 guiado (notas de Lisle, GDD_v3 §6.9; {} cuando no hay).
 func q_tutorial() -> Dictionary:
 	return {"step": Tutorial.step(st), "taught": Tutorial.verbs_taught(st), "complete": Tutorial.complete(st),
-		"day1": Tutorial.day1_step(st), "practice_done": Tutorial.practice_done(st)}
+		"day1": Tutorial.day1_step(st)}
 
 # ---------------- v2: progresión y guía (GDD_v2 §B, §C.2) ----------------
 # Banderas de revelado de la interfaz: {bandera: bool}, sólo del estado (core/sim/ui_state.gd).
@@ -639,10 +595,6 @@ func q_ui() -> Dictionary:
 # Tira «Pendientes» del calendario: ≤3 líneas [{key, vars}] (core/sim/guide.gd). Nunca nombra pistas ni progreso.
 func q_guide() -> Array:
 	return Guide.lines(st, repo)
-
-# «Lo que me preguntaron»: citas textuales de las preguntas ya dichas o entregadas (lists.preguntas).
-func q_questions() -> Array:
-	return Guide.questions(st, repo)
 
 # Novedades de la tienda de Crane ya en la mesa (schedule.stock), lo más nuevo primero: [{tk, copies:[...], line}].
 func q_stock() -> Array:

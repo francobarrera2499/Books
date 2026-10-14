@@ -38,6 +38,12 @@ func test_due_tk_by_type():
 	eq(Latency.due_tk(null, r, {"latencia": {"tipo": "siguiente_comunicacion"}}, act), act)
 	eq(Latency.due_tk(null, r, {"latencia": {"tipo": "siguiente_salida"}}, TimeKey.parse("2.night")), TimeKey.parse("3.M"))
 	eq(Latency.due_tk(null, r, {"latencia": {"tipo": "dias", "n": 2}}, act), TimeKey.parse("5.dawn"))
+	# v3 (GDD_v3 §4.2, HA5/HA6): lo que ve Cotter en el momento ocurre en esa salida; lo que cuenta otro sensor, al día siguiente
+	var intr := {"latencia": {"tipo": "intrusion"}}
+	eq(Latency.due_tk(null, r, intr, act, "K-BM"), act, "K-BM: en esa misma salida")
+	eq(Latency.due_tk(null, r, intr, TimeKey.parse("4.dawn"), "K-T"), TimeKey.parse("4.dawn"), "K-T: el día del aviso")
+	eq(Latency.due_tk(null, r, intr, act, "K-W"), TimeKey.parse("4.M"), "K-W: la primera salida del día siguiente")
+	eq(Latency.due_tk(null, r, intr, act, "K-H"), TimeKey.parse("4.M"), "K-H: ídem")
 	eq(Latency.due_tk(null, r, {"latencia": {"tipo": "otra"}}, act), -1)
 	# anuncio: el evento ad se emite al amanecer de la publicación; la latencia cuenta desde ese día (GDD§7.5)
 	eq(Latency.due_tk(null, r, {"latencia": {"tipo": "voz_b"}}, TimeKey.parse("3.dawn")), TimeKey.parse("7.dawn"))

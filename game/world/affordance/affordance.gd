@@ -1,6 +1,7 @@
-# world/affordance/affordance.gd — afordancias del 3D (GDD_v2 §D.1, §D.3). Dueño: CÁMARA + AFORDANCIAS. Estática.
+# world/affordance/affordance.gd — afordancias del 3D (GDD_v2 §D.1, §D.3; v3 §6.5). Dueño: UI-MUNDO. Estática.
 # Códigos en la RUGOSIDAD del material (canal A del buffer normal_roughness de Forward+, el que ya leen los looks):
-#   0 escenario (1,00: todo material del mundo) · 1 examinable · 2 usable (permanente) · 3 bajo el mouse (temporal).
+#   0 escenario (1,00: todo material del mundo) · 1 examinable · 3 bajo el mouse (temporal; el quad dibuja su contorno
+#   blanco). v3: el código 2 («usable permanente», filete rojo) ya no se usa: lo usable sólo cambia el cursor.
 # Desvío del spec (§D.3 pedía 0,75/0,50/0,25 + LAMBERT sin especular en TODO material): para no tocar materials.gd ni la
 # calibración de los looks, los códigos van pegados a 1,00 (ROUGH) y los materiales conservan su BRDF; el cambio de
 # sombreado es ínfimo (rugosidad 0,88–0,96 con Burley y especular 0,25) y el buffer de 8 bits los separa por ≥5 pasos
@@ -10,9 +11,8 @@
 # Decodificación (affordance.gdshader y cualquier look que quiera leerlos): Godot 4.7 guarda la rugosidad TAL CUAL en el
 #   canal A (medido: 1,00 · 0,96 · 0,92 se leen así; la fórmula vieja r·127/255 con bit de dinámico daba todo «3»):
 #   r = a (si a ≤ 0,5: a/(127/255); si 0,5 < a ≤ 0,6: (1 − a)/(127/255)); code = r > 0.98 ? 0 : r > 0.94 ? 1 : r > 0.90 ? 2 : 3.
-# tag(diorama): reparte las GeometryInstance3D entre dueños («n:<nodo>», «c:<personaje>») y les pone código 1 (lo usable,
-# 2, lo fija después la pantalla de juego: personajes con quien hablar, vínculos de map.json con su bandera).
-# apply(diorama, usable, hover): rehace los códigos (WorldRoot lo llama al cambiar lo usable o el mouse).
+# tag(diorama): reparte las GeometryInstance3D entre dueños («n:<nodo>», «c:<personaje>») y les pone código 1.
+# apply(diorama, _usable, hover) / set_hover(diorama, hover): rehacen los códigos (3 bajo el mouse, 1 el resto).
 # Reparto: silueta y personaje = todo su maniquí; nodo con prop = las mallas del prop cuyo centro cae en su ancla (+3 cm),
 # el ancla más chica gana; si el prop es de un solo nodo y no es «arquitectura» (≤ 8× el volumen del ancla), todas.
 # Nodos sin prop (sólo ancla: la sombra del librero) no tienen malla: etiqueta y cursor, sin contorno.
@@ -190,22 +190,17 @@ static func tag(root: Node3D) -> void:
 		if pid2 != "" and chars.has(pid2) and (not owners.has("n:" + str(nid)) or (owners["n:" + str(nid)] as Array).is_empty()):
 			alias["n:" + str(nid)] = "c:" + pid2
 	root.set_meta("aff_alias", alias)
-	# nada usable por defecto: lo decide la pantalla de juego con las banderas y la fase (WorldRoot.set_usable), así
-	# nunca se marca algo que todavía no se puede usar (ni siquiera un cuadro, al armar el diorama)
-	var usable := {}
-	root.set_meta("aff_usable", usable)
 	root.set_meta("aff_hover", "")
-	apply(root, usable, "")
+	apply(root, {}, "")
 
-# Rehace los códigos: hover (3) pisa usable (2) pisa examinable (1).
-static func apply(root: Node3D, usable: Dictionary, hover: String) -> void:
+# Rehace los códigos: bajo el mouse (3), el resto examinable (1). (usable no cambia el dibujo desde la v3.)
+static func apply(root: Node3D, _usable: Dictionary, hover: String) -> void:
 	if root == null or not root.has_meta("aff"): return
 	hover = str((root.get_meta("aff_alias", {}) as Dictionary).get(hover, hover))
-	root.set_meta("aff_usable", usable)
 	root.set_meta("aff_hover", hover)
 	var owners: Dictionary = root.get_meta("aff")
 	for k in owners:
-		var code := 3 if k == hover else (2 if usable.has(k) else 1)
+		var code := 3 if k == hover else 1
 		var vid := vid_of(str(k))
 		for g in owners[k]:
 			if not is_instance_valid(g): continue
@@ -221,11 +216,10 @@ static func set_hover(root: Node3D, hover: String) -> void:
 	var prev := str(root.get_meta("aff_hover", ""))
 	if prev == hover: return
 	root.set_meta("aff_hover", hover)
-	var usable: Dictionary = root.get_meta("aff_usable", {})
 	var owners: Dictionary = root.get_meta("aff")
 	for k in [prev, hover]:
 		if k == "" or not owners.has(k): continue
-		var code := 3 if k == hover else (2 if usable.has(k) else 1)
+		var code := 3 if k == hover else 1
 		var vid := vid_of(str(k))
 		for g in owners[k]:
 			if not is_instance_valid(g): continue

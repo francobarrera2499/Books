@@ -1,0 +1,329 @@
+{
+  "_nota": "GDD_v3 §1. Preguntas del Expediente Holmes. Reemplaza al libro de conclusiones v2. Dueño: CORE. nace = disparadores (OR; uno por objeto: inicio | leer | llega | dicho | tinta | nota) con su línea de origen. variantes: 1 o 2, una principal; exactamente 2 grupos (una prueba con alguna etiqueta del grupo 1 y la otra con alguna del grupo 2, en cualquier orden; etiqueta sin prefijo = a:<x>); claves = enlace (las dos pruebas comparten una entidad de claves.entities, canónica bajo alias, o ambas llevan una entidad de un kind de claves.kinds). respuestas: ids de entidad o \"@alias:<id>\" (vale sólo con la regla de alias activa). rutas: exactamente 2 fragmentos (sintaxis de ref de ARCHITECTURE §4.8, sin M:, sin pares ni subrutas); deps ∈ fija | columna | garantizada | opcional; star = declarada ★ (sólo fuentes inmutables, GDD_v3 §2.1). invariante: normal | desde_nacimiento (Q8, §2.2). _pistas_falsas: GDD §10.5 sin cambios (T17).",
+  "max_abiertas": 3,
+  "mostrar_todas": "8.dawn",
+  "alias": [{"cuando_tinta": "Q6", "equiv": ["harris", "moran", "autor_heavy_game"]}],
+  "preguntas": [
+    {
+      "id": "Q1", "orden": 1, "obligatoria": true,
+      "texto": "¿Qué no contó Watson?",
+      "nace": [{"inicio": "prologo", "origen": "La pregunta del cliente, en el encargo."}],
+      "pruebas": ["Prueba de lo que dice la revista", "Prueba de lo que alguien anotó y la revista calla"],
+      "dudas": ["¿Qué dice la crónica, palabra por palabra, del sendero y de la pared?",
+                "¿Hay otra versión del texto, anterior a la que se imprimió?",
+                "¿Qué publicaron los diarios suizos esos días?"],
+      "acepta": ["concepto", "objeto"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["raspadura", "marca_en_la_roca"],
+         "grupos": [{"id": "impreso", "tags": ["fina_impreso_sin_raspadura"]},
+                    {"id": "registrada", "tags": ["raspadura_registrada"]}],
+         "claves": {"entities": ["fina", "reichenbach", "roca", "pared", "raspadura", "marca_en_la_roca"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "Watson vio en la roca una raspadura fresca, como la que deja el clavo de una bota, y la escribió. En la revista esa frase no está: alguien la sacó antes de imprimir.",
+         "rutas": [
+           {"id": "Q1.R2", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#sheer", "copy": "D03@Crane"}, {"ref": "D05#marque", "copy": "D05@BM"}], "cut_by": []},
+           {"id": "Q1.R3", "star": true, "deps": "fija", "from": "2.M", "frags": [{"ref": "D03#sheer", "copy": "D03@BM"}, {"ref": "D04#clausula", "copy": "D04@Crane"}], "cut_by": []},
+           {"id": "Q1.R1", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D03#sheer", "copy": "D03@tomo"}, {"ref": "D02#clausula", "copy": "D02@L1"}], "cut_by": ["M1", "HA5"]},
+           {"id": "Q1.R4", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#sheer", "copy": "D03@BM"}, {"ref": "D29a#tachadura", "copy": "D29a@L4"}], "cut_by": ["HB5", "HB4"]},
+           {"id": "Q1.R5", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D03#sheer", "copy": "D03@tomo"}, {"ref": "D01N#fina_fo", "copy": "D01N@tomo"}], "cut_by": ["M1", "HA5"]}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: lo que el impreso calla.", "wrong": "Corríjalo: el impreso calla una marca, no una opinión."},
+      "invariante": "normal"
+    },
+    {
+      "id": "Q2", "orden": 2, "obligatoria": true,
+      "texto": "¿Qué pasó en la cascada?",
+      "nace": [{"leer": "D03#sheer", "origen": "Me lo pregunté leyendo «El problema final»."},
+               {"leer": "R:HC01.*", "origen": "Me lo pregunté por la nota «No lo es.»."}],
+      "pruebas": ["Prueba de cómo pinta Watson el lugar", "Prueba de cómo es el lugar en realidad"],
+      "dudas": ["¿Cómo era el sendero, y qué había más arriba?",
+                "¿Qué dijeron los guías y la gente del lugar?",
+                "¿Hay fotos o guías de viaje de la cascada?"],
+      "acepta": ["lugar", "concepto", "objeto"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["cornisa"],
+         "grupos": [{"id": "a_pique", "tags": ["fina_a_pique"]},
+                    {"id": "cornisa", "tags": ["cornisa_existe"]}],
+         "claves": {"entities": ["reichenbach", "pared", "sendero", "cornisa"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "La pared no era lisa. Más arriba del final del sendero hay una cornisa que no se ve desde abajo. Un hombre que llega ahí desaparece sin caer.",
+         "rutas": [
+           {"id": "Q2.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#sheer", "copy": "D03@Crane"}, {"ref": "D05#corniche", "copy": "D05@BM"}], "cut_by": []},
+           {"id": "Q2.R2", "star": true, "deps": "fija", "from": "2.M", "frags": [{"ref": "D03#sheer", "copy": "D03@BM"}, {"ref": "N:RB.foto.linea", "copy": "D07@Crane"}], "cut_by": []},
+           {"id": "Q2.R3", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#sheer", "copy": "D03@Crane"}, {"ref": "D08#kanzel", "copy": "D08@BM"}], "cut_by": []},
+           {"id": "Q2.R4", "star": false, "deps": "opcional", "from": "2.dawn", "frags": [{"ref": "D03#sheer", "copy": "D03@tomo"}, {"ref": "R:D27.texto"}], "cut_by": ["M1", "HA5"]}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: lo que no se ve desde el sendero.", "wrong": "Corríjalo: la cornisa no se ve desde el sendero."},
+      "invariante": "normal"
+    },
+    {
+      "id": "Q3", "orden": 3, "obligatoria": true,
+      "texto": "¿Quién me escribe las cartas sin firma?",
+      "nace": [{"llega": "voz:A", "origen": "Me lo pregunté al recibir la primera carta a máquina."}],
+      "pruebas": ["Prueba de que me vigila de cerca", "Prueba de quién es"],
+      "dudas": ["¿Cómo sabe lo que hice, y dónde pudo verlo?",
+                "¿De dónde sale este papel, y quién lo usa?",
+                "¿Qué sé de la gente que rodeaba a Holmes?"],
+      "acepta": ["persona"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["mycroft"],
+         "grupos": [{"id": "cerca", "tags": ["me_vigila_de_cerca"]},
+                    {"id": "mycroft", "tags": ["vinculo_mycroft"]}],
+         "claves": {"entities": ["club_diogenes", "pall_mall", "mycroft", "remington", "remington_s_alzada", "papel_crema_grueso", "giro_ahorrare", "whitehall", "matasellos_sw", "watson"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "Las cartas las escribe alguien que sabe lo que hago el mismo día, y todo lo que las rodea lleva al club Diógenes y a Mycroft Holmes. Me las manda el hermano.",
+         "rutas": [
+           {"id": "Q3.R2", "star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "S:HC06.b_*"}, {"ref": "D31#para_mholmes", "copy": "D31@L5"}], "cut_by": []},
+           {"id": "Q3.R4", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "N:L2.cotter_canastilla"}, {"ref": "D01.GREE#founders", "copy": "D01.GREE@BM"}], "cut_by": []},
+           {"id": "Q3.R1", "star": false, "deps": "garantizada", "from": "8.T", "frags": [{"ref": "R:HA1.fisica"}, {"ref": "D46#fisica", "copy": "D46@L5"}], "cut_by": ["M1"]},
+           {"id": "Q3.R1d", "star": false, "deps": "garantizada", "from": "2.M", "frags": [{"ref": "R:HA1.fisica"}, {"ref": "N:L2.cesto_tiras"}], "cut_by": ["M1"]},
+           {"id": "Q3.R3", "star": false, "deps": "garantizada", "from": "2.dawn", "frags": [{"ref": "R:HA1.*"}, {"ref": "D30#recibo", "copy": "D30@L3"}], "cut_by": ["HB6", "M1"]},
+           {"id": "Q3.R6", "star": false, "deps": "columna", "from": "1.M", "frags": [{"ref": "R:HC01.sobre"}, {"ref": "D01.GREE#pall_mall", "copy": "D01.GREE@BM"}], "cut_by": ["M1"]},
+           {"id": "Q3.R7", "star": false, "deps": "opcional", "from": "3.M", "frags": [{"ref": "L:wiggins.vieja_tarifa"}, {"ref": "D01.GREE#whitehall", "copy": "D01.GREE@BM"}], "cut_by": ["HB8b"]},
+           {"id": "Q3.R8", "star": false, "deps": "columna", "from": "8.T", "frags": [{"ref": "R:HA1.giro"}, {"ref": "S:HC06.a"}], "cut_by": ["M1"]}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: de quién es la mano que escribe a máquina.", "wrong": "Corríjalo: el escribiente teclea; otro dicta."},
+      "invariante": "normal"
+    },
+    {
+      "id": "Q4", "orden": 4, "obligatoria": true,
+      "texto": "¿Quién cortó la frase?",
+      "nace": [{"tinta": "Q1", "origen": "Me lo pregunté cuando entendí que alguien había sacado la frase."},
+               {"leer": "D04#cajista", "origen": "Me lo pregunté cuando entendí que alguien había sacado la frase."},
+               {"leer": "D29a#tachadura", "origen": "Me lo pregunté cuando entendí que alguien había sacado la frase."}],
+      "pruebas": ["Prueba de que el corte fue una orden", "Prueba de quién pudo darla"],
+      "dudas": ["¿Quién puede mandar a rehacer una página ya compuesta?",
+                "¿Quedó algún papel de la imprenta, o del doctor, que lo diga?",
+                "¿Quién se ocupaba de los asuntos de Holmes cuando él se fue?"],
+      "acepta": ["persona"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["mycroft"],
+         "grupos": [{"id": "orden", "tags": ["corte_por_orden"]},
+                    {"id": "gobierno", "tags": ["mycroft_gobierno"]}],
+         "claves": {"entities": ["gobierno", "pedido_del_fo", "foreign_office", "mycroft"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "La frase la sacaron por orden de un ministerio, y en los ministerios trabaja Mycroft Holmes. El hermano mandó cortar la roca: no quería que nadie leyera que hubo una salida.",
+         "rutas": [
+           {"id": "Q4.R1", "star": true, "deps": "fija", "from": "2.M", "frags": [{"ref": "D04#cajista", "copy": "D04@Crane"}, {"ref": "D01.GREE#cuentas", "copy": "D01.GREE@BM"}], "cut_by": []},
+           {"id": "Q4.R2", "star": true, "deps": "fija", "from": "2.M", "frags": [{"ref": "D33#lote_pruebas", "copy": "D33@Crane"}, {"ref": "D01.GREE#cuentas", "copy": "D01.GREE@Crane"}], "cut_by": []},
+           {"id": "Q4.R3", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D01N#fina_fo", "copy": "D01N@tomo"}, {"ref": "D01.GREE#cuentas", "copy": "D01.GREE@tomo"}], "cut_by": ["M1", "HA5"]},
+           {"id": "Q4.R4", "star": false, "deps": "opcional", "from": "2.dawn", "frags": [{"ref": "D29a#tachadura", "copy": "D29a@L4"}, {"ref": "R:HB5.recibo"}], "cut_by": []}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: quién pidió el corte.", "wrong": "Corríjalo: el doctor no tachó nada por su cuenta."},
+      "invariante": "normal"
+    },
+    {
+      "id": "Q5", "orden": 5, "obligatoria": true,
+      "texto": "¿Quién me contesta firmando «S.»?",
+      "nace": [{"llega": "voz:B", "origen": "Me lo pregunté cuando alguien que firma «S.» me contestó.",
+                "origen_columna": "Me lo pregunté cuando alguien que firma «S.» me contestó en los avisos del Times de hoy."}],
+      "pruebas": ["Prueba de quién firma así", "Prueba de que siguió trabajando después de la cascada"],
+      "dudas": ["¿Quién más firmó con esa inicial después de 1891?",
+                "¿Qué escribió Holmes, además de sus casos?",
+                "¿Qué publicó el Times desde lugares lejanos?"],
+      "acepta": ["persona"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["holmes"],
+         "grupos": [{"id": "identidad", "tags": ["identidad_holmes"]},
+                    {"id": "actividad", "tags": ["actividad_posterior_a_mayo_1891"]}],
+         "claves": {"entities": ["numero_97", "monografia_cenizas", "opusculo_oficios", "forma_de_la_mano", "mycroft", "letra"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "Alguien siguió los trabajos de Holmes después de mayo de 1891 y firma con su inicial. Ningún muerto hace eso: Sherlock Holmes está vivo, y es él quien me contesta.",
+         "rutas": [
+           {"id": "Q5.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D12#n97", "copy": "D12@BM"}, {"ref": "D13#muestra97", "copy": "D13@BM"}], "cut_by": []},
+           {"id": "Q5.R2", "star": true, "deps": "fija", "from": "4.M", "frags": [{"ref": "D44#oficios_mano", "copy": "D44@Crane"}, {"ref": "D14#opusculo", "copy": "D14@BM"}], "cut_by": []},
+           {"id": "Q5.R3", "star": true, "deps": "columna", "from": "8.T", "frags": [{"ref": "S:HC06.c"}, {"ref": "D31#telegramas", "copy": "D31@L5"}], "cut_by": []},
+           {"id": "Q5.R2b", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D44#oficios_mano", "copy": "D44@tomo"}, {"ref": "D14#opusculo", "copy": "D14@BM"}], "cut_by": ["M1", "HA5"]},
+           {"id": "Q5.R4", "star": false, "deps": "columna", "from": "1.M", "frags": [{"ref": "D12#dedicatoria", "copy": "D12@BM"}, {"ref": "R:HC01.no_lo_es"}], "cut_by": ["M1"]}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: quién firma después de mayo de 1891.", "wrong": "Corríjalo: los muertos no completan monografías."},
+      "invariante": "normal"
+    },
+    {
+      "id": "Q6", "orden": 6, "obligatoria": true,
+      "texto": "¿Quién es en realidad mi cliente?",
+      "nace": [{"dicho": "S:M6.donde", "origen": "Me lo pregunté cuando el mayor mandó a preguntar «dónde»."},
+               {"llega": "R:D28.*", "origen": "Me lo pregunté cuando el coronel me contestó que no conoce a ningún Pell."}],
+      "pruebas": ["Prueba: un rasgo del mayor", "Prueba: el mismo rasgo en otro hombre"],
+      "dudas": ["¿Dónde vi antes esa cara y esa manera de hablar?",
+                "¿Qué libros escribió un cazador de la India?",
+                "¿Qué fuma el mayor, y quién más fuma eso?"],
+      "acepta": ["persona"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["moran", "autor_heavy_game"],
+         "grupos": [{"id": "harris", "tags": ["rasgo_de_harris"]},
+                    {"id": "moran", "tags": ["rasgo_de_moran"]}],
+         "claves": {"entities": ["bigote", "adjetivos_repetidos", "cruel", "cheroot", "trichinopolis", "conduit_street"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "El mayor Harris no es amigo de ningún coronel: es el coronel Sebastian Moran, el cazador de tigres. Tiene su cara, su manera de hablar y su tabaco.",
+         "rutas": [
+           {"id": "Q6.R1", "star": true, "deps": "fija", "from": "8.M", "frags": [{"ref": "N:PRO.harris", "copy": "PL.prologo"}, {"ref": "D16#moran", "copy": "D16@BM"}], "cut_by": []},
+           {"id": "Q6.R2", "star": true, "deps": "columna", "from": "7.night", "frags": [{"ref": "S:M7.inteligente"}, {"ref": "D10#adjetivos", "copy": "D10@Crane"}], "cut_by": []},
+           {"id": "Q6.R3", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "D23#cruel", "copy": "D23@L1"}, {"ref": "D10#cruel", "copy": "D10@BM"}], "cut_by": ["M1", "HA5"]},
+           {"id": "Q6.R4", "star": false, "deps": "columna", "from": "7.night", "frags": [{"ref": "N:M7.ceniza", "copy": "PL.M7"}, {"ref": "D11#trichinopolis", "copy": "D11@BM"}], "cut_by": []},
+           {"id": "Q6.R5", "star": false, "deps": "fija", "from": "1.M", "frags": [{"ref": "NC.FINA#tic", "copy": "NC.FINA@tomo"}, {"ref": "D10#adjetivos", "copy": "D10@BM"}], "cut_by": ["M1", "HA5"]},
+           {"id": "Q6.R6", "star": false, "deps": "opcional", "from": "4.dawn", "frags": [{"ref": "L:wiggins.conduit"}, {"ref": "D17#moran_conduit", "copy": "D17@BM"}], "cut_by": ["HB8b", "M4"]}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: quién es el mayor.", "wrong": "Corríjalo: un bigote no es una prueba; dos sí."},
+      "invariante": "normal"
+    },
+    {
+      "id": "Q7", "orden": 7, "obligatoria": true,
+      "texto": "¿Quién mató a Ronald Adair?",
+      "nace": [{"llega": "D15.0331", "origen": "Me lo pregunté al leer en el Times lo de Park Lane."}],
+      "pruebas": ["Prueba de que estaba con Adair esa noche", "Prueba de que sabe tirar así"],
+      "dudas": ["¿Con quién jugaba a las cartas Adair?",
+                "¿Desde dónde pudieron disparar, si nadie oyó nada?",
+                "¿Quién en Londres tira así de bien?"],
+      "acepta": ["persona"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["moran", "autor_heavy_game", "@alias:harris"],
+         "grupos": [{"id": "junto", "tags": ["junto_a_adair"]},
+                    {"id": "tiro", "tags": ["tiro_de_cazador"]}],
+         "claves": {"entities": ["moran", "ronald_adair", "whist", "bala", "bala_blanda", "disparo"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "A Ronald Adair lo mataron desde afuera, sin ruido, con una bala que se abre adentro. Esa noche había jugado a las cartas con el coronel Moran, el mejor tiro de la India. Fue Moran.",
+         "rutas": [
+           {"id": "Q7.R1", "star": true, "deps": "fija", "from": "8.dawn", "frags": [{"ref": "D15.0403#whist", "copy": "D15.0403@L1"}, {"ref": "D10#bala_blanda", "copy": "D10@BM"}], "cut_by": []},
+           {"id": "Q7.R2", "star": true, "deps": "fija", "from": "8.M", "frags": [{"ref": "D16#moran", "copy": "D16@Crane"}, {"ref": "D11#mejor_tiro", "copy": "D11@BM"}], "cut_by": []},
+           {"id": "Q7.R3", "star": false, "deps": "fija", "from": "8.M", "frags": [{"ref": "D16#moran", "copy": "D16@BM"}, {"ref": "D10#aire", "copy": "D10@Crane"}], "cut_by": []}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: quién disparó.", "wrong": "Corríjalo: nadie oyó el disparo; el aire no hace ruido."},
+      "invariante": "normal"
+    },
+    {
+      "id": "Q8", "orden": 8, "obligatoria": true,
+      "texto": "¿Quién entró a mi pieza?",
+      "nace": [{"nota": "HA5", "origen": "Me lo pregunté al ver que alguien había entrado en mi pieza."},
+               {"nota": "HA6", "origen": "Me lo pregunté al ver que alguien había entrado en mi pieza."},
+               {"nota": "M1", "origen": "Me lo pregunté al ver que alguien había entrado en mi pieza."},
+               {"leer": "R:HA5.*", "origen": "Me lo pregunté al ver que alguien había entrado en mi pieza."}],
+      "pruebas": ["Prueba de por dónde entró", "Prueba de quién fue"],
+      "dudas": ["¿Por dónde entró, y qué tocó?",
+                "¿Qué se llevó, y quién sabía que yo lo tenía?",
+                "¿Quién me sigue por la calle?"],
+      "acepta": ["persona"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["muchacho", "muchacho_de_gorra", "wiggins", "irregulares"],
+         "grupos": [{"id": "techos", "tags": ["entro_por_los_techos"]},
+                    {"id": "chicos", "tags": ["chicos_de_holmes"]}],
+         "claves": {"entities": ["muchacho", "irregulares", "muchacho_de_gorra", "wiggins", "techos"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "Entró un muchacho por los techos: abrió la traba desde afuera y no rompió nada: buscaba papeles, no dinero. Es de los chicos que trabajaban para Holmes.",
+         "rutas": [
+           {"id": "Q8.R1", "star": true, "deps": "garantizada", "from": "3.M", "frags": [{"ref": "N:L1.ventana_abierta"}, {"ref": "D43#oyen_todo", "copy": "D43@BM"}], "cut_by": []},
+           {"id": "Q8.R2", "star": true, "deps": "garantizada", "from": "4.dawn", "frags": [{"ref": "L:crane.pasos_techo"}, {"ref": "D44#pilluelos", "copy": "D44@Crane"}], "cut_by": []},
+           {"id": "Q8.R3", "star": false, "deps": "garantizada", "from": "3.M", "frags": [{"ref": "N:L1.ventana_abierta"}, {"ref": "N:*.sil_wiggins"}], "cut_by": []}
+         ]},
+        {"id": "B", "principal": false,
+         "respuestas": ["@alias:moran", "harris", "hombres_de_moran"],
+         "grupos": [{"id": "puerta", "tags": ["entraron_por_la_puerta"]},
+                    {"id": "mayor", "tags": ["senas_del_mayor"]}],
+         "claves": {"entities": ["cheroot", "ceniza_negra", "harris"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "Entraron por la puerta, forzando la cerradura, y dejaron ceniza del mismo cigarro que fuma el mayor. Se llevaron lo que yo le había contado. Fue la gente de mi cliente.",
+         "rutas": [
+           {"id": "Q8.R4", "star": false, "deps": "opcional", "from": "7.night", "frags": [{"ref": "N:L1.ceniza_escritorio"}, {"ref": "S:M7.trichinopolis"}], "cut_by": []},
+           {"id": "Q8.R5", "star": false, "deps": "opcional", "from": "7.night", "frags": [{"ref": "N:L1.ceniza_escritorio"}, {"ref": "N:M7.ceniza", "copy": "PL.M7"}], "cut_by": []}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: quién subió por los techos.", "wrong": "Corríjalo: el chico entra por arriba; el tigre, por la puerta."},
+      "invariante": "desde_nacimiento"
+    },
+    {
+      "id": "Q9", "orden": 9, "obligatoria": true,
+      "texto": "¿Para qué me contrató el mayor?",
+      "nace": [{"dicho": "S:M7.donde_duerme", "origen": "Me lo pregunté cuando el mayor subió a verme de noche."}],
+      "pruebas": ["Prueba de cómo se atrae a la presa", "Prueba de a quién busca el mayor"],
+      "dudas": ["¿Qué cuenta un cazador de cómo atrae a un tigre?",
+                "¿Qué me pidió el mayor, exactamente, cada vez que habló?",
+                "¿Por qué alguien me contesta cada vez que publico algo?"],
+      "acepta": ["concepto", "objeto", "persona"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["cebo", "cabrito", "cabrito_atado"],
+         "grupos": [{"id": "cebo", "tags": ["cebo"]},
+                    {"id": "busca", "tags": ["busca_a_holmes"]}],
+         "claves": {"entities": ["cabrito", "cabrito_atado", "cebo", "donde", "tigre"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "No me contrató para corregir a nadie. Soy el cabrito atado al árbol: me hace moverme para que alguien me conteste, y así saber dónde está Holmes.",
+         "rutas": [
+           {"id": "Q9.Ca", "star": true, "deps": "columna", "from": "5.dawn", "frags": [{"ref": "D10#cabrito_atado", "copy": "D10@BM"}, {"ref": "S:M6.donde"}], "cut_by": []},
+           {"id": "Q9.Cb", "star": true, "deps": "columna", "from": "7.night", "frags": [{"ref": "D11#no_bala", "copy": "D11@BM"}, {"ref": "S:M7.donde_duerme"}], "cut_by": []},
+           {"id": "Q9.Cc", "star": false, "deps": "opcional", "from": "5.dawn", "frags": [{"ref": "D10#cabrito_atado", "copy": "D10@Crane"}, {"ref": "R:HB7.col"}], "cut_by": []},
+           {"id": "Q9.Cd", "star": false, "deps": "opcional", "from": "3.M", "frags": [{"ref": "D11#hacerlo_balar", "copy": "D11@BM"}, {"ref": "R:M2.nota"}], "cut_by": []},
+           {"id": "Q9.Cd2", "star": false, "deps": "opcional", "from": "4.dawn", "frags": [{"ref": "D11#hacerlo_balar", "copy": "D11@BM"}, {"ref": "R:HB9.carta"}], "cut_by": []}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: para qué me paga.", "wrong": "Corríjalo: el cabrito no elige el árbol."},
+      "invariante": "normal"
+    },
+    {
+      "id": "Q10", "orden": 10, "obligatoria": true,
+      "texto": "¿Qué va a pasar el jueves?",
+      "nace": [{"dicho": "S:HC05.jueves_a", "origen": "Me lo pregunté cuando todos empezaron a hablar del jueves."},
+               {"dicho": "S:HC06.e", "origen": "Me lo pregunté cuando todos empezaron a hablar del jueves."},
+               {"dicho": "S:AGENTE.militar", "origen": "Me lo pregunté cuando todos empezaron a hablar del jueves."},
+               {"llega": "R:M8.*", "origen": "Me lo pregunté cuando todos empezaron a hablar del jueves."}],
+      "pruebas": ["Prueba de lo que alguien prepara", "Prueba de dónde o cuándo"],
+      "dudas": ["¿Qué están preparando en el 221B?",
+                "¿Quién vuelve, y de dónde?",
+                "¿Quién anda mirando la casa de enfrente?"],
+      "acepta": ["persona"],
+      "variantes": [
+        {"id": "A", "principal": true,
+         "respuestas": ["holmes"],
+         "grupos": [{"id": "preparativos", "tags": ["preparativos_221b"]},
+                    {"id": "dia", "tags": ["dia_jueves"]}],
+         "claves": {"entities": ["jueves", "221b", "mycroft", "baker_street"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "El jueves alguien vuelve al 221B: preparan los cuartos y el hermano deja libre ese día. Sherlock Holmes vuelve a Baker Street.",
+         "rutas": [
+           {"id": "Q10.R1", "star": true, "deps": "columna", "from": "8.M", "frags": [{"ref": "N:L3.ventanas_abiertas"}, {"ref": "S:HC05.jueves_a"}], "cut_by": []},
+           {"id": "Q10.R2", "star": true, "deps": "columna", "from": "9.T", "frags": [{"ref": "N:L3.cajon"}, {"ref": "S:HC06.e"}], "cut_by": []},
+           {"id": "Q10.R1b", "star": false, "deps": "columna", "from": "8.M", "frags": [{"ref": "N:L3.shag"}, {"ref": "S:HC05.jueves_a"}], "cut_by": []}
+         ]},
+        {"id": "B", "principal": false,
+         "respuestas": ["harris", "@alias:moran", "@alias:autor_heavy_game"],
+         "grupos": [{"id": "tirador", "tags": ["tirador"]},
+                    {"id": "escondite", "tags": ["escondite_preparado"]}],
+         "claves": {"entities": ["camden_house", "casa_vacia", "harris", "moran", "cheroot", "221b"], "kinds": []},
+         "valida": {"desde": null, "hasta": "10.M"},
+         "tinta": "El mayor va a esperar en la casa vacía de enfrente del 221B, arriba, donde se domina la ventana, como se espera a un tigre. El jueves va a disparar desde ahí.",
+         "rutas": [
+           {"id": "Q10.R3", "star": true, "deps": "columna", "from": "7.night", "frags": [{"ref": "S:M7.trichinopolis"}, {"ref": "N:L8.ceniza"}], "cut_by": []},
+           {"id": "Q10.R4", "star": true, "deps": "fija", "from": "7.M", "frags": [{"ref": "S:PRO.cace_india"}, {"ref": "S:AGENTE.militar"}], "cut_by": []},
+           {"id": "Q10.R5", "star": false, "deps": "fija", "from": "7.M", "frags": [{"ref": "N:PRO.harris", "copy": "PL.prologo"}, {"ref": "D32#llave_harris", "copy": "D32@L3"}], "cut_by": ["M5"]}
+         ]}
+      ],
+      "blue_pencil": {"missing": "Falta: adónde vuelvo, y qué día.", "wrong": "Corríjalo: el jueves se airea un cuarto, no una tumba."},
+      "invariante": "normal"
+    }
+  ],
+  "_pistas_falsas": [
+    {"id": "falsa_baston", "texto": "El muchacho suizo se llevó el bastón", "origen": ["R:HB2.pared.3.col", "R:HB2.pared.3.kw", "R:HB2.pared.3.kh"], "refutaciones": ["D03#baston", "D05#baton"]},
+    {"id": "falsa_rio_cuerpo", "texto": "El río devolvió un cuerpo en junio", "origen": ["R:HB2.cayeron.3.col", "R:HB2.cayeron.3.kw", "R:HB2.cayeron.3.kh"], "refutaciones": ["D03#hopeless", "D19#presume", "D05#aucun_corps"]},
+    {"id": "falsa_posadero", "texto": "La nota la escribió el posadero", "origen": ["R:HB2.nota_falsa.3.col", "R:HB2.nota_falsa.3.kw", "R:HB2.nota_falsa.3.kh"], "refutaciones": ["D03#steiler", "R:D27.texto"]},
+    {"id": "falsa_herencia", "texto": "El hermano reclamó la herencia en 1892", "origen": ["R:HB2.testamento.3.col", "R:HB2.testamento.3.kw", "R:HB2.testamento.3.kh"], "refutaciones": ["D18#calendars", "D19#indice"]},
+    {"id": "falsa_tachadura", "texto": "El doctor tachó la frase por su cuenta", "origen": ["R:HB2.mintio.3.col", "R:HB2.mintio.3.kw", "R:HB2.mintio.3.kh"], "refutaciones": ["D04#cajista", "D01N#fina_fo", "D29a#tachadura"]},
+    {"id": "falsa_jartum", "texto": "Sigerson en Jartum, huésped del Califa", "origen": ["D13#jartum", "R:HB3.nota"], "refutaciones": ["D34#ruinas", "D35#califa"]},
+    {"id": "falsa_reuter", "texto": "«Lea a Reuter»: tres fuentes que son una", "origen": ["R:HA1.tres_fuentes"], "refutaciones": ["D05#corniche", "N:RB.foto.linea", "D08#kanzel"]},
+    {"id": "falsa_anarquistas", "texto": "Park Lane fue obra de anarquistas", "origen": ["D15.0331"], "refutaciones": ["D15.0403#nada_falta", "N:L7.azafranes"], "_nota": "la teoría de la prensa del sábado; el tramo lo elige W3-CT-TIMES"},
+    {"id": "falsa_meunier", "texto": "Meunier, el anarquista detenido en Victoria", "origen": ["D15.0405"], "refutaciones": ["N:L3.cajon", "D15.0405#meunier"], "_nota": "la coincidencia de apellidos: O. Meunier, mouleur (cajón) no es Théodule Meunier, ebanista"}
+  ]
+}

@@ -93,7 +93,6 @@ static func _recipe(r: String, dur: float, fd: float, rng: Synth.Rng) -> PackedF
 		"ladrillo": return _ladrillo(dur, rng)
 		"golpe_puerta": return _golpe_puerta(dur, rng)
 		"amb_calle": return _amb_calle(dur, fd, rng)
-		"amb_gas": return _amb_gas(dur, fd, rng)
 		"amb_sala_lectura": return _amb_sala_lectura(dur, fd, rng)
 		"amb_diogenes": return _amb_diogenes(dur, fd, rng)
 		"amb_tienda": return _amb_tienda(dur, fd, rng)
@@ -104,8 +103,14 @@ static func _recipe(r: String, dur: float, fd: float, rng: Synth.Rng) -> PackedF
 		"cerrojo": return _cerrojo(dur, rng)
 		"carrera": return _carrera(dur, rng)
 		"amb_calle_parker": return _amb_calle_parker(dur, fd, rng)
-		"amb_gas_parker": return _amb_gas_parker(dur, fd, rng)
+		# v3 (REACCIONES-PIEZA, GDD_v3 §6.8): la noche casi en silencio (sin siseo de gas) y la corriente de aire
+		"amb_noche": return _amb_noche(dur, fd, rng, false)
+		"amb_noche_parker": return _amb_noche(dur, fd, rng, true)
+		"corriente": return _corriente(dur, rng)
 		"amb_casa_vacia": return _amb_casa_vacia(dur, fd, rng)
+		# playtest v3: el consultorio de Watson y el vestíbulo de Mrs. Hudson ya no suenan como la tienda de Crane
+		"amb_consultorio": return _amb_consultorio(dur, fd, rng)
+		"amb_vestibulo": return _amb_vestibulo(dur, fd, rng)
 	push_warning("proc_audio: receta desconocida " + r)
 	return Synth.zeros(Synth.n_of(dur))
 
@@ -883,33 +888,16 @@ static func _amb_calle(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Ar
 	# si se trunca, el coche se corta en seco en mitad del bucle.
 	var th := Synth.zeros(nl + _n(3.0))
 	var nz := Synth.zeros(nl + _n(3.0))
+	# v3 (calma, T35): un coche por bucle (los eventos sueltos, ≥ 8 s entre sí)
 	_cab(th, nz, rng.r(0.3, 1.0), 5.0, 3.0, 1.0, false, rng)
-	_cab(th, nz, rng.r(4.2, 5.0), 5.5, 1.8, 0.7, true, rng)
 	Synth.lp(nz, 1200.0)
 	Synth.mix(th, nz, 0, 0.8)
 	Synth.lp1(th, 1000.0)
 	Synth.slap(th, 0.05, 0.3, 1500.0)
 	var ev := Synth.fold(th, nl)
 	Synth.mix(x, ev, 0, 0.07)
+	Synth.scale(x, 0.68)   # v3: RMS ≤ −32 dBFS (T35)
 	return x
-
-# Gas: siseo HP 4 kHz muy bajo con aleteo lento (+ un rumor de llama casi inaudible).
-static func _amb_gas(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
-	var nt := _bed_len(dur, fd)
-	var x := Synth.white(nt, rng.sub())
-	Synth.hp(x, 4000.0)
-	Synth.hp(x, 3500.0)
-	Synth.lp(x, 9000.0)
-	Synth.mul_wobble(x, rng.sub(), 1.2, 0.7, 1.0)
-	Synth.mul_wobble(x, rng.sub(), 7.0, 0.9, 1.0)
-	Synth.to_rms(x, 0.006)
-	var fl := Synth.brown(nt, rng.sub())
-	Synth.lp(fl, 180.0)
-	Synth.hp1(fl, 30.0)
-	Synth.mul_wobble(fl, rng.sub(), 2.0, 0.6, 1.0)
-	Synth.to_rms(fl, 0.0015)
-	Synth.mix(x, fl)
-	return Synth.make_loop(x, fd)
 
 # Sala de Lectura: tono de sala 200–800 Hz muy bajo + páginas ocasionales bajo la cúpula.
 static func _amb_sala_lectura(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
@@ -925,15 +913,10 @@ static func _amb_sala_lectura(dur: float, fd: float, rng: Synth.Rng) -> PackedFl
 	Synth.mix(bed, air)
 	var x := Synth.make_loop(bed, fd)
 	var ev := Synth.zeros(nl + _n(3.0))
+	# v3 (calma, T35): una página por bucle
 	var p1 := _paper(0.9, rng, true)
-	Synth.normalize(p1, 0.06)
+	Synth.normalize(p1, 0.05)
 	Synth.mix(ev, p1, _n(rng.r(1.0, 2.2)))
-	var p2 := _paper(0.9, rng, true)
-	Synth.normalize(p2, 0.035)
-	Synth.mix(ev, p2, _n(rng.r(5.0, 6.2)))
-	var p3 := _paper(0.6, rng, false)
-	Synth.normalize(p3, 0.02)
-	Synth.mix(ev, p3, _n(rng.r(3.4, 4.2)))
 	Synth.reverb_lofi(ev, 1.6, 0.88, 0.45, 1.2)
 	Synth.scale(ev, 0.5)
 	Synth.lp(ev, 6000.0)
@@ -949,12 +932,10 @@ static func _amb_diogenes(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat3
 	Synth.to_rms(bed, 0.004)
 	var x := Synth.make_loop(bed, fd)
 	var ev := Synth.zeros(nl + _n(1.5))
+	# v3 (calma, T35): un papel por bucle
 	var p1 := _paper(0.6, rng, false)
 	Synth.normalize(p1, 0.05)
 	Synth.mix(ev, p1, _n(rng.r(2.0, 2.8)))
-	var p2 := _paper(0.9, rng, true)
-	Synth.normalize(p2, 0.02)
-	Synth.mix(ev, p2, _n(rng.r(4.6, 5.2)))
 	Synth.reverb_lofi(ev, 0.8, 0.7, 0.5, 0.2)
 	Synth.mix(x, Synth.fold(ev, nl))
 	return x
@@ -1010,6 +991,7 @@ static func _amb_viento(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32A
 	Synth.mul(ru, gust)
 	Synth.to_rms(ru, 0.02)
 	Synth.mix(x, ru)
+	Synth.scale(x, 0.4)   # v3 (calma, T35): RMS ≤ −32 dBFS; las campanas y la noche del 5 quedan bien arriba
 	return Synth.make_loop(x, fd)
 
 # Gorjeo: senos con chirp en frases cortas.
@@ -1041,9 +1023,10 @@ static func _amb_parque(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32A
 	Synth.mix(cr, car)
 	var x := Synth.make_loop(cr, fd)
 	var ev := Synth.zeros(nl + _n(1.5))
-	var starts := [0.4, 1.7, 2.9, 4.3, 5.6, 6.8]
+	# v3 (calma, T35): un par de gorjeos por bucle (un solo evento)
+	var starts := [0.4, 1.0]
 	for k in starts.size():
-		_birds(ev, float(starts[k]) + rng.r(0.0, 0.5), rng, k == 2)
+		_birds(ev, float(starts[k]) + rng.r(0.0, 0.2), rng, k == 1)
 	Synth.reverb_lofi(ev, 1.0, 0.6, 0.5, 0.2)
 	Synth.lp(ev, 9000.0)
 	Synth.mix(x, Synth.fold(ev, nl), 0, 0.03)
@@ -1054,45 +1037,116 @@ static func _amb_parque(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32A
 # (rodar lejano, poca gente, un coche al paso sobre granito mientras Parker descansa) y, en la vereda de enfrente,
 # la tonada de Parker entera, cada 8 s: siempre la misma.
 static func _amb_calle_parker(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
-	var nt := _bed_len(dur, fd)
+	# v3 (calma, T35): bucle de 16 s con el fondo de 8 s dos veces; la tonada a los 0,4 s y el coche a los 8,4 s (≥ 8 s
+	# entre eventos sueltos); 6 dB más bajo que en v2 (Baker Street de noche, rala).
+	var base := dur * 0.5
+	var nt := _bed_len(base, fd)
 	var nl := _n(dur)
 	var bed := Synth.brown(nt, rng.sub())
 	Synth.lp(bed, 300.0)
 	Synth.hp1(bed, 30.0)
-	Synth.to_rms(bed, 0.016)
+	Synth.to_rms(bed, 0.008)
 	var mu := Synth.pink(nt, rng.sub())   # poca gente: una sola banda de murmullo (más barato que _murmur)
 	Synth.band(mu, 300.0, 1200.0)
 	Synth.mul_wobble(mu, rng.sub(), 4.5, 0.15, 1.0)
-	Synth.to_rms(mu, 0.003)
+	Synth.to_rms(mu, 0.0015)
 	Synth.mix(bed, mu)
-	var x := Synth.make_loop(bed, fd)
-	var th := Synth.zeros(nl + _n(2.0))
-	var nz := Synth.zeros(nl + _n(2.0))
-	_cab(th, nz, rng.r(5.2, 5.6), 3.6, 1.8, 0.5, true, rng)
+	var x := _tile(Synth.make_loop(bed, fd), 2)
+	var th := Synth.zeros(_n(base) + _n(2.0))
+	var nz := Synth.zeros(_n(base) + _n(2.0))
+	_cab(th, nz, 0.4, 3.6, 1.8, 0.5, true, rng)
 	Synth.lp(nz, 1000.0)
 	Synth.mix(th, nz, 0, 0.6)
 	Synth.lp1(th, 900.0)
 	Synth.slap(th, 0.05, 0.3, 1500.0)
-	Synth.mix(x, Synth.fold(th, nl), 0, 0.05)
-	var hp := _parker_far(nl, 0.4, 2600.0, rng)
-	Synth.normalize(hp, 0.05)
-	Synth.mix(x, Synth.fold(hp, nl))
+	_mix_wrap(x, th, _n(8.0), 0.03)
+	var hp := _parker_far(_n(5.4), 0.4, 2600.0, rng)
+	Synth.normalize(hp, 0.03)
+	_mix_wrap(x, hp, 0)
 	return x
 
-# El prólogo (lunes de Pascua, de noche, en la buhardilla): el siseo del gas y, abajo junto a la puerta de la tienda,
-# muy bajo, la tonada de Parker que sube por la ventana (PRO: «se oye, muy bajo, un arpa de boca»).
-static func _amb_gas_parker(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
-	var x := _amb_gas(dur * 0.5, fd, rng)   # el bucle de gas de 4 s, dos veces (sin costura)
-	x.append_array(x.duplicate())
-	var nl := _n(dur)
-	var rum := Synth.brown(nl + _n(fd), rng.sub())
-	Synth.lp(rum, 160.0)
-	Synth.hp1(rum, 30.0)
-	Synth.to_rms(rum, 0.003)
-	Synth.mix(x, Synth.make_loop(rum, fd))
-	var hp := _parker_far(nl, 1.0, 1300.0, rng)
-	Synth.normalize(hp, 0.03)
-	Synth.mix(x, Synth.fold(hp, nl))
+# v3: repite un bucle sin costura k veces (los fondos largos se arman con uno corto; los eventos van por encima).
+static func _tile(x: PackedFloat32Array, k: int) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	for i in maxi(1, k):
+		out.append_array(x)
+	return out
+
+# v3: suma src en x desde offset, dando la vuelta al final (bucle): cuesta lo que dura el evento, no lo que dura el bucle.
+static func _mix_wrap(x: PackedFloat32Array, src: PackedFloat32Array, offset: int, gain := 1.0) -> void:
+	var L := x.size()
+	if L == 0:
+		return
+	var o := offset % L
+	for i in src.size():
+		var j := o + i
+		if j >= L:
+			j -= L
+			if j >= L:
+				j %= L
+		x[j] += src[i] * gain
+
+# v3 (REACCIONES-PIEZA, GDD_v3 §6.8): la noche en la buhardilla y en las láminas PRO/M7, casi en silencio (sin siseo de
+# gas): el rumor lejano de la ciudad y el tono del cuarto; un coche lejano y la campana de los cuartos, lejos (≥ 8 s
+# entre sí, y entre vueltas del bucle); en el prólogo (parker), además, la tonada de Parker abajo, de vez en cuando. El
+# fondo es de dur/3 s repetido tres veces; los eventos se pliegan sobre el bucle entero.
+static func _amb_noche(dur: float, fd: float, rng: Synth.Rng, parker: bool) -> PackedFloat32Array:
+	var base := dur / 6.0
+	var nb := _bed_len(base, fd)
+	var bed := Synth.brown(nb, rng.sub())
+	Synth.lp(bed, 160.0)
+	Synth.hp1(bed, 30.0)
+	Synth.to_rms(bed, 0.004)
+	var room := Synth.pink(nb, rng.sub())
+	Synth.band(room, 120.0, 450.0)
+	Synth.mul_wobble(room, rng.sub(), 0.5, 0.85, 1.0)
+	Synth.to_rms(room, 0.0014)
+	Synth.mix(bed, room)
+	var x := _tile(Synth.make_loop(bed, fd), 6)
+	# coche (se oye desde ~1,9 s después de empezar), campana y, en el prólogo, la tonada: ≥ 8 s entre comienzos
+	var times: Array = [2.0, 14.0] if not parker else [0.0, 19.5]
+	# un coche lejano, sobre madera, que pasa y se pierde
+	var th := Synth.zeros(_n(6.5))
+	var nz := Synth.zeros(_n(6.5))
+	_cab(th, nz, 0.3, 5.0, 1.8, 0.6, false, rng)
+	Synth.lp(nz, 900.0)
+	Synth.mix(th, nz, 0, 0.6)
+	Synth.lp1(th, 700.0)
+	Synth.slap(th, 0.07, 0.3, 1200.0)
+	Synth.normalize(th, 0.03)
+	_mix_wrap(x, th, _n(float(times[0])))
+	# la campana de los cuartos, lejos (sin la reverberación de clock.cuartos: un eco corto basta y es barato)
+	var q := _cuartos_lejos(4.0, rng)
+	Synth.normalize(q, 0.022)
+	_mix_wrap(x, q, _n(float(times[1])))
+	if parker:
+		var hp := _parker_far(_n(5.4), 0.0, 1300.0, rng)
+		Synth.normalize(hp, 0.028)
+		_mix_wrap(x, hp, _n(10.5))
+	return x
+
+# Los cuartos de Westminster lejos, para la noche (como _cuartos, sin reverberación larga).
+static func _cuartos_lejos(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var n := _n(dur)
+	var nh: int = (n + 1) / 2
+	var h := Synth.zeros(nh)
+	var notes := [415.3, 370.0, 329.6, 246.9]
+	for k in 4:
+		_bell_into(h, int((0.1 + 0.62 * k + rng.r(-0.01, 0.01)) * SR * 0.5), float(notes[k]), 0.8, 1.0, rng, 2.0)
+	Synth.lp(h, 2.0 * 1800.0)
+	Synth.slap(h, 0.08 * 0.5, 0.3, 2.0 * 1200.0)
+	var x := Synth.upsample2(h, n)
+	Synth.mul_pts(x, [[0.0, 1.0], [dur - 0.8, 1.0], [dur, 0.0]])
+	return x
+
+# v3 (GDD_v3 §4.3, §6.8): la corriente de aire al entrar en la pieza con la ventana abierta. Ráfaga de 3 s: ruido rosa
+# 200–900 Hz con un aleteo lento y envolvente suave (sin golpe); una sola vez, sin alerta.
+static func _corriente(dur: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var n := _n(dur)
+	var x := Synth.pink(n, rng.sub())
+	Synth.band(x, 200.0, 900.0)
+	Synth.mul_wobble(x, rng.sub(), 2.0, 0.75, 1.0)
+	Synth.mul_pts(x, [[0.0, 0.0], [0.9, 1.0], [1.5, 0.85], [dur, 0.0]])
 	return x
 
 # Crujido de entarimado: pulsos de stick-slip que se aceleran y frenan, por dos resonancias de la tabla.
@@ -1110,10 +1164,60 @@ static func _creak(dst: PackedFloat32Array, t0: float, rng: Synth.Rng) -> void:
 	Synth.mix(a, p, 0, 0.6)
 	Synth.mix(dst, a, _n(t0))
 
+# Consultorio de Watson (L4, Kensington; playtest v3): la sala de espera de una casa de barrio. Tono de cuarto tibio, la
+# calle muy lejos (Kensington es tranquilo) y, una vez por bucle, alguien que hojea una revista. Sin reloj (el tictac es
+# de la tienda de Crane; el estudio del domingo tiene el suyo: clock.tic).
+static func _amb_consultorio(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var nt := _bed_len(dur, fd)
+	var nl := _n(dur)
+	var room := Synth.pink(nt, rng.sub())
+	Synth.band(room, 90.0, 450.0)
+	Synth.to_rms(room, 0.0035)
+	var st := Synth.brown(nt, rng.sub())
+	Synth.lp(st, 160.0)
+	Synth.hp1(st, 30.0)
+	Synth.to_rms(st, 0.007)
+	Synth.mix(room, st)
+	var x := Synth.make_loop(room, fd)
+	var ev := Synth.zeros(nl + _n(1.5))
+	var pg := _paper(0.9, rng, true)
+	Synth.normalize(pg, 0.045)
+	Synth.mix(ev, pg, _n(rng.r(3.0, 3.6)))
+	Synth.reverb_lofi(ev, 0.7, 0.6, 0.5, 0.2)
+	Synth.mix(x, Synth.fold(ev, nl))
+	return x
+
+# Vestíbulo de Mrs. Hudson (L3 interior; playtest v3): una casa habitada y en calma. Tono de zaguán y escalera, la calle
+# detrás de la puerta (con algo de gente) y, una vez por bucle, cruje un escalón: alguien arriba. Sin reloj.
+static func _amb_vestibulo(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
+	var nt := _bed_len(dur, fd)
+	var nl := _n(dur)
+	var room := Synth.pink(nt, rng.sub())
+	Synth.band(room, 70.0, 380.0)
+	Synth.mul_wobble(room, rng.sub(), 0.4, 0.85, 1.0)
+	Synth.to_rms(room, 0.004)
+	var st := Synth.brown(nt, rng.sub())
+	Synth.lp(st, 200.0)
+	Synth.hp1(st, 30.0)
+	Synth.to_rms(st, 0.009)
+	var mu := _murmur(nt, rng, 200.0, 1000.0, 450.0)
+	Synth.to_rms(mu, 0.002)
+	Synth.mix(st, mu)
+	Synth.mix(room, st)
+	var x := Synth.make_loop(room, fd)
+	var ev := Synth.zeros(nl + _n(1.5))
+	_creak(ev, rng.r(2.4, 3.2), rng)
+	Synth.reverb_lofi(ev, 0.8, 0.7, 0.45, 0.3)
+	Synth.lp(ev, 4500.0)
+	Synth.mix(x, Synth.fold(ev, nl), 0, 0.14)
+	return x
+
 # Camden House (L8): el cuarto delantero vacío. Tono de sala hueco (paredes desnudas), la calle apagada tras el
 # vidrio sucio, un crujido del entarimado y un chasquido de la casa que se asienta, con eco de cuarto vacío.
 static func _amb_casa_vacia(dur: float, fd: float, rng: Synth.Rng) -> PackedFloat32Array:
-	var nt := _bed_len(dur, fd)
+	# v3 (calma, T35): bucle de 16 s con el fondo de 8 s dos veces; el crujido y el chasquido, a 8 s uno del otro.
+	var base := dur * 0.5
+	var nt := _bed_len(base, fd)
 	var nl := _n(dur)
 	var room := Synth.pink(nt, rng.sub())
 	Synth.band(room, 70.0, 320.0)
@@ -1124,10 +1228,10 @@ static func _amb_casa_vacia(dur: float, fd: float, rng: Synth.Rng) -> PackedFloa
 	Synth.hp1(st, 30.0)
 	Synth.to_rms(st, 0.006)
 	Synth.mix(room, st)
-	var x := Synth.make_loop(room, fd)
+	var x := _tile(Synth.make_loop(room, fd), 2)
 	var ev := Synth.zeros(nl + _n(1.5))
 	_creak(ev, rng.r(1.6, 2.4), rng)
-	var tk := _n(rng.r(4.3, 4.9))
+	var tk := _n(rng.r(9.9, 10.4))
 	Synth.add_mode(ev, tk, rng.r(280.0, 340.0), 0.03, 0.25)
 	Synth.add_mode(ev, tk, rng.r(700.0, 820.0), 0.015, 0.15)
 	Synth.add_burst(ev, tk, 0.0002, 0.002, 0.2, rng.sub())

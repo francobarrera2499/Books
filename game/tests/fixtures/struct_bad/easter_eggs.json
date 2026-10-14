@@ -12,7 +12,7 @@
    "id": "EE02",
    "name": "Sobre una ruta",
    "trigger": {
-    "pairs_over": [
+    "clips_over": [
      "D91#raro"
     ]
    },

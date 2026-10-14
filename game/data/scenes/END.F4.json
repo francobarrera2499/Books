@@ -7,8 +7,8 @@
     {"id": "times", "who": "lisle", "text": "Vie. 6 de abril. El [[times|Times]] trae la detención de un coronel retirado en una casa vacía de [[baker_street|Baker Street]], y el nombre del [[lestrade|inspector Lestrade]]."},
     {"id": "lupa", "who": "lisle", "text": "La leo dos veces, con la nariz pegada al papel. No dice nada que no haya estado sobre mi mesa estos diez días."},
     {"id": "park_lane", "who": "lisle", "text": "Ayer, en [[park_lane|Park Lane]], un médico de luto le tiró los libros a un librero viejo, a dos pasos de mí, y yo seguí explicando mi teoría."},
-    {"id": "contrato", "who": "lisle", "text": "El chico de Pell no vuelve. El contrato pedía seis conclusiones confirmadas; no las tuve, y nadie sube a reclamarme la diferencia."},
-    {"id": "tomos", "who": "lisle", "when": {"not": {"sealed": "C14"}}, "text": "Los [[tomos|cinco tomos]] siguen en la mesa, con sus notas a lápiz. Mañana se los bajo a Crane, que paga al peso."},
-    {"id": "tomos_c14", "who": "lisle", "when": {"sealed": "C14"}, "text": "Los [[tomos|cinco tomos]] siguen en la mesa, con sus notas a lápiz. El sábado los llevo a [[kensington|Kensington]], sin nombre: de todo lo de estos diez días, es lo único que sé dónde va."}
+    {"id": "contrato", "who": "lisle", "text": "El chico de Pell no vuelve. El contrato pedía seis respuestas confirmadas, con sus pruebas; no las tuve, y nadie sube a reclamarme la diferencia."},
+    {"id": "tomos", "who": "lisle", "when": {"not": {"flag": "curiosidad_tomos"}}, "text": "Los [[cuadernillos|cuadernillos]] del mayor siguen en el estante, con sus notas a lápiz. Mañana se los bajo a Crane, que paga al peso."},
+    {"id": "tomos_c14", "who": "lisle", "when": {"flag": "curiosidad_tomos"}, "text": "Los [[cuadernillos|cuadernillos]] del mayor siguen en el estante, con sus notas a lápiz. El sábado los llevo a [[kensington|Kensington]], sin nombre: de todo lo de estos diez días, es lo único que sé dónde va."}
   ]
 }

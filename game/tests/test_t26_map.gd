@@ -110,7 +110,8 @@ func test_unrevealed_not_listed_and_not_written():
 		for bi in (v.pages[pi] as Array).size():
 			for tr in v.pages[pi][bi].parsed.tramos:
 				if not clipped and String(tr.id) == "aviso":
-					clipped = Game.act({"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": pi, "block": bi}, "from": int(tr.from), "len": int(tr.to) - int(tr.from)}).ok
+					var sp: Array = load("res://devtools/bots/bot_base.gd").best_window(v.pages[pi][bi].parsed, int(tr.from), int(tr.to))
+					clipped = Game.act({"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": pi, "block": bi}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])}).ok
 	ok(clipped)
 	ok(Game.act({"t": "compose_ad", "form": "testigo", "fields": {"suceso": "suceso_reichenbach"}}).ok)
 	ok(Game.act({"t": "sleep"}).ok)

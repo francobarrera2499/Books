@@ -44,25 +44,9 @@ static func first_fail(results: Array) -> String:
 			return "%s -> %s" % [J.stringify_canon(x.a), J.stringify_canon(x.r)]
 	return ""
 
-# Guion del prólogo (tutorial completo con los dobles).
+# Guion del prólogo v3 (GDD_v3 §6.9): abrir el expediente y leer el encargo, recortar, el aviso y dormir. Deja RC0001
+# (encargo) y RC0002 (tomo, D03#sheer). Índices: 0 read · 1 y 2 clip_text · 3 compose_ad · 4 sleep.
 static func prologue() -> Array:
-	return [
-		{"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": 0, "block": 0}, "from": 0, "len": 41},
-		{"t": "clip_text", "src": {"kind": "doc", "ref": "D03@tomo", "part": 0, "block": 0}, "from": 0, "len": 42},
-		{"t": "link", "a": "RC0001", "b": "RC0002", "note": "contradice"},
-		{"t": "folio_open", "clip": "RC0002"},
-		{"t": "entry_new", "folio": "FO001", "template": "T1"},
-		{"t": "entry_set", "entry": "AS001", "line": 0, "field": "fuente_a", "value": "fina"},
-		{"t": "entry_support_add", "entry": "AS001", "line": 0, "item": "RC0001"},
-		{"t": "entry_support_add", "entry": "AS001", "line": 0, "item": "RC0002"},
-		{"t": "practice", "entry": "AS001"},
-		{"t": "compose_ad", "form": "testigo", "fields": {"suceso": "suceso_reichenbach"}},
-		{"t": "sleep"},
-	]
-
-# Prólogo v2 (GDD_v2 §B.7): abrir el encargo, recortar, el aviso y dormir. Deja RC0001 (encargo) y RC0002 (tomo); sin
-# práctica (la primera conclusión es del día 1).
-static func prologue_v2() -> Array:
 	return [
 		{"t": "read", "view": "D23@L1", "part": 0},
 		{"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": 0, "block": 0}, "from": 0, "len": 41},
@@ -71,19 +55,19 @@ static func prologue_v2() -> Array:
 		{"t": "sleep"},
 	]
 
-# Día 1, primera conclusión con los recortes del prólogo v2 (juntar, hoja, conclusión con sus pruebas, práctica).
-# entry = id que recibirá la conclusión nueva (AS001 si no hay otras).
-static func day1_practice(entry := "", folio := "") -> Array:
-	var e := entry if entry != "" else "AS001"
-	var f := folio if folio != "" else "FO001"
+static func prologue_v2() -> Array:
+	return prologue()
+
+# Día 1 guiado (GDD_v3 §6.9): leer FINA (nace Q2), recortar la cláusula de la prueba de imprenta (RC0003), una hoja con
+# respuesta y dos pruebas (Q1) y pasar en limpio. Con los dobles, la hoja puede no cerrar: el paso se cumple igual.
+static func day1_guide() -> Array:
 	return [
-		{"t": "link", "a": "RC0001", "b": "RC0002", "note": "contradice"},
-		{"t": "folio_open", "clip": "RC0002"},
-		{"t": "entry_new", "folio": f, "template": "T1"},
-		{"t": "entry_set", "entry": e, "line": 0, "field": "fuente_a", "value": "fina"},
-		{"t": "entry_support_add", "entry": e, "line": 0, "item": "RC0001"},
-		{"t": "entry_support_add", "entry": e, "line": 0, "item": "RC0002"},
-		{"t": "practice", "entry": e},
+		{"t": "read", "view": "D03@tomo", "part": 0},
+		{"t": "clip_text", "src": {"kind": "doc", "ref": "D02@L1", "part": 0, "block": 0}, "from": 0, "len": 57},
+		{"t": "dq_answer", "q": "Q1", "value": "raspadura"},
+		{"t": "dq_proof", "q": "Q1", "slot": 0, "clip": "RC0002"},
+		{"t": "dq_proof", "q": "Q1", "slot": 1, "clip": "RC0003"},
+		{"t": "dq_confirm", "q": "Q1"},
 	]
 
 # Avanza sólo con acciones de reloj (quedarse en casa, informes «sin novedad», dormir, salir de escenas) hasta

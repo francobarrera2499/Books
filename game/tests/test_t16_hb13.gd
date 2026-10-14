@@ -1,32 +1,28 @@
-# T16 (W2-REACT): HB13, el antiestancamiento, empuja hacia actividades y nunca hacia el documento clave: ningún rastro de
-# HB13 lleva etiquetas de C2–C5 ni de C8–C13 (sólo las de C6/C7 propias de toda carta de voz A). Se dispara sólo por
-# inactividad observable (GDD§9.6 HB13, D4).
+# T16 (W2-REACT → v3): HB13, el antiestancamiento, empuja hacia actividades y nunca hacia el documento clave: ningún rastro
+# de HB13 lleva etiquetas de grupo de las preguntas del expediente (data/dossier.json), salvo me_vigila_de_cerca, propia
+# de toda carta de voz A (Q3). Se dispara sólo por inactividad observable (GDD§9.6 HB13, D4). Las etiquetas prohibidas
+# salen siempre de las preguntas reales (también para el fixture de reacciones, que no tiene expediente).
 extends "res://tests/test_base.gd"
 
 const H = preload("res://tests/fixtures/react/harness.gd")
 const RDB = preload("res://core/react/reaction_db.gd")
 const Markup = preload("res://core/text/markup.gd")
 
-const FORBIDDEN := ["C2", "C3", "C4", "C5", "C8", "C9", "C10", "C11", "C12", "C13"]
+const ALLOWED := ["me_vigila_de_cerca"]
 
 func after_each() -> void:
 	H.cleanup()
 
-static func conclusion_tags(r, cids: Array) -> Dictionary:
+# {etiqueta: "Qn"} de los grupos de todas las variantes de las preguntas reales, salvo ALLOWED.
+func question_tags() -> Dictionary:
 	var out := {}
-	for c in r.conclusions():
-		var cid := String(c.get("id", ""))
-		var hit := false
-		for want in cids:
-			if cid == want or cid.begins_with(want) and not cid.substr(want.length()).is_valid_int():
-				hit = true
-		if not hit:
-			continue
-		for g in RDB._as_arr(c.get("groups", [])):
-			for t in RDB._as_arr(g.get("tags", [])):
-				out[String(t)] = cid
-		for t in RDB._as_arr(c.get("tags_extra", [])):
-			out[String(t)] = cid
+	for q in repo().questions():
+		for v in RDB._as_arr(q.get("variantes", [])):
+			for g in RDB._as_arr(v.get("grupos", [])):
+				for t in RDB._as_arr(g.get("tags", [])):
+					var s := String(t).trim_prefix("a:")
+					if not ALLOWED.has(s):
+						out[s] = String(q.get("id", ""))
 	return out
 
 static func rastro_tags(rule: Dictionary) -> Array:
@@ -54,8 +50,8 @@ func _check(r, label: String) -> void:
 	if hb13.is_empty():
 		fail(label + ": no hay HB13")
 		return
-	var bad := conclusion_tags(r, FORBIDDEN)
-	ok(not bad.is_empty(), label + ": las conclusiones traen etiquetas")
+	var bad := question_tags()
+	ok(not bad.is_empty(), label + ": las preguntas traen etiquetas")
 	var tags := rastro_tags(hb13)
 	ok(not tags.is_empty() or RDB._as_arr(hb13.get("rastro", [])).size() > 0, label + ": HB13 tiene rastro")
 	for t in tags:
@@ -70,8 +66,8 @@ func test_hb13_fixture():
 
 func test_hb13_real_data():
 	var r = repo()
-	if r.reaction("HB13").is_empty() or r.conclusions().is_empty():
-		pending_content("HB13 y conclusions.json (W2-STRUCT)")
+	if r.reaction("HB13").is_empty() or r.questions().is_empty():
+		pending_content("HB13 y dossier.json")
 		return
 	_check(r, "data")
 
@@ -80,7 +76,7 @@ func test_hb13_delivered_texts_clean():
 		var r = fixture_repo("react/data") if label == "fixture" else repo()
 		if r.reaction("HB13").is_empty():
 			continue
-		var bad := conclusion_tags(r, FORBIDDEN)
+		var bad := question_tags()
 		var h = H.new(r, 21)
 		h.advance_to("10.night")
 		var n := 0
@@ -94,9 +90,9 @@ func test_hb13_delivered_texts_clean():
 func test_detector_negative():
 	var r = fixture_repo("react/data")
 	var fake := {"id": "HB13", "rastro": [{"tpl": "x", "texto": "{{#t a:cornisa_existe|La cornisa existe.}}"}]}
-	var bad := conclusion_tags(r, FORBIDDEN)
+	var bad := question_tags()
 	var found := false
 	for t in rastro_tags(fake):
 		if bad.has(String(t).get_slice(":", 1)):
 			found = true
-	ok(found, "el detector ve una etiqueta de C3")
+	ok(found, "el detector ve una etiqueta de Q2 (cornisa_existe)")

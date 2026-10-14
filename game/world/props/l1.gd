@@ -888,3 +888,224 @@ static func build_wall_map(p: Dictionary) -> Node3D:
 	var w := M.pf(p, "w", 0.9); var h := M.pf(p, "h", 0.65); var y0 := M.pf(p, "y", 0.0)
 	n.set_meta("occ", [M.aabb_mm(Vector3(-w / 2, y0, 0), Vector3(w / 2, y0 + h, 0.03))])
 	return n
+
+# ======================================================================================
+# GDD_v3 §4.3, §6.1, §6.4 (REACCIONES-PIEZA): la pieza v3. La ventana de la buhardilla deja de ser parte del muro
+# (el vano del ático es "void") y se arma con props propios para que las intrusiones la cambien con `move`:
+# sash_frame (marco, hoja alta, repisa y alféizar), sash_lower (hoja baja: `hoja_ventana`), sash_lock (`traba`),
+# curtain (`cortina`, con vaivén de 4 s cuando la variante la gira hacia adentro), desk_drawer (`cajon`, se abre en
+# «registrada»), dossier_folder (`expediente`, reemplaza al libro de conclusiones), soot_print (hollín en el alféizar
+# con la suela chica), lock_scratches (rayones nuevos alrededor del ojo de la cerradura).
+
+# sash_frame: guillotina sin la hoja baja (la hoja baja es sash_lower, aparte). Origen = centro inferior del marco, en el
+# plano medio del muro; frente +Z = interior. Extras: w, h, depth, panes (de la hoja alta), paint, sill_in (repisa).
+static func build_sash_frame(p: Dictionary) -> Node3D:
+	var root := M.root("sash_frame")
+	var w := M.pf(p, "w", 1.0); var h := M.pf(p, "h", 1.25)
+	var dep := M.pf(p, "depth", 0.128)
+	var paint := M.ps(p, "paint", "vela")
+	var fr := 0.06
+	M.box(root, Vector3(w, fr, dep), Vector3(0, h - fr / 2, 0), paint)
+	M.box(root, Vector3(w, fr * 0.8, dep), Vector3(0, fr * 0.4, 0), paint)
+	M.box(root, Vector3(fr, h, dep), Vector3(-w / 2 + fr / 2, h / 2, 0), paint)
+	M.box(root, Vector3(fr, h, dep), Vector3(w / 2 - fr / 2, h / 2, 0), paint)
+	var iw := w - 2 * fr
+	var ih := h - fr - fr * 0.8
+	var sh := ih / 2.0 + 0.02
+	A._sash(root, iw, sh, Vector3(0, fr * 0.8 + ih - sh / 2.0, -0.025), M.pi_(p, "panes", 4), paint, false)
+	# guías de la hoja baja (junquillos) y el gancho de la traba en el travesaño de la hoja alta
+	for sx: float in [-1.0, 1.0]:
+		M.box(root, Vector3(0.012, ih, 0.012), Vector3(sx * (iw / 2 - 0.006), fr * 0.8 + ih / 2, 0.05), paint)
+	M.box(root, Vector3(0.05, 0.012, 0.02), Vector3(0, fr * 0.8 + ih - sh + 0.051, -0.025), "laton")
+	# alféizar de piedra afuera y repisa de madera adentro
+	M.box(root, Vector3(w + 0.14, 0.06, 0.16), Vector3(0, -0.03, -dep / 2 - 0.06), "piedra_portland")
+	if M.pb(p, "sill_in", true):
+		M.box(root, Vector3(w + 0.12, 0.03, 0.12), Vector3(0, -0.015, dep / 2 + 0.056), "madera_media")
+	root.set_meta("occ", [M.aabb_mm(Vector3(-w / 2, h - fr, -dep / 2), Vector3(w / 2, h, dep / 2)), M.aabb_mm(Vector3(-w / 2, 0, -dep / 2), Vector3(w / 2, fr * 0.8, dep / 2)),
+		M.aabb_mm(Vector3(-w / 2, 0, -dep / 2), Vector3(-w / 2 + fr, h, dep / 2)), M.aabb_mm(Vector3(w / 2 - fr, 0, -dep / 2), Vector3(w / 2, h, dep / 2))])
+	return root
+
+# sash_lower: la hoja baja de la guillotina, suelta. Origen = centro del canto inferior de la hoja; frente +Z. Extras: w
+# (ancho interior del marco), h (alto de la hoja), panes, paint. Sólo ocluye su marco (por el vidrio se ve la calle).
+static func build_sash_lower(p: Dictionary) -> Node3D:
+	var root := M.root("sash_lower")
+	var w := M.pf(p, "w", 0.88); var h := M.pf(p, "h", 0.591)
+	A._sash(root, w, h, Vector3(0, h / 2, 0), M.pi_(p, "panes", 4), M.ps(p, "paint", "vela"), true)
+	var s := 0.045
+	root.set_meta("occ", [M.aabb_mm(Vector3(-w / 2, 0, -0.02), Vector3(w / 2, s * 1.4, 0.02)), M.aabb_mm(Vector3(-w / 2, h - s, -0.02), Vector3(w / 2, h, 0.02)),
+		M.aabb_mm(Vector3(-w / 2, 0, -0.02), Vector3(-w / 2 + s, h, 0.02)), M.aabb_mm(Vector3(w / 2 - s, 0, -0.02), Vector3(w / 2, h, 0.02))])
+	return root
+
+# sash_lock: traba de guillotina (pestillo de latón) sobre el travesaño alto de la hoja baja. Origen = base del pestillo;
+# la palanca apunta a −X cerrada; girada (rot de la variante) queda levantada. Extras: s (escala).
+static func build_sash_lock(p: Dictionary) -> Node3D:
+	var root := M.root("sash_lock")
+	var s := M.pf(p, "s", 1.0)
+	M.box(root, Vector3(0.05 * s, 0.006, 0.026 * s), Vector3(0, 0.003, 0), "laton")
+	M.cyl(root, 0.007 * s, 0.009 * s, 0.012, Vector3(0, 0.012, 0), "laton", Vector3.ZERO, 10)
+	var lev := Node3D.new(); lev.name = "lever"; lev.position = Vector3(0, 0.018, 0); root.add_child(lev)
+	M.box(lev, Vector3(0.045 * s, 0.006, 0.012 * s), Vector3(-0.022 * s, 0, 0), "laton")
+	M.sphere(lev, 0.007 * s, Vector3(-0.046 * s, 0.002, 0), "laton")
+	root.set_meta("occ", [])
+	return root
+
+# Vaivén de la cortina al entrar con la ventana abierta (GDD_v3 §4.3: «la cortina se mueve 4 s»). Sólo si la cortina
+# quedó girada hacia adentro (move de la variante «techos»): entonces la tela además se embolsa (los tramos de abajo se
+# abren un poco más, como una tela con viento) y oscila 4 s hasta quedarse quieta. Determinista.
+# Verificador v3 (decisión 6: «un poco de viento… cambio sutil»): embolsado 4° por tramo y vaivén de 2,5–4,5° por tramo
+# (antes 7° y 6–12°: la tela llegaba casi a la horizontal y se leía como una tabla volando).
+class CurtainSway extends Node3D:
+	var t := 0.0
+	var dur := 4.0
+	var segs: Array = []
+	var base: Array = []
+	func _ready() -> void:
+		var par := get_parent() as Node3D
+		var tilted := par != null and absf(par.transform.basis.get_euler().x) > deg_to_rad(5.0)
+		var n: Node = par.get_node_or_null("cloth") if par != null else null
+		while n != null:
+			segs.append(n)
+			n = n.get_node_or_null("next")
+		if segs.is_empty() or not tilted:
+			set_process(false)
+			return
+		# embolsado: cada tramo de abajo, un poco más hacia el cuarto (el giro de la variante es hacia −X)
+		var sgn := signf(par.transform.basis.get_euler().x)
+		for k in segs.size():
+			var s: Node3D = segs[k]
+			if k > 0:
+				s.rotation.x = sgn * deg_to_rad(4.0 * k)
+			base.append(s.rotation.x)
+		set_process(true)
+	func _process(dt: float) -> void:
+		t += dt
+		var k := maxf(0.0, 1.0 - t / dur)
+		for i in segs.size():
+			var a := deg_to_rad(2.5 + 1.0 * i) * k * sin(TAU * 0.7 * t + 0.5 * i) + deg_to_rad(0.8) * k * sin(TAU * 1.9 * t + 0.6 + i)
+			(segs[i] as Node3D).rotation.x = float(base[i]) + a
+		if t >= dur:
+			set_process(false)
+
+# curtain: cortina de tela liviana colgada de una varilla, recogida a un costado. Origen = punto de la varilla del que
+# cuelga (arriba); cae hacia −Y; frente +Z. Extras: w (ancho), h (caída), mat, n (tramos), pleats (pliegues por tramo).
+# La tela es una cadena de tramos ("cloth" → "next" → …), cada uno con su pivote arriba, plegada en acordeón.
+static func build_curtain(p: Dictionary) -> Node3D:
+	var root := M.root("curtain")
+	var w := M.pf(p, "w", 0.4); var h := M.pf(p, "h", 1.32)
+	var mat := M.ps(p, "mat", "tela_media")
+	var n := maxi(1, M.pi_(p, "n", 3))
+	var pl := maxi(2, M.pi_(p, "pleats", 6))
+	M.rod_ab(root, 0.008, Vector3(-w / 2 - 0.08, 0.03, 0), Vector3(w / 2 + 0.08, 0.03, 0), "laton")
+	for sx: float in [-1.0, 1.0]:
+		M.sphere(root, 0.014, Vector3(sx * (w / 2 + 0.09), 0.03, 0), "laton")
+	var parent := root
+	var sh := h / float(n)
+	for s in n:
+		var seg := Node3D.new(); seg.name = "cloth" if s == 0 else "next"
+		seg.position = Vector3(0, 0, 0) if s == 0 else Vector3(0, -sh, 0)
+		parent.add_child(seg)
+		# acordeón: paños angostos girados alternadamente, como una tela fruncida
+		var pw := w / float(pl)
+		for k in pl:
+			var x := -w / 2 + pw * (k + 0.5)
+			var ang := 28.0 if k % 2 == 0 else -28.0
+			M.box(seg, Vector3(pw / cos(deg_to_rad(28.0)) + 0.004, sh + 0.004, 0.005), Vector3(x, -sh / 2, 0.0), mat, Vector3(0, ang, 0))
+		if s == n - 1:
+			M.box(seg, Vector3(w + 0.01, 0.025, 0.03), Vector3(0, -sh + 0.012, 0.0), mat)
+		parent = seg
+	# argollas sobre la varilla
+	for k in 5:
+		M.torus(root, 0.006, 0.012, Vector3(-w / 2 + w * k / 4.0, 0.03, 0), "laton", Vector3(0, 0, 90))
+	root.add_child(CurtainSway.new())
+	root.set_meta("occ", [])
+	return root
+
+# desk_drawer: el cajón del centro del escritorio, como pieza aparte (se abre 12 cm en «registrada»). Origen = centro de
+# la cara del frente; frente +Z; la caja se mete en el escritorio hacia −Z. Adentro, la prueba de imprenta doblada.
+static func build_desk_drawer(p: Dictionary) -> Node3D:
+	var root := M.root("desk_drawer")
+	var w := M.pf(p, "w", 0.52); var h := M.pf(p, "h", 0.07); var d := M.pf(p, "d", 0.4)
+	M.box(root, Vector3(w, h, 0.014), Vector3(0, 0, -0.007), "madera_media")
+	M.torus(root, 0.01, 0.019, Vector3(0, 0.004, 0.012), "laton", Vector3(90, 0, 0))
+	for sx: float in [-1.0, 1.0]:
+		M.box(root, Vector3(0.012, h - 0.012, d), Vector3(sx * (w / 2 - 0.02), -0.006, -d / 2 - 0.014), "madera_oscura")
+	M.box(root, Vector3(w - 0.04, 0.008, d), Vector3(0, -h / 2 + 0.004, -d / 2 - 0.014), "madera_oscura")
+	M.box(root, Vector3(w - 0.04, h - 0.012, 0.012), Vector3(0, -0.006, -d - 0.008), "madera_oscura")
+	# la prueba de imprenta doblada en cuatro y un par de papeles
+	M.box(root, Vector3(0.16, 0.006, 0.12), Vector3(-0.08, -h / 2 + 0.012, -0.08), "papel_viejo", Vector3(0, 8, 0))
+	M.box(root, Vector3(0.2, 0.003, 0.14), Vector3(0.1, -h / 2 + 0.01, -0.12), "papel", Vector3(0, -5, 0))
+	root.set_meta("occ", [M.aabb_mm(Vector3(-w / 2, -h / 2, -0.014), Vector3(w / 2, h / 2, 0.0))])
+	return root
+
+# dossier_folder: el Expediente Holmes. Carpeta de cartón cerrada, atada con cinta roja, «Holmes» a pluma en la tapa;
+# asoman hojas. Origen = centro de la base; frente +Z (lomo a −X). Extras: w, h, t.
+static func build_dossier_folder(p: Dictionary) -> Node3D:
+	var root := M.root("dossier_folder")
+	var w := M.pf(p, "w", 0.25); var h := M.pf(p, "h", 0.33); var t := M.pf(p, "t", 0.022)
+	M.box(root, Vector3(w, 0.003, h), Vector3(0, 0.0015, 0), "mimbre")
+	M.box(root, Vector3(w - 0.012, t - 0.006, h - 0.012), Vector3(0.004, t / 2, 0), "papel_viejo")
+	# hojas que asoman por el canto
+	for k in 3:
+		M.box(root, Vector3(0.006, 0.0025, 0.08 + 0.03 * k), Vector3(w / 2 + 0.002, 0.006 + 0.004 * k, -0.06 + 0.05 * k), "papel")
+	M.box(root, Vector3(w, 0.003, h), Vector3(0, t - 0.0015, 0), "mimbre")
+	M.box(root, Vector3(0.014, t, h), Vector3(-w / 2 + 0.007, t / 2, 0), "mimbre")
+	# cinta roja: un tramo por la tapa y un moño
+	M.box(root, Vector3(w + 0.004, t + 0.004, 0.012), Vector3(0, t / 2, 0.03), "pintura_roja")
+	M.box(root, Vector3(0.05, 0.003, 0.012), Vector3(0.05, t + 0.002, 0.03), "pintura_roja", Vector3(0, 35, 0))
+	M.box(root, Vector3(0.05, 0.003, 0.012), Vector3(0.05, t + 0.002, 0.03), "pintura_roja", Vector3(0, -35, 0))
+	# rótulo de papel con «Holmes» a pluma (playtest v3: grande, que se lea desde el escritorio y no se confunda con una hoja)
+	M.box(root, Vector3(0.18, 0.001, 0.07), Vector3(0.0, t + 0.0012, -0.075), "papel")
+	M.label3d(root, "Holmes", Vector3(0.0, t + 0.0022, -0.075), 0.00085, 48, Color("1b1712"), "manuscrito").rotation_degrees = Vector3(-90, 0, 0)
+	root.set_meta("occ", [M.aabb_mm(Vector3(-w / 2, 0, -h / 2), Vector3(w / 2 + 0.004, t + 0.004, h / 2))])
+	return root
+
+# soot_print: hollín de los techos sobre la repisa del alféizar, con la marca de una suela chica (de muchacho). Origen =
+# centro, apoyado; frente +Z (la punta de la suela mira al cuarto). Extras: s, seed.
+static func build_soot_print(p: Dictionary) -> Node3D:
+	var root := M.root("soot_print")
+	var s := M.pf(p, "s", 0.62)
+	var seed := M.seed_of(p, "sp")
+	for i in 7:
+		M.box(root, Vector3(M.rr(seed, i, 0, 0.03, 0.08), 0.0012, M.rr(seed, i, 1, 0.012, 0.03)), Vector3(M.rr(seed, i, 2, -0.12, 0.12), 0.0006, M.rr(seed, i, 3, -0.035, 0.035)), "carbon", Vector3(0, M.rr(seed, i, 4, -40, 40), 0))
+	# suela chica: punta redonda y taco, sin tachas (botín de muchacho)
+	M.box(root, Vector3(0.08 * s, 0.0016, 0.1 * s), Vector3(0.02, 0.001, 0.02 * s), "carbon")
+	M.cyl(root, 0.04 * s, 0.04 * s, 0.0016, Vector3(0.02, 0.001, 0.075 * s), "carbon", Vector3.ZERO, 12)
+	M.box(root, Vector3(0.065 * s, 0.0016, 0.05 * s), Vector3(0.02, 0.001, -0.06 * s), "carbon")
+	root.set_meta("occ", [])
+	return root
+
+# lock_scratches: rayones nuevos, claros, alrededor del ojo de la cerradura (ganzúa). Se apoya sobre la bocallave de la
+# puerta: plano XY, frente +Z. Extras: n, seed.
+static func build_lock_scratches(p: Dictionary) -> Node3D:
+	var root := M.root("lock_scratches")
+	var seed := M.seed_of(p, "ls")
+	var n := M.pi_(p, "n", 9)
+	for i in n:
+		var a := M.rr(seed, i, 0, 0.0, 360.0)
+		var r := M.rr(seed, i, 1, 0.006, 0.02)
+		M.box(root, Vector3(M.rr(seed, i, 2, 0.008, 0.02), 0.0012, 0.0006), Vector3(cos(deg_to_rad(a)) * r * 0.6, sin(deg_to_rad(a)) * r, 0.0003), "vela", Vector3(0, 0, a + M.rr(seed, i, 3, -25, 25)))
+	# el ojo de la cerradura
+	M.box(root, Vector3(0.006, 0.014, 0.0008), Vector3(0, -0.004, 0.0002), "carbon")
+	M.cyl(root, 0.0045, 0.0045, 0.0008, Vector3(0, 0.004, 0.0002), "carbon", Vector3(90, 0, 0), 10)
+	root.set_meta("occ", [])
+	return root
+
+# ash_flakes: ceniza negra y escamosa de cheroot sobre el cuero del escritorio (registro M1, GDD_v3 §4.3), con la colilla.
+# Origen = centro, apoyado; frente +Z. Extras: r (radio de dispersión), seed.
+static func build_ash_flakes(p: Dictionary) -> Node3D:
+	var root := M.root("ash_flakes")
+	var r := M.pf(p, "r", 0.035)
+	var seed := M.seed_of(p, "af")
+	# un montoncito chato y escamas alrededor
+	M.sphere(root, 0.014, Vector3(0.0, 0.002, 0.0), "ceniza", Vector3(1.4, 0.3, 1.0), 10)
+	for i in 11:
+		var a := M.rr(seed, i, 0, 0.0, TAU)
+		var d := M.rr(seed, i, 1, 0.006, r)
+		var s := M.rr(seed, i, 2, 0.004, 0.009)
+		M.box(root, Vector3(s, 0.0015, s * M.rr(seed, i, 3, 0.5, 1.0)), Vector3(cos(a) * d, 0.001, sin(a) * d), "carbon" if i % 3 == 0 else "ceniza", Vector3(0, M.rr(seed, i, 4, 0, 90), 0))
+	# la colilla del cheroot (tabaco oscuro, la punta quemada)
+	var c := Node3D.new(); c.position = Vector3(0.03, 0.006, 0.012); c.rotation_degrees = Vector3(0, 28, 90); root.add_child(c)
+	M.cyl(c, 0.0055, 0.0065, 0.042, Vector3.ZERO, "cuero", Vector3.ZERO, 10)
+	M.cyl(c, 0.0056, 0.0056, 0.006, Vector3(0, 0.024, 0), "ceniza", Vector3.ZERO, 10)
+	root.set_meta("occ", [])
+	return root

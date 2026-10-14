@@ -1,4 +1,4 @@
-# PROGRESIÓN (GDD_v2 §C.2): q_ui() — banderas de revelado progresivo de la interfaz, sólo del estado. Un caso por bandera:
+# CORE-EXPEDIENTE (GDD_v2 §C.2; GDD_v3 §6.9): q_ui() — banderas de revelado progresivo de la interfaz, sólo del estado. Un caso por bandera:
 # apagada al principio y encendida cuando corresponde. Además: determinista, igual tras replay (persiste al cargar) y
 # ciega a etiquetas ocultas y a lo sellado (el revelado nunca depende de lo importante).
 extends "res://tests/test_base.gd"
@@ -9,10 +9,13 @@ const UiState = preload("res://core/sim/ui_state.gd")
 const Kit = preload("res://tests/fixtures/sim/sim_kit.gd")
 
 const FLAGS := ["desk.tijera", "desk.tintero", "desk.calendario", "desk.mapa", "desk.bandeja", "desk.pendientes",
-	"hud.cuaderno", "hud.libro", "nb.pares", "nb.diario", "nb.indice", "nb.curiosidades", "nb.buscar", "nb.filtros",
-	"nb.agrupar", "lg.hoja_nueva", "lg.varios", "lg.practica", "lg.sello", "sc.mostrar", "sc.decir", "sc.pagar",
-	"sc.encargar", "cmp.telegrama", "cmp.carta", "cmp.quemar", "cmp.trampa", "map.recuerdos", "tray.anteriores",
-	"cat.mesa", "look.ayuda"]
+	"hud.cuaderno", "hud.cintas", "nb.diario", "nb.indice", "nb.curiosidades", "nb.buscar", "nb.filtros",
+	"nb.agrupar", "exp.pasar", "sc.donde", "sc.decir", "sc.pagar", "sc.encargar", "cmp.telegrama", "cmp.carta", "cmp.quemar",
+	"cmp.trampa", "map.recuerdos", "tray.anteriores", "cat.mesa"]
+# Encendidas desde el principio: el expediente (paso «read»), Mostrar (Q1 está en la carpeta) y, en el prólogo con Pell
+# en la buhardilla, nada más.
+const ON_AT_START := ["desk.expediente", "sc.mostrar"]
+const RETIRED := ["hud.libro", "nb.pares", "lg.hoja_nueva", "lg.varios", "lg.practica", "lg.sello", "look.ayuda"]
 
 func _f(s) -> Dictionary:
 	return s.q_ui()
@@ -24,6 +27,10 @@ func test_all_flags_present_and_off_at_start():
 		ok(f.has(k), "bandera " + k)
 		if k != "sc.decir":
 			no(bool(f.get(k, true)), "apagada al empezar: " + k)
+	for k in ON_AT_START:
+		ok(bool(f.get(k, false)), "encendida al empezar: " + k)
+	for k in RETIRED:
+		no(f.has(k), "retirada en v3: " + k)
 	var forms := 0
 	for k in f:
 		if String(k).begins_with("cmp.forma."):
@@ -43,36 +50,35 @@ func test_prologue_flags():
 	ok(bool(_f(s)["desk.tintero"]), "paso del aviso: tintero")
 	no(bool(_f(s)["desk.calendario"]))
 	no(bool(_f(s)["desk.mapa"]), "en el prólogo no hay mapa")
-	no(bool(_f(s)["hud.libro"]), "el libro no se abre en el prólogo")
+	no(bool(_f(s)["hud.cintas"]), "en la buhardilla no hay cintas")
 	ok(s.apply(Kit.prologue_v2()[2]).ok)
 	ok(s.apply(Kit.prologue_v2()[3]).ok)
 	ok(bool(_f(s)["desk.calendario"]), "paso de dormir: calendario")
 	ok(s.apply(Kit.prologue_v2()[4]).ok)
 	var f := _f(s)
-	for k in ["desk.mapa", "desk.bandeja", "desk.pendientes", "hud.libro", "nb.diario", "map.recuerdos", "look.ayuda"]:
+	for k in ["desk.mapa", "desk.bandeja", "desk.pendientes", "nb.diario", "map.recuerdos"]:
 		ok(bool(f[k]), "día 1: " + k)
 	no(bool(f["tray.anteriores"]), "días anteriores desde el 2")
-	no(bool(f["nb.pares"]))
-	no(bool(f["lg.sello"]))
+	no(bool(f["exp.pasar"]), "ninguna hoja completa")
 
-func test_day1_ledger_flags():
+# GDD_v3 §6.9: «Pasar en limpio» aparece por hoja cuando tiene respuesta y dos pruebas; las cintas sólo fuera de casa.
+func test_day1_dossier_flags():
 	var s = Kit.new_sim()
 	Kit.run(s, Kit.prologue_v2())
-	ok(s.apply({"t": "link", "a": "RC0001", "b": "RC0002"}).ok)
-	ok(bool(_f(s)["nb.pares"]), "≥1 par: pestaña Pares")
-	ok(bool(_f(s)["lg.hoja_nueva"]), "se enseñó abrir una hoja")
-	no(bool(_f(s)["lg.varios"]))
-	ok(s.apply({"t": "entry_new", "folio": "varios", "template": "T1"}).ok)
-	ok(bool(_f(s)["lg.varios"]), "conclusión sin hoja: Varios")
-	no(bool(_f(s)["lg.practica"]))
-	no(bool(_f(s)["lg.sello"]), "sin práctica no hay sello")
-	for a in Kit.day1_practice("AS002", "FO001"):
-		s.apply(a)
-	ok(bool(_f(s)["lg.practica"]), "práctica hecha: página Práctica")
-	ok(bool(_f(s)["lg.sello"]), "práctica hecha y un borrador que no es de práctica: sello")
+	var g := Kit.day1_guide()
+	for a in g.slice(0, 4):
+		ok(s.apply(a).ok, str(a))
+	no(bool(_f(s)["exp.pasar"]), "falta una prueba")
+	no(bool(_f(s).get("exp.pasar.Q1", true)))
+	ok(s.apply(g[4]).ok)
+	ok(bool(_f(s)["exp.pasar"]), "tres ranuras llenas: «Pasar en limpio»")
+	ok(bool(_f(s)["exp.pasar.Q1"]))
+	ok(s.apply({"t": "go", "place": "L1", "area": "tienda"}).ok)
+	ok(bool(_f(s)["hud.cintas"]), "en la tienda: cintas Cuaderno y Expediente")
+	ok(s.apply({"t": "leave"}).ok)
+	no(bool(_f(s)["hud.cintas"]))
 	eq(Kit.advance_to(s, 2, "M"), "")
 	ok(bool(_f(s)["tray.anteriores"]), "día 2: días anteriores")
-	no(bool(_f(s)["look.ayuda"]), "la ayuda de mirar alrededor es del día 1")
 
 func test_notebook_thresholds():
 	var s = Kit.new_sim()
@@ -132,7 +138,8 @@ func test_composer_and_assertion_flags_real_data():
 		for bi in (v.pages[pi] as Array).size():
 			for tr in v.pages[pi][bi].parsed.tramos:
 				if not done and String(tr.id) == "aviso":
-					done = s.apply({"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": pi, "block": bi}, "from": int(tr.from), "len": int(tr.to) - int(tr.from)}).ok
+					var sp: Array = load("res://devtools/bots/bot_base.gd").best_window(v.pages[pi][bi].parsed, int(tr.from), int(tr.to))
+					done = s.apply({"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": pi, "block": bi}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])}).ok
 	ok(done)
 	ok(bool(_f(s).get("cmp.forma.testigo", false)), "testigo con su blanco lleno")
 	# un destino posible (persona del índice) habilita telegrama y carta fuera del prólogo
@@ -145,12 +152,11 @@ func test_composer_and_assertion_flags_real_data():
 func test_deterministic_persistent_and_blind():
 	var s = Kit.new_sim()
 	Kit.run(s, Kit.prologue_v2())
-	Kit.run(s, Kit.day1_practice())
+	Kit.run(s, Kit.day1_guide())
 	var f := _f(s)
 	eq(_f(s), f, "determinista")
 	var s2 = GameSim.replay(s.repo, 7, s.actions_log(), load("res://tests/fixtures/sim/fakes.gd").new().handlers())
 	eq(_f(s2), f, "igual tras cargar (replay)")
 	for id in s2.st.ded.get("clips", {}):
 		s2.st.ded.clips[id]["tags"] = ["a:otra", "c:falso"]
-	s2.st.ded["sealed"] = {"C2": "AS001"}
-	eq(_f(s2), f, "ciega a etiquetas ocultas y a lo sellado")
+	eq(_f(s2), f, "ciega a etiquetas ocultas")

@@ -14,7 +14,7 @@
     {"id": "D17@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}
   ],
   "parts": [
-    {"id": "p1", "text": "Watson, J. H., médico, Paddington. {{#moran_conduit a:harris_es_moran e:moran e:conduit_street|[[moran|Moran, Col. S.]], [[conduit_street|Conduit Street]], número 44.}}"},
+    {"id": "p1", "text": "Watson, J. H., médico, Paddington. {{#moran_conduit a:rasgo_de_moran e:moran e:conduit_street|[[moran|Moran, Col. S.]], [[conduit_street|Conduit Street]], número 44.}}"},
     {"id": "p2", "text": "{{#church_street a:librero_falso e:church_street e:librero|En la esquina de [[church_street|Church Street]], en Kensington, no figura ninguna librería.}}"}
   ],
   "words": 40

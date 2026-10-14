@@ -1,4 +1,6 @@
-# Unit: core/data/schema.gd (W1-ENG). Un caso válido (fixture data_min) y varios inválidos por dataset de §4.1.
+# Unit: core/data/schema.gd (CORE-EXPEDIENTE). Un caso válido (fixture data_min) y varios inválidos por dataset de §4.1
+# (v3: dossier y corpus en vez de conclusiones; campos nuevos de los otros paquetes: docs.v3, nodos con aviso,
+# latencia intrusion, escenas once, dialogue.donde).
 extends "res://tests/test_base.gd"
 
 const S = preload("res://core/data/schema.gd")
@@ -8,7 +10,7 @@ const FIX := "res://tests/fixtures/data_min/"
 const FILES := {
 	"fonts": "fonts.json", "audio": "audio.json", "ui_text": "ui_text/core.json", "lists": "lists.json",
 	"entities": "entities/core.json", "canon_bible": "canon_bible.json", "docs": "docs/D05.json", "catalog": "catalog/noise.json",
-	"schedule": "schedule.json", "conclusions": "conclusions.json", "reactions": "reactions/moran.json", "endings": "endings.json",
+	"schedule": "schedule.json", "dossier": "dossier.json", "corpus": "corpus.json", "reactions": "reactions/moran.json", "endings": "endings.json",
 	"easter_eggs": "easter_eggs.json", "scenes": "scenes/M7.json", "dialogue": "dialogue/watson.json", "places": "places/L4.json",
 	"plates": "plates/PRO.json", "map": "map.json", "fisica": "fisica.json",
 }
@@ -61,9 +63,8 @@ func test_fonts_audio_map_uitext():
 	_bad("ui_text", func(v): v.text["m"] = "{{a:x|sin cerrar", "sin cerrar")
 
 func test_lists():
-	_bad("lists", func(v): v.verbos = "matar", "se esperaba lista")
-	_bad("lists", func(v): v.templates.T2.lines[0].erase("fields"), "falta 'fields'")
-	_bad("lists", func(v): v.templates.T2.lines[0].fields[0].erase("accept"), "falta 'accept'")
+	_bad("lists", func(v): v.abbrev = "Sr.", "se esperaba lista")
+	_bad("lists", func(v): v.report_cats = [{"cat": "x", "pregunta": [{"respuestas": []}]}], "falta 'q'")
 	_bad("lists", func(v): v.medios[0].erase("ch"), "falta 'ch'")
 	_bad("lists", func(v): v.diary.go.tags = ["sinprefijo"], "etiqueta mal formada")
 	_bad("lists", func(v): v.assertions[0].phrase = "Mal {{a:x|", "sin cerrar")
@@ -98,13 +99,50 @@ func test_schedule():
 	_bad("schedule", func(v): v.reports[0].tk = "dos", "TimeKey inválido")
 	_bad("schedule", func(v): v.places.L1.areas.buhardilla.open[0].days = "todos", "no coincide")
 
-func test_conclusions():
-	_bad("conclusions", func(v): v.conclusions[0].kind = "rara", "no está en")
-	_bad("conclusions", func(v): v.conclusions[0].groups[0].line = "0", "se esperaba entero")
-	_bad("conclusions", func(v): v.mandatory.append("C99"), "C99 no existe")
-	_bad("conclusions", func(v): v.conclusions[0].routes[0].deps = "magia", "no está en")
-	_bad("conclusions", func(v): v.conclusions.append(v.conclusions[0].duplicate(true)), "C2 duplicada")
-	_bad("conclusions", func(v): v.conclusions[1].subroutes["K-S"].frags = [], "mínimo 1")
+# GDD_v3 §1.7: reglas del esquema del Expediente.
+func test_dossier():
+	_bad("dossier", func(v): v.preguntas[0].invariante = "rara", "no está en")
+	_bad("dossier", func(v): v.preguntas[0].variantes[0].grupos.pop_back(), "mínimo 2")
+	_bad("dossier", func(v): v.preguntas[0].variantes[0].rutas[0].frags.pop_back(), "mínimo 2")
+	_bad("dossier", func(v): v.preguntas[0].variantes[0].rutas[0].frags.append({"ref": "D05#corniche"}), "máximo 2")
+	_bad("dossier", func(v): v.preguntas[0].variantes[0].rutas[0].deps = "magia", "no está en")
+	_bad("dossier", func(v): v.preguntas.append(v.preguntas[0].duplicate(true)), "duplicada")
+	_bad("dossier", func(v): v.preguntas[0].variantes[0].principal = false, "exactamente una variante principal")
+	_bad("dossier", func(v): v.preguntas[0].nace[0]["inicio"] = "prologo", "exactamente un disparador")
+	_bad("dossier", func(v): v.preguntas[0].nace = [{"llega": "voz:C", "origen": "o"}], "voz:A | voz:B")
+	_bad("dossier", func(v): v.preguntas[0].nace = [{"tinta": "Q99", "origen": "o"}], "Q99 no existe")
+	_bad("dossier", func(v): v.preguntas[0].variantes[0].rutas[0].frags[0].ref = "M:D05", "refs M: retiradas")
+	_bad("dossier", func(v): v.preguntas[0].acepta = ["planeta"], "no está en")
+	_bad("corpus", func(v): v.erase("inactivas"), "falta 'inactivas'")
+
+# Campos nuevos que la v3 reparte entre paquetes (el esquema es de CORE).
+func test_v3_fields_of_other_packages():
+	var d = _load("docs").duplicate(true)
+	d["v3"] = {"ficha": {"trata": "a", "cuando": "b", "por_que": "c"}, "nota_cliente": "NC.FINA", "marcas": [{"parte": "p1", "tramo": "corniche"}],
+		"margen": [{"doc": "D01N", "tramo": "fina_fo", "junto_a": {"parte": "p1", "tramo": "corniche"}}]}
+	eq(S.check("docs", d), [], "docs.v3")
+	d.v3.ficha.erase("cuando")
+	ok(" ".join(PackedStringArray(S.check("docs", d))).contains("falta 'cuando'"), str(S.check("docs", d)))
+	var pl = _load("places").duplicate(true)
+	pl.nodes[0]["aviso"] = "HA5"
+	eq(S.check("places", pl), [], "nodo con aviso")
+	var r = _load("reactions").duplicate(true)
+	r.reactions[0].latencia.tipo = "intrusion"
+	r.reactions[0]["relacion"] = [{"si": {"channel": "K-T"}, "copias": ["D23@L1"]}]
+	eq(S.check("reactions", r), [], "latencia intrusion y relacion")
+	var sc = _load("scenes").duplicate(true)
+	sc["once"] = true
+	eq(S.check("scenes", sc), [], "escena once")
+	var dl = _load("dialogue").duplicate(true)
+	dl["donde"] = [{"id": "donde.diarios", "frase": "¿Dónde consigo diarios viejos?", "requiere": [], "texto": "En el Museo.", "revela": "L2"}]
+	eq(S.check("dialogue", dl), [], "dialogue.donde")
+
+# GDD_v3 §6.2: un examen con etiquetas a:/c: mide ≤30 palabras.
+func test_tagged_exam_max_30_words():
+	var pl = _load("places").duplicate(true)
+	pl.nodes[0]["tags"] = ["a:x"]
+	pl.nodes[0]["examine"] = " ".join(PackedStringArray(range(31).map(func(i): return "palabra")))+ "."
+	ok(str(S.check("places", pl)).contains("31 palabras con etiquetas"), str(S.check("places", pl)))
 
 func test_reactions():
 	_bad("reactions", func(v): v.reactions[0].tipo = "rara", "no está en")
@@ -129,6 +167,11 @@ func test_scenes_dialogue():
 	_bad("dialogue", func(v): v.lines[0].layer = "chisme", "no está en")
 	_bad("dialogue", func(v): v.lines[0].erase("text"), "falta 'text'")
 	_bad("dialogue", func(v): v.lines[1].when = {"event_count": {"gte": 1}}, "requiere type")
+	# GDD §10.1 / GDD_v3 §2.1: una línea puede declararse inmutable ("cls": "I"); P no tiene sentido en una línea
+	_bad("dialogue", func(v): v.lines[0]["cls"] = "P", "no está en")
+	var dl = _load("dialogue").duplicate(true)
+	dl.lines[0]["cls"] = "I"
+	eq(S.check("dialogue", dl), [], "dialogue: línea declarada inmutable")
 
 func test_places_plates():
 	_bad("places", func(v): v.nodes[0].anchor.erase("s"), "falta 's'")

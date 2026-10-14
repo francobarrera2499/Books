@@ -1,7 +1,7 @@
 # ui/notebook/tab_index.gd — pestaña Índice. Dueño: W3-NOTEBOOK. Contrato: ARCHITECTURE §6.5, §6.3 (GDD§8.2).
 # El índice del jugador (q_index, ya ordenado por la etiqueta `index`) por letras: la letra en el margen y las entradas
-# como chips. Clic en un chip = Recortes filtrado por esa entidad. Arrastre = {"kind":"ent","id"} (campos de plantilla
-# del libro mayor, «Preguntar», compositores, barra de filtros). Búsqueda propia para índices largos. Sin contadores y
+# como chips. Clic en un chip = Recortes filtrado por esa entidad. Arrastre = {"kind":"ent","id"} (la Respuesta
+# de una hoja del Expediente, «Preguntar», compositores, barra de filtros). Búsqueda propia para índices largos. Sin contadores y
 # sin marcar nada: las entidades de ruido entran igual que las demás.
 extends VBoxContainer
 

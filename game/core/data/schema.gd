@@ -10,7 +10,7 @@ const Cond = preload("res://core/util/cond.gd")
 const TimeKey = preload("res://core/util/timekey.gd")
 
 const DATASETS := ["fonts", "audio", "ui_text", "lists", "entities", "canon_bible", "docs", "catalog", "schedule",
-	"conclusions", "reactions", "endings", "easter_eggs", "scenes", "dialogue", "places", "plates", "map", "fisica"]
+	"dossier", "corpus", "reactions", "endings", "easter_eggs", "scenes", "dialogue", "places", "plates", "map", "fisica"]
 
 const CLS := {"t": "enum", "v": ["I", "P", "C"]}
 const VEC3 := {"t": "list", "of": "num", "min": 3, "max": 3}
@@ -72,8 +72,10 @@ static func _spec(ds: String):
 			return _obj({"noise": _list(_obj({"label": "str", "entities": STRS}, ["label", "entities"]))}, ["noise"])
 		"schedule":
 			return _schedule()
-		"conclusions":
-			return _conclusions()
+		"dossier":
+			return _dossier()
+		"corpus":
+			return _obj({"activas": STRS, "inactivas": STRS}, ["activas", "inactivas"])
 		"reactions":
 			return _obj({"reactions": _list(_reaction())}, ["reactions"])
 		"endings":
@@ -81,7 +83,7 @@ static func _spec(ds: String):
 				"endings": _list(_obj({"id": "id", "order": "int", "rank": "int", "name": "str", "cond": "cond", "card": "str", "scene": "str"}, ["id", "order", "rank", "cond"])),
 				"variants": _list(_obj({"id": "id", "cond": "cond", "card_add": "str", "epilogue": "str"}, ["id", "cond"]))}, ["endings"])
 		"easter_eggs":
-			return _obj({"eggs": _list(_obj({"id": "id", "name": "str", "trigger": "dict", "note": "markup"}, ["id", "trigger", "note"]))}, ["eggs"])
+			return _obj({"eggs": _list(_obj({"id": "id", "name": "str", "trigger": "dict", "note": "markup", "flag": "str"}, ["id", "trigger", "note"]))}, ["eggs"])
 		"scenes":
 			return _scene()
 		"dialogue":
@@ -95,12 +97,9 @@ static func _entity() -> Dictionary:
 		["id", "kind", "name", "index"])
 
 static func _lists() -> Dictionary:
-	var field := _obj({"id": "id", "label": "str", "accept": _obj({"kinds": STRS, "list": "str"})}, ["id", "label", "accept"])
-	var tpl := _obj({"name": "str", "lines": _list(_obj({"optional": "bool", "fields": _list(field, 1)}, ["fields"]), 1)}, ["name", "lines"])
 	return _obj({
-		"verbos": STRS, "relaciones": STRS, "estados": STRS, "abbrev": STRS,
+		"abbrev": STRS,
 		"medios": _list(_obj({"id": "id", "label": "str", "ch": "str", "entities": STRS}, ["id", "label", "ch"])),
-		"templates": _map(tpl),
 		"assertions": _list(_obj({"id": "id", "kind": "str", "topic": "str", "requires": STRS, "ad_text": "str", "phrase": "tpl",
 			"about_holmes": "bool", "says_alive": "bool", "channels": STRS}, ["id", "kind", "phrase"], true)),
 		"ad_forms": _list(_obj({"id": "id", "text": "tpl", "slots": _map({"t": "dict"}), "forbid_tags": STRS,
@@ -108,9 +107,9 @@ static func _lists() -> Dictionary:
 		"src_types": _map("str"), "slip_topics": _map("str"), "topic_groups": _map(STRS),
 		"sensors": {"t": "dict"},
 		"diary": _map(_obj({"text": "tpl", "tags": "tags"}, ["text"])),
-		"report_cats": _list(_obj({"cat": "id"}, ["cat"], true)),
-		# GDD_v2 §B.5/§B.6.1: «Lo que me preguntaron» = citas de personajes (doc#tramo, S:escena.línea, R:reacción.*)
-		"preguntas": _list(_obj({"id": "id", "src": "str", "who": "str"}, ["id", "src"])),
+		# GDD_v3 §6.10: categorías de Moran (recortes y preguntas del Expediente)
+		"report_cats": _list(_obj({"cat": "id", "pregunta": _list(_obj({"q": STRS, "respuestas": STRS, "no_respuestas": STRS,
+			"kind": "str", "tinta": "bool", "lapiz": "bool"}, ["q"]))}, ["cat"], true)),
 	}, [], true)
 
 static func _doc() -> Dictionary:
@@ -127,6 +126,12 @@ static func _doc() -> Dictionary:
 		"catalog": {"t": "?obj", "f": {"label": "str", "entities": STRS}, "req": ["label", "entities"], "open": false},
 		"copies": _list(copy, 1), "parts": _list(part, 1), "src_en": _map("str"), "plate": "?str", "words": "int",
 		"inserts": _map("str"),
+		# GDD_v3 §3.4: ficha de Lisle, nota del cliente, marquitas y notas al margen (crónicas); solo_margen (D01N);
+		# tarjeta_de (NC.*). Lo lee WorldModel.view.
+		"v3": _obj({"ficha": _obj({"trata": "str", "cuando": "str", "por_que": "str"}, ["trata", "cuando", "por_que"]),
+			"nota_cliente": "id", "marcas": _list(_obj({"parte": "id", "tramo": "id"}, ["tramo"])),
+			"margen": _list(_obj({"doc": "id", "tramo": "id", "firma": "str", "junto_a": _obj({"parte": "id", "tramo": "id"}, ["tramo"])}, ["doc", "tramo"])),
+			"solo_margen": "bool", "tarjeta_de": "id"}, [], true),
 	}, ["id", "entity", "title", "src_type", "class", "date", "font", "paper", "copies", "parts", "words"])
 
 static func _schedule() -> Dictionary:
@@ -146,25 +151,37 @@ static func _schedule() -> Dictionary:
 		"stock": _list(_obj({"tk": "tk", "copies": STRS, "line": "str"}, ["tk", "copies"])),
 	}, ["days"])
 
-static func _conclusions() -> Dictionary:
+# GDD_v3 §1.7: data/dossier.json.
+static func _dossier() -> Dictionary:
 	var frag := _obj({"ref": "id", "copy": "str"}, ["ref"])
 	var deps := _enum(["fija", "columna", "garantizada", "opcional"])
-	var route := _obj({"id": "id", "star": "bool", "deps": deps, "from": "tk", "frags": _list(frag), "cut_by": STRS, "pair": STRS}, ["id"])
-	var sub := _obj({"star": "bool", "deps": deps, "from": "tk", "frags": _list(frag, 1), "cut_by": STRS}, ["frags"])
-	var conc := _obj({
-		"id": "id", "kind": _enum(["obligatoria", "practica", "opcional"]), "template": "id", "answers": {"t": "dict"},
-		"constraints": _list({"t": "dict"}), "groups": _list(_obj({"id": "id", "line": "int", "tags": STRS}, ["id", "line", "tags"])),
-		"tags_extra": STRS, "keys": _obj({"entities": STRS, "kinds": STRS}), "validate": _obj({"from": "tk", "until": "?tk"}),
-		"routes": _list(route), "subroutes": _map(sub), "blue_pencil": _obj({"missing": "str", "wrong": "str"}),
-		"practice_origins": "str",
-	}, ["id", "kind", "template", "answers", "groups", "keys"])
-	return _obj({"mandatory": STRS, "lot_counts": STRS,
-		"alias_rules": _list(_obj({"when_sealed": "id", "equiv": STRS}, ["when_sealed", "equiv"])),
-		"conclusions": _list(conc)}, ["conclusions"])
+	var route := _obj({"id": "id", "star": "bool", "deps": deps, "from": "tk", "frags": {"t": "list", "of": frag, "min": 2, "max": 2},
+		"cut_by": STRS}, ["id", "deps", "frags"])
+	var grupo := _obj({"id": "id", "tags": STRS}, ["id", "tags"])
+	var variante := _obj({"id": "id", "principal": "bool", "respuestas": STRS,
+		"grupos": {"t": "list", "of": grupo, "min": 2, "max": 2}, "claves": _obj({"entities": STRS, "kinds": STRS}),
+		"valida": _obj({"desde": "?tk", "hasta": "?tk"}), "tinta": "str", "rutas": _list(route)},
+		["id", "respuestas", "grupos", "claves", "tinta", "rutas"])
+	# origen_columna (playtest v3): la línea de origen cuando lo que llegó vino en los avisos del Times (columna insertada)
+	var nace := _obj({"inicio": "str", "leer": "str", "llega": "str", "dicho": "str", "tinta": "id", "nota": "id", "origen": "str",
+		"origen_columna": "str"}, ["origen"])
+	var preg := _obj({"id": "id", "orden": "int", "obligatoria": "bool", "texto": "str", "nace": _list(nace, 1),
+		"dudas": {"t": "list", "of": "str", "min": 2, "max": 3}, "acepta": _list(_enum(ENT_KINDS), 1),
+		# playtest v3: el rótulo de cada ranura de prueba, en voz de Lisle (qué mitad muestra cada una; el orden no importa)
+		"pruebas": {"t": "list", "of": "str", "min": 2, "max": 2},
+		"variantes": {"t": "list", "of": variante, "min": 1, "max": 2},
+		"blue_pencil": _obj({"missing": "str", "wrong": "str"}, ["missing", "wrong"]),
+		"invariante": _enum(["normal", "desde_nacimiento"])},
+		["id", "orden", "obligatoria", "texto", "nace", "dudas", "acepta", "variantes", "blue_pencil", "invariante"])
+	return _obj({"max_abiertas": "int", "mostrar_todas": "tk",
+		"alias": _list(_obj({"cuando_tinta": "id", "equiv": STRS}, ["cuando_tinta", "equiv"])),
+		# ley de la huella (T5): {holmes: [preguntas], moran: [preguntas]}; sin la clave, la tabla de GDD_v3 §4.2
+		"huella": _map(STRS),
+		"preguntas": _list(preg, 1)}, ["preguntas"])
 
 static func _reaction() -> Dictionary:
-	var lat := _obj({"tipo": _enum(["voz_a", "voz_b", "fija", "inmediata", "siguiente_salida", "siguiente_comunicacion", "dias"]),
-		"tk": "tk", "n": "int"}, ["tipo"])
+	var lat := _obj({"tipo": _enum(["voz_a", "voz_b", "fija", "inmediata", "siguiente_salida", "siguiente_comunicacion", "dias",
+		"intrusion"]), "tk": "tk", "n": "int"}, ["tipo"])
 	var disp := _obj({"evento": _or(["str", STRS]), "match": {"t": "dict"}, "una_vez_por": STRS, "contador": "str",
 		"n_in": _list("int"), "tk": "tk"}, ["evento"], true)
 	var eff := _obj({"op": _enum(EFFECT_OPS)}, ["op"], true)
@@ -178,6 +195,8 @@ static func _reaction() -> Dictionary:
 		"corta": _list({"t": "dict"}), "agrega": STRS,
 		"variante_blanda": {"t": "?obj", "f": {"efecto": _list(eff), "corta": _list({"t": "dict"})}, "req": ["efecto"], "open": false},
 		"exento_d2": "bool", "exento_d2_desde_dia": "int",
+		# GDD_v3 §4.2 (HA5/HA6): original relacionado con el acto que la dispara
+		"relacion": "any",
 	}, ["id", "tipo", "lado", "voz", "nivel", "canal", "disparador", "latencia", "efecto", "rastro", "corta"])
 
 static func _line() -> Dictionary:
@@ -189,7 +208,7 @@ static func _line() -> Dictionary:
 static func _scene() -> Dictionary:
 	# measure/paper_mm: medida de la escena (M:<escena>.<x>; Clipper.act_clip_measure src scene, RouteDB._measure)
 	return _obj({"id": "id", "place": "id", "area": "str", "tk": "tk", "plate": "str", "origin": "str", "when": "cond",
-		"auto": "bool", "lines": _list(_line(), 1),
+		"auto": "bool", "once": "bool", "lines": _list(_line(), 1),
 		"measure": {"t": "?obj", "f": {"entity": "id", "tags": STRS}, "req": ["entity"], "open": false},
 		"paper_mm": {"t": "?list", "of": "num", "min": 2, "max": 2},
 		"variants": _list(_obj({"when": "cond", "replace": _map("markup"), "append": _list(_line())}, ["when"]))},
@@ -197,17 +216,26 @@ static func _scene() -> Dictionary:
 
 static func _dialogue() -> Dictionary:
 	var dl := _obj({"id": "id", "layer": _enum(["afirmacion", "tema", "documento", "entidad", "tipo", "generica"]),
-		"match": {"t": "dict"}, "when": "cond", "text": "markup", "effects": _list({"t": "dict"}), "reaction": "str"},
+		"match": {"t": "dict"}, "when": "cond", "text": "markup", "effects": _list({"t": "dict"}), "reaction": "str",
+		# GDD §10.1 / GDD_v3 §2.1: una línea que ninguna reacción corta puede declararse inmutable ("I"; por defecto "C",
+		# testimonio de campo). RouteDB._dlg la usa como clase del fragmento L:<char>.<línea> (T2 la protege).
+		"cls": _enum(["I", "C"])},
 		["id", "layer", "text"])
-	return _obj({"char": "id", "label": "str", "intro": "str", "addr": "str", "sensor": "?str", "max_questions": "int",
-		"trait": "str", "closing": "markup", "ask_phrase": _map("tpl"), "lines": _list(dl, 1), "known": "bool"}, ["char", "label", "lines"])
+	# GDD_v3 §5.2: «¿Dónde consigo…?» (Crane). Motor: Dialogue.donde_items / act_ask_donde (CORE). Abierto: el motor
+	# también acepta phrase/requires/text/reveals.
+	var donde := _obj({"id": "id", "frase": "str", "requiere": STRS, "texto": "markup", "revela": "?str",
+		"variantes": _list(_obj({"when": "cond", "texto": "markup"}, ["when", "texto"]))}, ["id"], true)
+	return _obj({"char": "id", "label": "str", "intro": "str", "addr": "str", "addr_anon": "str", "sensor": "?str", "max_questions": "int",
+		"trait": "str", "closing": "markup", "ask_phrase": _map("tpl"), "lines": _list(dl, 1), "known": "bool",
+		"donde": _list(donde)}, ["char", "label", "lines"])
 
 static func _place() -> Dictionary:
 	var frame := _obj({"id": "id", "area": "str", "pos": VEC3, "look": VEC3, "fov": "num",
 		"orbit": _obj({"pivot": VEC3, "yaw": "num", "pitch": "num"})}, ["id", "pos", "look"])
 	var prop := _obj({"id": "id", "type": "str", "pos": VEC3, "rot": "num", "p": {"t": "dict"}}, ["id", "type", "pos"])
 	var node := _obj({"id": "id", "prop": "str", "noun": "str", "anchor": _obj({"c": VEC3, "s": VEC3}, ["c", "s"]),
-		"examine": "markup", "tags": "tags", "cls": CLS, "area": "str", "when": "cond", "on_clip_flag": "str"}, ["id", "anchor", "examine"])
+		"examine": "markup", "tags": "tags", "cls": CLS, "area": "str", "when": "cond", "on_clip_flag": "str",
+		"aviso": "id"}, ["id", "anchor", "examine"])
 	var chr := _obj({"id": "id", "area": "str", "pos": VEC3, "rot": "num", "pose": "str", "trait": "str", "when": "cond"}, ["id", "pos"])
 	return _obj({"id": "id", "name": "str", "streets": STRS, "areas": _map(_obj({"desc": "str"}, [], true)), "observers": STRS,
 		"epigraph": "str", "epigraph_by_area": _map("str"), "frames": _list(frame, 1), "light": _map("str"), "props": _list(prop), "nodes": _list(node),
@@ -401,6 +429,24 @@ static func _extra(ds: String, v, errs: Array) -> void:
 			for pr in v.get("props", []):
 				if typeof(pr) == TYPE_DICTIONARY and not String(pr.get("type", "")).contains("."):
 					errs.append("%s.%s: prop %s: type debe ser <módulo>.<función>" % [ds, v.get("id", "?"), pr.get("id")])
+			# GDD_v3 §6.2: lo del 3D se recorta del texto de su examen; con etiquetas a:/c:, ≤30 palabras
+			var all_nodes: Array = (v.get("nodes", []) as Array).duplicate() if typeof(v.get("nodes")) == TYPE_ARRAY else []
+			var vs = v.get("variants", {})
+			if typeof(vs) == TYPE_DICTIONARY:
+				for vk in vs:
+					if typeof(vs[vk]) == TYPE_DICTIONARY and typeof(vs[vk].get("add_nodes")) == TYPE_ARRAY:
+						all_nodes.append_array(vs[vk].add_nodes)
+			for nd in all_nodes:
+				if typeof(nd) != TYPE_DICTIONARY or typeof(nd.get("tags")) != TYPE_ARRAY or typeof(nd.get("examine")) != TYPE_STRING:
+					continue
+				var tagged := false
+				for tg in nd.tags:
+					if String(tg).begins_with("a:") or String(tg).begins_with("c:"):
+						tagged = true
+				if tagged:
+					var wn := (Markup.parse(nd.examine).words as Array).size()
+					if wn > Markup.MAX_TAGGED_WORDS:
+						errs.append("%s.%s: nodo %s: examen de %d palabras con etiquetas a:/c: (máx. %d, GDD_v3 §6.2)" % [ds, v.get("id", "?"), nd.get("id"), wn, Markup.MAX_TAGGED_WORDS])
 		"schedule":
 			var seen_days := {}
 			for d in v.get("days", []):
@@ -418,18 +464,51 @@ static func _extra(ds: String, v, errs: Array) -> void:
 							for s in w.slots:
 								if not TimeKey.ORD.has(String(s)):
 									errs.append("schedule.places.%s.%s: franja desconocida %s" % [p, a, s])
-		"conclusions":
-			var ids := {}
-			for c in v.get("conclusions", []):
-				if typeof(c) != TYPE_DICTIONARY:
+		"dossier":
+			var qids := {}
+			for q in v.get("preguntas", []):
+				if typeof(q) != TYPE_DICTIONARY:
 					continue
-				if ids.has(c.get("id")):
-					errs.append("conclusions: %s duplicada" % c.get("id"))
-				ids[c.get("id")] = true
-			for k in ["mandatory", "lot_counts"]:
-				for cid in v.get(k, []):
-					if not ids.has(cid):
-						errs.append("conclusions.%s: %s no existe" % [k, cid])
+				var qid := String(q.get("id", ""))
+				if qids.has(qid):
+					errs.append("dossier: %s duplicada" % qid)
+				qids[qid] = true
+				var prin := 0
+				for va in q.get("variantes", []):
+					if typeof(va) != TYPE_DICTIONARY:
+						continue
+					if bool(va.get("principal", false)):
+						prin += 1
+					for r in va.get("rutas", []):
+						if typeof(r) != TYPE_DICTIONARY:
+							continue
+						for f in r.get("frags", []):
+							if typeof(f) == TYPE_DICTIONARY and String(f.get("ref", "")).begins_with("M:"):
+								errs.append("dossier.%s.%s: refs M: retiradas en v3" % [qid, r.get("id", "?")])
+				if prin != 1:
+					errs.append("dossier.%s: exactamente una variante principal (hay %d)" % [qid, prin])
+				for n in q.get("nace", []):
+					if typeof(n) != TYPE_DICTIONARY:
+						continue
+					var nk := 0
+					for k in ["inicio", "leer", "llega", "dicho", "tinta", "nota"]:
+						if n.has(k):
+							nk += 1
+					if nk != 1:
+						errs.append("dossier.%s.nace: exactamente un disparador por objeto (hay %d)" % [qid, nk])
+					if n.has("llega"):
+						var lg := String(n.llega)
+						if not (lg == "voz:A" or lg == "voz:B" or (lg.begins_with("R:") and lg.ends_with(".*")) or (not lg.contains(":") and lg != "")):
+							errs.append("dossier.%s.nace.llega: '%s' (voz:A | voz:B | R:<rid>.* | id de documento)" % [qid, lg])
+			for q in v.get("preguntas", []):
+				if typeof(q) != TYPE_DICTIONARY:
+					continue
+				for n in q.get("nace", []):
+					if typeof(n) == TYPE_DICTIONARY and n.has("tinta") and not qids.has(String(n.tinta)):
+						errs.append("dossier.%s.nace.tinta: %s no existe" % [q.get("id", "?"), n.tinta])
+			for al in v.get("alias", []):
+				if typeof(al) == TYPE_DICTIONARY and not qids.has(String(al.get("cuando_tinta", ""))):
+					errs.append("dossier.alias: cuando_tinta %s no existe" % al.get("cuando_tinta", ""))
 
 # §12.2: una variante `replace` cambia el texto de una línea base pero conserva sus tramos: los mismos #id con las
 # mismas etiquetas (las rutas citan S:<escena>.<línea> y el grafo toma la intersección de las versiones). La línea

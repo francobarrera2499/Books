@@ -285,10 +285,10 @@ func test_right_click_over_panels_goes_back() -> void:
 	ok(gs.exam.visible, "tarjeta de examen")
 	await click(center(gs.exam), MOUSE_BUTTON_RIGHT)
 	no(gs.exam.visible, "clic derecho sobre la tarjeta: se cierra")
-	# tijera sobre el 3D (control a pantalla completa)
+	# tijera en la mano (v3: para las tarjetas; no hay rectángulo sobre el 3D)
 	gs.set_scissors(true)
 	await frames(2)
-	ok(gs.scissors.visible, "tijera en la mano")
+	ok(gs.scissors_on, "tijera en la mano")
 	await click(Vector2(800, 420), MOUSE_BUTTON_RIGHT)
 	no(gs.scissors_on, "clic derecho con la tijera: se deja")
 	# mapa
@@ -332,15 +332,17 @@ func test_tutor_waits_for_presentation_and_docks_beside_books() -> void:
 	no(gs.tutor.get_global_rect().intersects(br), "y no tapa el cuaderno: %s / %s" % [str(gs.tutor.get_global_rect()), str(br)])
 	sh.close_kind("notebook")
 	await frames(2)
-	sh.open_panel("ledger")
+	# v3: el expediente (la carpeta) en lugar del libro mayor; la nota se acopla en la solapa del índice
+	sh.open_panel("dossier")
 	await frames(6)
-	var lg = sh.panel("ledger")
-	ok(gs.tutor.is_visible_in_tree(), "con el libro mayor abierto se sigue viendo")
+	var ex = sh.panel("dossier")
+	ok(gs.tutor.is_visible_in_tree(), "con el expediente abierto se sigue viendo")
 	var tr: Rect2 = gs.tutor.get_global_rect()
-	for nm in ["_left", "_right", "_seal"]:
-		var c = lg.get(nm)
-		if c is Control and (c as Control).is_visible_in_tree():
-			no(tr.intersects((c as Control).get_global_rect()), "no tapa %s: %s / %s" % [nm, str(tr), str((c as Control).get_global_rect())])
+	if ex != null and ex.has_method("rect_of"):
+		for what in ["respuesta", "prueba", "encargo"]:
+			var r: Rect2 = ex.rect_of(what)
+			if r.size.x > 0.0:
+				no(tr.intersects(r), "no tapa «%s» de la carpeta: %s / %s" % [what, str(tr), str(r)])
 	ok(Rect2(Vector2.ZERO, tree.root.get_visible_rect().size).encloses(tr), "entera en pantalla")
 
 # ------------------------------------------------------------------ bandeja, confrontación y calendario completo
@@ -449,6 +451,8 @@ func test_catalog_every_card_asks_and_fits() -> void:
 		skip("la Sala de Lectura no abre en este momento del dataset: %s" % str(r))
 		return
 	await settle()
+	# v3: el prólogo ya no deja recortes de la Strand en el índice (sólo el aviso): se le dan temas con fichas
+	preload("res://core/deduction/index.gd").add_entities(g.sim.st, g.sim.repo, ["fina", "reichenbach", "holmes", "watson", "moriarty"])
 	gs.open_catalog()
 	await frames(4)
 	var cat = gs.catalog
@@ -629,7 +633,7 @@ func test_confront_plate_scissors_and_back() -> void:
 	var cv = sh.panel("confront")
 	cv._plate_scissors()
 	await frames(2)
-	ok(gs.scissors_on and gs.scissors.visible, "«Tijera sobre la tienda»: el rectángulo sobre la lámina")
+	ok(gs.scissors_on, "«Tijera sobre la tienda»: la tijera en la mano para las tarjetas de la tienda")
 	ok(sh.router.shortcut("fe_volver"))
 	no(gs.scissors_on, "volver deja la tijera")
 	ok(sh.is_open("confront"), "y la confrontación sigue")
@@ -646,6 +650,17 @@ func test_order_copy_at_somerset_house() -> void:
 	var gs = sh.game_screen
 	sh.close_kind("tray")
 	await settle()
+	# v3 (GDD_v3 §5.2): Somerset House entra al plano cuando Crane dice dónde se ven los testamentos
+	if not g.sim.q_place_known("L6"):
+		g.sim.st.world.known["testamento"] = int(g.sim.q_clock().tk)
+		act({"t": "go", "place": "L1", "area": "tienda"})
+		await settle()
+		act({"t": "ask_donde", "char": "crane", "item": "donde.registros"})
+		act({"t": "leave"})
+		await settle()
+		sh.close_all()
+		await settle()
+		ok(g.sim.q_place_known("L6"), "Somerset House en el plano (Crane)")
 	var r: Dictionary = act({"t": "go", "place": "L6", "area": "sala"})
 	if not bool(r.get("ok", false)):
 		skip("Somerset House cerrada: %s" % str(r))
@@ -707,7 +722,7 @@ func test_tutorial_objects_have_a_clickable_area() -> void:
 		ok(hits * 16 >= 24 * 24, "«%s» con área de clic ≥ 24×24 px en el encuadre «%s» (%d px²)" % [nid, gs.frame, hits * 16])
 	gs._on_tutor_link("encargo")
 	await frames(3)
-	ok(gs.exam.visible, "un clic en «encargo» de la nota lo muestra")
+	ok(gs.exam.visible or sh.is_open("dossier"), "un clic en «encargo» de la nota lo muestra (GDD_v3 §3.1: el encargo va en la carpeta)")
 
 # «Continuar» una partida guardada en el epílogo: la pantalla de juego cede el fundido a la Shell y la corrutina vuelve
 # (antes gs.start() quedaba colgado al liberarse la pantalla, con un error del motor).
@@ -855,3 +870,24 @@ func test_wiggins_silhouette_is_a_character() -> void:
 	await frames(3)
 	ok(sh.is_open("scene"), "clic en su figura: la conversación, no una tarjeta de examen")
 	no(gs.exam.visible)
+
+# Playtest v3: al «Continuar» (sesión nueva: _tray_shown vacío), la bandeja se abre sola sólo si tiene papeles sin leer.
+func test_tray_reopens_only_with_unread_papers() -> void:
+	await boot_game()
+	var gs = sh.game_screen
+	await through_tutorial_and_sleep()
+	var d := int(g.sim.q_clock().day)
+	var items: Array = g.sim.q_tray(d)
+	ok(not items.is_empty(), "hay papeles el día %d" % d)
+	if sh.is_open("tray"):
+		sh.close_kind("tray")
+		await settle()
+	gs._tray_shown.clear()   # como al continuar en otra sesión
+	ok(gs._tray_pending(d), "con papeles sin leer, se abre sola")
+	for it in items:
+		var v: Dictionary = g.sim.q_view(String(it.view))
+		for pi in (v.get("pages", []) as Array).size():
+			act({"t": "read", "view": String(it.view), "part": pi})
+	ok(g.sim.q_tray(d).all(func(x): return bool(x.get("read", false))), "todo leído")
+	gs._tray_shown.clear()
+	no(gs._tray_pending(d), "todo leído: al continuar no se vuelve a abrir sola")

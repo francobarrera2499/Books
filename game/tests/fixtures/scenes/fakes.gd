@@ -2,7 +2,7 @@
 # (W2-REACT) en core/scenes/deps.gd para probar diálogo, confrontación, compositores y finales sin depender de su avance.
 # Estado de los dobles (los tests lo arman a mano; sólo los dobles lo leen):
 #   st.ded.index {ent:true} · st.ded.clips {id: {id,text,ents:[{id,label}],tags:["a:x"],origin,copy,cls,src_kind,view}}
-#   st.ded.entries {id: {id,template,lines:[{fields,support}],ink, fake_cid?, fake_ok?}} · st.ded.pairs · st.ded.sealed
+#   st.ded.dossier (Expediente real: Fakes.question arma una hoja) · st.ded.entries (v2, sin uso)
 #   st.react.imm_calls / imm_lines {reaction: [line|{line,who}]} / eff_calls / cats {item_id: [cats]}
 # Uso: before_each -> Fakes.install(); after_each -> Fakes.uninstall().
 extends RefCounted
@@ -40,41 +40,7 @@ class FClipper:
 		return {"id": id, "text": String(c.get("text", "")), "ents": c.get("ents", []).duplicate(true), "origin": String(c.get("origin", "")),
 			"src_line": String(c.get("src_line", "")), "caption": "", "chron_date": ""}
 
-class FLedger:
-	static func entry_clips(st, entry_id: String) -> Array:
-		var e = st.ded.get("entries", {}).get(entry_id, {})
-		var out: Array = []
-		for ln in e.get("lines", []):
-			for it in ln.get("support", []):
-				var p = st.ded.get("pairs", {}).get(String(it))
-				var ids: Array = [String(p.a), String(p.b)] if typeof(p) == TYPE_DICTIONARY else [String(it)]
-				for c in ids:
-					if not out.has(c):
-						out.append(c)
-		return out
-
-class FValidator:
-	static func entry_tags(st, entry_id: String) -> Array:
-		var out: Array = []
-		for c in FLedger.entry_clips(st, entry_id):
-			for t in st.ded.get("clips", {}).get(c, {}).get("tags", []):
-				if not out.has(t):
-					out.append(t)
-		out.sort()
-		return out
-	# ok si fake_ok != false y los recortes (pares expandidos) tienen ≥2 orígenes distintos.
-	static func entry_ok(st, repo, entry_id: String) -> Dictionary:
-		var e = st.ded.get("entries", {}).get(entry_id, {})
-		var origins := {}
-		for c in FLedger.entry_clips(st, entry_id):
-			origins[String(st.ded.get("clips", {}).get(c, {}).get("origin", ""))] = true
-		var okk: bool = bool(e.get("fake_ok", true)) and origins.size() >= 2
-		return {"ok": okk, "cid": String(e.get("fake_cid", "")), "failed": [] if okk else [3]}
-	static func which_conclusion(repo, entry: Dictionary, sealed: Dictionary) -> String:
-		return String(entry.get("fake_cid", ""))
-	static func values_match(repo, entry: Dictionary, cid: String, sealed: Dictionary) -> bool:
-		return String(entry.get("fake_cid", "")) == cid
-
+# v3: sin libro de conclusiones; el Validator real (clip_tags, origins_of) trabaja sobre st.ded.clips del doble.
 class FDirector:
 	# Simula HolmesAgent/Effects para HB4: cuenta hb4_veces y, a la 2.ª, cierra la consulta 2 días.
 	static func immediate(st, repo, ev: Dictionary) -> Array:
@@ -102,8 +68,6 @@ class FMoran:
 static func install() -> void:
 	Deps.Index = FIndex
 	Deps.Clipper = FClipper
-	Deps.Ledger = FLedger
-	Deps.Validator = FValidator
 	Deps.Director = FDirector
 	Deps.Effects = FEffects
 	Deps.MoranAgent = FMoran
@@ -127,7 +91,8 @@ static func state(repo, opts := {}):
 	var idx := {}
 	for e in opts.get("index", []):
 		idx[String(e)] = true
-	st.ded = {"index": idx, "clips": {}, "entries": {}, "pairs": {}, "sealed": {}}
+	st.ded = {"index": idx, "clips": {},
+		"dossier": {"born": {}, "open": {}, "waiting": [], "drafts": {}, "inked": {}, "attempts": {}, "noticed": {}, "seen": {}, "shown_n": 0}}
 	st.react = {}
 	st.flags = {}
 	st.events = []
@@ -148,10 +113,17 @@ static func clip(st, id: String, text: String, ents: Array, tags: Array, origin:
 		st.ded.index[String(e.id)] = true
 	return id
 
-# lines: [{fields:{}, support:[]}]
-static func entry(st, id: String, template: String, lines: Array, ink := "lapiz", extra := {}) -> String:
-	var e := {"id": id, "folio": "varios", "template": template, "lines": lines.duplicate(true), "ink": ink}
-	for k in extra:
-		e[k] = extra[k]
-	st.ded.entries[id] = e
-	return id
+# v3 (GDD_v3 §1): una hoja del Expediente ya escrita. inked = true -> en tinta (variant A); si no, abierta en lápiz.
+static func question(st, qid: String, answer: String, proofs: Array, inked := false) -> String:
+	var d: Dictionary = st.ded.dossier
+	d.born[qid] = {"tk": 10, "via": "fixture", "origin": "Fixture.", "n": d.born.size()}
+	var pr: Array = proofs.duplicate()
+	while pr.size() < 2:
+		pr.append("")
+	if inked:
+		d.inked[qid] = {"tk": 20, "variant": "A", "answer": answer, "proofs": pr, "n": d.inked.size() + 1, "shown_tk": 10}
+		d.open.erase(qid)
+	else:
+		d.open[qid] = {"tk": 10, "n": d.open.size() + 1}
+		d.drafts[qid] = {"answer": answer, "proofs": pr}
+	return qid

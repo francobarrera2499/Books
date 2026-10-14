@@ -1,4 +1,4 @@
-# ui/map/map_screen.gd — el mapa de época (GDD§5 «Viaje», ARCHITECTURE §6.7; GDD_v2 §B.3 y §C.3). Dueño: PROGRESIÓN.
+# ui/map/map_screen.gd — el mapa de época (GDD§5 «Viaje», ARCHITECTURE §6.7; GDD_v2 §B.3 y §C.3). Dueño: UI-MUNDO (v3).
 # Panel de la capa 50 (Shell.open_panel("map")). Plano dibujado (map_draw.gd) con un marcador por lugar QUE LISLE YA
 # CONOCE (Game.sim.q_places() sólo lista lo revelado; la casa siempre): abierto -> clic; cerrado -> persiana baja, SIN
 # clic (T26: ningún clic gasta una franja en un lugar cerrado). Al pasar el mouse: el horario del lugar en una línea
@@ -8,7 +8,11 @@
 # q_seat: el selector de asiento pasó al catálogo) -> trayecto del coche (≈3 s, clic para saltar) -> visita.
 # v2: sin página Baedeker (baedeker_view() queda como hoja «Horarios» de lo conocido, para el lector); «Recuerdos» (las
 # láminas archivadas, más recientes primero; clic -> la lámina en el 3D) sólo con q_ui()["map.recuerdos"].
-# open() · close() · back() · señal closed.
+# v3 UI-MUNDO (GDD_v3 §5.3, §5.4): el plano está SÓLO en la pared de la buhardilla (nodo mapa; sin cinta ni tecla M). Al
+# pasar el mouse por un marcador, tres renglones: QUÉ HAY (estilo guía de época: q_places().que_hay -> ui_text plano.*),
+# POR QUÉ ESTÁ («Lo menciona: …», «Me lo dijo Crane»: q_places().por_que.text) y el horario (map.json hours) o por qué
+# no se sale ahora. Cada salida es pieza -> lugar -> pieza: se sale sólo desde casa y la visita vuelve a casa.
+# open() · close() · back() · señal closed · hover_text(id) (tests y drivers).
 extends Control
 
 signal closed
@@ -112,7 +116,9 @@ func _ready() -> void:
 	plates_tab = _make_plates_tab()
 	board.add_child(plates_tab)
 	_hover = Widgets.label("", "SmallLabel")
+	_hover.name = "Rotulo"
 	_hover.visible = false
+	_hover.autowrap_mode = TextServer.AUTOWRAP_OFF   # los renglones se parten a mano (_wrap): el alto se mide bien
 	_hover.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Widgets.restyle(_hover, func(): _hover.add_theme_stylebox_override("normal", Paper.style("carta", {"margin": 6, "shadow": false})))
 	add_child(_hover)
@@ -244,10 +250,16 @@ func place_state(id: String) -> Dictionary:
 	var areas: Array = []
 	var is_new := false
 	var hours := ""
+	var que_hay := ""
+	var por_que := ""
 	for p in bp.get(id, []):
 		is_new = is_new or bool(p.get("new", false))
 		if hours == "":
 			hours = String(p.get("hours", ""))
+		if que_hay == "":
+			que_hay = String(p.get("que_hay", ""))
+		if por_que == "" and typeof(p.get("por_que", null)) == TYPE_DICTIONARY:
+			por_que = String(p.por_que.get("text", ""))
 		if bool(p.get("free", false)):
 			continue
 		areas.append(p)
@@ -258,7 +270,8 @@ func place_state(id: String) -> Dictionary:
 			any = true
 		elif reason == "" and not bool(p.get("open", false)):
 			reason = String(p.get("reason", ""))
-	return {"open": any, "areas": areas, "reason": reason, "home": areas.is_empty(), "new": is_new, "hours": hours}
+	return {"open": any, "areas": areas, "reason": reason, "home": areas.is_empty(), "new": is_new, "hours": hours,
+		"que_hay": que_hay, "por_que": por_que}
 
 func _build_markers() -> void:
 	for c in markers.get_children():
@@ -400,31 +413,70 @@ func open_baedeker() -> void:
 		shell.open_view(baedeker_view())
 
 # ------------------------------------------------------------------ elegir y viajar
+# Renglones al pasar el mouse por un marcador (GDD_v3 §5.3): qué hay · por qué está · horario (o por qué no se sale).
+func hover_lines(id: String) -> Array:
+	var out: Array = []
+	var st := place_state(id)
+	var repo = _repo()
+	var home := repo != null and bool(repo.map().get("places", {}).get(id, {}).get("home", false))
+	var qk := String(st.get("que_hay", ""))
+	if qk == "":
+		qk = "plano.que_hay." + id
+	var qh := Widgets.t(qk)
+	if qh == qk:
+		qh = Widgets.t("mundo.plano.casa") if home else ""
+	if qh != "":
+		out.append(qh)
+	if home:
+		out.append(Widgets.t("mundo.plano.desde_casa"))
+		return out
+	if String(st.get("por_que", "")) != "":
+		out.append(String(st.por_que))
+	var hrs := String(st.get("hours", ""))
+	if not bool(st.get("open", false)):
+		var why := _closed_text(st)
+		var head := why if why != "" and why != Widgets.t("sim.cerrado.horario") else Widgets.t("prog.map.cerrado_ahora")
+		out.append(head)
+	if hrs != "":
+		out.append(hrs)
+	return out
+
+# Parte un renglón en palabras para que no pase de n letras (el rótulo del plano no se estira de lado a lado).
+static func _wrap(s: String, n: int) -> String:
+	var out: Array = []
+	var cur := ""
+	for w in s.split(" ", false):
+		if cur != "" and cur.length() + 1 + w.length() > n:
+			out.append(cur)
+			cur = w
+		else:
+			cur = w if cur == "" else cur + " " + w
+	if cur != "":
+		out.append(cur)
+	return String.chr(10).join(PackedStringArray(out))
+
+func hover_text(id: String) -> String:
+	return String.chr(10).join(PackedStringArray(hover_lines(id)))
+
 func _on_hover(m, on: bool) -> void:
-	if not on or m == null:
+	# con la tarjeta de áreas abierta, la ayuda quedaba debajo y no se leía (playtest v3): no se muestra
+	if not on or m == null or (_popup != null and is_instance_valid(_popup)):
 		_hover.visible = false
 		return
-	var st: Dictionary = m.state
-	var txt := ""
-	var nl := String.chr(10)
-	if bool(m.home):
-		txt = Widgets.t("shell.map.casa")
-		if String(st.get("hours", "")) != "":
-			txt += nl + String(st.hours)
-	else:
-		# GDD_v2 §C.3: el horario del lugar en una línea; si está cerrado, «Cerrado ahora» (o el motivo, si no es la hora)
-		txt = String(st.get("hours", ""))
-		if not bool(st.open):
-			var why := _closed_text(st)
-			var head := why if why != "" and why != Widgets.t("sim.cerrado.horario") else Widgets.t("prog.map.cerrado_ahora")
-			txt = head + (nl + txt if txt != "" else "")
+	var lines: Array = []
+	for ln in hover_lines(String(m.place_id)):
+		lines.append(_wrap(String(ln), 48))
+	var txt := String.chr(10).join(PackedStringArray(lines))
 	if txt == "":
 		_hover.visible = false
 		return
 	_hover.text = txt
+	_hover.size = Vector2.ZERO
 	_hover.reset_size()
 	_hover.visible = true
-	_hover.position = (m as Control).get_global_rect().position - global_position + Vector2(0, 26)
+	var vs := get_viewport().get_visible_rect().size
+	var at := (m as Control).get_global_rect().position - global_position + Vector2(0, 26)
+	_hover.position = Vector2(clampf(at.x, 8.0, vs.x - _hover.size.x - 8.0), clampf(at.y, 8.0, vs.y - _hover.size.y - 8.0))
 
 func _closed_text(st: Dictionary) -> String:
 	var sim = _sim()
@@ -458,6 +510,7 @@ func _close_popup() -> void:
 
 func _area_popup(m, areas: Array) -> void:
 	_close_popup()
+	_hover.visible = false
 	var p := PanelContainer.new()
 	p.mouse_filter = Control.MOUSE_FILTER_STOP
 	Widgets.restyle(p, func(): p.add_theme_stylebox_override("panel", Paper.style("carta", {"margin": 16, "shadow": true, "shadow_size": 10})))
@@ -726,8 +779,11 @@ class Marker extends Control:
 		var f := _font()
 		var fs := maxi(10, int(_fs() * 0.62))
 		var tw := f.get_string_size(new_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-		# del lado opuesto al rótulo (no lo tapa)
+		# del lado opuesto al rótulo (no lo tapa); map.json new_side lo corre a un costado si arriba/abajo hay otro rótulo
 		var c := o + (Vector2(0, r + fs * 0.5 + 8) if _label_above else Vector2(0, -r - fs * 0.5 - 8))
+		match String(data.get("new_side", "")):
+			"left": c = o + Vector2(-r - tw * 0.5 - 10, 0)
+			"right": c = o + Vector2(r + tw * 0.5 + 10, 0)
 		draw_set_transform(c, deg_to_rad(-6.0), Vector2.ONE)
 		var box := Rect2(Vector2(-tw * 0.5 - 4, -fs * 0.5 - 3), Vector2(tw + 8, fs + 6))
 		draw_rect(box, Color(Paper.paper("carta"), 0.85))

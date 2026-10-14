@@ -20,7 +20,6 @@ const Cond = preload("res://core/util/cond.gd")
 const TimeKey = preload("res://core/util/timekey.gd")
 const Markup = preload("res://core/text/markup.gd")
 const Diary = preload("res://core/sim/diary.gd")
-const LedgerModel = preload("res://ui/ledger/ledger_model.gd")
 
 const EPI_FILE := "ui_text/epilogo.json"
 const UI_FILE := "ui_text/epilogue_ui.json"
@@ -275,8 +274,8 @@ static func cut_target(sim) -> Dictionary:
 	t["text"] = text
 	return t
 
-# ¿La selección [from, from+len) de la hoja `page` toca el tramo del corte? (una palabra basta: Lisle corta «entre punto
-# y punto»; el corte real es siempre la oración entera).
+# ¿La selección [from, from+len) de la hoja `page` toca el tramo del corte? (una palabra basta: Lisle corta la frase
+# justa; el corte real es siempre el tramo entero, ≤15 palabras, GDD_v3 §6.2).
 static func hits_cut(sim, page: int, from: int, length: int) -> bool:
 	var t := cut_target(sim)
 	if t.is_empty() or int(t.page) != page or length <= 0:
@@ -330,43 +329,9 @@ static func credits(sim) -> Array:
 	return out
 
 # ---------------------------------------------------------------- lápiz azul (post-créditos)
-# {title, header, pages:[{id, title, rows:[{eid, n, summary, ink, practice, wrong, note}]}], missing:[notas],
-#  nothing, nada, sign}
+# GDD_v3 §6.10: el expediente devuelto. La vista-modelo es de UI-EXPEDIENTE (ui/expediente/expediente_model.gd).
 static func pencil(sim) -> Dictionary:
-	var bp: Array = sim.q_blue_pencil() if sim != null else []
-	var wrong := {}
-	var missing: Array = []
-	for it in bp:
-		if String(it.get("kind", "")) == "wrong":
-			wrong[String(it.get("entry", ""))] = String(it.get("note", ""))
-		elif String(it.get("kind", "")) == "missing":
-			var n := String(it.get("note", ""))
-			if n != "" and not missing.has(n):
-				missing.append(n)
-	var pages: Array = []
-	if sim != null:
-		for p in LedgerModel.pages(sim):
-			if String(p.get("kind", "")) == "rules":
-				continue
-			var rows: Array = []
-			for eid in LedgerModel.page_entries(sim, String(p.id)):
-				var vm := LedgerModel.entry_vm(sim, String(eid))
-				if vm.is_empty():
-					continue
-				var summ := LedgerModel.entry_summary(vm)
-				rows.append({"eid": String(eid), "n": int(vm.n), "tname": String(vm.tname), "summary": summ, "ink": String(vm.ink),
-					"practice": bool(vm.practice), "wrong": wrong.has(String(eid)), "note": String(wrong.get(String(eid), ""))})
-			if rows.is_empty():
-				continue
-			var title := String(p.get("title", ""))
-			if String(p.get("kind", "")) == "folio" and String(p.get("head_short", "")) != "":
-				title = "%s · %s" % [title, String(p.head_short)]
-			pages.append({"id": String(p.id), "kind": String(p.kind), "title": title, "rows": rows})
-	var nothing := bp.is_empty()
-	return {"title": tx(sim, "epilogo.lapiz.titulo"), "header": tx(sim, "epilogo.lapiz.encabezado"), "pages": pages,
-		"missing": missing, "nothing": nothing, "nada": tx(sim, "epilogo.lapiz.nada"),
-		"sign": tx(sim, "epilogo.lapiz.firma_tirese" if nothing else "epilogo.lapiz.firma_corrijase"),
-		"wrong_n": wrong.size(), "empty": tx(sim, "epilogue.lapiz.sin_asientos")}
+	return preload("res://ui/expediente/expediente_model.gd").pencil(sim)
 
 # ---------------------------------------------------------------- láminas del epílogo
 # Instantánea de un lugar a una hora dada (los `when` de los nodos con ctx.tk: la noche del jueves no es «ahora»).

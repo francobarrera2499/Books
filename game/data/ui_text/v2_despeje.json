@@ -3,13 +3,6 @@
   "text": {
     "v2d.reader.zoom_volver": "Volver al tamaño de lectura",
     "v2d.nb.mas": "+${n}",
-    "v2d.lg.mas_tipos": "Más tipos…",
-    "v2d.lg.como": "Cómo se anota una conclusión",
-    "v2d.lg.ayuda.hoja": "Para empezar, soltar un recorte en «Nueva hoja».",
-    "v2d.lg.ayuda.conclusion": "Elegir un tipo y llenar sus campos con lo recortado.",
-    "v2d.lg.ayuda.pruebas": "Arrastrar acá el recorte o el par que lo prueba.",
-    "v2d.lg.sello.tinta": "El sello tiene tinta.",
-    "v2d.lg.sello.seco": "El sello no tiene tinta hasta el próximo turno.",
     "v2d.sc.conversacion": "De esta conversación",
     "v2d.sc.recientes": "Recientes",
     "v2d.sc.todo": "Todo el índice",

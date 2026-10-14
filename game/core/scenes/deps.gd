@@ -1,11 +1,12 @@
-# core/scenes/deps.gd — dependencias externas y utilidades comunes de W2-SCENES. Dueño: W2-SCENES.
+# core/scenes/deps.gd — dependencias externas y utilidades comunes de las escenas. Dueño: CORE-EXPEDIENTE.
 # Dependencias (dirección §1: scenes -> {deduction, react, text, data, util}; nunca sim):
-#   Index, Clipper, Ledger, Validator (W2-DED) · Director, Effects, MoranAgent (W2-REACT).
-#   Acceso por index()/clipper()/ledger()/validator()/director()/effects()/moran() (perezoso). Los tests asignan las
+#   Index, Clipper, Validator, Dossier (deduction) · Director, Effects, MoranAgent (react).
+#   Acceso por index()/clipper()/validator()/dossier()/director()/effects()/moran() (perezoso). Los tests asignan las
 #   `static var` (Index, Clipper, …) a dobles (tests/fixtures/scenes/fakes.gd) y llaman reset().
+# Ítems que se muestran, se informan y se presentan en la confrontación (GDD_v3 §6.10): {kind: "clip" | "pregunta", id}.
 # Estado propio: st.scenes (§3.3). ensure(st) crea claves faltantes; SÓLO desde init_state/act_* (las consultas no mutan).
 # Lecturas de estado ajeno sin función del dueño en el contrato §3.8 (sólo lectura, documentadas):
-#   st.ded.entries[id] (forma §5.2), st.ded.pairs[id] (forma §5.1), st.ded.sealed (cid -> entry), st.world.visit
+#   st.world.visit
 #   ({id, place, area, chars:[id|{id}], scene?, origin?}, igual que Cond.char_present), st.clock, st.events, st.flags.
 extends RefCounted
 
@@ -14,8 +15,8 @@ const TimeKey = preload("res://core/util/timekey.gd")
 
 const P_INDEX := "res://core/deduction/index.gd"
 const P_CLIPPER := "res://core/deduction/clipper.gd"
-const P_LEDGER := "res://core/deduction/ledger.gd"
 const P_VALIDATOR := "res://core/deduction/validator.gd"
+const P_DOSSIER := "res://core/deduction/dossier.gd"
 const P_DIRECTOR := "res://core/react/director.gd"
 const P_EFFECTS := "res://core/react/effects.gd"
 const P_MORAN := "res://core/react/moran_agent.gd"
@@ -24,8 +25,8 @@ const P_MORAN := "res://core/react/moran_agent.gd"
 # error de compilación ajeno (otro WP a medio hacer) no rompe la carga de core/scenes.
 static var Index = null
 static var Clipper = null
-static var Ledger = null
 static var Validator = null
+static var Dossier = null
 static var Director = null
 static var Effects = null
 static var MoranAgent = null
@@ -40,10 +41,10 @@ static func clipper():
 		Clipper = load(P_CLIPPER)
 	return Clipper
 
-static func ledger():
-	if Ledger == null:
-		Ledger = load(P_LEDGER)
-	return Ledger
+static func dossier():
+	if Dossier == null:
+		Dossier = load(P_DOSSIER)
+	return Dossier
 
 static func validator():
 	if Validator == null:
@@ -68,8 +69,8 @@ static func moran():
 static func reset() -> void:
 	Index = null
 	Clipper = null
-	Ledger = null
 	Validator = null
+	Dossier = null
 	Director = null
 	Effects = null
 	MoranAgent = null
@@ -162,42 +163,28 @@ static func flags(st) -> Dictionary:
 	return st.flags if typeof(st.flags) == TYPE_DICTIONARY else {}
 
 # ---------------- deducción (lecturas) ----------------
-static func entry(st, id: String) -> Dictionary:
+# Ítem «pregunta» del Expediente: Dossier.item_view {q, answer, inked, variant, tags}; {} si no nació.
+static func question_item(st, repo, qid: String) -> Dictionary:
+	return dossier().item_view(st, repo, qid)
+
+static func question_proofs(st, qid: String) -> Array:
 	var ded = st.ded if typeof(st.ded) == TYPE_DICTIONARY else {}
-	var e = ded.get("entries", {}).get(id, {})
-	return e if typeof(e) == TYPE_DICTIONARY else {}
-
-static func pair(st, id: String) -> Dictionary:
-	var ded = st.ded if typeof(st.ded) == TYPE_DICTIONARY else {}
-	var p = ded.get("pairs", {}).get(id, {})
-	return p if typeof(p) == TYPE_DICTIONARY else {}
-
-static func sealed(st) -> Dictionary:
-	var ded = st.ded if typeof(st.ded) == TYPE_DICTIONARY else {}
-	var s = ded.get("sealed", {})
-	return s if typeof(s) == TYPE_DICTIONARY else {}
-
-# sealed[cid] puede ser el id del asiento o el asiento entero (el contrato no lo fija): devuelve el id.
-static func sealed_entry_id(v) -> String:
-	if typeof(v) == TYPE_DICTIONARY:
-		return String(v.get("id", ""))
-	return String(v) if v != null else ""
-
-# {campo: valor} de todas las líneas (los ids de campo son únicos por plantilla).
-static func entry_values(e: Dictionary) -> Dictionary:
-	var out := {}
-	for ln in e.get("lines", []):
-		if typeof(ln) != TYPE_DICTIONARY:
-			continue
-		var f = ln.get("fields", {})
-		if typeof(f) != TYPE_DICTIONARY:
-			continue
-		var ks: Array = f.keys()
-		ks.sort()
-		for k in ks:
-			if String(f[k]) != "":
-				out[k] = String(f[k])
+	var d = ded.get("dossier", {})
+	if typeof(d) != TYPE_DICTIONARY:
+		return []
+	var src = d.get("inked", {}).get(qid)
+	if typeof(src) != TYPE_DICTIONARY:
+		src = d.get("drafts", {}).get(qid, {})
+	var out: Array = []
+	for p in src.get("proofs", []):
+		if String(p) != "" and not out.has(String(p)):
+			out.append(String(p))
 	return out
+
+static func question_inked(st, qid: String) -> bool:
+	var ded = st.ded if typeof(st.ded) == TYPE_DICTIONARY else {}
+	var d = ded.get("dossier", {})
+	return typeof(d) == TYPE_DICTIONARY and typeof(d.get("inked", {})) == TYPE_DICTIONARY and d.inked.has(qid)
 
 # Ids de entidades de una lista [id | {id,label}].
 static func ent_ids(arr) -> Array:
@@ -239,33 +226,25 @@ static func tag_values(tags, prefix := "a") -> Array:
 static func has_camden_tag(tags) -> bool:
 	return tag_values(tags, "f").has("secreto_camden")
 
-# Recortes únicos de un asiento (pares expandidos) por Ledger.entry_clips.
-static func entry_clip_ids(st, entry_id: String) -> Array:
-	var out: Array = []
-	for c in ledger().entry_clips(st, entry_id):
-		var id := String(c.get("id", "")) if typeof(c) == TYPE_DICTIONARY else String(c)
-		if id != "" and not out.has(id):
-			out.append(id)
-	return out
+# Recortes de un ítem: el recorte mismo o las dos pruebas de la pregunta.
+static func item_clip_ids(st, item: Dictionary) -> Array:
+	if String(item.get("kind", "")) == "pregunta":
+		return question_proofs(st, String(item.get("id", "")))
+	var id := String(item.get("id", ""))
+	return [id] if id != "" else []
 
 # ¿El ítem {kind,id} lleva material secreto_camden (f: de algún recorte)?
 static func item_camden(st, repo, item: Dictionary) -> bool:
-	var camden: Array = repo.lists().get("camden_entities", [])
-	var ids: Array = []
-	if String(item.get("kind", "")) == "entry":
-		ids = entry_clip_ids(st, String(item.get("id", "")))
-	else:
-		ids = [String(item.get("id", ""))]
-	for cid in ids:
+	for cid in item_clip_ids(st, item):
 		var c: Dictionary = clipper().get_clip(st, cid)
 		if has_camden_tag(c.get("tags", [])):
 			return true
 	return false
 
-# Etiquetas internas de un ítem (confrontación, HB12): recorte -> get_clip.tags; asiento -> Validator.entry_tags.
+# Etiquetas internas de un ítem (confrontación, HB12): recorte -> get_clip.tags; pregunta -> las de sus dos pruebas.
 static func item_tags(st, item: Dictionary) -> Array:
-	if String(item.get("kind", "")) == "entry":
-		return validator().entry_tags(st, String(item.get("id", "")))
+	if String(item.get("kind", "")) == "pregunta":
+		return validator().clip_tags(st, question_proofs(st, String(item.get("id", ""))))
 	var c: Dictionary = clipper().get_clip(st, String(item.get("id", "")))
 	var t = c.get("tags", [])
 	return t if typeof(t) == TYPE_ARRAY else []
@@ -277,8 +256,10 @@ static func item_exists(st, item: Dictionary) -> bool:
 	match String(item.get("kind", "")):
 		"clip":
 			return not clipper().get_clip(st, id).is_empty() or not clipper().visible(st, id).is_empty()
-		"entry":
-			return not entry(st, id).is_empty()
+		"pregunta":
+			var ded = st.ded if typeof(st.ded) == TYPE_DICTIONARY else {}
+			var d = ded.get("dossier", {})
+			return typeof(d) == TYPE_DICTIONARY and (d.get("open", {}).has(id) or d.get("inked", {}).has(id))
 	return false
 
 # Registro de una línea dicha por uid: st.scenes.lines (Dialogue) o st.world.lines (WorldModel de W2-SIM).
@@ -405,27 +386,13 @@ static func join_and(repo, parts: Array) -> String:
 		head.append(String(parts[i]))
 	return ", ".join(head) + y + String(parts[-1])
 
-# Resumen legible de un asiento: «Persona: X · Hizo: matar · …» con los rótulos de la plantilla.
-static func entry_summary(repo, e: Dictionary) -> String:
-	var tpl: Dictionary = repo.template(String(e.get("template", "")))
-	var vals := entry_values(e)
-	var parts := PackedStringArray()
-	for ln in tpl.get("lines", []):
-		for f in ln.get("fields", []):
-			var v := String(vals.get(f.get("id", ""), ""))
-			if v == "":
-				continue
-			parts.append(String(f.get("label", "")).replace("___", value_label(repo, f, v)))
-	return " · ".join(parts)
+# Resumen legible de una pregunta: «¿Quién mató a Ronald Adair? El coronel Sebastian Moran.» (respuesta, si la hay).
+static func question_summary(st, repo, qid: String) -> String:
+	var q: Dictionary = repo.question(qid) if repo.has_method("question") else {}
+	var it := question_item(st, repo, qid)
+	var ans := String(it.get("answer", ""))
+	var t := String(q.get("texto", qid))
+	if ans == "":
+		return t
+	return "%s %s." % [t, cap_first(ent_name(repo, ans))]
 
-# Etiqueta de un valor de campo: entidad -> name; lista cerrada -> label (medios) o el id con espacios.
-static func value_label(repo, field: Dictionary, v: String) -> String:
-	var lst := String(field.get("accept", {}).get("list", ""))
-	if lst != "":
-		for it in repo.lists().get(lst, []):
-			if typeof(it) == TYPE_DICTIONARY and String(it.get("id", "")) == v:
-				return String(it.get("label", v))
-		if not repo.entity(v).is_empty():
-			return ent_name(repo, v)
-		return v.replace("_", " ")
-	return ent_name(repo, v)

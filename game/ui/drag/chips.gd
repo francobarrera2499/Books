@@ -1,16 +1,16 @@
-# ui/drag/chips.gd — datos y vista previa del arrastre (ARCHITECTURE §6.3). Dueño: W3-SHELL. Estática.
-# Datos de arrastre (DnD nativo de Godot): {"kind": "clip"|"pair"|"entry"|"ent", "id": String}.
+# ui/drag/chips.gd — datos y vista previa del arrastre (ARCHITECTURE §6.3). Dueño: UI-MUNDO (v3). Estática.
+# Datos de arrastre (DnD nativo de Godot): {"kind": "clip"|"pregunta"|"ent", "id": String}.
 #   data(kind, id) -> Dictionary · valid(d) -> bool · label(d, sim = Game.sim) -> String (texto del chip, sin pistas:
 #   el mismo trato para todo) · preview(d) -> Control (Widgets.chip) · ghost() -> Control invisible para
 #   set_drag_preview (la vista previa la dibuja DragLayer en la capa 120, por encima de libros y modales).
-# Destinos (§6.3): tarjeta de recorte (link) · libro mayor / «Nuevo folio» (folio_open) · ranura «según»
-#   (entry_support_add) · campo de plantilla (entry_set, sólo ent) · sobre del informe · personaje en 3D (present).
+# Destinos (GDD_v3 §6.1, §6.10): ranuras de pruebas del expediente (clip) y su respuesta (ent) · sobre del informe ·
+#   personaje en 3D (present: un recorte o una pregunta). Sin pares ni asientos (v3).
 extends RefCounted
 
 const Widgets = preload("res://ui/kit/widgets.gd")
 
-const KINDS := ["clip", "pair", "entry", "ent"]
-const PRESENTABLE := ["clip", "entry"]
+const KINDS := ["clip", "pregunta", "ent"]
+const PRESENTABLE := ["clip", "pregunta"]
 const MAX_WORDS := 7
 
 static func data(kind: String, id: String) -> Dictionary:
@@ -53,21 +53,13 @@ static func label(d: Dictionary, sim = null) -> String:
 						t = String(c.get("caption", t))
 					return excerpt(t)
 			return Widgets.t("shell.chip.clip", {"id": id})
-		"pair":
-			if sim != null:
-				for p in sim.q_pairs():
-					if String(p.get("id", "")) == id:
-						var a := label({"kind": "clip", "id": String(p.get("a", ""))}, sim)
-						var b := label({"kind": "clip", "id": String(p.get("b", ""))}, sim)
-						return Widgets.t("shell.chip.pair", {"a": a, "b": b})
-			return Widgets.t("shell.chip.pair_id", {"id": id})
-		"entry":
-			if sim != null:
-				var e: Dictionary = sim.q_entry(id)
-				if not e.is_empty():
-					var tpl: Dictionary = sim.q_templates().get(String(e.get("template", "")), {})
-					return Widgets.t("shell.chip.entry", {"tpl": String(tpl.get("name", e.get("template", ""))), "id": id})
-			return Widgets.t("shell.chip.entry", {"tpl": "", "id": id})
+		"pregunta":
+			if sim != null and sim.has_method("q_dossier"):
+				var dq: Dictionary = sim.q_dossier()
+				for h in (dq.get("open", []) as Array) + (dq.get("inked", []) as Array):
+					if typeof(h) == TYPE_DICTIONARY and String(h.get("id", "")) == id:
+						return String(h.get("text", id))
+			return id
 		"ent":
 			if sim != null:
 				for x in sim.q_index():

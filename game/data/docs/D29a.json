@@ -29,7 +29,7 @@
   "parts": [
     {
       "id": "p1",
-      "text": "<sc>Pruebas de autor</sc> — [[watson|Dr. J. H. Watson]] — devolver a la imprenta.\nNo había ido a [[rosenlaui|Rosenlaui]], entonces. Se había quedado en aquel [[sendero|sendero]] de tres pies, con una [[pared|pared]] [[a_pique|a pique]] a un lado {{#tachadura a:raspadura_registrada a:refuta_tachadura e:reichenbach e:pedido_del_fo h:F.pedido_fo c:verdadero|<del>—salvo que, a la altura del hombro, la [[roca|roca]] mostraba una [[raspadura|raspadura]] fresca, como la que dejaría el [[clavo_de_bota|clavo de una bota]]; la atribuí a algún [[cabrero|cabrero]]—</del> <f=manuscrito><ink=lapiz>omitir — a pedido del [[foreign_office|F.O.]] — [[firma_mh|M. H.]]</ink></f>}} y un [[precipicio|precipicio]] a pique al otro, hasta que su enemigo le dio alcance."
+      "text": "<sc>Pruebas de autor</sc> — [[watson|Dr. J. H. Watson]] — devolver a la imprenta.\nNo había ido a [[rosenlaui|Rosenlaui]], entonces. Se había quedado en aquel [[sendero|sendero]] de tres pies, con una [[pared|pared]] [[a_pique|a pique]] a un lado <del>—salvo que, a la altura del hombro,</del> {{#tachadura a:raspadura_registrada a:corte_por_orden a:refuta_tachadura e:reichenbach e:pedido_del_fo e:gobierno h:F.pedido_fo c:verdadero|<del>la [[roca|roca]] mostraba una [[raspadura|raspadura]] fresca, como la que dejaría el [[clavo_de_bota|clavo de una bota]]</del> <f=manuscrito><ink=lapiz>omitir — a pedido del [[foreign_office|Foreign Office]] — [[firma_mh|M. H.]]</ink></f>}} <del>; la atribuí a algún [[cabrero|cabrero]]—</del> y un [[precipicio|precipicio]] a pique al otro, hasta que su enemigo le dio alcance."
     }
   ],
   "words": 107

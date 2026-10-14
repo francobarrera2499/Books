@@ -9,9 +9,10 @@
 #     un fe_volver interno, p. ej. dejar la tijera) · señal closed opcional · var handle_back (el lector) se pone false:
 #     el volver lo decide la pila. Un panel que se oculta o libera solo sale de la pila en el cuadro siguiente.
 #   Máximo 2 paneles apilados (§6.1): al abrir un tercero se cierra el de abajo.
-# Paneles por clase (open_panel(kind, args)): notebook, ledger (libros, 20) · map (50) · scene, confront (40) ·
-#   ad, telegram, letter, report (60) · options (60) · epilogue, credits, blue_pencil (pantallas de W4). Si el script
-#   de otro paquete todavía no existe, se usa un respaldo propio mínimo (fallback.gd) para que nada quede trabado.
+# Paneles por clase (open_panel(kind, args)): notebook, dossier (libros, 20; dossier = el Expediente Holmes de
+#   UI-EXPEDIENTE, GDD_v3 §6.1) · map (50) · scene, confront (40) · ad, telegram, letter, report (60) · options (60) ·
+#   epilogue, credits, blue_pencil (pantallas de W4). Si el script de otro paquete todavía no existe, se usa un respaldo
+#   propio mínimo (fallback.gd) para que nada quede trabado.
 # Avisos: note(text) = línea de Lisle (voz del oficio, ui_text), sin sonido de alerta. Subtítulos: Audio.subtitle.
 extends Node
 
@@ -39,7 +40,7 @@ const MAX_STACK := 2
 # kind -> {path, layer, cache}
 const PANELS := {
 	"notebook": {"path": "res://ui/notebook/notebook.gd", "layer": "books", "cache": true},
-	"ledger": {"path": "res://ui/ledger/ledger.gd", "layer": "books", "cache": true},
+	"dossier": {"path": "res://ui/expediente/expediente.gd", "layer": "books", "cache": true},
 	"map": {"path": "res://ui/map/map_screen.gd", "layer": "map", "cache": true},
 	"scene": {"path": "res://ui/scene/scene_panel.gd", "layer": "scene", "cache": false},
 	"confront": {"path": "res://ui/scene/confrontation_view.gd", "layer": "scene", "cache": false},
@@ -139,7 +140,7 @@ func boot(p_opts: Dictionary) -> void:
 		run_script(String(opts.script))
 	await enter_game(true)
 	match kind:
-		"notebook", "ledger", "map":
+		"notebook", "dossier", "map":
 			open_panel(kind)
 		"reader":
 			open_reader(arg)
@@ -235,6 +236,8 @@ func mark_finished(on: bool) -> void:
 func can_continue() -> bool:
 	var g := _autoload("Game")
 	if g == null or not bool(g.has_save()):
+		return false
+	if g.has_method("save_too_old") and bool(g.save_too_old()):
 		return false
 	var p := finished_mark_path()
 	return p == "" or not FileAccess.file_exists(p)

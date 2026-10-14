@@ -1,10 +1,9 @@
 {
-  "_nota": "W1-THEME; redacción v2: TEXTOS-UI (GDD_v2 §A). Textos del kit de UI (ui/kit/widgets.gd). Claves con prefijo kit. kit.segun = rótulo de la ranura de pruebas (antes «según»); kit.stamp.visto = sello de lo confirmado (antes «Visto»).",
+  "_nota": "W1-THEME; redacción v2: TEXTOS-UI (GDD_v2 §A). Textos del kit de UI (ui/kit/widgets.gd). Claves con prefijo kit. kit.segun = rótulo de la ranura de pruebas (antes «según»). v3 (CONTENIDO): se retiró kit.stamp.visto (el sello «Confirmado» ya no existe, GDD_v3 §0.2; nadie la leía).",
   "text": {
     "kit.confirm.ok": "Confirmar",
     "kit.confirm.back": "Volver",
     "kit.close": "Cerrar",
-    "kit.segun": "pruebas",
-    "kit.stamp.visto": "Confirmado"
+    "kit.segun": "pruebas"
   }
 }

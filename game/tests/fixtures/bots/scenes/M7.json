@@ -7,11 +7,11 @@
   "plate": "PL.M7",
   "origin": "S.M7",
   "lines": [
-    {"id": "inteligente", "who": "harris", "text": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}}"},
+    {"id": "inteligente", "who": "harris", "text": "{{#adjetivos a:rasgo_de_harris e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}}"},
     {"id": "donde_duerme", "who": "harris", "text": "No me diga que vive, señor Lisle. {{#donde a:busca_a_holmes e:donde e:tigre|Dígame dónde duerme [[tigre|el tigre]].}}"},
-    {"id": "trichinopolis", "who": "harris", "text": "¿Le molesta el humo? {{#tri a:tirador f:secreto_camden e:cheroot|Es de [[trichinopolis|Trichinópolis]].}}"}
+    {"id": "trichinopolis", "who": "harris", "text": "¿Le molesta el humo? {{#tri a:tirador a:rasgo_de_harris a:senas_del_mayor f:secreto_camden e:cheroot e:harris|Es de [[trichinopolis|Trichinópolis]].}}"}
   ],
   "variants": [
-    {"when": {"flag": "pell_despedido"}, "replace": {"inteligente": "{{#adjetivos a:harris_es_moran e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}} Su procurador ya no nos sirve."}}
+    {"when": {"flag": "pell_despedido"}, "replace": {"inteligente": "{{#adjetivos a:rasgo_de_harris e:adjetivos_repetidos|Un trabajo inteligente, inteligente.}} Su procurador ya no nos sirve."}}
   ]
 }

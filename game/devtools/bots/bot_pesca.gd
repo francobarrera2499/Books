@@ -1,11 +1,17 @@
-# devtools/bots/bot_pesca.gd — la pesca (W3-BOTS; §9.3, GDD §8.9, T10): fundamentos correctos (el oráculo de rutas
-# junta los recortes de una ruta ★ y arma el «según» por grupo, como el deductor), pero VALORES AL AZAR entre los
-# candidatos aceptables del índice o de la lista cerrada. Pasa en limpio en cada franja un lote al azar de asientos de
-# conclusiones distintas sin sellar y, si el sello cae seco, vuelve a sortear los valores de esos asientos (no sabe cuál
-# falló). Presupuesto de T10: sellar C6, C7 y C10 en la misma partida con probabilidad ≤ 5 %.
+# devtools/bots/bot_pesca.gd — la pesca (§9.3; GDD_v3 §1.9 «riesgo aceptado», T10): pruebas correctas (el oráculo de
+# rutas junta los dos recortes de una ruta ★, como el deductor), pero la RESPUESTA AL AZAR entre las opciones del índice;
+# si «Algo no cierra.», sortea otra. Con las pruebas correctas, adivinar cuesta ≤ A intentos (GDD_v3 §1.9): se mide, sin
+# umbral.
 extends "res://devtools/bots/bot_base.gd"
 
 func _init_bot() -> void:
 	bot_name = "pesca"
 	value_mode = "random"
 	fillers = false
+
+func pol_confirm() -> Array:
+	var out: Array = []
+	for q in _sorted(sheet_of.keys()):
+		if Dossier.is_open(sim.st, String(q)):
+			out.append(String(q))
+	return out

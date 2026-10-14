@@ -287,8 +287,9 @@ func _marked(pt: Dictionary) -> String:
 func state_text() -> String:
 	var o: PackedStringArray = []
 	var c: Dictionary = sim.q_clock()
-	o.append("ESTADO · %s · %s · fase %s · pasadas %d (lote %d) · salió %s%s" % [c.date_label, c.slot_label, c.phase,
-		int(c.passes_left), int(c.lot_size), "sí" if bool(c.outing_done) else "no", " · INFORME PENDIENTE" if bool(c.report_due) else ""])
+	var dv0: Dictionary = sim.q_dossier()
+	o.append("ESTADO · %s · %s · fase %s · expediente %d abiertas, %d en tinta · salió %s%s" % [c.date_label, c.slot_label, c.phase,
+		(dv0.get("open", []) as Array).size(), (dv0.get("inked", []) as Array).size(), "sí" if bool(c.outing_done) else "no", " · INFORME PENDIENTE" if bool(c.report_due) else ""])
 	if String(c.phase) == "prologue":
 		var tut: Dictionary = sim.q_tutorial()
 		o.append("Tutorial: paso %s (%s)" % [str(tut.get("step", {}).get("id", "")) if typeof(tut.get("step")) == TYPE_DICTIONARY else "", "completo" if bool(tut.get("complete", false)) else "en curso"])
@@ -321,18 +322,15 @@ func state_text() -> String:
 	o.append("Recortes (%d):" % cl.size())
 	for x in cl:
 		o.append("  %s «%s» — %s" % [x.id, String(x.get("text", "")).left(90), String(x.get("src_line", "")).left(60)])
-	var lg: Dictionary = sim.q_ledger()
-	var ents: Array = (lg.get("varios", []) as Array) + (lg.get("erratas", []) as Array)
-	for f in lg.get("folios", []):
-		ents.append_array(f.get("entries", []))
-	if not ents.is_empty():
-		o.append("Asientos (%d):" % ents.size())
-		for eid in ents:
-			var e: Dictionary = sim.q_entry(String(eid))
-			o.append("  %s %s %s %s formal=%s" % [eid, e.get("template", ""), e.get("ink", ""), J.stringify_canon(e.get("lines", [])).left(160), str(e.get("formal", []))])
-	var sealed: Array = sim.st.ded.get("sealed", {}).keys()
-	sealed.sort()
-	o.append("Sellados: " + (", ".join(PackedStringArray(sealed)) if not sealed.is_empty() else "—"))
+	var dv: Dictionary = sim.q_dossier()
+	o.append("Expediente:")
+	for h in (dv.get("open", []) as Array) + (dv.get("inked", []) as Array):
+		var ans = h.get("answer")
+		var pr: PackedStringArray = []
+		for p in h.get("proofs", []):
+			pr.append(String(p.get("id", "")) if typeof(p) == TYPE_DICTIONARY else "—")
+		o.append("  %s [%s] %s · respuesta: %s · pruebas: %s%s" % [h.id, h.state, String(h.text), String(ans.get("id", "")) if typeof(ans) == TYPE_DICTIONARY else "—",
+			", ".join(pr), (" · forma: " + str(h.formal)) if not (h.get("formal", []) as Array).is_empty() else ""])
 	var fl: PackedStringArray = []
 	var fk: Array = sim.st.flags.keys()
 	fk.sort()
@@ -374,8 +372,8 @@ func review_doc(id: String) -> void:
 	# fragmentos de contrato que apuntan a este documento
 	var seen := {}
 	var n := 0
-	for c in repo.conclusions():
-		var cid := String(c.get("id", ""))
+	for u in RouteDB.units(repo):
+		var cid := String(u)
 		var ct: Array = RouteDB.conc_tags(repo, cid)
 		for r in RouteDB.routes(repo, cid):
 			for f in r.get("frags", []):
@@ -395,8 +393,10 @@ func review_doc(id: String) -> void:
 	_p("RESULTADO: " + ("OK" if fails == 0 else "%d fallas" % fails))
 
 # "" si un recorte exacto del tramo es legal y hereda sus etiquetas (y el propio tramo).
+# El recorte de prueba es la mejor ventana legal (≤15 palabras, una oración) dentro del tramo (GDD_v3 §1.1).
 func tramo_check(pt: Dictionary, t: Dictionary) -> String:
-	var s: Dictionary = ClipRules.snap(pt, int(t.from), int(t.to) - int(t.from))
+	var w: Array = load("res://devtools/bots/bot_base.gd").best_window(pt, int(t.from), int(t.to))
+	var s: Dictionary = ClipRules.snap(pt, int(w[0]), int(w[1]) - int(w[0]))
 	if not bool(s.get("ok", false)):
 		return "el recorte de prueba no es legal: " + String(s.get("err", ""))
 	var inh: Dictionary = ClipRules.inherit(pt, int(s.from), int(s.to))

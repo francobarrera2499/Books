@@ -1,17 +1,18 @@
-# core/sim/endings.gd — finales, variantes del epílogo y lápiz azul (§4.15, §5.2, §5.7; GDD §12). Dueño: W2-SCENES.
+# core/sim/endings.gd — finales, variantes del epílogo y lápiz azul (§4.15, §5.2, §5.7; GDD §12; GDD_v3 §6.10). Dueño: CORE-EXPEDIENTE.
 # evaluate: recorre endings.json por `order` (GDD §12.1: F1, F4, F2, F3a, F3b) y elige el primero cuya cond (DSL §4.18)
 #   se cumple; las variantes son acumulables (todas las que se cumplen). rank (1 = mejor) sale de los datos
-#   (§12.1.2: F1=1, F3a=2, F3b=3, F2=4, F4=5). Puro: no muta (los sellos ya no cambian tras el informe final).
+#   (§12.1.2: F1=1, F3a=2, F3b=3, F2=4, F4=5). Puro: no muta (lo entintado ya no cambia tras el informe final).
 #   -> {ending, rank, name, card, card_base, card_adds:[], scene, variants:[{id, card_add?, epilogue?}], epilogue:[ids]}
 # freeze: guarda evaluate() en st.scenes.ending (W2-SIM lo llama tras despachar el evento del informe final);
 #   result(): lo congelado si existe, si no evaluate().
-# blue_pencil (post-créditos): por cada obligatoria sin sellar, blue_pencil.missing; por cada asiento a lápiz con
-#   which_conclusion != "" y entry_ok falso, blue_pencil.wrong. -> [{kind:"missing", cid, note} | {kind:"wrong", entry, cid, note}]
-# Lee st.ded.entries/sealed (forma §5.2) sólo para enumerar; usa Validator para decidir.
+# blue_pencil (post-créditos, GDD_v3 §6.10): por pregunta obligatoria nacida sin tinta, blue_pencil.missing; por hoja
+#   en lápiz completa (respuesta y dos pruebas) que no cierra, además blue_pencil.wrong.
+#   -> [{kind:"missing"|"wrong", q, note}] (Dossier.blue_pencil).
 extends RefCounted
 
 const Deps = preload("res://core/scenes/deps.gd")
 const Cond = preload("res://core/util/cond.gd")
+const Dossier = preload("res://core/deduction/dossier.gd")
 
 static func evaluate(st, repo) -> Dictionary:
 	var data: Dictionary = repo.endings()
@@ -49,27 +50,7 @@ static func evaluate(st, repo) -> Dictionary:
 		"epilogue": epi}
 
 static func blue_pencil(st, repo) -> Array:
-	var out: Array = []
-	var sealed := Deps.sealed(st)
-	for cid in repo.conclusions_meta().get("mandatory", []):
-		if not sealed.has(String(cid)):
-			out.append({"kind": "missing", "cid": String(cid), "note": String(repo.conclusion(String(cid)).get("blue_pencil", {}).get("missing", ""))})
-	var ded = st.ded if typeof(st.ded) == TYPE_DICTIONARY else {}
-	var entries: Dictionary = ded.get("entries", {})
-	var ids: Array = entries.keys()
-	ids.sort()
-	for eid in ids:
-		var e = entries[eid]
-		if typeof(e) != TYPE_DICTIONARY or String(e.get("ink", "lapiz")) != "lapiz":
-			continue
-		var cid := String(Deps.validator().which_conclusion(repo, e, sealed))
-		if cid == "":
-			continue
-		var r: Dictionary = Deps.validator().entry_ok(st, repo, String(eid))
-		if bool(r.get("ok", false)):
-			continue
-		out.append({"kind": "wrong", "entry": String(eid), "cid": cid, "note": String(repo.conclusion(cid).get("blue_pencil", {}).get("wrong", ""))})
-	return out
+	return Dossier.blue_pencil(st, repo)
 
 # ---------------- extensiones ----------------
 static func freeze(st, repo) -> Dictionary:

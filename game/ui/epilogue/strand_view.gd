@@ -2,8 +2,8 @@
 # Una hoja de q_view (PageView de W2-READER, sin tocarlo) cubierta por la «vista» de Lisle (sight.gdshader: borrosa,
 # velada) y una lupa (Loupe: segunda hoja nítida, aumentada, recortada en un disco con aro de latón) que sigue al mouse
 # sobre la hoja; fuera de la hoja, la lupa queda posada donde Lisle está leyendo (park). Tijera: selección nativa del
-# RichTextLabel (arrastrar) o un clic sobre una oración (Lisle corta «entre punto y punto»): emite cut_requested(page,
-# from, len) con la oración entera bajo el clic si no hubo arrastre. Marcas de variante (GDD §12.2): subraya (lápiz bajo
+# RichTextLabel (arrastrar) o un clic sobre un tramo u oración (Lisle corta la frase justa): emite cut_requested(page,
+# from, len) con el tramo (o la oración) bajo el clic si no hubo arrastre. Marcas de variante (GDD §12.2): subraya (lápiz bajo
 # el desmayo, watson_expuesto) y nota_azul (F1: esquina doblada, corchete y nota azul de S. H.), en la hoja y en la lupa.
 # Sin brillos ni resaltados de interés: la lupa no distingue lo importante, sólo enfoca. Animaciones ≤0,4 s.
 #   setup(view, avail: Vector2) · show_page(i) · page_count() · park(t:{page,from,to}, instant) · set_scissors(on)
@@ -512,6 +512,11 @@ func _on_released(idx: int, pos: Vector2) -> void:
 	var k := char_at(rtl, local)
 	if k < 0:
 		return
+	# GDD_v3 §6.2: la frase justa: el tramo bajo el clic (≤15 palabras); si no hay, la oración
+	for tr in parsed.get("tramos", []):
+		if k >= int(tr.from) and k < int(tr.to):
+			cut_requested.emit(page_idx, int(tr.from), int(tr.to) - int(tr.from))
+			return
 	var sents: Array = parsed.get("sentences", [])
 	var si := Markup.sentence_index(sents, k)
 	if si < 0:

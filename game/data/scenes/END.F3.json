@@ -5,7 +5,7 @@
   "origin": "S.END.F3",
   "lines": [
     {"id": "suben", "who": "lisle", "text": "Vie. 6 de abril. Por la mañana suben la escalera, sin llamar, [[hombres_de_moran|dos hombres de bombín]]."},
-    {"id": "buscan", "who": "lisle", "text": "Buscan mi [[cuaderno_de_recortes|cuaderno]]: abren el cajón, sacuden los tomos, levantan el colchón."},
+    {"id": "buscan", "who": "lisle", "text": "Buscan mi [[cuaderno_de_recortes|cuaderno]]: abren el cajón, sacuden los cuadernillos, levantan el colchón."},
     {"id": "wiggins", "who": "wiggins", "when": {"not": {"flag": "wiggins_quemado"}}, "text": "Se apoya en el marco de la puerta, con el mondadientes. —Aquí no hay nada que les sirva, jefes. Y el guardia de la esquina me debe un favor."},
     {"id": "sin_gorra", "who": "lisle", "when": {"flag": "wiggins_quemado"}, "text": "En la puerta, [[muchacho_sin_gorra|un muchacho sin gorra]] que no conozco silba tres notas hacia la calle."},
     {"id": "se_van", "who": "lisle", "text": "Los dos hombres se miran y bajan sin decir palabra."},

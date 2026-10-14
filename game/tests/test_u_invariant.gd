@@ -1,4 +1,5 @@
-# Unit: core/graph/invariant.gd (W2-GRAPH). check (§5.6) y runtime_guard (D1, §5.3/§9.8).
+# Unit: core/graph/invariant.gd (CORE-EXPEDIENTE). check (§5.6) y runtime_guard (D1, §5.3/§9.8; GDD_v3 §2.2: lo que
+# está en tinta, st.ded.dossier.inked, no se protege). Fixture graph/base (mismos ids que v2).
 extends "res://tests/test_base.gd"
 
 const Inv = preload("res://core/graph/invariant.gd")
@@ -18,7 +19,7 @@ func _perm(target: Dictionary) -> Dictionary:
 
 func _st(day: int, slot := "M", extra := {}) -> Dictionary:
 	var st := {"clock": {"day": day, "slot": slot, "phase": "desk"}, "flags": {}, "react": {"delivered": []},
-		"ded": {"sealed": {}, "clips": {}}}
+		"ded": {"dossier": {"inked": {}}, "clips": {}}}
 	for k in extra:
 		st[k] = extra[k]
 	return st
@@ -53,9 +54,9 @@ func test_check_late_and_pending():
 	no(Inv.check(r, "C9", _i("9.N"), []).ok, "pasada la ventana de HC05, C9 no tiene 2 rutas")
 	ok(Inv.check(r, "C9", _i("8.N"), []).ok)
 	no(Inv.check(r, "C12", _i("10.T"), []).ok, "después de la última pasada útil")
-	var bad: Dictionary = r.conclusion("C3").duplicate(true)
-	bad.routes[0].frags[0].ref = "D99#x"
-	var p = PatchRepo.new(r, {"conclusions": {"C3": bad}})
+	var bad: Dictionary = r.question("C3").duplicate(true)
+	bad.variantes[0].rutas[0].frags[0].ref = "D99#x"
+	var p = PatchRepo.new(r, {"questions": {"C3": bad}})
 	var c := Inv.check(p, "C3", 0, [])
 	no(c.ok)
 	ok(c.reason.contains("pendiente"))
@@ -63,11 +64,12 @@ func test_check_late_and_pending():
 
 func test_compile_shape():
 	var r = _r()
-	var comp := Inv.compile(r, "C6")
+	var comp := Inv.compile(r, "C2")
 	eq(comp.last, _i("10.M"))
-	eq(comp.routes.size(), 14)
-	ok(comp.srcs.size() > 10)
+	eq(comp.routes.size(), 5)
+	ok(comp.srcs.size() > 5)
 	eq(comp.pending, [])
+	ok(bool(comp.common), "invariante normal: exige ningún ejemplar común")
 
 func test_runtime_guard_basic():
 	var r = _r()
@@ -78,11 +80,11 @@ func test_runtime_guard_basic():
 	var v := Inv.runtime_guard(_st(3), r, bad)
 	no(v.ok)
 	eq(v.violated, ["C2"], "C3 conserva R2 y R3")
-	eq(Inv.runtime_guard(_st(3, "M", {"ded": {"sealed": {"C2": "AS001"}, "clips": {}}}), r, bad).violated, [], "sellada: no se protege")
+	eq(Inv.runtime_guard(_st(3, "M", {"ded": {"dossier": {"inked": {"C2": {}}}, "clips": {}}}), r, bad).violated, [], "en tinta: no se protege")
 	var clips := {"RC0001": {"origin": "D05", "tags": ["a:raspadura_registrada"]}}
-	eq(Inv.runtime_guard(_st(3, "M", {"ded": {"sealed": {}, "clips": clips}}), r, bad).violated, [], "el recorte ya está en el cuaderno")
+	eq(Inv.runtime_guard(_st(3, "M", {"ded": {"dossier": {"inked": {}}, "clips": clips}}), r, bad).violated, [], "el recorte ya está en el cuaderno")
 	var clips2 := {"RC0001": {"origin": "D05", "tags": {"a": ["cornisa_existe"]}}}
-	eq(Inv.runtime_guard(_st(3, "M", {"ded": {"sealed": {}, "clips": clips2}}), r, bad).violated, ["C2"], "otro tramo del mismo origen no cubre")
+	eq(Inv.runtime_guard(_st(3, "M", {"ded": {"dossier": {"inked": {}}, "clips": clips2}}), r, bad).violated, ["C2"], "otro tramo del mismo origen no cubre")
 
 func test_runtime_guard_uses_world_state():
 	var r = _r()
@@ -112,7 +114,7 @@ func test_active_cuts_from_director_runtime_cuts():
 	var rc := [{"target": {"copy": "D02@L1"}, "from_idx": _i("3.M"), "to_idx": _i("3.N")}]
 	var m1 := {"delivered": [{"rid": "M1", "due_tk": TK.parse("3.dawn"), "soft": false, "cuts": rc}]}
 	eq(Inv.active_cuts(_st(3, "M", {"react": m1}), r), rc)
-	# HB6 con inst.cuts: la ruta C4.R5 (ref) y el flag traducido siguen saliendo de cuts_for
+	# HB6 con inst.cuts: la ruta (ref) y el flag traducido siguen saliendo de cuts_for
 	var hb6 := {"delivered": [{"rid": "HB6", "due_tk": TK.parse("3.dawn"), "soft": false, "cuts": [{"target": {"copy": "D30@L3"}, "from_idx": _i("3.M"), "to_idx": TK.idx_count() - 1}]}]}
 	var ac := Inv.active_cuts(_st(4, "M", {"react": hb6}), r)
 	var kinds: Array = []
@@ -129,11 +131,12 @@ func test_runtime_guard_looks_ahead():
 	# C (D08@BM + D03@tomo), y C vence sola después de 4.N. Cortar B en 3.M deja A y C en 3.M (bien), pero desde 5.M
 	# sólo queda A, cuando sin el corte quedaban A y B: D1 debe verlo «desde la franja actual» (§5.6), no sólo en ella.
 	var r = _r()
-	var c: Dictionary = r.conclusion("C3").duplicate(true)
-	c.routes = [c.routes[0], c.routes[1], {"id": "C3.RX", "deps": "fija", "frags": [{"ref": "D08#kanzel", "copy": "D08@BM"}, {"ref": "D03#sheer", "copy": "D03@tomo"}]}]
+	var c: Dictionary = r.question("C3").duplicate(true)
+	var rr: Array = c.variantes[0].rutas
+	c.variantes[0].rutas = [rr[0], rr[1], {"id": "C3.RX", "deps": "fija", "frags": [{"ref": "D08#kanzel", "copy": "D08@BM"}, {"ref": "D03#sheer", "copy": "D03@tomo"}]}]
 	var d08: Dictionary = r.doc("D08").duplicate(true)
 	d08.copies[0].to = "4.N"
-	var p = PatchRepo.new(r, {"conclusions": {"C3": c}, "docs": {"D08": d08}})
+	var p = PatchRepo.new(r, {"questions": {"C3": c}, "docs": {"D08": d08}})
 	var cut := [{"target": {"copy": "D07@Crane"}, "rel": true, "days": -1}]
 	ok(Inv.check(p, "C3", _i("3.M"), [CM.at(cut[0], _i("3.M"))]).ok, "en la franja actual sigue en pie")
 	no(Inv.check(p, "C3", _i("5.M"), [CM.at(cut[0], _i("3.M"))]).ok, "más tarde no")
@@ -141,7 +144,7 @@ func test_runtime_guard_looks_ahead():
 	eq(Inv.runtime_guard(_st(3), p, cut).violated, ["C3"])
 	eq(Inv.runtime_guard(_st(5), p, cut).violated, ["C3"], "rota en la franja actual")
 	# sin el vencimiento temprano de C, A y C sostienen C3: nada que proteger
-	var q = PatchRepo.new(r, {"conclusions": {"C3": c}})
+	var q = PatchRepo.new(r, {"questions": {"C3": c}})
 	eq(Inv.runtime_guard(_st(3), q, cut).violated, [])
 	# horizonte: hasta 8.N (los días 9–10 los cubre D1 con el estado real, §12.1.9; ver resolved_informadas)
 	eq(Inv.d1_until(), _i("8.N"))
@@ -149,9 +152,14 @@ func test_runtime_guard_looks_ahead():
 func test_runtime_guard_resolved_informadas():
 	# C9 con una ruta que depende de un original P (la carta de HC01): «informadas» genérico = peor caso.
 	var r = _r()
-	var c: Dictionary = r.conclusion("C9").duplicate(true)
-	c.routes = [c.routes[0], {"id": "C9.RP", "deps": "fija", "frags": [{"ref": "S:HC06.e"}, {"ref": "R:HC01.no_lo_es"}]}]
-	var p = PatchRepo.new(r, {"conclusions": {"C9": c}})
+	var c: Dictionary = r.question("C9").duplicate(true)
+	c.variantes[0].rutas = [c.variantes[0].rutas[0], {"id": "C9.RP", "deps": "fija", "frags": [{"ref": "S:HC06.e"}, {"ref": "R:HC01.no_lo_es"}]}]
+	# v3: la ruta tiene que valer (dos grupos, enlace por claves) para contar; el rastro del parche lleva el otro grupo
+	var hc: Dictionary = r.reaction("HC01").duplicate(true)
+	for ra in hc.rastro:
+		if String(ra.get("tpl", "")) == "no_lo_es":
+			ra.texto = "{{#no_lo_es a:preparativos_221b e:mycroft|No lo es, a lápiz blando y de puño firme.}}"
+	var p = PatchRepo.new(r, {"questions": {"C9": c}, "reactions": {"HC01": hc}})
 	var generic := [{"target": {"copies": "informadas"}, "rel": true, "days": -1}]
 	eq(Inv.runtime_guard(_st(3), p, generic).violated, ["C9"], "sin resolver: todo original P puede faltar")
 	var resolved := generic + [{"target": {"copy": "D02@L1"}, "from_idx": _i("3.M"), "to_idx": _i("3.N")}]
@@ -163,3 +171,17 @@ func test_runtime_guard_resolved_informadas():
 	eq(Inv.runtime_guard(_st(4), r, gen).violated, ["C9", "C13"])
 	var one_day := gen + [{"target": {"place": "L3"}, "from_idx": _i("4.M"), "to_idx": _i("4.N")}]
 	eq(Inv.runtime_guard(_st(4), r, one_day).violated, [], "Director resolvió un día: el permanente genérico sobra")
+
+# GDD_v3 §2.2: Q8 (desde_nacimiento) se evalúa sólo desde que puede nacer y sin la condición de ejemplar común.
+func test_from_birth_invariant():
+	var r = _r()
+	var c: Dictionary = r.question("C9").duplicate(true)
+	c["invariante"] = "desde_nacimiento"
+	c.variantes[0].rutas[0]["from"] = "8.M"
+	var p = PatchRepo.new(r, {"questions": {"C9": c}})
+	var comp := Inv.compile(p, "C9")
+	no(bool(comp.common))
+	eq(int(comp.start), _i("8.M"))
+	ok(Inv.check(p, "C9", _i("2.M"), []).ok, "antes de nacer no se exige nada")
+	has(RouteDB.from_birth(p), "C9")
+	no(RouteDB.mandatory(p).has("C9"), "fuera de la invariante normal y de D1")

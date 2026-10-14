@@ -1,13 +1,14 @@
-# core/graph/route_db.gd — rutas y fragmentos (contrato de refs §4.8; modelo §5.6). Dueño: W2-GRAPH.
-# Contrato §3.8: routes(repo, cid) -> [{id, star, deps, from_idx, frags:[{ref, copy, kind, cls, place, area, mask}]}]
-#                frag(repo, ref) -> {ref, kind, tags, ents, origin, cls, copies}
-# Extensiones: resolve(repo, ref, copy, vars) (descriptor completo con claves de fuentes), route_by_id, mandatory,
-#   final_idx, last_idx, conc_tags, channel_codes, sub_channel, is_pair_conclusion, common_exemplars, lint (T1),
-#   all_frags (universo de fragmentos de data/) y false_leads (T17).
+# core/graph/route_db.gd — rutas y fragmentos (contrato de refs §4.8; modelo §5.6; GDD_v3 §2). Dueño: CORE-EXPEDIENTE.
+# v3: lee data/dossier.json. Una «unidad» es una variante de una pregunta: id = "Q1" (variante principal) o "Q8.B"
+#   (otra variante): {id, q, variant, principal, obligatoria, invariante, groups:[{id, tags}] (2), keys (claves),
+#   routes (rutas), validate {from, until}, answers}. Sin subrutas, pares ni refs M:.
+# Contrato: routes(repo, qid, variant := "") -> [{id, star, deps, from_idx, frags:[{ref, copy, kind, cls, place, area, mask}]}]
+#           frag(repo, ref) -> {ref, kind, tags, ents, origin, cls, copies}
+# Extensiones: unit(repo, uid), units(repo), questions_units, resolve(repo, ref, copy, vars) (descriptor completo con
+#   claves de fuentes), route_by_id, mandatory (principales obligatorias con invariante normal), final_idx, last_idx,
+#   conc_tags, common_exemplars, lint (T1), all_frags (universo de fragmentos de data/) y false_leads (T17).
 # Ruta: {id, star (calculado: todo fragmento de clase I y resuelto), star_decl, deps, eligible (deps ∈ fija/columna/
-#   garantizada, §5.6 cond. 3), from_idx, earliest, frags, missing:[...], subs:[a,b], implicit, cut_by}.
-# Conclusiones por pares de canal (subroutes + constraint `distinct`, C6): además de las rutas declaradas se generan los
-#   pares implícitos de subrutas de canal distinto («se aceptan los diez pares», GDD§10.4 C6) con id "C6.<a>+<b>".
+#   garantizada, §5.6 cond. 3), from_idx, earliest, frags, missing:[...], cut_by}.
 # Descriptor de fragmento: {key, ref, copy, kind, tags:["a:x",...], tags_any, ents, origin, cls, srcs:[claves], mask,
 #   exemplar, missing, place, area, doc, char, sub, notes}. kind ∈ doc node sil scene line react journal ad measure.
 # v2 (GDD_v2 §C.5): R:<rid>.fisica = línea física del papel que entrega la reacción; D#fisica = la de un documento
@@ -241,6 +242,15 @@ static func _sil_desc(repo, d: Dictionary, who: String, owner: String) -> Dictio
 	var ch := sub_channel(repo, Av.sil_channel(repo, who))
 	d.tags = ["a:ancla_" + ch] if ch != "" else []
 	d.ents = [ACT, who]
+	# GDD_v3 §1.8: las etiquetas del rastro que declara la silueta (HC02: a:chicos_de_holmes, e:muchacho…), como
+	# Clipper.node_def
+	for t in load("res://core/deduction/clipper.gd").sil_rastro_tags(repo, who):
+		var ts := String(t)
+		if ts.begins_with("e:"):
+			if not d.ents.has(ts.substr(2)):
+				d.ents.append(ts.substr(2))
+		elif not d.tags.has(ts):
+			d.tags.append(ts)
 	d.origin = "PL." + (owner if owner != "" else "*")
 	d.cls = "I"
 	d.exemplar = ("lamina:" + owner) if owner != "" else ""
@@ -331,7 +341,26 @@ static func _node(repo, ref: String, copy: String) -> Dictionary:
 			d.missing = "la lámina %s (variante %s) se ve con %s, inexistente" % [owner, variant, ", ".join(PackedStringArray(absent))]
 		return d
 	if variant != "" and not is_plate:
-		d._s = Av.node_srcs(repo, owner, node, false, _variant_tb(repo, owner, variant))
+		# el nodo puede estar en varias variantes (GDD_v3 §4.3: «techos», «registrada+techos»): vale cualquiera de ellas;
+		# una variante compuesta («a+b», Effects la arma con dos alterar_lugar) existe cuando existen sus partes
+		var tb := 0
+		var vs = od.get("variants", {})
+		var names: Array = [variant]
+		if typeof(vs) == TYPE_DICTIONARY and String(restp[0]) == nid:
+			for v in Av.sorted_keys(vs):
+				if typeof(vs[v]) != TYPE_DICTIONARY or names.has(String(v)):
+					continue
+				for lst in ["add_nodes", "nodes"]:
+					for n in vs[v].get(lst, []):
+						if typeof(n) == TYPE_DICTIONARY and String(n.get("id", "")) == nid and not names.has(String(v)):
+							names.append(String(v))
+		for vn in names:
+			var vt := -1
+			for vpart in String(vn).split("+"):
+				var vtb := _variant_tb(repo, owner, String(vpart))
+				vt = vtb if vt < 0 else (vt & vtb)
+			tb |= maxi(vt, 0)
+		d._s = Av.node_srcs(repo, owner, node, false, tb)
 		return d
 	d._s = Av.node_srcs(repo, owner, node, is_plate)
 	return d
@@ -464,10 +493,12 @@ static func _dlg(repo, ref: String, copy: String, vars: Dictionary) -> Dictionar
 		tags.append_array(flat_tags(t.tags))
 	d.tags = uniq(tags)
 	d.ents = uniq(_mentions(pt, 0, String(pt.get("plain", "")).length()) + tag_ents(d.tags))
-	d.cls = "C"
+	# testimonio de campo (C) salvo que la línea se declare inmutable ("cls": "I", GDD §10.1; p. ej. L:crane.pasos_techo,
+	# Q8.R2 ★ de GDD_v3 §2.1: a Crane no lo corta ninguna reacción). T2 protege los fragmentos I.
+	d.cls = "I" if String(line.get("cls", "C")) == "I" else "C"
 	d.char = real
 	d.exemplar = "char:" + real
-	d._s = Av.char_srcs(repo, real, [line.get("when", {})], "line", "." + lid, "C")
+	d._s = Av.char_srcs(repo, real, [line.get("when", {})], "line", "." + lid, String(d.cls))
 	if d._s.is_empty():
 		d.missing = "el personaje %s no figura en ningún lugar" % real
 		return d
@@ -787,16 +818,83 @@ static func _measure(repo, ref: String, copy: String, _vars: Dictionary) -> Dict
 	d.ents = uniq([String(m.get("entity", ""))] + tag_ents(tags))
 	return d
 
-# ---------------- conclusiones ----------------
+# ---------------- unidades (GDD_v3 §1.7) ----------------
+static func _q_principal(q: Dictionary) -> Dictionary:
+	for v in q.get("variantes", []):
+		if typeof(v) == TYPE_DICTIONARY and bool(v.get("principal", false)):
+			return v
+	var vs: Array = q.get("variantes", [])
+	return vs[0] if not vs.is_empty() and typeof(vs[0]) == TYPE_DICTIONARY else {}
+
+static func _questions(repo) -> Array:
+	return repo.questions() if repo.has_method("questions") else []
+
+# Unidad de una pregunta y variante ("" = principal).
+static func uid_of(repo, qid: String, variant := "") -> String:
+	if variant == "":
+		return qid
+	var q: Dictionary = repo.question(qid) if repo.has_method("question") else {}
+	if String(_q_principal(q).get("id", "")) == variant:
+		return qid
+	return "%s.%s" % [qid, variant]
+
+static func unit(repo, uid: String) -> Dictionary:
+	var uc := Av.sub(repo, "units")
+	if uc.has(uid):
+		return uc[uid]
+	var out := {}
+	var qid := uid.get_slice(".", 0)
+	var vid := uid.substr(qid.length() + 1) if uid.contains(".") else ""
+	var q: Dictionary = repo.question(qid) if repo.has_method("question") else {}
+	if not q.is_empty():
+		var v: Dictionary = _q_principal(q) if vid == "" else {}
+		if vid != "":
+			for x in q.get("variantes", []):
+				if typeof(x) == TYPE_DICTIONARY and String(x.get("id", "")) == vid:
+					v = x
+		if not v.is_empty():
+			var w = v.get("valida", {})
+			if typeof(w) != TYPE_DICTIONARY:
+				w = {}
+			out = {"id": uid, "q": qid, "variant": String(v.get("id", "")), "principal": bool(v.get("principal", false)),
+				"obligatoria": bool(q.get("obligatoria", false)), "invariante": String(q.get("invariante", "normal")),
+				"groups": v.get("grupos", []), "keys": v.get("claves", {}), "routes": v.get("rutas", []),
+				"validate": {"from": w.get("desde"), "until": w.get("hasta")}, "answers": v.get("respuestas", [])}
+	uc[uid] = out
+	return out
+
+# Todas las unidades (todas las variantes de todas las preguntas), en orden.
+static func units(repo) -> Array:
+	var out: Array = []
+	for q in _questions(repo):
+		for v in q.get("variantes", []):
+			if typeof(v) == TYPE_DICTIONARY:
+				out.append(uid_of(repo, String(q.id), String(v.get("id", ""))))
+	return out
+
+# Unidades de una pregunta (todas sus variantes).
+static func question_units(repo, qid: String) -> Array:
+	var out: Array = []
+	for u in units(repo):
+		if String(u).get_slice(".", 0) == qid:
+			out.append(u)
+	return out
+
+# Invariante «normal» (T3, D1): variantes principales de las preguntas obligatorias con invariante normal (Q8, que nace
+# de una reacción, se evalúa aparte: desde_nacimiento, §2.2).
 static func mandatory(repo) -> Array:
 	var out: Array = []
-	if repo.has_method("conclusions_meta"):
-		for c in repo.conclusions_meta().get("mandatory", []):
-			out.append(String(c))
-	if out.is_empty():
-		for c in repo.conclusions():
-			if String(c.get("kind", "")) == "obligatoria":
-				out.append(String(c.get("id", "")))
+	for q in _questions(repo):
+		if bool(q.get("obligatoria", false)) and String(q.get("invariante", "normal")) == "normal":
+			out.append(String(q.id))
+	return out
+
+# Preguntas con invariante desde_nacimiento (Q8).
+static func from_birth(repo) -> Array:
+	var out: Array = []
+	for q in _questions(repo):
+		if bool(q.get("obligatoria", false)) and String(q.get("invariante", "normal")) == "desde_nacimiento":
+			out.append(String(q.id))
 	return out
 
 # Índice de la última pasada útil (informe final, schedule.reports[final]); por defecto 10.M.
@@ -808,9 +906,9 @@ static func final_idx(repo) -> int:
 				return Av.idx_at_or_before(t)
 	return TimeKey.idx(10, "M")
 
-static func last_idx(repo, cid: String) -> int:
+static func last_idx(repo, uid: String) -> int:
 	var li := final_idx(repo)
-	var v = repo.conclusion(cid).get("validate", {})
+	var v = unit(repo, uid).get("validate", {})
 	if typeof(v) == TYPE_DICTIONARY and v.get("until") != null and String(v.get("until")) != "":
 		var u := Av.idx_at_or_before(TimeKey.of(v.until))
 		if u >= 0:
@@ -833,63 +931,42 @@ static func sub_channel(repo, key: String) -> String:
 			best = c
 	return best
 
-static func is_pair_conclusion(c: Dictionary) -> bool:
-	var subs = c.get("subroutes", {})
-	if typeof(subs) != TYPE_DICTIONARY or subs.is_empty():
-		return false
-	for k in c.get("constraints", []):
-		if typeof(k) == TYPE_DICTIONARY and k.has("distinct"):
-			return true
-	return false
-
-static func _expand_ch(t: String, codes: Array) -> Array:
-	var i := t.find("${ch:")
-	if i < 0:
-		return [t]
-	var e := t.find("}", i)
+# Etiquetas a: de la unidad (valores sin prefijo): las de sus dos grupos.
+static func conc_tags(repo, uid: String) -> Array:
 	var out: Array = []
-	for c in codes:
-		out.append_array(_expand_ch(t.substr(0, i) + String(c) + t.substr(e + 1), codes))
-	return out
-
-# Etiquetas a: de la conclusión (valores sin prefijo): grupos (con ${ch:x} expandido) + tags_extra.
-static func conc_tags(repo, cid: String) -> Array:
-	var c: Dictionary = repo.conclusion(cid)
-	var codes := channel_codes(repo)
-	var out: Array = []
-	for g in c.get("groups", []):
+	for g in unit(repo, uid).get("groups", []):
 		for t in g.get("tags", []):
-			out.append_array(_expand_ch(String(t), codes))
-	for t in c.get("tags_extra", []):
-		out.append(String(t))
+			out.append(String(t))
 	return uniq(out)
 
-static func _deps_max(a: String, b: String) -> String:
-	return a if int(DEPS_ORDER.get(a, 0)) >= int(DEPS_ORDER.get(b, 0)) else b
+# Etiquetas de todas las variantes de una pregunta (ley de la huella, T5).
+static func question_tags(repo, qid: String) -> Array:
+	var out: Array = []
+	for u in question_units(repo, qid):
+		out.append_array(conc_tags(repo, String(u)))
+	return uniq(out)
 
 static func _bad(rid: String, why: String) -> Dictionary:
 	return {"id": rid, "star": false, "star_decl": false, "deps": "opcional", "eligible": false, "from_idx": -1,
-		"earliest": -1, "frags": [], "missing": [why], "subs": [], "implicit": false, "cut_by": []}
+		"earliest": -1, "frags": [], "missing": [why], "cut_by": []}
 
-static func _rfrag(repo, spec, vars: Dictionary, subkey: String) -> Dictionary:
+static func _rfrag(repo, spec) -> Dictionary:
 	if typeof(spec) != TYPE_DICTIONARY:
 		var dd := _desc("?", "", "?")
 		dd.missing = "fragmento mal formado"
 		_finish(dd)
 		return dd
-	var d: Dictionary = resolve(repo, String(spec.get("ref", "")), String(spec.get("copy", "")), vars).duplicate()
-	d["sub"] = subkey
+	var ref := String(spec.get("ref", ""))
+	var d: Dictionary = resolve(repo, ref, String(spec.get("copy", ""))).duplicate()
+	# GDD_v3 §3.5: un documento inactivo no se carga; nombrarlo es error de datos (no contenido pendiente)
+	var did := ref.get_slice("#", 0) if ref.contains("#") and not ref.contains(":") else ""
+	var cdid := String(spec.get("copy", "")).get_slice("@", 0) if String(spec.get("copy", "")).contains("@") else ""
+	for x in [did, cdid]:
+		if x != "" and repo.has_method("is_inactive") and repo.is_inactive(x):
+			d["inactive"] = x
 	return d
 
-static func _sub_frags(repo, key: String, sub: Dictionary) -> Array:
-	var ch := sub_channel(repo, key)
-	var vars := {"ch": ch} if ch != "" else {}
-	var out: Array = []
-	for spec in sub.get("frags", []):
-		out.append(_rfrag(repo, spec, vars, key))
-	return out
-
-static func _mk_route(rid: String, frs: Array, deps: String, star_decl: bool, p_from, subs: Array, implicit: bool, cut_by) -> Dictionary:
+static func _mk_route(rid: String, frs: Array, deps: String, star_decl: bool, p_from, cut_by) -> Dictionary:
 	var missing: Array = []
 	var star := not frs.is_empty()
 	var earliest := 0
@@ -909,92 +986,45 @@ static func _mk_route(rid: String, frs: Array, deps: String, star_decl: bool, p_
 	if p_from != null and String(p_from) != "":
 		from_idx = TimeKey.idx_at_or_after(TimeKey.of(p_from))
 	return {"id": rid, "star": star, "star_decl": star_decl, "deps": deps, "eligible": ELIGIBLE.has(deps),
-		"from_idx": from_idx, "earliest": earliest, "frags": frs, "missing": missing, "subs": subs,
-		"implicit": implicit, "cut_by": cut_by if typeof(cut_by) == TYPE_ARRAY else []}
+		"from_idx": from_idx, "earliest": earliest, "frags": frs, "missing": missing,
+		"cut_by": cut_by if typeof(cut_by) == TYPE_ARRAY else []}
 
-static func _later_tk(a, b):
-	if a == null or String(a) == "":
-		return b
-	if b == null or String(b) == "":
-		return a
-	return a if TimeKey.of(a) >= TimeKey.of(b) else b
-
-static func _pair_route(repo, c: Dictionary, rid: String, a: String, b: String, decl: Dictionary, implicit: bool) -> Dictionary:
-	var subs = c.get("subroutes", {})
-	if not subs.has(a) or not subs.has(b):
-		return _bad(rid, "subruta inexistente (%s, %s)" % [a, b])
-	var sa: Dictionary = subs[a]
-	var sb: Dictionary = subs[b]
-	var frs := _sub_frags(repo, a, sa) + _sub_frags(repo, b, sb)
-	var deps := String(decl.get("deps", _deps_max(String(sa.get("deps", "fija")), String(sb.get("deps", "fija")))))
-	var star_decl := bool(decl.get("star", bool(sa.get("star", false)) and bool(sb.get("star", false))))
-	var pfrom = decl.get("from", _later_tk(sa.get("from"), sb.get("from")))
-	var cut: Array = []
-	for x in [decl.get("cut_by", []), sa.get("cut_by", []), sb.get("cut_by", [])]:
-		if typeof(x) == TYPE_ARRAY:
-			cut.append_array(x)
-	return _mk_route(rid, frs, deps, star_decl, pfrom, [a, b], implicit, uniq(cut))
-
-static func _pk(a, b) -> String:
-	var x := [String(a), String(b)]
-	x.sort()
-	return "+".join(x)
-
-static func routes(repo, cid: String) -> Array:
+# Rutas de una pregunta y variante ("" = principal) o de una unidad ("Q8.B").
+static func routes(repo, qid: String, variant := "") -> Array:
+	var uid := uid_of(repo, qid, variant) if not qid.contains(".") else qid
 	var rc := Av.sub(repo, "routes")
-	if rc.has(cid):
-		return rc[cid]
+	if rc.has(uid):
+		return rc[uid]
 	var out: Array = []
-	rc[cid] = out
-	var c: Dictionary = repo.conclusion(cid)
-	if c.is_empty():
+	rc[uid] = out
+	var u := unit(repo, uid)
+	if u.is_empty():
 		return out
-	var subs = c.get("subroutes", {})
-	if typeof(subs) != TYPE_DICTIONARY:
-		subs = {}
-	var seen := {}
-	for r in c.get("routes", []):
+	for r in u.get("routes", []):
 		if typeof(r) != TYPE_DICTIONARY:
 			continue
-		var rid := String(r.get("id", ""))
-		if r.has("pair"):
-			var pr: Array = r.pair
-			if pr.size() != 2:
-				out.append(_bad(rid, "pair debe nombrar 2 subrutas"))
-				continue
-			out.append(_pair_route(repo, c, rid, String(pr[0]), String(pr[1]), r, false))
-			seen[_pk(pr[0], pr[1])] = true
-		else:
-			var frs: Array = []
-			for spec in r.get("frags", []):
-				frs.append(_rfrag(repo, spec, {}, ""))
-			out.append(_mk_route(rid, frs, String(r.get("deps", "fija")), bool(r.get("star", false)), r.get("from"), [], false, r.get("cut_by", [])))
-	if is_pair_conclusion(c):
-		var ks := Av.sorted_keys(subs)
-		for i in ks.size():
-			for j in range(i + 1, ks.size()):
-				var a := String(ks[i])
-				var b := String(ks[j])
-				if seen.has(_pk(a, b)):
-					continue
-				var ca := sub_channel(repo, a)
-				if ca == "" or ca == sub_channel(repo, b):
-					continue
-				out.append(_pair_route(repo, c, "%s.%s+%s" % [cid, a, b], a, b, {}, true))
+		var frs: Array = []
+		for spec in r.get("frags", []):
+			frs.append(_rfrag(repo, spec))
+		var mr := _mk_route(String(r.get("id", "")), frs, String(r.get("deps", "fija")), bool(r.get("star", false)), r.get("from"), r.get("cut_by", []))
+		# Una ruta con errores de datos (T1: no enlazada, no cubre los dos grupos, un origen…) no la puede cerrar el jugador:
+		# no cuenta para la invariante, la factibilidad ni el oráculo de los bots (T1 la informa).
+		mr["data_errors"] = []
+		if (mr.missing as Array).is_empty():
+			mr.data_errors = route_errors(repo, u, mr, [], last_idx(repo, uid))
+			if not (mr.data_errors as Array).is_empty():
+				mr.eligible = false
+				mr.star = false
+		out.append(mr)
 	return out
 
-# Ruta o subruta por id ("C2.R4", "C10.Id"). {} si no existe.
+# Ruta por id ("Q1.R4", "Q9.Ca"), en cualquier variante. {} si no existe.
 static func route_by_id(repo, id: String) -> Dictionary:
-	var cid := id.get_slice(".", 0)
-	for r in routes(repo, cid):
-		if String(r.id) == id:
-			return r
-	var c: Dictionary = repo.conclusion(cid)
-	var sk := id.substr(cid.length() + 1)
-	var subs = c.get("subroutes", {})
-	if typeof(subs) == TYPE_DICTIONARY and subs.has(sk):
-		var s: Dictionary = subs[sk]
-		return _mk_route(id, _sub_frags(repo, sk, s), String(s.get("deps", "fija")), bool(s.get("star", false)), s.get("from"), [sk], false, s.get("cut_by", []))
+	var qid := id.get_slice(".", 0)
+	for u in question_units(repo, qid):
+		for r in routes(repo, String(u)):
+			if String(r.id) == id:
+				return r
 	return {}
 
 static func common_exemplars(rs: Array) -> Array:
@@ -1015,79 +1045,61 @@ static func common_exemplars(rs: Array) -> Array:
 		common = keep
 	return common
 
-# ---------------- T1 (por conclusión) ----------------
-static func _ch_fields(c: Dictionary) -> Array:
+# Escenas comunes a todas las rutas (GDD_v3 §2.2 cond. 4: «ningún ejemplar ni escena común»).
+static func common_scenes(rs: Array) -> Array:
+	var sets: Array = []
+	for r in rs:
+		var sc := {}
+		for f in r.frags:
+			var ex := String(f.exemplar)
+			if ex.begins_with("scene:"):
+				sc[ex] = true
+		sets.append(sc)
+	if sets.is_empty():
+		return []
 	var out: Array = []
-	for g in c.get("groups", []):
-		for t in g.get("tags", []):
-			var s := String(t)
-			var i := s.find("${ch:")
-			while i >= 0:
-				var e := s.find("}", i)
-				var f := s.substr(i + 5, e - i - 5)
-				if not out.has(f):
-					out.append(f)
-				i = s.find("${ch:", e)
+	for k in Av.sorted_keys(sets[0]):
+		var all := true
+		for i in range(1, sets.size()):
+			if not sets[i].has(k):
+				all = false
+		if all:
+			out.append(k)
 	return out
 
-static func _subst(t: String, asg: Dictionary) -> String:
-	for f in asg:
-		t = t.replace("${ch:" + String(f) + "}", String(asg[f]))
-	return t
+# ---------------- T1 (por unidad) ----------------
+static func _has_group(tags: Array, group: Array) -> bool:
+	for t in group:
+		var s := String(t)
+		if tags.has(s if s.contains(":") else "a:" + s):
+			return true
+	return false
 
-static func _assignments(fields: Array, codes: Array) -> Array:
-	if fields.is_empty():
-		return [{}]
-	var rest := _assignments(fields.slice(1), codes)
-	var out: Array = []
-	for c in codes:
-		for r in rest:
-			if r.values().has(c):
-				continue
-			var x: Dictionary = r.duplicate()
-			x[fields[0]] = c
-			out.append(x)
-	return out
-
-# Grupos sin cubrir por la ruta (mejor asignación de canales). [] = cubre todo.
+# ¿Cubren los dos fragmentos los dos grupos (en alguna asignación)? [] = sí; si no, los grupos que faltan.
 static func missing_groups(repo, c: Dictionary, r: Dictionary) -> Array:
-	var fields := _ch_fields(c)
-	var codes: Array = channel_codes(repo)
-	if r.subs.size() == 2:
-		var sc: Array = [sub_channel(repo, r.subs[0]), sub_channel(repo, r.subs[1])]
-		if sc[0] != "" and sc[1] != "":
-			codes = sc
-	var asgs := _assignments(fields, codes)
-	if asgs.is_empty():
-		asgs = [{}]
-	var have := {}
-	for f in r.frags:
-		for t in f.tags:
-			have[String(t)] = true
-	var best = null
-	for asg in asgs:
-		var miss: Array = []
-		for g in c.get("groups", []):
-			var okg := false
-			for t in g.get("tags", []):
-				if have.has("a:" + _subst(String(t), asg)):
-					okg = true
-					break
-			if not okg:
-				miss.append(String(g.get("id", "?")))
-		if miss.is_empty():
-			return []
-		if best == null or miss.size() < best.size():
-			best = miss
-	return best if best != null else []
+	var gs: Array = c.get("groups", [])
+	if gs.size() != 2 or r.frags.size() != 2:
+		var ids: Array = []
+		for g in gs:
+			ids.append(String(g.get("id", "?")))
+		return ids
+	var g1: Array = gs[0].get("tags", [])
+	var g2: Array = gs[1].get("tags", [])
+	var ta: Array = r.frags[0].tags
+	var tb: Array = r.frags[1].tags
+	if (_has_group(ta, g1) and _has_group(tb, g2)) or (_has_group(ta, g2) and _has_group(tb, g1)):
+		return []
+	var miss: Array = []
+	if not (_has_group(ta, g1) or _has_group(tb, g1)):
+		miss.append(String(gs[0].get("id", "?")))
+	if not (_has_group(ta, g2) or _has_group(tb, g2)):
+		miss.append(String(gs[1].get("id", "?")))
+	if miss.is_empty():
+		miss.append("%s/%s en el mismo fragmento" % [gs[0].get("id", "?"), gs[1].get("id", "?")])
+	return miss
 
-static func _find(p: Array, i: int) -> int:
-	while p[i] != i:
-		p[i] = p[p[i]]
-		i = p[i]
-	return i
-
-# Grafo de fragmentos conexo con aristas «comparten entidad de keys» / «entidad de un kind listado» / «mismo origen».
+# Enlace (GDD_v3 §1.6 cond. 5): los dos comparten una entidad de keys.entities, o ambos llevan una entidad de un kind
+# de keys.kinds. (Con más de dos fragmentos, grafo conexo con esas aristas.)
 static func linked(repo, c: Dictionary, frs: Array) -> bool:
 	var n := frs.size()
 	if n <= 1:
@@ -1102,12 +1114,21 @@ static func linked(repo, c: Dictionary, frs: Array) -> bool:
 		for j in range(i + 1, n):
 			var a: Dictionary = frs[i]
 			var b: Dictionary = frs[j]
-			var edge := String(a.origin) == String(b.origin) and String(a.origin) != ""
-			if not edge:
+			var edge := false
+			for e in a.ents:
+				if b.ents.has(e) and kents.has(e):
+					edge = true
+					break
+			if not edge and not kinds.is_empty():
+				var ka := false
+				var kb := false
 				for e in a.ents:
-					if b.ents.has(e) and (kents.has(e) or kinds.has(ent_kind(repo, String(e)))):
-						edge = true
-						break
+					if kinds.has(ent_kind(repo, String(e))):
+						ka = true
+				for e in b.ents:
+					if kinds.has(ent_kind(repo, String(e))):
+						kb = true
+				edge = ka and kb
 			if edge:
 				p[_find(p, i)] = _find(p, j)
 	var r0 := _find(p, 0)
@@ -1116,32 +1137,36 @@ static func linked(repo, c: Dictionary, frs: Array) -> bool:
 			return false
 	return true
 
+static func _find(p: Array, i: int) -> int:
+	while p[i] != i:
+		p[i] = p[p[i]]
+		i = p[i]
+	return i
+
 static func route_errors(repo, c: Dictionary, r: Dictionary, ctags: Array, last: int) -> Array:
 	var errs: Array = []
+	if r.frags.size() != 2:
+		errs.append("%d fragmentos (se exigen exactamente 2)" % r.frags.size())
 	var origins := {}
 	for f in r.frags:
 		origins[String(f.origin)] = true
 	if origins.size() < 2:
 		errs.append("un solo origen (%s)" % ", ".join(PackedStringArray(origins.keys())))
 	if not linked(repo, c, r.frags):
-		errs.append("fragmentos no enlazados por claves ni por origen")
+		errs.append("fragmentos no enlazados por claves")
 	var mg := missing_groups(repo, c, r)
 	if not mg.is_empty():
 		errs.append("no cubre los grupos %s" % str(mg))
 	for f in r.frags:
-		var has_tag := false
+		if f.has("inactive"):
+			errs.append("%s nombra un documento inactivo (%s)" % [f.ref, f.inactive])
 		for t in f.tags:
-			var s := String(t)
-			if s.begins_with("a:") and ctags.has(s.substr(2)):
-				has_tag = true
-			if s == "f:refutado":
+			if String(t) == "f:refutado":
 				errs.append("%s lleva f:refutado" % f.ref)
-		if not has_tag:
-			errs.append("%s sin etiqueta de la conclusión" % f.ref)
 		if int(f.mask) & Av.range_mask(0, last) == 0:
-			errs.append("%s no se puede obtener antes de la última pasada útil" % f.ref)
+			errs.append("%s no se puede obtener antes del informe final" % f.ref)
 	if int(r.from_idx) > last:
-		errs.append("«desde» (%s) después de la última pasada útil" % _lab(int(r.from_idx)))
+		errs.append("«desde» (%s) después del informe final" % _lab(int(r.from_idx)))
 	return errs
 
 static func _lab(i: int) -> String:
@@ -1150,33 +1175,41 @@ static func _lab(i: int) -> String:
 		return "fuera de calendario"
 	return TimeKey.label(TimeKey.tk(x.day, x.slot))
 
-# T1 de una conclusión: {cid, errors, pending, notes}.
-static func lint(repo, cid: String) -> Dictionary:
-	var res := {"cid": cid, "errors": [], "pending": [], "notes": []}
-	var c: Dictionary = repo.conclusion(cid)
+# T1 de una unidad: {cid, errors, pending, notes}. Rutas que nombran contenido que todavía no existe = pending.
+static func lint(repo, uid: String) -> Dictionary:
+	var res := {"cid": uid, "errors": [], "pending": [], "notes": []}
+	var c := unit(repo, uid)
 	if c.is_empty():
-		res.pending.append("%s: conclusión inexistente" % cid)
+		res.pending.append("%s: pregunta o variante inexistente" % uid)
 		return res
-	var rs := routes(repo, cid)
+	var rs := routes(repo, uid)
 	if rs.is_empty():
-		res.errors.append("%s: sin rutas" % cid)
+		res.errors.append("%s: sin rutas" % uid)
 		return res
-	var last := last_idx(repo, cid)
-	var ctags := conc_tags(repo, cid)
+	var last := last_idx(repo, uid)
+	var ctags := conc_tags(repo, uid)
 	var stars: Array = []
 	for r in rs:
+		var inact := false
+		for f in r.frags:
+			if f.has("inactive"):
+				inact = true
+				res.errors.append("%s %s: %s nombra un documento inactivo (%s)" % [uid, r.id, f.ref, f.inactive])
+		if inact:
+			continue
 		if not r.missing.is_empty():
 			for m in r.missing:
-				res.pending.append("%s %s: %s" % [cid, r.id, m])
+				res.pending.append("%s %s: %s" % [uid, r.id, m])
 			continue
 		for e in route_errors(repo, c, r, ctags, last):
-			res.errors.append("%s %s: %s" % [cid, r.id, e])
+			res.errors.append("%s %s: %s" % [uid, r.id, e])
 		if bool(r.star_decl) and not bool(r.star):
 			var bad: Array = []
 			for f in r.frags:
 				if String(f.cls) != "I":
 					bad.append("%s (%s)" % [f.ref, f.cls])
-			res.errors.append("%s %s: declarada ★ con fragmentos no I: %s" % [cid, r.id, ", ".join(PackedStringArray(bad))])
+			if not bad.is_empty():   # (una ★ con errores de datos ya figura arriba)
+				res.errors.append("%s %s: declarada ★ con fragmentos no I: %s" % [uid, r.id, ", ".join(PackedStringArray(bad))])
 		for f in r.frags:
 			for nt in f.notes:
 				if not res.notes.has(nt):
@@ -1185,26 +1218,23 @@ static func lint(repo, cid: String) -> Dictionary:
 			stars.append(r)
 	if not res.pending.is_empty():
 		return res
-	if not mandatory(repo).has(cid):
-		# conclusiones opcionales (C10a, C14): cada ruta debe valer (arriba), pero la invariante de ≥2 rutas ★ sin
-		# ejemplar común es sólo de las obligatorias (GDD §10.3, T1); C14 tiene una sola ★ a propósito (C14.R1 usa ⚠).
-		if stars.is_empty():
-			res.notes.append("%s: opcional sin ruta ★" % cid)
+	if not bool(c.get("principal", false)) or not bool(c.get("obligatoria", false)) or String(c.get("invariante", "normal")) != "normal":
+		# variantes no principales y Q8 (desde_nacimiento): cada ruta debe valer (arriba); la exigencia de ≥2 rutas ★ sin
+		# ejemplar común es de las principales con invariante normal (GDD_v3 §2.4 T1).
+		if stars.is_empty() and bool(c.get("principal", false)):
+			res.notes.append("%s: sin ruta ★ elegible" % uid)
 		return res
 	if stars.size() < 2:
-		res.errors.append("%s: %d ruta(s) ★ (sólo-I, deps fija/columna/garantizada); se exigen ≥2" % [cid, stars.size()])
+		res.errors.append("%s: %d ruta(s) ★ (sólo-I, deps fija/columna/garantizada); se exigen ≥2" % [uid, stars.size()])
 	else:
-		var common := common_exemplars(stars)
-		if not common.is_empty():
-			res.errors.append("%s: todas las rutas ★ comparten %s" % [cid, str(common)])
-		if is_pair_conclusion(c):
-			var sets := {}
-			for r in stars:
-				var s: Array = r.subs.duplicate()
-				s.sort()
-				sets[str(s)] = true
-			if sets.size() < 2:
-				res.errors.append("%s: menos de 2 pares ★ que difieran en una subruta" % cid)
+		# ≥2 rutas ★ sin ejemplar ni escena común (basta un par)
+		var okp := false
+		for i in stars.size():
+			for j in range(i + 1, stars.size()):
+				if common_exemplars([stars[i], stars[j]]).is_empty() and common_scenes([stars[i], stars[j]]).is_empty():
+					okp = true
+		if not okp:
+			res.errors.append("%s: ningún par de rutas ★ sin ejemplar ni escena común" % uid)
 	return res
 
 # ---------------- universo de fragmentos y T17 ----------------
@@ -1264,12 +1294,12 @@ static func all_frags(repo) -> Array:
 	g["all_frags"] = out
 	return out
 
-# Pistas falsas declaradas por W2-STRUCT en conclusions.json `_pistas_falsas` (nota de autor: lista de GDD§10.5 con
-# sus orígenes y refutaciones). [] si el repo no expone el archivo.
+# Pistas falsas declaradas en dossier.json `_pistas_falsas` (nota de autor: lista de GDD§10.5 con sus orígenes y
+# refutaciones). [] si el repo no expone el archivo.
 static func declared_false_leads(repo) -> Array:
 	if not repo.has_method("files"):
 		return []
-	var cf = repo.files().get("conclusions.json", {})
+	var cf = repo.files().get("dossier.json", {})
 	var pf = cf.get("_pistas_falsas", []) if typeof(cf) == TYPE_DICTIONARY else []
 	return pf if typeof(pf) == TYPE_ARRAY else []
 
@@ -1282,7 +1312,7 @@ static func _lead_of(tag: String) -> String:
 
 # T17: toda pista falsa con ≥2 refutaciones alcanzables (≥2 orígenes), ninguna ⚠ (w:).
 # Convención (la de W2-STRUCT): pista falsa `f:refutado` + `a:falsa_<x>` (también se acepta `a:<x>`); refutación
-#   `a:refuta_<x>`. Si conclusions.json declara `_pistas_falsas`, sus refs se resuelven: las que faltan son contenido
+#   `a:refuta_<x>`. Si dossier.json declara `_pistas_falsas`, sus refs se resuelven: las que faltan son contenido
 #   pendiente (res.pending) y las presentes deben llevar la etiqueta; una pista con refs pendientes no falla por conteo.
 static func false_leads(repo) -> Dictionary:
 	var res := {"leads": {}, "errors": [], "falsas": [], "unreachable": [], "pending": []}

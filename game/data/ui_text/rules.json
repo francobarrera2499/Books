@@ -1,36 +1,23 @@
 {
-  "_nota": "W1-BIBLE; redacción v2: TEXTOS-UI (GDD_v2 §A.3). «Cómo se anota una conclusión» (primera página del libro de conclusiones, plegada bajo «Lo que me preguntaron»), mensajes del chequeo formal, resultado de la confirmación y errores de recorte y de conclusión (códigos de ARCHITECTURE §3.5). Voz de Lisle: clara, en primera persona, una oración; explica la forma, nunca el contenido. Variables: pass.lote ${n} = «dos» o «una» (ledger.n.*); clip.memoria_agotada ${n} = «tres». rules.6 ya no se muestra en la página (LedgerModel.RULES_N = 5): es la ayuda de la pestaña «Práctica» y queda por compatibilidad con q_ledger.",
+  "_nota": "W1-BIBLE → TEXTOS-UI v2 → CONTENIDO v3 (GDD_v3 §1.6, §6.2). Mensajes de error del recorte (clip.*, códigos de ClipRules y Clipper) y de las hojas del Expediente (entry.*: dq_answer y dq_proof; pass.*: resultado de dq_confirm). Voz de Lisle: clara, en primera persona, una oración; explica la forma, nunca el contenido («Algo no cierra.» no dice qué falló). Se retiraron las reglas del libro de conclusiones (rules.*), el chequeo formal v2 (formal.*), la práctica y los pares.",
   "text": {
-    "rules.title": "Cómo se anota una conclusión",
-    "rules.1": "Cada conclusión se escribe en un formulario. Cada línea completa necesita al menos una prueba: un recorte.",
-    "rules.2": "Una sola fuente no alcanza. Dos recortes del mismo papel cuentan como una sola fuente.",
-    "rules.3": "Como máximo, cuatro recortes por conclusión.",
-    "rules.4": "Las conclusiones se confirman de a dos (el último día, de a una). Si una no se sostiene, no se confirma ninguna.",
-    "rules.5": "No se confirma dos veces lo mismo.",
-    "rules.6": "Los errores sin importancia se practican aparte, en «Práctica».",
 
-    "formal.falta_segun": "A esta línea le falta una prueba.",
-    "formal.una_fuente": "Una sola fuente no alcanza.",
-    "formal.demasiado_papel": "Son demasiados recortes: cuatro como máximo.",
-    "pass.formal": "Hay una conclusión incompleta: así no la puedo confirmar.",
-    "pass.fail": "Alguna no se sostiene.",
-    "pass.ok": "Confirmado.",
-    "pass.sin_pasada": "El sello no tiene tinta hasta el próximo turno.",
-    "pass.lote": "Se confirman de a ${n}: ni una más ni una menos.",
-    "practice.ok": "Se sostiene: queda confirmada como práctica.",
-    "practice.fail": "No se sostiene.",
+    "pass.formal": "Todavía falta algo en la hoja.",
+    "pass.fail": "Algo no cierra.",
+    "pass.ok": "Queda en tinta.",
 
+    "clip.mas_de_15": "Me alcanza una frase corta.",
     "clip.vacio": "La tijera no tomó ninguna palabra.",
     "clip.cruza_oracion": "Un recorte no puede pasar de una oración a otra.",
-    "clip.mas_de_40": "Cuarenta palabras como máximo por recorte.",
     "clip.inaccesible": "No lo tengo delante.",
     "clip.memoria_agotada": "No me puedo acordar de más de ${n} cosas por visita.",
     "clip.rect_grande": "Encuadré demasiado: el recorte tiene que ser más chico.",
     "clip.demasiados_nodos": "En un recorte entran dos cosas como máximo.",
-    "clip.anidado": "Un par no se junta con otro par.",
 
-    "entry.no_indexado": "No tengo eso en el índice.",
-    "entry.fuera_de_lista": "Ese campo solo acepta lo que está en su lista.",
-    "entry.en_tinta": "Una conclusión confirmada ya no se corrige."
+    "entry.no_abierta": "Esa pregunta no está en la carpeta.",
+    "entry.no_existe": "Ese recorte ya no está.",
+    "entry.no_indexado": "De eso todavía no sé nada.",
+    "entry.fuera_de_lista": "Esta pregunta pide otra clase de respuesta.",
+    "entry.en_tinta": "Lo que está en tinta ya no se corrige."
   }
 }

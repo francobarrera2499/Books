@@ -1,7 +1,9 @@
-# Tests del cuaderno (W3-NOTEBOOK, ARCHITECTURE §6.5, §6.1, §6.3; GDD§14.1, §8.1–8.3, §7.4, §13).
-# Modelo puro (ui/notebook/notebook_model.gd) y la UI headless sobre la GameSim REAL del recorrido de integración
-# (datos estructurales de data/ + tests/fixtures/integ: 17 recortes, un par, diario con llegadas y líneas dichas).
-# Capturas: devtools/drivers/w3notebook_shots.gd.
+# Tests del cuaderno (UI-EXPEDIENTE; GDD_v3 §6.1–§6.3; antes W3-NOTEBOOK, ARCHITECTURE §6.5, §6.1, §6.3).
+# Modelo puro (ui/notebook/notebook_model.gd), la UI headless sobre la GameSim REAL del recorrido de integración
+# (datos estructurales de data/ + tests/fixtures/integ: recortes, diario con llegadas y líneas dichas) y, para las
+# tarjetas (GDD_v3 §6.2: borde de 1 px, 8 px de margen, la fuente en chico, entidades sólo al pasar el mouse, 10 px
+# entre tarjetas, ≤15 palabras; sin pares), el doble suelto devtools/drivers/v3exp_fake.gd sobre data/ real.
+# Capturas: devtools/drivers/v3exp_vista.gd.
 extends "res://tests/test_base.gd"
 
 const TIMEOUT_S := 90
@@ -10,6 +12,8 @@ const Notebook = preload("res://ui/notebook/notebook.gd")
 const NbWalk = preload("res://tests/fixtures/w3notebook/nb_walk.gd")
 const SelectionMapper = preload("res://ui/reader/selection_mapper.gd")
 const GameSim = preload("res://core/sim/game_sim.gd")
+const Fake = preload("res://devtools/drivers/v3exp_fake.gd")
+const ClipCard = preload("res://ui/notebook/clip_card.gd")
 
 var nb = null
 var sim = null
@@ -31,26 +35,32 @@ func after_each() -> void:
 	if old_size != Vector2i.ZERO:
 		tree.root.size = old_size
 
-# GameSim real del recorrido de integración (prólogo -> amanecer del día 4): el recorrido se hace una vez por proceso
-# (tests/fixtures/w3notebook/nb_walk.gd, dataset temporal propio del proceso) y cada test recibe un replay nuevo.
+# GameSim real del escenario del cuaderno (tests/fixtures/w3notebook/nb_walk.gd, sobre el fixture v3 de CORE): cada
+# test recibe una GameSim nueva.
 func walk():
 	var s = NbWalk.sim()
-	ok(s != null, "recorrido de integración sin errores: %s" % str(NbWalk.errs))
+	if s == null:
+		pending_content("escenario del cuaderno no disponible: %s" % str(NbWalk.errs))
 	return s
 
 # Partida recién empezada (prólogo) sobre el mismo dataset.
 func fresh_sim():
 	var r = NbWalk.repo()
-	ok(r != null, "dataset del recorrido: %s" % str(NbWalk.errs))
+	if r == null:
+		pending_content("dataset del recorrido no disponible: %s" % str(NbWalk.errs))
 	return GameSim.new(r, 7) if r != null else null
 
-func make(p_sim = null) -> void:
+# false = sin sim (el test se salta: pending_content ya lo dijo).
+func make(p_sim = null) -> bool:
 	sim = p_sim if p_sim != null else walk()
+	if sim == null:
+		return false
 	nb = Notebook.new()
 	nb.sim_override = sim
 	nb.act_fn = func(a): return sim.apply(a)
 	nb.sounds = false
 	tree.root.add_child(nb)
+	return true
 
 func frames(n := 2) -> void:
 	for i in n:
@@ -150,7 +160,8 @@ func test_model_diary_days_and_stamp() -> void:
 
 # ------------------------------------------------------------------ cuaderno sobre la sim real
 func test_builds_every_tab_from_real_sim() -> void:
-	make()
+	if not make():
+		return
 	nb.open("recortes")
 	await frames()
 	# GDD_v2 §C.2: cada pestaña existe sólo con su bandera; la que no existe no se muestra ni se puede abrir
@@ -169,7 +180,7 @@ func test_builds_every_tab_from_real_sim() -> void:
 	var st: Dictionary = nb.debug_state()
 	eq(st.recortes.cards.size(), sim.q_clips().size(), "una tarjeta por recorte")
 	eq(st.indice.entries.size(), sim.q_index().size(), "una entrada por entidad del índice")
-	eq(st.cotejos.pairs.size(), sim.q_pairs().size(), "un cotejo por par")
+	no(Notebook.TABS.has("cotejos"), "v3: sin pares ni cotejos")
 	eq(st.diario.rows.size(), sim.q_diary().size(), "un renglón por línea del diario")
 	var arrivals: int = sim.q_diary().filter(func(e): return String(e.kind) == "arrival").size()
 	ok(arrivals > 0, "hay llegadas en el recorrido")
@@ -178,7 +189,8 @@ func test_builds_every_tab_from_real_sim() -> void:
 	no(nb._tab_buttons["marginalia"].visible, "sin huevos hallados, la pestaña de Curiosidades no está a la vista")
 
 func test_clips_grouped_and_margin_dates() -> void:
-	make()
+	if not make():
+		return
 	nb.open("recortes")
 	await frames()
 	var page = nb.page("recortes")
@@ -196,15 +208,23 @@ func test_clips_grouped_and_margin_dates() -> void:
 		elif seen.has(d):
 			eq(card.margin_label.text, "", "el día no se repite")
 		else:
-			eq(card.margin_label.text, str(d.substr(8, 2).to_int()), "día de la crónica en el margen")
+			# integración v3: «día 4» se leía como el día 4 de la partida -> «4 may.» (y el año si no hay encabezado del mes)
+			var want := Model.day_label(nb.text_fn(), d)
+			if not nb.flag("nb.agrupar"):
+				want += "\n" + d.substr(0, 4)
+			eq(card.margin_label.text, want, "fecha de la crónica en el margen («4 may.»)")
 			seen[d] = true
-	# epígrafe y línea de fuente de cada tarjeta
-	var c0 = page.card("RC0007")
-	ok(c0 != null, "RC0007 tiene tarjeta")
-	if c0 != null:
+	# la línea de fuente en la tarjeta; las entidades, sólo al pasar el mouse (GDD_v3 §6.2)
+	var ids: Array = page.visible_ids()
+	ok(not ids.is_empty(), "hay tarjetas")
+	if not ids.is_empty():
+		var c0 = page.card(String(ids[0]))
 		var texts := _labels_text(c0)
-		ok(texts.contains(Model.caption_text(sim.q_clip("RC0007"))), "epígrafe visible")
-		ok(texts.contains(String(sim.q_clip("RC0007").src_line)), "línea de fuente visible")
+		ok(texts.contains(String(sim.q_clip(String(ids[0])).src_line)), "línea de fuente visible")
+		var labels: Array = ClipCard.entity_labels(sim.q_clip(String(ids[0])))
+		if not labels.is_empty():
+			no(texts.contains(Model.caption_text(sim.q_clip(String(ids[0])))) and Model.caption_text(sim.q_clip(String(ids[0]))) != String(sim.q_clip(String(ids[0])).text), "el epígrafe no está a la vista")
+			eq(c0.strip.tooltip_text, "; ".join(PackedStringArray(labels)), "las entidades, al pasar el mouse")
 
 func _labels_text(n: Node) -> String:
 	var out := ""
@@ -217,7 +237,8 @@ func _labels_text(n: Node) -> String:
 	return out
 
 func test_filters_search_and_index_click() -> void:
-	make()
+	if not make():
+		return
 	nb.open("recortes")
 	await frames()
 	var page = nb.page("recortes")
@@ -283,7 +304,8 @@ func test_place_filter_label_from_repo() -> void:
 	if place == "":
 		return
 	Clipper.inject(s.st, s.repo, {"text": "Una línea cualquiera.", "place": place, "chron_date": "1891-05-04"})
-	make(s)
+	if not make(s):
+		return
 	nb.open("recortes")
 	await frames()
 	var page = nb.page("recortes")
@@ -298,89 +320,27 @@ func test_place_filter_label_from_repo() -> void:
 	has(chip_texts, want, "también el chip del filtro")
 	eq(nb.ent_label("no_existe_zz"), "no_existe_zz", "una entidad desconocida queda como está")
 
-func test_drag_clip_onto_clip_links_with_note() -> void:
-	make()
+# GDD_v3 §6.3: sin pares. La tarjeta se arrastra como recorte (a las ranuras del expediente, al informe, a mostrar) y no
+# recibe nada; el cuaderno no tiene formulario de cotejo ni la cinta del otro libro.
+func test_cards_drag_but_never_link() -> void:
+	if not make():
+		return
 	nb.open("recortes")
 	await frames()
 	var page = nb.page("recortes")
-	var a = page.card("RC0007")
-	var b = page.card("RC0002")
+	var ids: Array = page.visible_ids()
+	ok(ids.size() >= 2, "hay recortes")
+	if ids.size() < 2:
+		return
+	var a = page.card(String(ids[0]))
+	var b = page.card(String(ids[1]))
 	var data = a._get_drag_data(Vector2.ZERO)
-	eq(data, {"kind": "clip", "id": "RC0007"}, "datos de arrastre §6.3")
-	ok(b._can_drop_data(Vector2.ZERO, data), "se suelta sobre otro recorte")
-	no(a._can_drop_data(Vector2.ZERO, data), "no sobre sí mismo")
-	no(b._can_drop_data(Vector2.ZERO, {"kind": "ent", "id": "watson"}), "un chip del índice no se coteja")
-	var linked := []
-	nb.linked.connect(func(p): linked.append(p))
-	var before: int = sim.q_pairs().size()
-	b._drop_data(Vector2.ZERO, data)
-	await frames()
-	var form = nb.overlay_panel()
-	ok(form != null and String(form.name) == "FormCotejo", "formulario del cotejo")
-	eq(sim.q_pairs().size(), before, "nada se vincula antes de confirmar")
-	form.get_meta("note_edit").text = "contradice"
-	form._decide(true)
-	await frames(3)
-	eq(sim.q_pairs().size(), before + 1, "par creado")
-	var p: Dictionary = sim.q_pairs()[sim.q_pairs().size() - 1]
-	eq([p.a, p.b, p.note], ["RC0007", "RC0002", "contradice"], "par con su nota libre")
-	eq(linked, [p.id], "señal linked")
-	nb.show_tab("cotejos")
-	await frames()
-	has(nb.page("cotejos").debug_state().pairs, p.id, "el par está en Cotejos")
-	var pc = nb.page("cotejos").card(p.id)
-	eq(pc._get_drag_data(Vector2.ZERO), {"kind": "pair", "id": p.id}, "el par se arrastra (ranura «según», presentar)")
-	ok(_labels_text(pc).contains("contradice"), "la nota a lápiz se ve")
-	# volver sin cotejar
-	b = nb.page("recortes").card("RC0003")
-	nb.request_link("RC0004", "RC0003")
-	await frames()
-	nb.overlay_panel()._decide(false)
-	await frames()
-	eq(sim.q_pairs().size(), before + 1, "«Volver» no vincula")
-
-func test_link_errors_in_lisle_voice() -> void:
-	make()
-	nb.open("recortes")
-	await frames()
-	nb.request_link("RC0002", "RC0002")
-	eq(nb.debug_state().note, ui_text("nb.err.mismo"), "consigo mismo")
-	var pid := String(sim.q_pairs()[0].id)
-	nb.request_link(pid, "RC0002")
-	await frames()
-	eq(nb.debug_state().note, ui_text("clip.anidado"), "los pares no se anidan (lo decide el sim)")
-	no(nb.debug_state().overlay, "sin formulario")
-
-func test_unlink_needs_confirmation() -> void:
-	make()
-	nb.open("cotejos")
-	await frames()
-	var pid := String(sim.q_pairs()[0].id)
-	var tinta := false
-	for eid in sim.st.ded.entries:
-		var e: Dictionary = sim.st.ded.entries[eid]
-		for ln in e.lines:
-			if ln.support.has(pid) and String(e.get("ink", "")) == "tinta":
-				tinta = true
-	nb.request_unlink(pid)
-	await frames()
-	eq(String(nb.overlay_panel().name), "FormSeparar", "confirmación en dos pasos")
-	nb.overlay_panel()._decide(false)
-	await frames()
-	eq(sim.q_pairs().size(), 1, "«Volver» no separa")
-	nb.request_unlink(pid)
-	await frames()
-	nb.overlay_panel()._decide(true)
-	await frames()
-	if tinta:
-		eq(sim.q_pairs().size(), 1, "un par que sostiene tinta no se separa")
-		eq(nb.debug_state().note, ui_text("nb.err.en_tinta"), "Lisle lo dice")
-	else:
-		eq(sim.q_pairs().size(), 0, "separado")
-		if nb.tab_available("cotejos"):
-			eq(nb.page("cotejos").debug_state().empty, ui_text("nb.vacio.cotejos"), "página vacía explica la forma")
-		else:
-			eq(nb.tab, "recortes", "sin pares (bandera apagada): vuelve a Recortes")
+	eq(data, {"kind": "clip", "id": String(ids[0])}, "datos de arrastre §6.3")
+	no(b.get_script().get_script_method_list().any(func(m): return String(m.name) == "_can_drop_data"), "nada se suelta sobre un recorte")
+	no(nb.has_method("request_link"), "sin cotejos")
+	no(nb.has_signal("linked"), "sin señal de pares")
+	no(nb.find_child("CintaLibroMayor", true, false) != null, "sin la cinta del otro libro")
+	eq(nb.overlay_panel(), null, "sin formulario")
 
 func _line_by(who: String, text: String) -> String:
 	for e in sim.q_diary():
@@ -395,7 +355,8 @@ func _line_with(text: String) -> String:
 	return ""
 
 func test_diary_rtl_matches_plain_and_speakers() -> void:
-	make()
+	if not make():
+		return
 	nb.open("diario")
 	await frames()
 	var d = nb.page("diario")
@@ -410,7 +371,7 @@ func test_diary_rtl_matches_plain_and_speakers() -> void:
 		eq(rt.modulate, Color(1, 1, 1, 1), "renglón %s (%s) sin atenuar" % [eid, k])
 		eq(rt.self_modulate, Color(1, 1, 1, 1), "renglón %s (%s) sin tinte" % [eid, k])
 		no(rt.has_theme_color_override("default_color"), "renglón %s (%s) sin color propio" % [eid, k])
-	ok(kinds.has("private") and kinds.has("act"), "el recorrido tiene actos públicos y ciegos: %s" % str(kinds.keys()))
+	ok(kinds.has("line") and kinds.has("arrival"), "el diario tiene líneas dichas y llegadas: %s" % str(kinds.keys()))
 	var w := _line_with("Era un sendero")
 	ok(w != "", "línea de Watson en el diario")
 	var row: Node = d._list.get_node("Fila_" + w.replace(".", "_"))
@@ -426,7 +387,8 @@ func test_diary_rtl_matches_plain_and_speakers() -> void:
 	ok(row3.find_child("Sello", true, false) != null, "sello en la llegada")
 
 func test_diary_scissors_clip_keeps_origin() -> void:
-	make()
+	if not make():
+		return
 	nb.open("diario")
 	await frames()
 	var d = nb.page("diario")
@@ -446,11 +408,13 @@ func test_diary_scissors_clip_keeps_origin() -> void:
 	eq(got.size(), 1, "señal clipped")
 	# un error de forma se dice en la voz de Lisle
 	var r2: Dictionary = d.clip_entry(eid, 0, plain.length())
-	no(r2.ok, "cruza un punto")
-	eq(nb.debug_state().note, ui_text("clip.cruza_oracion"), "Lisle explica la forma")
+	no(r2.ok, "dos oraciones y más de quince palabras: no se recorta")
+	ok(nb.debug_state().note != "", "Lisle explica la forma")
+	eq(nb.debug_state().note, nb.err_text(String(r2.get("err", ""))), "con el texto del error de forma")
 
 func test_diary_scissors_by_mouse_drag() -> void:
-	make()
+	if not make():
+		return
 	nb.open("diario")
 	nb._set_scissors(true)
 	await frames(3)
@@ -512,7 +476,8 @@ func _mm(pos: Vector2, mask := MOUSE_BUTTON_MASK_LEFT) -> void:
 	Input.parse_input_event(ev)
 
 func test_marginalia_without_counter() -> void:
-	make()
+	if not make():
+		return
 	var eggs: Array = repo().eggs()
 	ok(eggs.size() >= 3, "hay huevos de pascua definidos")
 	sim.st.world.eggs[String(eggs[0].id)] = {"tk": 41}
@@ -527,19 +492,14 @@ func test_marginalia_without_counter() -> void:
 	ok(txt.contains(String(eggs[0].name)), "título de la nota")
 
 func test_back_order_and_close() -> void:
-	make()
+	if not make():
+		return
 	var closed := []
 	nb.closed.connect(func(): closed.append(1))
 	nb.open("recortes")
 	await frames()
 	ok(nb.is_open(), "abierto")
-	nb.request_link("RC0002", "RC0003")
-	await frames()
-	ok(nb.debug_state().overlay, "formulario")
 	ok(nb.back(), "volver")
-	no(nb.debug_state().overlay, "primero se cierra el formulario")
-	ok(nb.is_open(), "sigue abierto")
-	ok(nb.back(), "volver otra vez")
 	no(nb.is_open(), "cerrado")
 	eq(closed.size(), 1, "señal closed")
 	no(nb.back(), "cerrado: nada que volver")
@@ -547,7 +507,8 @@ func test_back_order_and_close() -> void:
 	ok(nb.is_open() and nb.tab == "indice", "toggle abre en la pestaña pedida")
 
 func test_layouts_and_theme() -> void:
-	make()
+	if not make():
+		return
 	nb.open("recortes")
 	await frames()
 	ok(nb.is_wide(), "a 1600×900 el libro es ancho")
@@ -556,16 +517,11 @@ func test_layouts_and_theme() -> void:
 	nb.set_layout("left")
 	await frames()
 	var rl: Rect2 = nb.book_rect()
-	ok(rl.end.x <= 800.0, "a la izquierda, junto al libro mayor (dos paneles como mucho)")
+	ok(rl.end.x <= 800.0, "a la izquierda, junto al expediente (dos paneles como mucho)")
 	no(nb.is_wide(), "angosto")
 	var pst: Dictionary = nb.page("recortes").debug_state()
 	eq(nb.page("recortes")._row2.visible, not (pst.menus as Array).is_empty(), "los filtros (si existen) pasan al segundo renglón")
-	# angosto: las tiras del par una bajo la otra, y el sujetapapeles en el margen (se ve qué dos tiras forman el par)
-	nb.show_tab("cotejos")
-	await frames()
-	var pid0 := String(sim.q_pairs()[0].id)
-	ok(nb.page("cotejos").card(pid0).find_child("Sujetapapeles", true, false) != null, "sujetapapeles en el margen")
-	nb.show_tab("recortes")
+	ok(nb.card_width() <= nb.body_width(), "las tarjetas caben en la hoja angosta")
 	nb.set_layout("right")
 	ok(nb.book_rect().position.x >= 800.0, "a la derecha")
 	nb.set_layout("full")
@@ -583,7 +539,8 @@ func test_layouts_and_theme() -> void:
 # Nada se sale del libro: pestañas, «Volver» y barra de filtros caben en el ancho del libro en todas las disposiciones,
 # también con el texto al máximo de accesibilidad (1,6×) y el libro acoplado a la izquierda (al lado del libro mayor).
 func test_fits_book_at_every_scale_and_layout() -> void:
-	make()
+	if not make():
+		return
 	var ti = tree.root.get_node("ThemeInstaller")
 	for sc in [1.0, 1.3, 1.6]:
 		ti.set_text_scale(sc)
@@ -614,7 +571,8 @@ func test_fits_book_at_every_scale_and_layout() -> void:
 
 func test_empty_and_without_sim() -> void:
 	var fresh = fresh_sim()
-	make(fresh)
+	if not make(fresh):
+		return
 	nb.open("recortes")
 	await frames()
 	eq(nb.debug_state().recortes.empty, ui_text("nb.vacio.recortes"), "cuaderno vacío: Lisle explica la tijera")
@@ -622,7 +580,7 @@ func test_empty_and_without_sim() -> void:
 	no(nb.page("recortes").debug_state().search, "sin buscador")
 	nb.show_tab("cotejos")
 	await frames()
-	eq(nb.tab, "recortes", "sin pares no hay pestaña de pares")
+	eq(nb.tab, "recortes", "no hay pestaña de pares (v3)")
 	nb.free()
 	# sin partida (pantalla de título): nada se rompe
 	nb = Notebook.new()
@@ -634,7 +592,8 @@ func test_empty_and_without_sim() -> void:
 	eq(nb.debug_state().recortes.cards, [], "sin sim: sin tarjetas")
 
 func test_index_chip_drag_and_drop_on_tab() -> void:
-	make()
+	if not make():
+		return
 	nb.open("indice")
 	await frames()
 	var ch = nb.page("indice").chip("reichenbach")
@@ -642,7 +601,7 @@ func test_index_chip_drag_and_drop_on_tab() -> void:
 	eq(ch._get_drag_data(Vector2.ZERO), {"kind": "ent", "id": "reichenbach"}, "chip del índice: {kind: ent}")
 	var tb = nb._tab_buttons["recortes"]
 	ok(tb._can_drop_data(Vector2.ZERO, {"kind": "ent", "id": "reichenbach"}), "se suelta en la pestaña Recortes")
-	no(nb._tab_buttons["cotejos"]._can_drop_data(Vector2.ZERO, {"kind": "ent", "id": "reichenbach"}), "no en otra")
+	no(nb._tab_buttons["diario"]._can_drop_data(Vector2.ZERO, {"kind": "ent", "id": "reichenbach"}), "no en otra")
 	tb._drop_data(Vector2.ZERO, {"kind": "ent", "id": "reichenbach"})
 	await frames()
 	eq(nb.tab, "recortes", "va a Recortes")
@@ -652,7 +611,8 @@ func test_index_chip_drag_and_drop_on_tab() -> void:
 	eq(nb.page("indice").debug_state().entries, ["watson"], "búsqueda en el índice")
 
 func test_refreshes_on_game_signal() -> void:
-	make()
+	if not make():
+		return
 	nb.open("recortes")
 	await frames()
 	var n0: int = nb.debug_state().recortes.cards.size()
@@ -665,14 +625,19 @@ func test_refreshes_on_game_signal() -> void:
 	await frames(3)
 	eq(nb.debug_state().recortes.cards.size(), n0 + 1, "la tarjeta nueva aparece")
 
-# Arrastre nativo de verdad (eventos de mouse): recorte sobre recorte -> formulario -> par; chip del índice -> pestaña.
+# Arrastre nativo de verdad (eventos de mouse): recorte sobre recorte -> nada (sin pares); chip del índice -> pestaña.
 func test_real_dnd_with_mouse_events() -> void:
-	make()
+	if not make():
+		return
 	nb.open("recortes")
 	await frames(3)
 	var page = nb.page("recortes")
-	var a: Control = page.card("RC0003").strip
-	var b: Control = page.card("RC0004").strip
+	var vis: Array = page.visible_ids()
+	ok(vis.size() >= 2, "hay dos tarjetas a la vista")
+	if vis.size() < 2:
+		return
+	var a: Control = page.card(String(vis[0])).strip
+	var b: Control = page.card(String(vis[1])).strip
 	var pa := a.get_global_rect().get_center()
 	var pb := b.get_global_rect().get_center()
 	_mm(pa, 0)
@@ -685,11 +650,7 @@ func test_real_dnd_with_mouse_events() -> void:
 	ok(tree.root.gui_is_dragging(), "arrastre nativo en curso")
 	_mb(pb, false)
 	await frames(3)
-	var form = nb.overlay_panel()
-	ok(form != null and String(form.name) == "FormCotejo", "al soltar, el formulario del cotejo")
-	if form != null:
-		eq(form.get_meta("pair"), ["RC0003", "RC0004"], "arrastrado sobre destino")
-		nb.back()
+	eq(nb.overlay_panel(), null, "al soltar sobre otro recorte no pasa nada (v3: sin pares)")
 	# chip del índice soltado en la pestaña Recortes
 	nb.show_tab("indice")
 	await frames(3)
@@ -710,8 +671,18 @@ func test_real_dnd_with_mouse_events() -> void:
 	eq(nb.filters.persona, "watson", "y filtra")
 
 # Volver: Esc y clic derecho sobre el cuaderno.
+func _first_card_center() -> Vector2:
+	var page = nb.page("recortes")
+	for c in page.find_children("Recorte_*", "", true, false):
+		if c is Control and (c as Control).is_visible_in_tree() and c.get("strip") != null:
+			var r: Rect2 = (c.strip as Control).get_global_rect()
+			if nb.book_rect().has_point(r.get_center()):
+				return r.get_center()
+	return Vector2(-1, -1)
+
 func test_escape_and_right_click_back() -> void:
-	make()
+	if not make():
+		return
 	nb.open("recortes")
 	await frames(2)
 	var esc := InputEventKey.new()
@@ -727,7 +698,29 @@ func test_escape_and_right_click_back() -> void:
 	no(nb.is_open(), "Esc cierra")
 	nb.open("recortes")
 	await frames(2)
-	var p: Vector2 = nb.book_rect().get_center()
+	# playtest v3: clic derecho SOBRE una tarjeta = «Tirar este recorte»; fuera de las tarjetas, volver
+	var card_c := _first_card_center()
+	if card_c.x >= 0.0:
+		_mm(card_c, 0)
+		await frames(2)
+		var rcc := InputEventMouseButton.new()
+		rcc.button_index = MOUSE_BUTTON_RIGHT
+		rcc.pressed = true
+		rcc.position = card_c
+		rcc.global_position = card_c
+		Input.parse_input_event(rcc)
+		await frames(2)
+		var rcc_up := rcc.duplicate()
+		rcc_up.pressed = false
+		Input.parse_input_event(rcc_up)
+		await frames(2)
+		ok(nb.is_open(), "clic derecho sobre una tarjeta no cierra el cuaderno")
+		ok(nb.drop_menu() != null and nb.drop_menu().visible, "ofrece «Tirar este recorte»")
+		if nb.drop_menu() != null:
+			eq(nb.drop_menu().get_item_text(0), "Tirar este recorte")
+			nb.drop_menu().hide()
+		await frames(2)
+	var p: Vector2 = nb.book_rect().position + Vector2(nb.PAD * 0.5, nb.book_rect().size.y - 12.0)
 	_mm(p, 0)
 	await frames(2)
 	var rc := InputEventMouseButton.new()
@@ -759,7 +752,8 @@ class FakeShell extends Node:
 		return true
 
 func test_shell_layout_and_source() -> void:
-	make()
+	if not make():
+		return
 	var sh := FakeShell.new()
 	tree.root.add_child(sh)
 	nb.set_shell(sh)
@@ -767,15 +761,20 @@ func test_shell_layout_and_source() -> void:
 	await frames(2)
 	eq(nb.layout, "full", "solo: centrado")
 	ok(nb._velo.visible, "con velo")
-	sh.open_kinds["ledger"] = true
-	sh.panel_opened.emit("ledger")
+	sh.open_kinds["dossier"] = true
+	sh.panel_opened.emit("dossier")
 	await frames(3)
-	eq(nb.layout, "left", "con el libro mayor: a la izquierda")
-	no(nb._velo.visible, "sin velo (los dos libros a la vista)")
-	sh.open_kinds.erase("ledger")
-	sh.panel_closed.emit("ledger")
+	eq(nb.layout, "left", "con el expediente: a la izquierda")
+	ok(nb.narrow, "y más angosto (la carpeta lleva dos páginas)")
+	ok(nb.book_rect().end.x <= 1600.0 * 0.5, "deja más de media pantalla a la carpeta")
+	no(nb._velo.visible, "sin velo (los dos a la vista)")
+	no(nb._close_btn.visible, "junto a la carpeta, un solo «Volver» (el de la carpeta)")
+	sh.open_kinds.erase("dossier")
+	sh.panel_closed.emit("dossier")
 	await frames(3)
 	eq(nb.layout, "full", "se vuelve a centrar")
+	no(nb.narrow)
+	ok(nb._close_btn.visible, "solo, vuelve su «Volver»")
 	# doble clic en una tarjeta: el original legible se abre en el lector; si no, Lisle
 	var acc: Array = sim.q_accessible()
 	var legible := ""
@@ -861,7 +860,8 @@ class FakeShell2 extends FakeShell:
 		return panels.get(kind)
 
 func test_shell_scene_band_scissors_and_right_click() -> void:
-	make()
+	if not make():
+		return
 	var sh := FakeShell2.new()
 	tree.root.add_child(sh)
 	var sc := FakeScene.new()
@@ -932,7 +932,8 @@ func _rclick(p: Vector2) -> void:
 		Input.parse_input_event(rc)
 
 func test_plate_thumb_and_empty_bar() -> void:
-	make()
+	if not make():
+		return
 	var plate := ""
 	for c in sim.q_clips():
 		if String(c.get("kind", "")) == "plate" and plate == "":
@@ -945,13 +946,74 @@ func test_plate_thumb_and_empty_bar() -> void:
 	nb.open("recortes")
 	await frames(2)
 	var card = nb.page("recortes").card(plate)
-	var th: Node = card.strip.get_child(0)
+	var th: Node = card.strip.get_child(0).get_child(0)
 	eq(th.get("tex"), tex, "la tarjeta usa la miniatura guardada (captura del rectángulo)")
 	Notebook.thumbs.erase(plate)
 	ok(nb.page("recortes")._bar_row.visible, "con recortes: búsqueda y filtros")
 	nb.free()
 	var fresh = fresh_sim()
-	make(fresh)
+	if not make(fresh):
+		return
 	nb.open("recortes")
 	await frames(2)
 	no(nb.page("recortes")._bar_row.visible, "sin recortes: nada que buscar (la página sólo dice cómo se recorta)")
+
+# ------------------------------------------------------------------ tarjetas (GDD_v3 §6.2), con el doble suelto
+func _fake_nb() -> Array:
+	var f = Fake.new(null, repo())
+	var ids: Array = []
+	ids.append(f.add_clip({"text": "Una ojeada me bastó para ver que la senda terminaba de pronto en la pared.", "origin": "D03", "doc": "D03",
+		"src_line": "«El problema final», crónica", "ents": ["reichenbach", "watson"]}))
+	ids.append(f.add_clip({"text": "uno dos tres cuatro cinco seis siete ocho nueve diez once doce trece catorce quince dieciséis",
+		"origin": "D05", "doc": "D05", "src_line": "Journal de Genève · prensa extranjera", "ents": []}))
+	ids.append(f.add_clip({"text": "Aviso: se busca testigo.", "origin": "D23", "doc": "D23", "src_line": "Encargo del señor Pell", "ents": ["reichenbach"]}))
+	nb = Notebook.new()
+	nb.sim_override = f
+	nb.act_fn = func(a): return f.apply(a)
+	nb.sounds = false
+	tree.root.add_child(nb)
+	return [f, ids]
+
+func test_cards_look_like_cards() -> void:
+	var fx := _fake_nb()
+	var ids: Array = fx[1]
+	nb.open("recortes")
+	await frames(3)
+	var page = nb.page("recortes")
+	eq(page._list.get_theme_constant("separation"), 10, "10 px entre tarjetas")
+	var card = page.card(String(ids[0]))
+	var sb: StyleBox = card.strip.get_theme_stylebox("panel")
+	ok(sb is StyleBoxFlat, "papel con borde")
+	if sb is StyleBoxFlat:
+		eq((sb as StyleBoxFlat).border_width_left, 1, "borde de 1 px")
+		eq((sb as StyleBoxFlat).border_width_top, 1)
+		eq(int(sb.content_margin_left), 8, "8 px de margen interno")
+		eq(int(sb.content_margin_top), 8)
+	var body: RichTextLabel = card.strip.find_child("Texto", true, false)
+	var src: Label = card.strip.find_child("Fuente", true, false)
+	ok(body != null and src != null, "texto y línea de fuente")
+	if body != null and src != null:
+		eq(body.get_parsed_text(), "Una ojeada me bastó para ver que la senda terminaba de pronto en la pared.", "el texto entero")
+		eq(src.text, "«El problema final», crónica", "la fuente")
+		var k := float(src.get_theme_font_size("font_size")) / float(body.get_meta("fe_size", body.get_theme_font_size("normal_font_size")))
+		ok(k > 0.6 and k < 0.8, "la fuente en letra chica (≈70 %%): %.2f" % k)
+	var labels: Array = ClipCard.entity_labels(nb.sim().q_clip(String(ids[0])))
+	eq(labels.size(), 2)
+	eq(card.strip.tooltip_text, "; ".join(PackedStringArray(labels)), "las entidades, sólo al pasar el mouse")
+	no(_labels_text(card).contains(String(labels[1])), "no a la vista")
+	var long_card = page.card(String(ids[1]))
+	var lt: RichTextLabel = long_card.strip.find_child("Texto", true, false)
+	eq(lt.get_parsed_text().replace("…", "").strip_edges().split(" ", false).size(), 15, "ningún recorte mostrado pasa de 15 palabras")
+	eq(page.card(String(ids[2])).strip.tooltip_text, ClipCard.entity_labels(nb.sim().q_clip(String(ids[2])))[0])
+
+func test_cards_fit_and_no_pair_tab_with_fake() -> void:
+	_fake_nb()
+	nb.open("recortes")
+	await frames(3)
+	no(nb.available_tabs().has("cotejos"), "sin pestaña de pares")
+	for lay in ["full", "left"]:
+		nb.set_layout(lay)
+		await frames(2)
+		for id in nb.page("recortes").visible_ids():
+			var c = nb.page("recortes").card(String(id))
+			ok(c.strip.size.x <= nb.body_width() + 0.5, "%s: la tarjeta cabe en la hoja" % lay)

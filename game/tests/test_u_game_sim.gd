@@ -1,4 +1,4 @@
-# W2-SIM: GameSim (§3.4, §3.7): tubería de apply, sin mutación ante error, numeración de eventos, eventos diferidos,
+# CORE-EXPEDIENTE (antes W2-SIM): GameSim (§3.4, §3.7; GDD_v3 §1.7): tubería de apply, sin mutación ante error, numeración de eventos, eventos diferidos,
 # señales changed, can() en seco, replay, consultas y el recorrido prólogo -> día 3 por JSONL sobre fixtures.
 extends "res://tests/test_base.gd"
 
@@ -18,8 +18,11 @@ func test_initial_state():
 	eq(c.day, 0)
 	eq(c.phase, "prologue")
 	eq(c.slot, "N")
-	eq(c.passes_left, 0, "P.N no tiene pasadas")
+	no(c.has("passes_left"), "v3: sin pasadas por franja")
 	eq(c.date_label, "Lunes de Pascua")
+	var open: Array = s.q_dossier().open
+	eq(open.size(), 1, "una sola pregunta al empezar")
+	eq(String(open[0].id), "Q1")
 	ok(s.st.world.plates.has("PL.prologo"), "lámina del prólogo archivada")
 	# líneas del prólogo (no las t_*) + la del primer paso del tutorial
 	var ids: Array = []
@@ -78,8 +81,10 @@ func test_walk_prologue_to_day3_jsonl():
 			eq(ev.to, "reichenbach")
 	# tutorial completo y verbos en contexto
 	var taught: Array = s.q_tutorial().taught
-	for v in ["clip_text", "link", "folio_open", "entry_set", "practice", "pass_clean", "compose_ad", "sleep", "go", "slip", "ask", "report_submit"]:
+	for v in ["read", "clip_text", "compose_ad", "sleep", "go", "slip", "ask", "report_submit"]:
 		has(taught, v, "verbo enseñado")
+	for v in ["link", "folio_open", "entry_set", "practice", "pass_clean"]:
+		no(taught.has(v), "verbo retirado: " + v)
 	# diario: actos, llegadas (el Times del 27) y líneas dichas
 	var kinds := {}
 	for d in s.q_diary():
@@ -112,7 +117,9 @@ func test_errors_codes():
 	eq(s.apply({"t": "slip"}).err, "falta:doc")
 	eq(s.apply({"t": "slip", "doc": 3}).err, "tipo:doc")
 	eq(s.apply({"t": "end_slot"}).err, "fase", "end_slot no existe en el prólogo")
-	eq(s.apply({"t": "link", "a": "RC1", "b": "RC2"}).err, "tutorial", "un verbo por paso")
+	eq(s.apply({"t": "compose_ad", "form": "testigo", "fields": {}}).err, "tutorial", "un verbo por paso")
+	for t in ["link", "unlink", "folio_open", "entry_new", "entry_set", "practice", "pass_clean", "clip_measure"]:
+		eq(s.apply({"t": t}).err, "accion_desconocida", "v3 retira " + t)
 
 func test_changed_signal_and_no_reaction_kind():
 	var s = Kit.new_sim()
@@ -149,11 +156,10 @@ func test_queries_shapes():
 	var s = Kit.new_sim()
 	Kit.run(s, Kit.prologue())
 	var c: Dictionary = s.q_clock()
-	for k in ["day", "slot", "phase", "date_label", "weekday", "outing_done", "passes_left", "lot_size", "report_due"]:
+	for k in ["day", "slot", "phase", "date_label", "weekday", "outing_done", "report_due"]:
 		ok(c.has(k), "q_clock." + k)
 	eq(c.date_label, "martes 27 de marzo")
 	eq(c.weekday, "mar")
-	eq(c.passes_left, 1)
 	var tray: Array = s.q_tray()
 	eq(tray.size(), 1, str(tray))
 	eq(tray[0].view, "D15.0327@L1")
@@ -169,14 +175,20 @@ func test_queries_shapes():
 	var cat: Array = s.q_catalog("reichenbach")
 	ok(cat.size() >= 2 and cat.size() <= 5, str(cat))
 	eq(s.q_catalog("reichenbach"), cat, "determinista")
-	eq(s.q_lists().verbos.size() > 0, true)
-	ok(s.q_templates().has("T1"))
-	ok(s.q_ledger().rules_page.size() == 6)
+	ok(s.q_lists().has("medios"))
+	var dv: Dictionary = s.q_dossier()
+	ok(dv.has("open") and dv.has("inked"), str(dv.keys()))
+	for k in ["id", "text", "origin", "doubts", "state", "answer", "proofs", "formal", "ink_text", "variant"]:
+		ok((dv.open[0] as Dictionary).has(k), "q_dossier H." + k)
+	ok(typeof(s.q_answer_options("Q1")) == TYPE_ARRAY)
+	eq(s.q_donde(), [], "Crane todavía no se presentó")
+	eq(s.q_missing(), [])
 	var p: Array = s.q_places()
 	ok(p.size() > 5, str(p))
 	for x in p:
 		for k in ["id", "area", "name", "open", "reason", "streets"]:
 			ok(x.has(k), "q_places." + k)
+		ok(x.has("que_hay") and x.has("por_que"), "q_places v3")
 	eq(s.q_ending(), {}, "sin informe final, sin final")
 	eq(s.q_blue_pencil(), [])
 
@@ -226,17 +238,24 @@ func test_preview_mail_and_report_real_modules():
 			seen[t] = true
 	ok(seen.has("compose_telegram") and seen.has("report_submit"), str(seen))
 
-# GDD_v2 §C.5.6: la regla ya no está en la interfaz; `clip_measure` (partidas viejas) se resuelve como el recorte de la
-# línea de descripción física (tramo #fisica) de la primera hoja. Datos reales.
-func test_clip_measure_is_fisica_clip():
+# GDD_v3 §1.7: clip_measure se retira del SPEC (la regla no existe); la línea física se recorta como cualquier texto.
+func test_clip_measure_retired():
 	var s = GameSim.new(repo(), 7)
+	eq(s.apply({"t": "clip_measure", "src": {"kind": "doc", "ref": "D23@L1"}}).err, "accion_desconocida")
 	var v: Dictionary = s.q_view("D23@L1")
 	var first: Dictionary = v.pages[0][0].parsed.tramos[0]
 	eq(String(first.id), "fisica", "la primera línea de todo documento es su descripción física")
-	var r: Dictionary = s.apply({"t": "clip_measure", "src": {"kind": "doc", "ref": "D23@L1"}})
-	ok(r.ok, str(r))
-	var c: Dictionary = s.q_clip(String(r.get("clip", "")))
-	var plain: String = v.pages[0][0].parsed.plain
-	eq(String(c.text), plain.substr(int(first.from), int(first.to) - int(first.from)), "el recorte es la línea física")
-	ok((c.ents as Array).any(func(e): return String(e.id) == "papel_de_carta"), "con la entidad del papel en el pie")
 
+# Expediente por la puerta de la simulación (fixture): el día 1 guiado hace nacer Q2 al leer FINA y registra el intento.
+func test_day1_guide_through_apply():
+	var s = Kit.new_sim()
+	Kit.run(s, Kit.prologue())
+	eq(s.q_clock().phase, "desk")
+	var res := Kit.run(s, Kit.day1_guide())
+	eq(Kit.first_fail(res), "", "el día 1 guiado se acepta")
+	var ids: Array = []
+	for h in s.q_dossier().open + s.q_dossier().inked:
+		ids.append(String(h.id))
+	ok(ids.has("Q2"), "leer FINA hace nacer Q2: " + str(ids))
+	eq(int(s.st.ded.dossier.attempts.get("Q1", 0)), 1)
+	eq(s.q_tutorial().day1, {}, "día 1 guiado completo")

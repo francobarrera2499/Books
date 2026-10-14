@@ -14,6 +14,10 @@
 #   D1 variante blanda si Invariant.runtime_guard viola; Effects.apply); en M/T/N resuelve lo vencido (p. ej. 10.M voz B
 #   en persona); en night: «siguiente_salida» que no hubo salida, escenas fijas (M7) y HB13 si inactividad ≥ 2 franjas.
 #   Lo que vencería después del día 10 se aplica en el acto sin documento (sólo flags: «fusionar con el día 10»).
+# v3 (GDD_v3 §4): intrusiones de los de Holmes (HA5, HA6; latencia «intrusion», modo "intrusion") se aplican en
+#   on_leave (Clock.act_leave, al volver de una salida) o, si Lisle no sale, de noche mientras duerme (se ven al amanecer
+#   siguiente); al amanecer, Effects.process_returns devuelve lo que se llevaron (con su marca a lápiz). M1 (los de
+#   Moran) sigue en modo "salida".
 # Entregar encadena un evento interno «reaccion» (HB9 tras M3, HB10 tras M1, M11 tras una respuesta «—S.» en la columna).
 # Nunca emite un aviso de «reacción»: sólo tray (WorldModel.deliver), flag y scene (Effects).
 extends RefCounted
@@ -152,6 +156,11 @@ static func on_time(st, repo, tk: int) -> void:
 	st.react.imm_pending = {}
 	var slot := TimeKey.slot_of(tk)
 	_inactivity_step(st, repo, tk)
+	if slot == "dawn":
+		# v3: lo que se llevaron los de Holmes vuelve solo al amanecer siguiente, con su marca a lápiz (GDD_v3 §4.2)
+		Effects.process_returns(st, repo, tk)
+		# v3: si Lisle no salió, los de Holmes entraron de noche, mientras dormía: a la mañana la ventana está abierta
+		_resolve_intrusion(st, repo, tk, true)
 	_time_reactions(st, repo, tk)
 	if slot == "dawn":
 		_resolve_morning(st, repo, tk)
@@ -160,6 +169,37 @@ static func on_time(st, repo, tk: int) -> void:
 	if slot == "night":
 		_resolve_salida(st, repo, tk, true)
 		_hb13(st, repo, tk)
+
+# v3 (GDD_v3 §4.2, §7.1): Clock.act_leave llama aquí al volver de una salida. Las intrusiones de los de Holmes vencidas
+# (latencia `intrusion`) ocurren mientras Lisle estaba afuera: se aplican ahora, antes de que vea la pieza. La tienda de
+# Crane (L1, gratis) no es una salida: subir de la tienda no las dispara.
+static func on_leave(st, repo, visit_id: String) -> void:
+	_ensure(st, repo)
+	_depth = 0
+	if visit_id == "" or visit_id.begins_with("S.L1.") or visit_id == "S.L1":
+		return
+	_resolve_intrusion(st, repo, _clock_tk(st))
+
+static func _clock_tk(st) -> int:
+	if int(st.now_tk) >= 0:
+		return int(st.now_tk)
+	var c: Dictionary = st.clock if typeof(st.clock) == TYPE_DICTIONARY else {}
+	var slot := String(c.get("slot", "M"))
+	return TimeKey.tk(int(c.get("day", 0)), slot if TimeKey.ORD.has(slot) else "M")
+
+# overnight: al amanecer, las que vencieron antes de este amanecer y no ocurrieron en una salida (Lisle no salió): ocurrieron
+# de noche, mientras dormía (no a las 22 h con Lisle en el escritorio).
+static func _resolve_intrusion(st, repo, tk: int, overnight := false) -> void:
+	var due: Array = []
+	for inst in st.react.queue:
+		if String(inst.get("mode", "")) != "intrusion":
+			continue
+		if (overnight and int(inst.due_tk) < tk) or (not overnight and int(inst.due_tk) <= tk):
+			due.append(inst)
+	_sort(due)
+	for inst in due:
+		inst.due_tk = tk   # la intrusión ocurre ahora (sus efectos cuentan desde aquí)
+		_deliver(st, repo, inst, tk)
 
 static func _time_reactions(st, repo, tk: int) -> void:
 	for rid in RDB.time_rids(repo, tk):
@@ -230,7 +270,7 @@ static func _make_inst(st, repo, rule: Dictionary, c: Dictionary, now_tk: int) -
 	var rid := String(rule.get("id", ""))
 	var due := int(c.get("fixed_due", -1))
 	if due < 0:
-		due = Latency.due_tk(st, repo, rule, int(c.get("act_tk", now_tk)))
+		due = Latency.due_tk(st, repo, rule, int(c.get("act_tk", now_tk)), String(c.get("channel", "")))
 	if due < 0:
 		L.i("director", "%s: sin fecha de entrega (latencia %s, acto %s)" % [rid, RDB.latency_type(rule), TimeKey.label(int(c.get("act_tk", now_tk)))])
 		return {}
@@ -239,12 +279,22 @@ static func _make_inst(st, repo, rule: Dictionary, c: Dictionary, now_tk: int) -
 		"voice": RDB.voice(rule), "level": int(rule.get("nivel", 0)), "strong": RDB.is_strong(rule, TimeKey.day_of(due)),
 		"anchor": c.get("anchor", {}), "tpl": "", "vars": {}, "soft": false, "src_ev": int(c.get("src_ev", 0)), "merged_into": "",
 		"lado": RDB.lado(rule), "tipo": String(rule.get("tipo", "")), "n": int(c.get("n", 0)), "guaranteed": bool(c.get("guaranteed", false)),
-		"act_tk": int(c.get("act_tk", now_tk)), "mode": "salida" if RDB.latency_type(rule) == "siguiente_salida" else "", "deferred": 0}
+		"act_tk": int(c.get("act_tk", now_tk)), "mode": _mode_of(rule), "deferred": 0}
 	if RDB.voice(rule) == "B" and TimeKey.slot_of(due) != "dawn" and not RDB.is_column(rule):
 		inst["en_persona"] = true
 	inst.vars = RDB.vars_for(st, repo, rule, inst)
 	inst.tpl = String(RDB.select_rastro(st, repo, rule, inst).get("tpl", ""))
 	return inst
+
+# "" (cola de la mañana/franja) | "salida" (M1, M2: primera salida del día siguiente) | "intrusion" (HA5/HA6, v3: al
+# volver de una salida o de noche).
+static func _mode_of(rule: Dictionary) -> String:
+	match RDB.latency_type(rule):
+		"siguiente_salida":
+			return "salida"
+		"intrusion":
+			return "intrusion"
+	return ""
 
 static func _accumulate(st, iid: String, anchor: Dictionary) -> void:
 	for inst in st.react.queue:
@@ -473,6 +523,10 @@ static func _runtime_cuts(st, repo, rule: Dictionary, inst: Dictionary) -> Array
 		if String(c.get("copias", "")) == "informadas":
 			for cp in RDB._as_arr(inst.get("anchor", {}).get("copies", [])):
 				out.append({"target": {"copy": String(cp)}, "from_idx": from_idx, "to_idx": to_idx})
+		elif String(c.get("copias", "")) == "relacionada":
+			# v3 (HA5/HA6): el original relacionado con el acto, un día
+			for cp in RDB._as_arr(inst.get("anchor", {}).get("relacionada", [])):
+				out.append({"target": {"copy": String(cp)}, "from_idx": from_idx, "to_idx": to_idx})
 		elif c.has("copy"):
 			out.append({"target": {"copy": String(c.copy)}, "from_idx": from_idx, "to_idx": to_idx})
 		elif c.has("acceso"):
@@ -483,6 +537,16 @@ static func _runtime_cuts(st, repo, rule: Dictionary, inst: Dictionary) -> Array
 static func _deliver(st, repo, inst: Dictionary, tk: int) -> void:
 	var rule: Dictionary = repo.reaction(String(inst.rid))
 	var day := TimeKey.day_of(tk)
+	# v3 (GDD_v3 §4.1): tope de intrusiones también al entregar: dos en cola a la vez (HA6 y la 2.ª M1 para la misma
+	# salida) pasaron la condición al disparar; la que llega con el tope ya cubierto no ocurre. HA5 (garantizada) no cae.
+	if String(rule.get("tipo", "")) != "garantizada_por_acto" and Effects.alters_home(rule) \
+			and int(st.react.counters.get("intrusiones", 0)) >= Effects.MAX_INTRUSIONES:
+		var q0: Array = st.react.queue
+		for i in range(q0.size() - 1, -1, -1):
+			if String(q0[i].iid) == String(inst.iid):
+				q0.remove_at(i)
+		L.i("director", "%s: no ocurre (ya hubo %d intrusiones en la pieza)" % [inst.iid, Effects.MAX_INTRUSIONES])
+		return
 	inst["strong"] = RDB.is_strong(rule, day) and not bool(inst.get("overflow", false))
 	var soft := _d1(st, repo, rule, inst)
 	inst["tono"] = HolmesAgent.tone(st)
@@ -498,7 +562,9 @@ static func _deliver(st, repo, inst: Dictionary, tk: int) -> void:
 			q.remove_at(i)
 	st.react.delivered.append(inst)
 	var ch := String(inst.get("channel", ""))
-	if RDB.CHANNELS.has(ch) and not st.react.channels_seen.has(ch) and not bool(inst.get("overflow", false)):
+	# una intrusión no es una carta: no gasta el canal nuevo de la mañana (D3)
+	if RDB.CHANNELS.has(ch) and not st.react.channels_seen.has(ch) and not bool(inst.get("overflow", false)) \
+			and String(inst.get("mode", "")) != "intrusion":
 		st.react.channels_seen[ch] = day
 	if inst.strong:
 		st.react.strong_days[str(day)] = true

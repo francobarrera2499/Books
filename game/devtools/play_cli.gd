@@ -1,17 +1,17 @@
-# devtools/play_cli.gd — jugar el sim por texto (W3-BOTS; ARCHITECTURE §9.3). Para agentes y revisores de contenido.
+# devtools/play_cli.gd — jugar el sim por texto (CORE-EXPEDIENTE; ARCHITECTURE §9.3). Para agentes y revisores de contenido.
 #   ./godot.sh --headless -s devtools/play_cli.gd -- [--data=real|fixture|<root>] [--seed=N]
 #        [--script res://…|<ruta del proyecto>] [--do '<comando>']… [--state] [--doc <id>] [--strict]
 # Sin --script/--do: imprime el estado inicial (prólogo). Cada comando se reproduce desde cero en cada corrida (el sim es
 # determinista): para seguir jugando, agregar líneas al script y volver a correrlo (o save/load del registro).
 # --doc <id>: revisión de un documento (sin jugar): tramos con sus etiquetas; un RECORTE DE PRUEBA exacto de cada tramo
-#   (ClipRules.snap + inherit) debe caber en una oración, ≤40 palabras y heredar las etiquetas del tramo; los fragmentos
-#   de contrato (§4.8, rutas de conclusions.json) que apuntan al documento deben existir y llevar alguna etiqueta a: de su
-#   conclusión; Markup.lint por parte. Código de salida 1 si algo falla.
+#   (ClipRules.snap + inherit) debe caber en una oración, ≤15 palabras y heredar las etiquetas del tramo; los fragmentos
+#   de contrato (§4.8, rutas de dossier.json) que apuntan al documento deben existir y llevar alguna etiqueta a: de su
+#   pregunta; Markup.lint por parte. Código de salida 1 si algo falla.
 # --strict: una acción rechazada (ok:false) o un comando inválido dan código de salida 1.
 # Comandos (uno por línea; «#» comenta; también --do repetible):
 #   {"t": …}                      acción (GameSim.apply, §3.5); imprime el resultado
 #   q <consulta> [args…]          GameSim.q_<consulta>(args) en JSON (clock, places, tray, accessible, view <vista>,
-#                                 catalog <ent>, clips, clip <id>, index, pairs, diary, ledger, entry <id>, scene,
+#                                 catalog <ent>, clips, clip <id>, index, diary, dossier, answer_options <q>, donde, missing, scene,
 #                                 topics <char>, assertions, visit_plate, plate <id>, report_status, confront, ending,
 #                                 epilogue, tutorial, line <uid>, act <id>, preview <json>)
 #   read <vista>                  texto de una vista como lo ve el jugador (páginas y bloques numerados)
@@ -19,7 +19,7 @@
 #   clip <fuente> <texto exacto>  recorta ese texto: fuente = <vista> | <vista>:<pág>:<bloque> | line:<uid> | diary:<id>
 #   node <lámina> <nodo>          recorte ajustado de un nodo (o silueta) de una lámina
 #   bot <nombre> [hasta <tk>]     el bot (devtools/bots) juega desde aquí hasta la franja (p. ej. «4.dawn», «7.N») o el fin
-#   state                         resumen del estado (reloj, visita, lugares, bandeja, legible, índice, libro mayor…)
+#   state                         resumen del estado (reloj, visita, lugares, bandeja, legible, índice, expediente…)
 #   hash | log [n]                state_hash | últimas n acciones aceptadas
 #   save <archivo> | load <archivo>   registro de acciones en .work/play/<archivo> (load reproduce desde cero)
 #   echo <texto> | help

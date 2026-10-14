@@ -1,4 +1,4 @@
-# W2-DED: índice del jugador (GDD§8.2). Fixture tests/fixtures/ded.
+# W2-DED / CORE-EXPEDIENTE: índice del jugador (GDD§8.2); st.ded v3 = clips, index, dossier. Fixture tests/fixtures/ded.
 extends "res://tests/test_base.gd"
 
 const Index = preload("res://core/deduction/index.gd")
@@ -19,10 +19,10 @@ func _st():
 func test_ensure_is_idempotent_and_complete():
 	var st = FakeState.new()
 	var d := Index.ensure(st)
-	for k in ["clips", "pairs", "folios", "entries", "index", "sealed"]:
+	for k in ["clips", "index", "dossier"]:
 		eq(typeof(d[k]), TYPE_DICTIONARY, k)
-	for k in ["practice", "passes"]:
-		eq(typeof(d[k]), TYPE_ARRAY, k)
+	for k in ["pairs", "folios", "entries", "sealed", "practice", "passes"]:
+		no(d.has(k), "v3 sin " + k)
 	d.clips["RC0001"] = {"id": "RC0001"}
 	Index.ensure(st)
 	ok(st.ded.clips.has("RC0001"), "no pisa lo existente")

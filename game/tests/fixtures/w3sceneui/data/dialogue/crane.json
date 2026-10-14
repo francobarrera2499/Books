@@ -1,5 +1,5 @@
 {
-  "_nota": "Fixture de W3-SCENEUI (capturas y tests de la UI de escenas). El diálogo definitivo lo escribe W3-CT-DLG-B. Crane: chismoso, mercachifle; no es canal; sin límite de preguntas.",
+  "_nota": "Fixture de W3-SCENEUI (capturas y tests de la UI de escenas). El diálogo definitivo lo escribe W3-CT-DLG-B. Crane: chismoso, mercachifle; no es canal; sin límite de preguntas. UI-MUNDO (GDD_v3 §5.2): sección «donde» de prueba (tres ítems de la tabla del GDD) para «¿Dónde consigo…?».",
   "char": "crane",
   "label": "el señor Crane",
   "intro": "Abel Crane, librero",
@@ -8,13 +8,90 @@
   "max_questions": 99,
   "trait": "mangas_ligas",
   "closing": "Si no compra, señor, por lo menos no me tape la vidriera.",
-  "ask_phrase": {"default": "¿Qué me dice de ${topic}, ${addr}?"},
+  "ask_phrase": {
+    "default": "¿Qué me dice de ${topic}, ${addr}?"
+  },
   "lines": [
-    {"id": "fina", "layer": "tema", "match": {"topic": ["fina", "strand"]}, "text": "Se vendió como pan caliente, señor. Las viudas lo compraban de dos en dos: uno para llorar y otro para prestar."},
-    {"id": "doc.extranjero", "layer": "documento", "match": {"doc": ["D05", "D08"]}, "text": "Papeles extranjeros no compro, señor: nadie los entiende y huelen a tren."},
-    {"id": "tipo.persona", "layer": "tipo", "match": {"kind": ["persona"]}, "text": "Se rasca la oreja con el lápiz. —De ése se dice mucho en la calle, señor, y yo no repito ni la mitad."},
-    {"id": "tipo.lugar", "layer": "tipo", "match": {"kind": ["lugar"]}, "text": "Nunca salí de Holywell Street más que para ir a las subastas, señor."},
-    {"id": "gen.1", "layer": "generica", "text": "Todo libro tiene precio, señor; algunos, dos."},
-    {"id": "gen.2", "layer": "generica", "text": "Se rasca la oreja con el lápiz. —Eso no se vende, señor."}
+    {
+      "id": "fina",
+      "layer": "tema",
+      "match": {
+        "topic": [
+          "fina",
+          "strand"
+        ]
+      },
+      "text": "Se vendió como pan caliente, señor. Las viudas lo compraban de dos en dos: uno para llorar y otro para prestar."
+    },
+    {
+      "id": "doc.extranjero",
+      "layer": "documento",
+      "match": {
+        "doc": [
+          "D05",
+          "D08"
+        ]
+      },
+      "text": "Papeles extranjeros no compro, señor: nadie los entiende y huelen a tren."
+    },
+    {
+      "id": "tipo.persona",
+      "layer": "tipo",
+      "match": {
+        "kind": [
+          "persona"
+        ]
+      },
+      "text": "Se rasca la oreja con el lápiz. —De ése se dice mucho en la calle, señor, y yo no repito ni la mitad."
+    },
+    {
+      "id": "tipo.lugar",
+      "layer": "tipo",
+      "match": {
+        "kind": [
+          "lugar"
+        ]
+      },
+      "text": "Nunca salí de Holywell Street más que para ir a las subastas, señor."
+    },
+    {
+      "id": "gen.1",
+      "layer": "generica",
+      "text": "Todo libro tiene precio, señor; algunos, dos."
+    },
+    {
+      "id": "gen.2",
+      "layer": "generica",
+      "text": "Se rasca la oreja con el lápiz. —Eso no se vende, señor."
+    }
+  ],
+  "donde": [
+    {
+      "id": "donde.diarios",
+      "frase": "¿Dónde consigo diarios viejos, de cualquier año?",
+      "requiere": [],
+      "texto": "Los del año pasado los tengo yo, atados, y me llegan más esta semana. Los de cualquier año, en el Museo Británico: tienen todo lo que se imprimió en el reino. Usted tiene carnet, señor.",
+      "revela": "L2"
+    },
+    {
+      "id": "donde.registros",
+      "frase": "¿Dónde se ve si alguien murió, o qué dejó al morir?",
+      "requiere": [
+        "testamento",
+        "herencia",
+        "bienes",
+        "muerte",
+        "duelo",
+        "mary_watson"
+      ],
+      "texto": "En Somerset House, en el Strand, a diez minutos: muertes, nacimientos y testamentos. Un chelín por búsqueda, de diez a tres.",
+      "revela": "L6"
+    },
+    {
+      "id": "donde.direcciones",
+      "frase": "¿Dónde busco la dirección de alguien en Londres?",
+      "requiere": [],
+      "texto": "En el Kelly's, señor: lo tengo ahí, el de este año y el del pasado. Si alguien no figura, es que no quiere que lo encuentren."
+    }
   ]
 }

@@ -11,11 +11,13 @@ extends RefCounted
 const DataRepo = preload("res://core/data/data_repo.gd")
 const GameSim = preload("res://core/sim/game_sim.gd")
 const J = preload("res://core/util/j.gd")
+const ClipRules = preload("res://core/text/clip_rules.gd")
 
 const INTEG := "res://tests/fixtures/integ"
 const OWN := "res://tests/fixtures/w3sceneui/data"
 const CONTENT_DIRS := ["docs/", "dialogue/", "scenes/", "catalog/"]
-const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json", "entities/v2_fisica.json"]
+const STRUCT_ENTITIES := ["entities/core.json", "entities/struct.json", "entities/places_a.json", "entities/places_b.json", "entities/places_c.json", "entities/v2_fisica.json",
+	"entities/v3_core.json", "entities/v3_reacciones.json", "entities/v3_contenido.json"]
 const SEED := 1894
 
 var repo = null
@@ -82,6 +84,7 @@ func act(sim, a: Dictionary) -> Dictionary:
 		errs.append("%s -> %s" % [J.stringify_canon(a), J.stringify_canon(r)])
 	return r
 
+# v3 (GDD_v3 §6.2): un recorte mide ≤15 palabras; el tramo entero si cabe, si no la ventana legal que más lo cubre.
 func clip_tramo(sim, view: String, tid: String) -> String:
 	var v: Dictionary = sim.q_view(view)
 	for pi in (v.get("pages", []) as Array).size():
@@ -89,9 +92,32 @@ func clip_tramo(sim, view: String, tid: String) -> String:
 			var p: Dictionary = v.pages[pi][bi].get("parsed", {})
 			for t in p.get("tramos", []):
 				if String(t.id) == tid:
-					return String(act(sim, {"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(t.from), "len": int(t.to) - int(t.from)}).get("clip", ""))
+					var span := best_window(p, int(t.from), int(t.to))
+					return String(act(sim, {"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(span[0]), "len": int(span[1]) - int(span[0])}).get("clip", ""))
 	errs.append("sin tramo %s#%s" % [view, tid])
 	return ""
+
+static func best_window(p: Dictionary, a: int, b: int) -> Array:
+	var words: Array = p.get("words", [])
+	var idx: Array = []
+	for k in words.size():
+		if int(words[k][0]) >= a and int(words[k][1]) <= b:
+			idx.append(k)
+	if idx.size() <= ClipRules.MAX_WORDS:
+		return [a, b]
+	var best := [int(words[idx[0]][0]), int(words[idx[ClipRules.MAX_WORDS - 1]][1])]
+	var bcov := -1
+	for st in range(0, idx.size() - ClipRules.MAX_WORDS + 1):
+		var f := int(words[idx[st]][0])
+		var e := int(words[idx[st + ClipRules.MAX_WORDS - 1]][1])
+		var sn: Dictionary = ClipRules.snap(p, f, e - f)
+		if not bool(sn.get("ok", false)):
+			continue
+		var cov := mini(int(sn.to), b) - maxi(int(sn.from), a)
+		if cov > bcov:
+			bcov = cov
+			best = [int(sn.from), int(sn.to)]
+	return best
 
 func clip_tagged(sim, view: String, tag: String) -> String:
 	var v: Dictionary = sim.q_view(view)
@@ -103,25 +129,18 @@ func clip_tagged(sim, view: String, tag: String) -> String:
 			for t in p.get("tramos", []):
 				var tv = t.tags.get(k, [])
 				if (tv is Array and tv.has(val)) or (not (tv is Array) and String(tv) == val):
-					return String(act(sim, {"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(t.from), "len": int(t.to) - int(t.from)}).get("clip", ""))
+					var span := best_window(p, int(t.from), int(t.to))
+					return String(act(sim, {"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(span[0]), "len": int(span[1]) - int(span[0])}).get("clip", ""))
 	errs.append("sin tramo con %s en %s" % [tag, view])
 	return ""
 
-# Prólogo hasta el paso del aviso (Harris lo dicta). Deja recortes y la práctica C1.10 en tinta.
+# Prólogo hasta el paso del aviso (Harris lo dicta), v3 (GDD_v3 §6.9): leer y recortar el encargo; un recorte de la
+# crónica del cliente. Sin libro de conclusiones: la pregunta Q1 queda en el expediente (clips["q1"] = "Q1").
 func prologue_to_ad(sim) -> void:
+	act(sim, {"t": "read", "view": "D23@L1", "part": 0})
 	clips["aviso"] = clip_tramo(sim, "D23@L1", "aviso")
 	clips["sheer_tomo"] = clip_tramo(sim, "D03@tomo", "sheer")
-	clips["abril"] = clip_tramo(sim, "D01.REDH@tomo", "abril")
-	clips["octubre"] = clip_tramo(sim, "D01.REDH@tomo", "octubre")
-	act(sim, {"t": "link", "a": clips.abril, "b": clips.octubre, "note": "dos fechas"})
-	var fo := String(act(sim, {"t": "folio_open", "clip": clips.abril}).get("folio", ""))
-	var e := String(act(sim, {"t": "entry_new", "folio": fo, "template": "T1"}).get("entry", ""))
-	for f in [[0, "fuente_a", "redh"], [0, "dice_a", "abril_27_1890"], [1, "fuente_b", "redh"], [1, "dice_b", "octubre_9_1890"]]:
-		act(sim, {"t": "entry_set", "entry": e, "line": f[0], "field": f[1], "value": f[2]})
-	act(sim, {"t": "entry_support_add", "entry": e, "line": 0, "item": clips.abril})
-	act(sim, {"t": "entry_support_add", "entry": e, "line": 1, "item": clips.octubre})
-	act(sim, {"t": "practice", "entry": e})
-	clips["practica"] = e
+	clips["q1"] = "Q1"
 
 func prologue_done(sim) -> void:
 	prologue_to_ad(sim)

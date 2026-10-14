@@ -1,6 +1,7 @@
-# T25 (W2-SIM): guardado por compromiso (GDD§7.6, §5.5). «Matar» el proceso justo después de mostrar el resultado de
-# una pasada fallida, de un error ante Mycroft y de una respuesta en la confrontación: al recargar, figuran como hechos
-# y no se pueden repetir. Game.act escribe ANTES de devolver toda acción comprometida; las libres se difieren.
+# T25 (W2-SIM; CORE-EXPEDIENTE): guardado por compromiso (GDD§7.6, §5.5; GDD_v3 §1.6). «Matar» el proceso justo después
+# de mostrar el resultado de un «Pasar en limpio» que no cerró («Algo no cierra.»), de un error ante Mycroft y de una
+# respuesta en la confrontación: al recargar, figuran como hechos (el intento queda contado; Mycroft y la confrontación
+# no se repiten). Game.act escribe ANTES de devolver toda acción comprometida; las libres se difieren.
 # «Matar» = no llamar a flush/end_session: se lee el archivo tal como quedó en disco y se re-ejecuta.
 extends "res://tests/test_base.gd"
 
@@ -76,36 +77,41 @@ func test_commit_written_before_return_free_actions_deferred():
 	var txt := FileAccess.get_file_as_string(Game.save_path)
 	eq(txt.strip_edges().split("\n").size(), 1, "la acción libre todavía no está en disco (debounce)")
 	ok(Game._dirty)
-	for x in Kit.prologue().slice(1, 10):
+	for x in Kit.prologue().slice(0, 4):
 		_act(x)
-	var ad: Dictionary = Kit.prologue()[9]
+	var ad: Dictionary = Kit.prologue()[3]
+	eq(String(ad.t), "compose_ad")
 	eq(_last_line(), J.stringify_canon(Actions.normalize(ad)), "la comprometida ya está en disco al volver")
-	eq(FileAccess.get_file_as_string(Game.save_path).strip_edges().split("\n").size(), 11, "con todo lo anterior")
+	eq(FileAccess.get_file_as_string(Game.save_path).strip_edges().split("\n").size(), 6, "con todo lo anterior")
 	no(Game._dirty)
 	# una acción rechazada no se escribe
 	var before := FileAccess.get_file_as_bytes(Game.save_path)
 	no(Game.act({"t": "go", "place": "L2", "seat": 1}).ok)
 	eq(FileAccess.get_file_as_bytes(Game.save_path), before)
 
-func test_failed_pass_survives_kill():
+func test_failed_confirm_survives_kill():
 	_start("pass.jsonl")
 	_advance(1, "M")
-	_act({"t": "entry_new", "folio": "varios", "template": "T1"})
-	var r := _act({"t": "pass_clean", "entries": ["AS001", "AS002"]})
-	no(r.inked, "pasada fallida")
+	var opts: Array = Game.sim.q_answer_options("Q1")
+	ok(not opts.is_empty(), "hay respuestas en el índice")
+	_act({"t": "dq_answer", "q": "Q1", "value": String(opts[0].id)})
+	_act({"t": "dq_proof", "q": "Q1", "slot": 0, "clip": "RC0001"})
+	_act({"t": "dq_proof", "q": "Q1", "slot": 1, "clip": "RC0002"})
+	var r := _act({"t": "dq_confirm", "q": "Q1"})
+	no(r.inked, "«Algo no cierra.»")
+	ok(String(r.msg).begins_with("Algo no cierra"), "«Algo no cierra…» (%s)" % String(r.msg))
 	var s2 = _killed_and_reloaded()
 	eq(s2.replay_errors, 0)
-	eq(s2.q_clock().passes_left, 0, "la pasada gastada figura al recargar")
-	eq(s2.st.ded.passes.size(), 1)
-	ok(s2.st.ded.entries.has("AS002"), "la acción libre previa también (va con el compromiso)")
-	eq(s2.apply({"t": "pass_clean", "entries": ["AS001", "AS002"]}).err, "sin_pasada", "no se puede deshacer ni repetir")
+	eq(int(s2.st.ded.dossier.attempts.get("Q1", 0)), 1, "el intento figura al recargar")
+	eq(s2.st.ded.dossier.drafts.Q1.proofs, ["RC0001", "RC0002"], "la hoja en lápiz previa también (va con el compromiso)")
+	no(s2.st.ded.dossier.inked.has("Q1"))
 	eq(s2.state_hash(), Game.sim.state_hash())
 
 func test_mycroft_error_survives_kill():
 	_start("mycroft.jsonl")
 	_advance(8, "T")
 	_act({"t": "go", "place": "L5", "area": "forasteros"})
-	var r := _act({"t": "present", "char": "mycroft", "item": {"kind": "entry", "id": "AS001"}})
+	var r := _act({"t": "present", "char": "mycroft", "item": {"kind": "pregunta", "id": "Q1"}})
 	eq(r.outcome, "error")
 	var s2 = _killed_and_reloaded()
 	eq(s2.st.scenes._fake_mycroft.errors, 1, "el error figura")
@@ -114,7 +120,7 @@ func test_mycroft_error_survives_kill():
 		if ev.type == "show":
 			shows += 1
 	eq(shows, 1)
-	_act({"t": "present", "char": "mycroft", "item": {"kind": "entry", "id": "AS001"}})
+	_act({"t": "present", "char": "mycroft", "item": {"kind": "pregunta", "id": "Q1"}})
 	var s3 = _killed_and_reloaded()
 	eq(s3.st.flags.get("forasteros_cerrada", false), true, "el segundo error cierra la Sala")
 	_act({"t": "leave"})
@@ -196,6 +202,37 @@ func test_other_version_keeps_original_log():
 
 # Reanudar no es cuadrático (hallazgo del playtest: 1.600 acciones, 24 s): 1.500 acciones libres sobre data/ real en
 # menos de 3 s, con el mismo estado.
+# GDD_v3 §1.7: un guardado con cabecera v < 3 no se repite: aviso v3core.save.otra_version, continue_session = false,
+# Shell.can_continue = false (el título sólo ofrece partida nueva) y el archivo queda tal cual (byte a byte).
+func test_v2_save_offers_only_new_game():
+	_start("v2.jsonl")
+	for a in Kit.prologue():
+		_act(a)
+	Game.end_session()
+	eq(int(EventLog.read(Game.save_path).header.v), 3, "cabecera v:3")
+	var lines := FileAccess.get_file_as_string(Game.save_path).strip_edges().split("\n")
+	var hdr = J.parse_str(lines[0])
+	hdr["v"] = 1
+	lines[0] = J.stringify_canon(hdr)
+	var fw := FileAccess.open(Game.save_path, FileAccess.WRITE)
+	fw.store_string("\n".join(lines) + "\n")
+	fw.close()
+	var before := FileAccess.get_file_as_bytes(Game.save_path)
+	ok(Game.save_too_old(), "guardado viejo detectado")
+	var got: Array = []
+	var cb := func(k): got.append(k)
+	Game.notice.connect(cb)
+	no(Game.continue_session(), "no se repite un guardado v1")
+	Game.notice.disconnect(cb)
+	has(got, "v3core.save.otra_version")
+	eq(Game.sim, null, "sin partida abierta")
+	eq(FileAccess.get_file_as_bytes(Game.save_path), before, "el archivo no se toca")
+	no(FileAccess.file_exists(Game.save_path.get_basename() + ".tmp"), "sin escrituras")
+	var Shell = load("res://ui/shell.gd")
+	var sh = Shell.new()
+	no(sh.can_continue(), "el título no ofrece Continuar")
+	sh.free()
+
 func test_replay_1500_actions_fast():
 	var r = repo()
 	var sim = GameSim.new(r, 5)
@@ -212,7 +249,8 @@ func test_replay_1500_actions_fast():
 		for pi in (view.get("pages", []) as Array).size():
 			for bi in (view.pages[pi] as Array).size():
 				for t in view.pages[pi][bi].get("parsed", {}).get("tramos", []):
-					cands.append({"t": "clip_text", "src": {"kind": "doc", "ref": String(v.view), "part": pi, "block": bi}, "from": int(t.from), "len": int(t.to) - int(t.from)})
+					var sp: Array = load("res://devtools/bots/bot_base.gd").best_window(view.pages[pi][bi].parsed, int(t.from), int(t.to))
+					cands.append({"t": "clip_text", "src": {"kind": "doc", "ref": String(v.view), "part": pi, "block": bi}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])})
 	ok(cands.size() > 10, "tramos legibles en el escritorio: %d" % cands.size())
 	var i := 0
 	var bad := 0

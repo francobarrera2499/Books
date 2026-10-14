@@ -5,6 +5,8 @@
 # foley del clic −27…−29 · tijera/sello −21…−24 · lo que pasa abajo o lejos (lechero, persiana, cuartos, arpa, cascos)
 # −21…−23 · campanas del amanecer −17 · lo que pasa cerca la noche del 5 (silbido, silbato) −17 y el vidrio −16.
 # Los rangos y el enmascaramiento contra cada ambiente los verifica tests/test_u_sound_bank.gd (tabla: w4audio_mix).
+# v3 (GDD_v3 §6.8): calma en los bucles de ambiente (RMS ≤ −32 dBFS, siseo 2–8 kHz ≤ −40 dBFS, eventos sueltos ≥ 8 s
+# entre sí): tests/test_t35_calma.gd. Sin amb.gas ni amb.gas_parker.
 # Campos: recipe (receta de proc_audio.gd) · dur (s; en bucles = cuerpo del bucle) · loop · gain (ganancia final
 # lineal, después de normalizar; 1 = sin cambio; para que W4-AUDIO equilibre sin tocar recetas) · fade (s de fundido
 # cruzado del bucle; se generan dur+fade) · norm "peak" (level = pico lineal) | "none" (niveles absolutos de la
@@ -35,9 +37,8 @@ const BANK := {
 	"evt.ladrillo": {"recipe": "ladrillo", "dur": 1.8, "loop": false, "gain": 1.0, "norm": "peak", "level": 0.85, "out": 0.1},
 	"evt.golpe_puerta": {"recipe": "golpe_puerta", "dur": 1.5, "loop": false, "gain": 1.0, "norm": "peak", "level": 0.7, "out": 0.1},
 	"amb.calle": {"recipe": "amb_calle", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 1.0, "norm": "none"},
-	"amb.gas": {"recipe": "amb_gas", "dur": 4.0, "loop": true, "gain": 1.0, "fade": 0.5, "norm": "none"},
 	"amb.sala_lectura": {"recipe": "amb_sala_lectura", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 1.0, "norm": "none"},
-	"amb.diogenes": {"recipe": "amb_diogenes", "dur": 6.0, "loop": true, "gain": 1.0, "fade": 0.8, "norm": "none"},
+	"amb.diogenes": {"recipe": "amb_diogenes", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 0.8, "norm": "none"},
 	"amb.tienda": {"recipe": "amb_tienda", "dur": 6.0, "loop": true, "gain": 1.0, "fade": 0.8, "norm": "none"},
 	"amb.viento": {"recipe": "amb_viento", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 1.0, "norm": "none"},
 	"amb.parque": {"recipe": "amb_parque", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 1.0, "norm": "none"},
@@ -46,9 +47,18 @@ const BANK := {
 	"bells.horas": {"recipe": "bells_horas", "dur": 17.5, "loop": false, "gain": 1.0, "norm": "peak", "level": 0.31, "out": 0.3},
 	"evt.cerrojo": {"recipe": "cerrojo", "dur": 1.8, "loop": false, "gain": 1.0, "norm": "peak", "level": 0.5, "out": 0.1},
 	"evt.carrera": {"recipe": "carrera", "dur": 2.6, "loop": false, "gain": 1.0, "norm": "peak", "level": 0.52, "out": 0.1},
-	"amb.calle_parker": {"recipe": "amb_calle_parker", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 1.0, "norm": "none"},
-	"amb.gas_parker": {"recipe": "amb_gas_parker", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 0.8, "norm": "none"},
-	"amb.casa_vacia": {"recipe": "amb_casa_vacia", "dur": 6.0, "loop": true, "gain": 1.0, "fade": 0.8, "norm": "none"},
+	"amb.calle_parker": {"recipe": "amb_calle_parker", "dur": 16.0, "loop": true, "gain": 1.0, "fade": 1.0, "norm": "none"},
+	"amb.casa_vacia": {"recipe": "amb_casa_vacia", "dur": 16.0, "loop": true, "gain": 1.0, "fade": 0.8, "norm": "none"},
+	# playtest v3: cada casa con su sonido (antes el consultorio y el vestíbulo usaban amb.tienda)
+	"amb.consultorio": {"recipe": "amb_consultorio", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 0.8, "norm": "none"},
+	"amb.vestibulo": {"recipe": "amb_vestibulo", "dur": 8.0, "loop": true, "gain": 1.0, "fade": 0.8, "norm": "none"},
+	# v3 (REACCIONES-PIEZA, GDD_v3 §6.8): sin siseo de gas. La noche casi en silencio (un coche lejano y la campana de
+	# los cuartos; en el prólogo, el arpa de Parker abajo de vez en cuando) y la corriente de aire al entrar en la pieza
+	# con la ventana abierta (evento intrusion_techos, una sola vez, −29 dB aprox.: playtest v3, sin alerta).
+	"amb.noche": {"recipe": "amb_noche", "dur": 24.0, "loop": true, "gain": 1.0, "fade": 1.0, "norm": "none"},
+	"amb.noche_parker": {"recipe": "amb_noche_parker", "dur": 27.0, "loop": true, "gain": 1.0, "fade": 1.0, "norm": "none"},
+	# playtest v3: −8 dB (era lo más fuerte de la sesión, +18 dB sobre el ambiente; el pedido es «sin sonido de alerta»)
+	"evt.corriente": {"recipe": "corriente", "dur": 3.0, "loop": false, "gain": 1.0, "norm": "peak", "level": 0.143, "out": 0.3},
 }
 
 # Alias de los ids del ejemplo de ARCHITECTURE §4.17 (los canónicos son los de §8).

@@ -33,10 +33,20 @@ func test_contract_nodes() -> void:
 	eq(str(cr.get("prop")), "perchero", "crespón en el perchero")
 	# la ventana a Church Street muestra la esquina sin librería (GDD§5) → refuerza librero_falso (C12)
 	ok(PC.has_tags(PC.find_node(p, "esquina"), ["a:librero_falso"]), "esquina")
-	# ningún nodo carga dos grupos de la misma conclusión (T4 por nodo) ni etiquetas de ruido f:
+	# ningún nodo carga los dos grupos de una misma variante de pregunta (T4 por nodo, GDD_v3 §1.8; CONTENIDO)
 	for n in PC.node_defs(p, "") + PC.node_defs(p, "prestadas"):
-		var a_tags := (n.get("tags", []) as Array).filter(func(t): return str(t).begins_with("a:"))
-		ok(a_tags.size() <= 1, "%s lleva %s" % [n.get("id"), str(a_tags)])
+		var a_tags := (n.get("tags", []) as Array).filter(func(t): return str(t).begins_with("a:")).map(func(t): return str(t).substr(2))
+		for q in repo().questions():
+			for v in q.get("variantes", []):
+				var hit := 0
+				for g in v.get("grupos", []):
+					for t in g.get("tags", []):
+						if a_tags.has(str(t).trim_prefix("a:")):
+							hit += 1
+							break
+				ok(hit < 2, "%s cubre los dos grupos de %s.%s: %s" % [n.get("id"), q.id, v.id, str(a_tags)])
+	# el recibo de HB5 (variante «prestadas»): Q3 (vinculo_mycroft) y Q4 (mycroft_gobierno, con la mención del ministerio)
+	ok(PC.has_tags(PC.find_node(p, "recibo", "prestadas"), ["a:vinculo_mycroft", "a:mycroft_gobierno"]), "recibo p.p. M. H. (Q3, Q4)")
 	eq(p.get("areas", {}).keys(), ["consulta", "estudio"], "áreas de §4.10/§4.11")
 
 func test_characters_by_area_and_slot() -> void:

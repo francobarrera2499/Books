@@ -1,12 +1,6 @@
+{"t":"read","view":"D23@L1","part":0}
 {"t":"clip_text","src":{"kind":"doc","ref":"D23@L1","part":0,"block":0},"from":0,"len":41}
 {"t":"clip_text","src":{"kind":"doc","ref":"D03@tomo","part":0,"block":0},"from":0,"len":42}
-{"t":"link","a":"RC0001","b":"RC0002","note":"contradice"}
-{"t":"folio_open","clip":"RC0002"}
-{"t":"entry_new","folio":"FO001","template":"T1"}
-{"t":"entry_set","entry":"AS001","line":0,"field":"fuente_a","value":"fina"}
-{"t":"entry_support_add","entry":"AS001","line":0,"item":"RC0001"}
-{"t":"entry_support_add","entry":"AS001","line":0,"item":"RC0002"}
-{"t":"practice","entry":"AS001"}
 {"t":"compose_ad","form":"testigo","fields":{"suceso":"suceso_reichenbach"}}
 {"t":"sleep"}
 {"t":"go","place":"L2","area":"sala","seat":214.0}

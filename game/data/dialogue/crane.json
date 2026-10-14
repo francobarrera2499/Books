@@ -23,13 +23,15 @@
     {"id": "fina", "layer": "tema", "match": {"topic": ["fina", "suceso_reichenbach", "reichenbach"]}, "text": "Se vendió como pan caliente, señor. En diciembre las señoras lo compraban de a dos: uno para llorar y otro para prestar."},
     {"id": "holmes", "layer": "tema", "match": {"topic": ["holmes", "mycroft"]}, "text": "Muerto, señor, se vende el doble. Y si alguna vez vuelve, que vuelva en un número que yo tenga."},
     {"id": "watson", "layer": "tema", "match": {"topic": ["watson"]}, "text": "El doctor escribe bien y se equivoca mejor, señor: cada error suyo me vende un número viejo."},
-    {"id": "tomos", "layer": "tema", "match": {"topic": ["tomos", "notas_de_los_tomos"]}, "text": "Lomos sin un rasguño, señor. Alguien los cuidaba, y tanto cuidado no se vende si no es por necesidad."},
+    {"id": "pasos_techo", "layer": "tema", "cls": "I", "match": {"topic": ["techos", "muchacho", "traba", "hoja_ventana", "suela_chica", "ventana_abierta", "cerradura", "buhardilla", "lisle", "holywell_street", "tienda_de_crane", "muchacho_de_gorra", "irregulares", "wiggins"]}, "when": {"counter": {"name": "techos.manana", "gte": 1}}, "text": "Mira hacia arriba. —{{#pasos a:entro_por_los_techos e:techos e:muchacho|Anduvo alguien por los techos, señor: pasos livianos, de [[muchacho|muchacho]], y después su ventana golpeando.}} Los gatos de esta calle no pisan tan derecho."},
+    {"id": "tomos", "layer": "tema", "match": {"topic": ["tomos", "notas_de_los_tomos", "cuadernillos", "nota_del_cliente"]}, "text": "Hojea un cuadernillo y le mira el lomo. —Esto salió de un tomo encuadernado, señor: se ven los hilos cortados. Quien lo descosió no lo quería, o tenía prisa."},
     {"id": "lisle", "layer": "tema", "match": {"topic": ["lisle", "anteojos_azules", "fotofobia"]}, "text": "Me debe tres chelines y seis peniques, señor Lisle, y una vela. Se lo recuerdo solo los sábados, pero los sábados vienen muy seguido."},
     {"id": "calle", "layer": "tema", "match": {"topic": ["holywell_street", "tienda_de_crane", "media_luna"]}, "text": "El [[times|Times]] la llamó la calle más vil del mundo civilizado, señor. Pero el Times se compra acá, y a mitad de precio."},
     {"id": "pell", "layer": "tema", "match": {"topic": ["pell", "harris", "chico_de_pell", "chistera", "bigote", "billetes_de_cinco_libras"]}, "text": "Su abogado subió el lunes de Pascua con un caballero de chistera y bigote de general, señor. Gente que paga por adelantado: en esta calle se nota de lejos."},
     {"id": "muchacho", "layer": "tema", "match": {"topic": ["muchacho_de_gorra", "wiggins", "irregulares"]}, "when": {"day": {"gte": 3}}, "text": "Un muchacho de gorra larga se pasa la mañana delante de mi vidriera y nunca compra nada, señor. O es poeta o es de la policía."},
     {"id": "caza", "layer": "tema", "match": {"topic": ["heavy_game", "moran", "autor_heavy_game", "tigre", "india"]}, "text": "Libros de caza mayor, señor: los compran los que nunca pasaron de [[brighton|Brighton]]."},
 
+    {"id": "doc.memorias", "layer": "documento", "match": {"doc": ["D01.GREE"]}, "text": "Las <i>[[memoirs|Memorias]]</i> de Newnes, señor: en el mismo tomo vienen «El intérprete griego» y «El problema final». El segundo se lleva al primero de la mano."},
     {"id": "doc.fina", "layer": "documento", "match": {"doc": ["D03"]}, "text": "El número de diciembre, con los dibujos del [[paget|señor Paget]]. Lo tengo en tres estados, señor: nuevo, leído y llorado."},
     {"id": "doc.galerada", "layer": "documento", "match": {"doc": ["D02"]}, "text": "Una prueba de imprenta con sello de lector, señor. Eso no se vende ni se compra: se guarda en un cajón y, si alguien pregunta, no existe."},
     {"id": "doc.pruebas", "layer": "documento", "match": {"doc": ["D04"]}, "text": "Papel de imprenta comprado al peso, señor. Al peso, todos los errores pesan lo mismo."},
@@ -48,5 +50,29 @@
 
     {"id": "gen.1", "layer": "generica", "text": "Todo libro tiene precio, señor; algunos, dos."},
     {"id": "gen.2", "layer": "generica", "text": "Se rasca la oreja con el lápiz. —Eso no está en mis estantes, señor."}
+  ],
+  "_donde_nota": "GDD_v3 §5.2 (CONTENIDO; motor CORE: Dialogue.donde_items / act_ask_donde, acción ask_donde, gratis, sin límite y no pública: Crane no es canal). Desde que Crane se presentó (scenes/CRANE.json), cada ítem se ofrece cuando Lisle conoce alguna entidad de `requiere` ([] = siempre). Crane contesta en personaje (la línea se dice con id = el del ítem y se recorta como cualquier línea); si `revela` no estaba en el plano, entra con «Me lo dijo Crane.». Las respuestas no llevan etiquetas: dicen dónde buscar, nunca qué encontrar. donde.suiza: antes de 2.M las fotos de recuerdo todavía no llegaron (schedule.stock: D07@Crane).",
+  "donde": [
+    {"id": "donde.diarios", "frase": "¿Dónde consigo diarios viejos, de cualquier año?", "requiere": [], "revela": "L2",
+     "texto": "Los del año pasado los tengo yo, atados, y me llegan más esta semana. Los de cualquier año, en el [[museo_britanico|Museo Británico]]: tienen todo lo que se imprimió en el reino. Usted tiene carnet, señor."},
+    {"id": "donde.extranjero", "frase": "¿Dónde leo diarios de Suiza o de Francia?", "requiere": ["journal_de_geneve", "suiza", "meiringen", "reichenbach"], "revela": "L2",
+     "texto": "En la Sala de Periódicos del [[museo_britanico|Museo]], señor. Pida el número por la fecha."},
+    {"id": "donde.registros", "frase": "¿Dónde se ve si alguien murió, o qué dejó al morir?", "requiere": ["testamento", "herencia", "bienes", "muerte", "duelo", "mary_watson"], "revela": "L6",
+     "texto": "En [[somerset_house|Somerset House]], en el Strand, a diez minutos: muertes, nacimientos y testamentos. Un chelín por búsqueda, de diez a tres."},
+    {"id": "donde.club", "frase": "¿Dónde queda el club Diógenes?", "requiere": ["club_diogenes"], "revela": "L5",
+     "texto": "En [[pall_mall|Pall Mall]], señor, pero no tiene cartel. La portería toma recados de cualquiera; adentro no entra nadie que no esté invitado."},
+    {"id": "donde.direcciones", "frase": "¿Dónde busco la dirección de alguien en Londres?", "requiere": [], "revela": null,
+     "texto": "En el [[kellys|Kelly's]], señor: lo tengo ahí, el de este año y el del pasado. Si alguien no figura, es que no quiere que lo encuentren."},
+    {"id": "donde.suiza", "frase": "¿Dónde consigo fotos o guías de Suiza?", "requiere": ["suiza", "reichenbach", "meiringen"], "revela": "L2",
+     "texto": "Fotos de recuerdo, en la caja del mostrador. Guías de viaje, en el [[museo_britanico|Museo]].",
+     "variantes": [{"when": {"tk": {"lt": "2.M"}}, "texto": "Me entran unas fotos de recuerdo esta semana, señor. Guías de viaje hay en el [[museo_britanico|Museo]]."}]},
+    {"id": "donde.casas", "frase": "¿Dónde se averigua quién alquila una casa?", "requiere": ["camden_house", "casa_vacia", "agente_de_fincas"], "revela": "L3",
+     "texto": "En la agencia de la misma calle, señor: llevan un libro de llaves y un chico que muestra las casas."},
+    {"id": "donde.crimen", "frase": "¿Dónde leo lo que se sabe de un crimen?", "requiere": ["park_lane", "ronald_adair"], "revela": "L7",
+     "texto": "En el [[times|Times]], señor; cuando declaren los testigos, también en el [[daily_graphic|Daily Graphic]], con dibujos. Y la casa la ve cualquiera desde la vereda."},
+    {"id": "donde.telegrama", "frase": "¿Cómo mando un telegrama a Suiza?", "requiere": ["meiringen", "steiler"], "revela": null,
+     "texto": "Escríbalo con su tintero, señor, y mi chico lo lleva a la oficina del Strand."},
+    {"id": "donde.watson", "frase": "¿Dónde atiende el doctor Watson?", "requiere": ["watson"], "revela": "L4",
+     "texto": "En [[kensington|Kensington]], por la mañana. El Kelly's del año pasado todavía lo pone en Paddington, señor."}
   ]
 }

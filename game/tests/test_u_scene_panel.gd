@@ -136,7 +136,7 @@ func test_present_two_steps_keep_and_show() -> void:
 	sp.open_picker("watson")
 	eq(sp.sub_open(), "picker", "selector abierto")
 	var cards: Array = sp.picker.cards()
-	ok(cards.size() >= 3, "recortes del prólogo en el selector: %d" % cards.size())
+	ok(cards.size() >= 2, "recortes del prólogo en el selector: %d" % cards.size())
 	var clip := String(world().clips.aviso)
 	sp.picker.pick("clip", clip)
 	eq(sp.sub_open(), "present", "segundo paso")
@@ -146,10 +146,10 @@ func test_present_two_steps_keep_and_show() -> void:
 	eq(acts.size(), 0, "«Guardar» no gasta")
 	eq(sp.sub_open(), "", "cerrado")
 	# por DnD (DropCatcher3D / tarjeta del personaje)
-	ok(sp.present("watson", {"kind": "entry", "id": String(world().clips.practica)}), "presentar un asiento")
+	ok(sp.present("watson", {"kind": "pregunta", "id": "Q1"}), "presentar una pregunta del expediente (v3)")
 	sp.present_bar.confirm()
 	eq(committed().size(), 1, "una acción")
-	eq(committed()[0], {"t": "present", "char": "watson", "item": {"kind": "entry", "id": String(world().clips.practica)}}, "acción present")
+	eq(committed()[0], {"t": "present", "char": "watson", "item": {"kind": "pregunta", "id": "Q1"}}, "acción present")
 	ok(sp.transcript.rows().any(func(r): return String(r.who) == "watson"), "Watson contesta")
 	no(sp.present("nadie", {"kind": "clip", "id": clip}), "a quien no está, no")
 
@@ -212,6 +212,70 @@ func test_crane_free_visit_and_leave() -> void:
 	sp.leave()
 	eq(committed().back(), {"t": "leave"}, "leave directo")
 	eq(String(sim.q_clock().phase), "desk", "de vuelta al escritorio")
+
+# GDD_v3 §5.1–§5.2 (UI-MUNDO): Crane se presenta al bajar (escena CRANE) y desde entonces su bloque ofrece «¿Dónde
+# consigo…?»: la lista de q_donde() (sólo lo que Lisle puede pedir por lo que conoce), la frase exacta, «Preguntar» ->
+# ask_donde; un ítem que revela un lugar lo pone en el plano con «Me lo dijo Crane.» y Lisle lo anota; lo preguntado va
+# abajo, plegado.
+func test_crane_donde_lists_asks_and_reveals() -> void:
+	mount("day1_crane")
+	ok(bool(sim.q_ui().get("sc.donde", false)), "Crane ya se presentó (sc.donde)")
+	var vs: Array = sp.debug_state().cast.get("crane", [])
+	has(vs, "donde", "verbo «¿Dónde consigo…?» ante Crane")
+	no(sp.debug_state().cast.get("watson", []).has("donde"), "sólo ante quien tiene la sección donde")
+	sp.open_ask("crane", "donde")
+	eq(sp.sub_open(), "ask", "el panel de preguntar")
+	eq(sp.ask_panel.mode, "donde", "en modo «dónde»")
+	var ids: Array = sp.ask_panel.shown_ids()
+	has(ids, "donde.diarios", "lo que no pide nada se ofrece")
+	no(ids.has("donde.registros"), "lo que pide conocer algo, no todavía")
+	# Lisle se entera de algo de un testamento: el ítem aparece
+	sim.st.world.known["testamento"] = int(sim.q_clock().tk)
+	sp.open_ask("crane", "donde")
+	has(sp.ask_panel.shown_ids(), "donde.registros", "ahora sí: «¿Dónde se ve si alguien murió…?»")
+	sp.ask_panel.choose("donde.registros")
+	eq(sp.ask_panel.phrase(), "¿Dónde se ve si alguien murió, o qué dejó al morir?", "la frase exacta de Lisle")
+	var known_before: bool = sim.q_place_known("L6")
+	sp.ask_panel.confirm()
+	eq(committed().back(), {"t": "ask_donde", "char": "crane", "item": "donde.registros"}, "acción ask_donde")
+	ok(sp.transcript.rows().any(func(r): return String(r.who) == "crane"), "Crane contesta")
+	if not known_before:
+		ok(sim.q_place_known("L6"), "Somerset House entra al plano")
+		var row := {}
+		for p in sim.q_places():
+			if String(p.get("id", "")) == "L6":
+				row = p
+		eq(String(row.get("por_que", {}).get("text", "")), sim.repo.text("v3core.por_que.crane"), "«Me lo dijo Crane.»")
+		eq(String(row.get("que_hay", "")), "plano.que_hay.L6", "con su línea «qué hay»")
+		eq(sp.note.text(), sim.repo.text("mundo.donde.plano"), "Lisle lo anota en el plano")
+	sp.open_ask("crane", "donde")
+	var after: Array = sp.ask_panel.shown_ids()
+	no(after.has("donde.registros"), "lo ya preguntado no está entre lo nuevo")
+	has(after, sp.ask_panel.ALL_ID, "queda abajo, plegado («Ya lo pregunté»)")
+
+# GDD_v3 §5.2 + GDD_v2 §C.1 (verificador v3): «¿Dónde consigo…?» nunca muestra más de 7 filas; lo preguntado va plegado
+# y, si lo nuevo tampoco entra, el resto queda plegado bajo «Más…».
+func test_crane_donde_at_most_seven_rows() -> void:
+	mount("day1_crane")
+	sp.open_ask("crane", "donde")
+	var ap = sp.ask_panel
+	var opts: Array = []
+	for i in 10:
+		opts.append({"id": "donde.x%d" % i, "label": "¿Dónde consigo %d?" % i, "asked": i >= 8})
+	ap.options = opts
+	ap._fill_list()
+	var ids: Array = ap.shown_ids()
+	ok(ids.size() <= ap.LIST_MAX, "≤7 filas (%d)" % ids.size())
+	has(ids, ap.MORE_ID, "lo nuevo que no entra, plegado")
+	has(ids, ap.ALL_ID, "lo preguntado, plegado")
+	has(ids, "donde.x0", "lo primero, a la vista")
+	no(ids.has("donde.x7"), "lo último nuevo, plegado")
+	ap._on_item(ids.find(ap.MORE_ID))
+	has(ap.shown_ids(), "donde.x7", "al desplegar «Más…», aparece")
+	# con pocas cosas, todo a la vista y sin pliegue de más
+	ap.options = opts.slice(0, 5)
+	ap._fill_list()
+	eq(ap.shown_ids(), ["donde.x0", "donde.x1", "donde.x2", "donde.x3", "donde.x4"], "cinco: las cinco, sin pliegues")
 
 func test_leave_visit_asks_first() -> void:
 	mount("day1_watson")

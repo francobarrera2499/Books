@@ -24,7 +24,9 @@ var _topic_n := 0
 # Paseo: franjas en que el plan no sale → lugar/área (sólo si está abierto).
 const TOUR := [
 	{"day": 2, "slot": "N", "place": "L3", "area": "calle", "why": "Baker Street de noche, desde la acera de enfrente"},
+	{"day": 3, "slot": "M", "place": "L6", "area": "sala", "why": "Somerset House (lo nombra un aviso del Times)"},
 	{"day": 3, "slot": "T", "place": "L3", "area": "calle", "why": "Baker Street de día; Wiggins en la esquina"},
+	{"day": 4, "slot": "M", "place": "L6", "area": "sala", "why": "Somerset House, otra vez"},
 	{"day": 3, "slot": "N", "place": "L5", "area": "porteria", "why": "la portería del Diógenes"},
 	{"day": 4, "slot": "M", "place": "L4", "area": "consulta", "why": "otra vez el doctor"},
 	{"day": 4, "slot": "T", "place": "L3", "area": "interior", "why": "el vestíbulo de Mrs. Hudson"},
@@ -34,6 +36,8 @@ const TOUR := [
 	{"day": 6, "slot": "T", "place": "L4", "area": "estudio", "why": "el estudio de Watson, el domingo"},
 	{"day": 7, "slot": "T", "place": "L8", "area": "interior", "why": "la casa vacía de enfrente, con el chico del agente"},
 	{"day": 7, "slot": "N", "place": "L7", "area": "exterior", "why": "Park Lane de noche"},
+	{"day": 8, "slot": "T", "place": "L5", "area": "forasteros", "why": "la Sala de Visitas del Diógenes"},
+	{"day": 8, "slot": "N", "place": "L5", "area": "forasteros", "why": "la Sala de Visitas del Diógenes, de noche"},
 	{"day": 9, "slot": "M", "place": "L5", "area": "porteria", "why": "la portería del club"},
 	{"day": 9, "slot": "T", "place": "L3", "area": "calle", "why": "Baker Street la víspera"},
 ]
@@ -49,7 +53,7 @@ func _init_bot() -> void:
 	super._init_bot()
 	bot_name = "slice"
 	if ending == "F4":
-		focus = ["C2", "C3", "C4"]
+		focus = ["Q1", "Q2", "Q3"]   # v3: tres preguntas (F4 = menos de seis en tinta)
 		fillers = false
 		conf_cover = false
 
@@ -67,6 +71,11 @@ func pol_desk_extra() -> void:
 	var day := int(c.day)
 	if day < 1 or String(c.phase) != "desk":
 		return
+	# la silueta de Wiggins en una lámina archivada (desde HC02, 3.dawn): el ancla K-S de la rebanada (Q3/Q8)
+	if not beats_done.has("sil_wiggins") and day >= 3:
+		if _try_sil({"ref": "N:*.sil_wiggins", "want": ["a:ancla_ks"], "copy": ""}) != "":
+			beats_done["sil_wiggins"] = true
+			note("Recorte de la silueta de Wiggins en una lámina (ancla K-S).")
 	if not beats_done.has("telegram") and day >= 2:
 		if _first_ok(TELEGRAM_TO, Composers.mail_options(sim.st, repo, "to")) == "":
 			_ensure_indexed("steiler")   # el posadero, en la crónica (D03): un recorte lo pone en el índice

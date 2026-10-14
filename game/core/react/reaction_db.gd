@@ -26,6 +26,12 @@
 # disparador.n_in [n…] | n_gte n    valor del contador (ya incrementado) con el que dispara
 # disparador.acumula "dia"           mientras la instancia sigue en cola, otra observación del mismo día se suma a su
 #                                    ancla (anchor.itinerary; HA3: «Kensington a las diez, el Strand a las tres»)
+# disparador.relacion [{si: match, copias: [ejemplar…]} | {mostrado: true}]   v3 (HA5/HA6, GDD_v3 §4.2): la regla sólo
+#                     dispara si hay en casa un original P relacionado con el acto (la primera entrada cuyo `si` pasa,
+#                     el primer ejemplar en casa; {mostrado}: el original del recorte mostrado); queda en anchor.relacionada
+#                     (efectos retirar/devolver copias "relacionada", corta copias "relacionada"). Sin original, no dispara
+#                     ni gasta su una_vez_por.
+# latencia intrusion (v3)            K-BM/K-T: en esa salida (Director.on_leave); K-W/K-H: (D+1).M; si no sale, de noche
 # garantizada_si {canal, n}          garantizada si la observación es de ese canal y el contador vale n: no la bloquean
 #                                    condiciones, canal cerrado ni watson_expuesto (T15)
 # tipo garantizada_por_acto          ídem (sus condiciones sólo pueden ser de calendario: T15)
@@ -35,6 +41,8 @@
 #                    no se aplica: HB12 lo resuelve Dialogue); carta: entrega (correo|en_mano|mostrador_crane|lugar:Lx;
 #                    se pasa tal cual a WorldModel.deliver), firma, title, plantilla_por, copia_de (campo del ancla →
 #                    meta.copia_de); cerrar target "canal:*" y corta acceso "canal:*" = canal de la instancia;
+#                    v3: alterar_lugar dias (la variante dura hasta el amanecer de día+dias; conviven); devolver al
+#                    "amanecer" + marca {texto, mano} (vuelve solo al amanecer siguiente, con la marca al margen);
 #                    silueta desde: día | "d.S" | "+n" (relativo a la entrega); linea_siguiente_comunicacion tpl: rastro.
 # rastro[] elección  sólo rastros con texto (texto|tono): when (DSL) → tpl == ancla[plantilla_por] →
 #                    "<valor del contador>.<n>" → "<valor del contador>" → topic/bait_topic/canary → "<n>" (sólo con
@@ -60,16 +68,18 @@ const Markup = preload("res://core/text/markup.gd")
 const PUBLIC_EVENTS := ["go", "slip", "say", "show", "pay", "task", "ad", "telegram", "letter", "order_copy", "report"]
 const INTERNAL_EVENTS := ["tiempo", "reaccion", "inactividad"]
 const CHANNELS := ["K-T", "K-BM", "K-W", "K-H", "K-S"]
-const LATENCIES := ["voz_a", "voz_b", "fija", "inmediata", "siguiente_salida", "siguiente_comunicacion", "dias"]
+const LATENCIES := ["voz_a", "voz_b", "fija", "inmediata", "siguiente_salida", "siguiente_comunicacion", "dias", "intrusion"]
 const DOC_OPS := ["carta", "columna", "noticia"]
 const CUT_OPS := ["retirar", "cerrar", "arrancar"]
 const MATCH_SPECIAL := ["any", "topic_group", "bait", "canary", "says_alive", "to_s", "cat", "doc", "ent", "ad", "channel", "sensor"]
-const DISP_KEYS := ["evento", "match", "una_vez_por", "contador", "n_in", "n_gte", "tk", "acumula"]
+const DISP_KEYS := ["evento", "match", "una_vez_por", "contador", "n_in", "n_gte", "tk", "acumula", "relacion"]
+# v3 (GDD_v3 §4.2): dónde está «en casa» un original P (estante de la pieza); los demás holders no son de Lisle.
+const HOME_HOLDERS := ["L1", "tomo"]
 const EFFECT_FILTERS := ["si_canal", "si_n", "si_cond"]
 const COMMON_EV := ["type", "tk", "day", "slot", "seq", "act"]
 const ANCHOR_FIELDS := ["place", "area", "char", "kind", "topic", "assertion", "bait_topic", "canary", "doc", "title", "seat",
 	"hour", "phrase", "text", "streets", "ad", "form", "to", "n", "rid", "iid", "voice", "how", "channel", "task", "amount_d",
-	"to_s", "says_alive", "pub_day", "mode", "slots", "copies", "reply_to_ad", "soft", "privado_kw"]
+	"to_s", "says_alive", "pub_day", "mode", "slots", "copies", "reply_to_ad", "soft", "privado_kw", "relacionada"]
 const HOURS := ["doce", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once"]
 # variables que vars_for define para los rastros
 const VARS := ["seat", "title", "hour", "hora", "phrase", "text", "topic", "n", "form", "to", "task", "amount_d", "place",
@@ -603,6 +613,12 @@ static func collect(st, repo, ev: Dictionary, obs, sides: Array, bumped: Diction
 			var ctx := {"st": st, "repo": repo, "ev": _src(ev, obs), "anchor": anchor, "tk": int(ev.get("tk", 0)), "counters": {"n": n}}
 			if not Cond.eval(rule.get("condiciones", {}), ctx):
 				continue
+		# v3 (GDD_v3 §4.2): HA5/HA6 sólo si hay en casa un original P relacionado con el acto (se lleva ése)
+		if disp(rule).has("relacion"):
+			var rel := relacion_copy(st, repo, rule, ev, obs)
+			if rel == "":
+				continue
+			anchor["relacionada"] = [rel]
 		var ok := once_key(rule, ev, obs)
 		if ok != "" and st.react.once.has(ok):
 			if String(disp(rule).get("acumula", "")) == "dia":
@@ -694,6 +710,97 @@ static func copy_class(repo, copy_id: String) -> String:
 	if typeof(d) == TYPE_DICTIONARY:
 		return String(d.get("class", ""))
 	return ""
+
+# ---------------- v3: el original relacionado (HA5/HA6, GDD_v3 §4.2) ----------------
+# disparador.relacion: [{si: match, copias: [ejemplar…]} | {mostrado: true}] en orden: la primera entrada cuyo `si` pasa
+# (ReactionDB.match_ok sobre lo observado) da su lista; de ella, el primer original P que esté en casa ahora. {mostrado}
+# = el original que el jugador acaba de mostrar (evento show: item.doc_ids/origins → su ejemplar de casa, o el documento
+# recibido de la bandeja). "" si no hay ninguno (la reacción no dispara y no gasta su única vez).
+static func relacion_copy(st, repo, rule: Dictionary, ev: Dictionary, obs) -> String:
+	var spec = disp(rule).get("relacion", [])
+	var tk := int(ev.get("tk", 0))
+	for r in _as_arr(spec):
+		if typeof(r) != TYPE_DICTIONARY:
+			continue
+		if bool(r.get("mostrado", false)):
+			var c := shown_original(st, repo, ev, obs, tk)
+			if c != "":
+				return c
+			continue
+		if r.has("si") and not match_ok(repo, r.si, ev, obs, st):
+			continue
+		for c in _as_arr(r.get("copias", [])):
+			if copy_at_home(st, repo, String(c), tk):
+				return String(c)
+		# la entrada aplicó pero ninguno de sus originales está en casa: se prueban las siguientes
+	return ""
+
+# El original P mostrado: un documento estático con ejemplar de casa (P) o una instancia recibida en la bandeja.
+static func shown_original(st, repo, ev: Dictionary, obs, tk: int) -> String:
+	var src := _src(ev, obs)
+	var ids: Array = []
+	for f in ["doc"]:
+		if src.get(f) != null and String(src[f]) != "":
+			ids.append(String(src[f]))
+	var it = src.get("item")
+	if typeof(it) == TYPE_DICTIONARY:
+		for k in ["origins", "doc_ids"]:
+			for d in _as_arr(it.get(k)):
+				if not ids.has(String(d)):
+					ids.append(String(d))
+	for d in ids:
+		if typeof(st.world) == TYPE_DICTIONARY and typeof(st.world.get("docs")) == TYPE_DICTIONARY and st.world.docs.has(d):
+			if copy_at_home(st, repo, d, tk):
+				return d
+			continue
+		if repo == null:
+			continue
+		for c in repo.doc(d).get("copies", []):
+			if typeof(c) == TYPE_DICTIONARY and copy_at_home(st, repo, String(c.get("id", "")), tk):
+				return String(c.id)
+	return ""
+
+# ¿El original P está ahora en la pieza? Ejemplar de holder L1/tomo, clase P, en su ventana from/to y sin retirar (Effects:
+# st.react.world.withdrawn/torn; WorldModel: st.world.copies). Una instancia runtime (carta recibida) cuenta si se entregó
+# en la bandeja y no está retirada. Lee el estado sin precargar sim/ ni effects.gd (ciclo).
+static func copy_at_home(st, repo, copy_id: String, tk: int) -> bool:
+	if copy_id == "":
+		return false
+	var w: Dictionary = st.world if typeof(st.world) == TYPE_DICTIONARY else {}
+	var rw = st.react.get("world", {}) if typeof(st.react) == TYPE_DICTIONARY else {}
+	if typeof(rw) != TYPE_DICTIONARY:
+		rw = {}
+	var wd = rw.get("withdrawn", {}).get(copy_id) if typeof(rw.get("withdrawn")) == TYPE_DICTIONARY else null
+	if typeof(wd) == TYPE_DICTIONARY and tk >= int(wd.get("from_tk", 0)) and (int(wd.get("to_tk", -1)) < 0 or tk < int(wd.get("to_tk", -1))):
+		return false
+	if typeof(rw.get("torn")) == TYPE_DICTIONARY and rw.torn.has(copy_id):
+		return false
+	var own = w.get("copies", {}).get(copy_id) if typeof(w.get("copies")) == TYPE_DICTIONARY else null
+	if typeof(own) == TYPE_DICTIONARY:
+		var u := int(own.get("until_tk", -1))
+		if tk >= int(own.get("from_tk", -1)) and (u < 0 or tk <= u):
+			return false
+	if typeof(w.get("docs")) == TYPE_DICTIONARY and w.docs.has(copy_id):
+		var d = w.docs[copy_id]
+		if typeof(d) != TYPE_DICTIONARY or not bool(d.get("delivered", false)) or String(d.get("where", "")) != "tray":
+			return false
+		var cls := String(d.get("meta", {}).get("class", "P")) if typeof(d.get("meta")) == TYPE_DICTIONARY else "P"
+		return cls == "P"
+	if repo == null:
+		return false
+	var cp = repo.copy(copy_id)
+	if typeof(cp) != TYPE_DICTIONARY or cp.is_empty():
+		return false
+	var c: Dictionary = cp.get("copy", {})
+	if not HOME_HOLDERS.has(String(c.get("holder", ""))):
+		return false
+	if copy_class(repo, copy_id) != "P":
+		return false
+	if c.has("from") and tk < TimeKey.of(c.from):
+		return false
+	if c.has("to") and tk > TimeKey.of(c.to):
+		return false
+	return true
 
 # ---------------- efectos y rastro ----------------
 static func effects_of(rule: Dictionary, soft: bool) -> Array:

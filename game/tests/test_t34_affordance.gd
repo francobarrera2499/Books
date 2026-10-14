@@ -1,12 +1,14 @@
-# T34 (CÁMARA + AFORDANCIAS, GDD_v2 §D.5) — sin pantalla:
-#  - todo nodo con prop recibe el código 1 o 2 en alguna malla (todos los lugares, láminas y la buhardilla);
+# T34 (UI-MUNDO, GDD_v3 §6.5) — afordancias sin pantalla:
+#  - todo nodo con prop recibe el código 1 (examinable) en alguna malla (todos los lugares, láminas y la buhardilla);
 #  - los códigos sólo cambian la rugosidad (el resto del material es idéntico: la captura no cambia por el código);
-#  - lo usable (código 2) sale SÓLO de un vínculo de data/map.json con su bandera (q_ui), las salidas y los personajes en
-#    primer plano; ninguna silueta recibe el código 2 (su presencia es evidencia), aunque se le pueda hablar (mano);
-#  - el realce bajo el mouse (código 3) pisa al 2 y al 1 y se deshace; la etiqueta suma el verbo sólo a lo usable;
-#  - el picker no se queda con el ancla gruesa de un nodo si el rayo no toca ninguna de sus mallas (la silla y el
-#    escritorio de la buhardilla).
-# La parte con ventana (calibración del quad, cursor y etiqueta con el mouse real) está en test_t34_affordance_window.gd.
+#  - NINGÚN contorno permanente: lo usable no cambia el código (sólo el cursor); bajo el mouse, código 3 (el quad dibuja
+#    un contorno blanco) y se deshace al salir; cursor de mano si se usa, de lupa si se mira;
+#  - el shader sólo dibuja el contorno blanco (#ffffff, α 0,9, 2 px a 900 p): sin filete rojo ni «mirar alrededor»;
+#  - lo usable sale SÓLO de un vínculo de data/map.json con su bandera (q_ui), las salidas y los personajes en primer plano;
+#    ninguna silueta es usable (aunque se le pueda hablar: mano);
+#  - de la v2 no queda la etiqueta flotante, el rectángulo de tijera sobre el 3D, ni las teclas M, L y Espacio; las cintas
+#    del HUD («Cuaderno», «Expediente») sólo fuera de la buhardilla.
+# La parte con ventana (calibración del quad, cursor con el mouse real) está en test_t34_affordance_window.gd.
 extends "res://tests/test_base.gd"
 
 const TIMEOUT_S := 240.0
@@ -16,7 +18,7 @@ const Shell = preload("res://ui/shell.gd")
 const Objects = preload("res://ui/desk/objects.gd")
 const Bot = preload("res://devtools/bots/bot_deductor.gd")
 
-const USABLE_DO := ["tray", "map", "notebook", "ledger", "scissors", "calendar", "compose", "sleep", "catalog", "go", "leave"]
+const USABLE_DO := ["tray", "map", "notebook", "dossier", "scissors", "calendar", "compose", "sleep", "catalog", "go", "leave", "docs"]
 
 var _wr = null
 var sh = null
@@ -66,6 +68,18 @@ func _all_places() -> Dictionary:
 	for k in r.plates(): all[k] = r.plates()[k]
 	return all
 
+# Códigos puestos por las afordancias (sólo materiales codificados: lo transparente o sin BaseMaterial queda como era).
+func _codes(root: Node3D) -> Dictionary:
+	var out := {}
+	var owners: Dictionary = AFF.owners(root)
+	for k in owners:
+		for gi in owners[k]:
+			if not is_instance_valid(gi): continue
+			var g3 := gi as GeometryInstance3D
+			if g3.material_override == g3.get_meta("aff_orig", null): continue
+			out[AFF.code_of(g3)] = true
+	return out
+
 func test_every_node_with_prop_gets_a_code() -> void:
 	var all := _all_places()
 	var bad: Array = []
@@ -90,17 +104,16 @@ func test_every_node_with_prop_gets_a_code() -> void:
 					lst = owners.get("c:" + prop, [])
 				var coded := false
 				for gi in lst:
-					var c: int = AFF.code_of(gi)
-					if c == 1 or c == 2:
+					if AFF.code_of(gi) == 1:
 						coded = true
 				if not coded and not _only_shared(wr, b, prop):
 					bad.append("%s.%s:%s" % [pid, area, nid])
+			eq(_codes(wr.diorama).keys().filter(func(c): return int(c) != 1 and int(c) != 0), [], "%s.%s: sin realce armado el diorama" % [pid, area])
 			after_each()
 	eq(bad, [], "nodos con prop sin código")
 
 # Sin malla propia sólo se admite si todas las mallas de su prop que tocan su ancla son de otro dueño o son
-# «arquitectura» compartida (> ARCH_RATIO × el volumen del ancla: las mesas radiales de la Sala son un solo MultiMesh):
-# ese nodo se nombra y cambia el cursor, pero no se contornea (como los de sólo ancla).
+# «arquitectura» compartida (> ARCH_RATIO × el volumen del ancla): ese nodo cambia el cursor pero no se contornea.
 func _only_shared(wr, b: Node3D, prop: String) -> bool:
 	var src: Node = wr.diorama.get_node("Props").get_node_or_null(NodePath(prop.replace(".", "_")))
 	if src == null: return true
@@ -122,7 +135,7 @@ func test_codes_only_change_roughness() -> void:
 	m.albedo_color = Color("5a4632")
 	m.roughness = 1.0
 	m.metallic_specular = 0.25
-	for code in [1, 2, 3]:
+	for code in [1, 3]:
 		for vid in range(AFF.IDS):
 			var d: BaseMaterial3D = AFF.coded_mat(m, code, vid)
 			ok(d != m, "material duplicado")
@@ -135,38 +148,60 @@ func test_codes_only_change_roughness() -> void:
 	ok(AFF.coded_mat(m, 0) == m, "código 0: el material original")
 	var glass := StandardMaterial3D.new()
 	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	ok(AFF.coded_mat(glass, 2) == glass, "lo transparente no se codifica (no escribe el buffer)")
-	# variantes separadas por ≥ 2 pasos de 8 bits y lejos de los umbrales
-	for code in [1, 2]:
-		for vid in range(AFF.IDS):
-			var r := AFF.rough_for(code, vid)
-			var lo := 0.94 if code == 1 else 0.90
-			var hi := 0.98 if code == 1 else 0.94
-			ok(r - lo >= 1.5 / 255.0 and hi - r >= 1.5 / 255.0, "variante %d del código %d lejos de los umbrales (%.4f)" % [vid, code, r])
+	ok(AFF.coded_mat(glass, 3) == glass, "lo transparente no se codifica (no escribe el buffer)")
 
-func test_hover_overrides_and_restores() -> void:
-	var r = repo()
-	var wr = await _world(r.place("L1"), "buhardilla")
-	wr.set_usable({"n:cuaderno": true}, {})
-	var cu: Array = AFF.owners(wr.diorama)["n:cuaderno"]
-	var si: Array = AFF.owners(wr.diorama)["n:silla"]
-	ok(not cu.is_empty() and not si.is_empty(), "mallas del cuaderno y de la silla")
-	eq(AFF.code_of(cu[0]), 2, "cuaderno usable: 2")
-	eq(AFF.code_of(si[0]), 1, "silla: 1")
-	var p: Vector2 = wr.camera().unproject_position(wr.node_body("silla").global_position)
+func test_hover_only_and_cursors() -> void:
+	tree.root.size = Vector2i(1600, 900)
+	_wr = WR.new()
+	tree.root.add_child(_wr)
+	_wr.set_fast(true)
+	_wr.hover_enabled = false
+	_wr.show_hub("escritorio", "M")
+	await tree.physics_frame
+	await tree.physics_frame
+	var wr = _wr
+	wr.set_usable({"n:cuaderno": true, "n:tintero": true}, {})
+	var owners: Dictionary = AFF.owners(wr.diorama)
+	var cu: Array = owners.get("n:cuaderno", [])
+	var ve: Array = owners.get("n:ventana", [])
+	ok(not cu.is_empty() and not ve.is_empty(), "mallas del cuaderno y de la ventana")
+	eq(_codes(wr.diorama).keys().filter(func(c): return int(c) >= 2), [], "lo usable no se marca: ningún contorno permanente")
+	var p := _visible_point(wr, "cuaderno")
+	ok(p.x >= 0.0, "el cuaderno se ve desde el escritorio")
 	var hit: Dictionary = wr.hover_at(p)
-	eq(str(hit.get("id", "")), "silla", "realce bajo el mouse: la silla")
-	eq(AFF.code_of(si[0]), 3, "silla bajo el mouse: 3")
-	eq(wr.cursor_for("node", "silla"), Input.CURSOR_HELP, "lupa sobre lo examinable")
-	eq(wr.cursor_for("node", "cuaderno"), Input.CURSOR_POINTING_HAND, "mano sobre lo usable")
+	eq(str(hit.get("id", "")), "cuaderno", "bajo el mouse: el cuaderno")
+	eq(AFF.code_of(cu[0]), 3, "cuaderno bajo el mouse: 3 (contorno)")
+	eq(AFF.code_of(ve[0]), 1, "lo demás sigue en 1")
+	eq(wr.cursor_for("node", "cuaderno"), Input.CURSOR_POINTING_HAND, "mano sobre lo que se usa")
+	eq(wr.cursor_for("node", "ventana"), Input.CURSOR_HELP, "lupa sobre lo que se mira")
+	eq(wr.cursor_for("none", ""), Input.CURSOR_ARROW, "flecha sobre nada")
 	wr.hover_at(Vector2(-50, -50))
-	eq(AFF.code_of(si[0]), 1, "al salir, la silla vuelve a 1")
-	eq(AFF.code_of(cu[0]), 2, "el cuaderno sigue en 2")
+	eq(AFF.code_of(cu[0]), 1, "al salir, el cuaderno vuelve a 1")
+	eq(_codes(wr.diorama).keys().filter(func(c): return int(c) >= 2), [], "nada queda marcado")
 
-func test_picker_skips_coarse_anchor() -> void:
-	# el ancla de la silla (0,52 × 0,9 × 0,52) tapa en pantalla el frente del escritorio desde la vista general: entre los
-	# barrotes del respaldo el rayo no toca ninguna malla de la silla y el clic llega al cuaderno y a la tijera
-	var r = repo()
+func _visible_point(wr, nid: String) -> Vector2:
+	var b: Node3D = wr.node_body(nid)
+	if b == null: return Vector2(-1, -1)
+	var cam: Camera3D = wr.camera()
+	var c := cam.unproject_position(b.global_position)
+	for r in range(0, 120, 6):
+		for k in 16:
+			var q := c + Vector2.from_angle(TAU * k / 16.0) * float(r)
+			if str(wr.pick(q).get("id", "")) == nid: return q
+			if r == 0: break
+	return Vector2(-1, -1)
+
+func test_shader_is_only_a_white_outline() -> void:
+	var txt := FileAccess.get_file_as_string("res://world/affordance/affordance.gdshader")
+	ok(txt.contains("uniform vec4 outline_col : source_color = vec4(1.0, 1.0, 1.0, 1.0)"), "contorno blanco")
+	ok(txt.contains("uniform float outline_px = 2.0"), "2 px a 900 p")
+	ok(txt.contains("uniform float outline_a = 0.9"), "α 0,9")
+	for gone in ["usable_col", "reveal_all", "hover_fill", "halo"]:
+		no(txt.contains(gone), "sin «%s» (v2)" % gone)
+	var sh_res: Shader = load("res://world/affordance/affordance.gdshader")
+	ok(sh_res != null, "el shader carga")
+
+func test_desk_items_pickable_from_the_desk_point() -> void:
 	tree.root.size = Vector2i(1600, 900)
 	_wr = WR.new()
 	tree.root.add_child(_wr)
@@ -175,15 +210,19 @@ func test_picker_skips_coarse_anchor() -> void:
 	_wr.show_hub("general", "M")
 	await tree.physics_frame
 	await tree.physics_frame
-	eq(_wr.rig.mode(), "overview", "vista general")
-	for nid in ["cuaderno", "tijera", "tintero", "calendario", "bandeja"]:
-		var c: Vector2 = _wr.camera().unproject_position(_wr.node_body(nid).global_position)
-		var found := false
-		for dx in range(-12, 13, 4):
-			for dy in range(-8, 9, 4):
-				if str(_wr.pick(c + Vector2(dx, dy)).get("id", "")) == nid:
-					found = true
-		ok(found, "«%s» se toca desde la vista general" % nid)
+	eq(_wr.rig.cur, "escritorio", "se entra mirando el escritorio")
+	for nid in ["cuaderno", "tintero", "expediente", "bandeja"]:
+		ok(_visible_point(_wr, nid).x >= 0.0, "«%s» se toca desde el escritorio" % nid)
+
+func test_v2_affordances_are_gone() -> void:
+	for f in ["res://ui/desk/hover_label.gd", "res://ui/desk/scissors3d.gd"]:
+		no(FileAccess.file_exists(f), "no existe %s" % f)
+	for a in ["fe_mapa", "fe_mirar", "fe_libro_mayor"]:
+		no(InputMap.has_action(a), "sin la acción %s" % a)
+	ok(InputMap.has_action("fe_expediente"), "E abre el expediente")
+	var gs_txt := FileAccess.get_file_as_string("res://ui/desk/game_screen.gd")
+	for gone in ["HoverLabel", "Scissors3D", "set_look_around", "_away_btn", "go_zone"]:
+		no(gs_txt.contains(gone), "game_screen.gd sin %s" % gone)
 
 # --- con la pantalla de juego (datos reales): lo usable sale de los vínculos y las banderas
 func _boot() -> void:
@@ -227,56 +266,43 @@ func _check_usable_rule(where: String) -> void:
 		var nid := key.substr(2)
 		no(nid.begins_with("sil_"), "%s: ninguna silueta es usable (%s)" % [where, nid])
 		var b: Dictionary = Objects.binding(g.sim.repo, gs.cur_place, nid)
+		# playtest v3 (Somerset House): en una visita, lo que ofrece un papel para leer o pedir también se usa (mano)
+		if ph == "visit" and not USABLE_DO.has(String(b.get("do", ""))):
+			ok(not Objects.docs_for(g.sim, g.sim.repo, gs._place_def(gs.cur_place), gs._node_def(nid), b).is_empty(), "%s: %s usable porque su tarjeta ofrece un papel" % [where, nid])
+			continue
 		ok(USABLE_DO.has(String(b.get("do", ""))), "%s: %s usable por un vínculo de map.json (%s)" % [where, nid, str(b)])
 		ok(gs.binding_live(String(b.get("do", "")), ph, f), "%s: %s con su función viva" % [where, nid])
-	# y al revés: todo vínculo vivo está marcado
 	for nid in w.diorama.get_meta("nodes_index"):
 		var b2: Dictionary = Objects.binding(g.sim.repo, gs.cur_place, String(nid))
 		if String(nid).begins_with("sil_"): continue
 		if gs.binding_live(String(b2.get("do", "")), ph, f):
-			ok(w.usable.has("n:" + String(nid)), "%s: %s (vínculo vivo) lleva el contorno" % [where, nid])
-	# las siluetas nunca tienen código 2 en sus mallas
-	for k2 in AFF.owners(w.diorama):
-		if String(k2).begins_with("n:sil_"):
-			for gi in AFF.owners(w.diorama)[k2]:
-				ok(AFF.code_of(gi) != 2, "%s: la silueta %s sin contorno permanente" % [where, k2])
+			ok(w.usable.has("n:" + String(nid)), "%s: %s (vínculo vivo) lleva la mano" % [where, nid])
+	eq(_codes(w.diorama).keys().filter(func(c): return int(c) == 2), [], "%s: ningún contorno permanente" % where)
 
 func test_usable_only_from_bindings_flags_exits_and_characters() -> void:
 	await _boot()
 	var gs = sh.game_screen
 	eq(String(g.sim.q_clock().phase), "prologue", "prólogo")
 	await _check_usable_rule("prólogo")
-	# en el prólogo el mapa todavía no existe para Lisle (desk.mapa): sin contorno aunque el mapa esté colgado
-	no(sh.world.usable.has("n:mapa"), "prólogo: el mapa sin contorno")
 	await _to_day(1)
 	eq([int(g.sim.q_clock().day), String(g.sim.q_clock().phase)], [1, "desk"], "día 1 en el escritorio")
 	await _check_usable_rule("día 1")
 	var f: Dictionary = gs.ui_flags()
-	eq(sh.world.usable.has("n:mapa"), bool(f.get("desk.mapa", true)), "día 1: el mapa con su bandera")
-	eq(sh.world.usable.has("n:cuaderno"), bool(f.get("hud.cuaderno", true)), "día 1: el cuaderno con su bandera")
-	# etiquetas: lo usable suma el verbo; lo examinable, sólo el sustantivo
-	var t_use: String = gs.hover_text("node", "tintero") if sh.world.usable.has("n:tintero") else ""
-	if t_use != "":
-		ok(t_use.contains(" · "), "lo usable lleva verbo: «%s»" % t_use)
-	eq(gs.hover_text("node", "silla"), "silla", "lo examinable, sólo el sustantivo")
-	# Pendientes es interfaz: tapa el mouse (leerla, dentro de la banda izquierda, no gira ni realza lo de atrás)
+	eq(sh.world.usable.has("n:mapa"), bool(f.get("desk.mapa", true)), "día 1: el plano de la pared con su bandera")
+	eq(sh.world.usable.has("n:expediente"), bool(f.get("desk.expediente", true)), "día 1: el expediente")
+	# en casa las cintas del HUD no están (Cuaderno y Expediente están sobre la mesa); Pendientes es interfaz
+	no(bool(gs.hud.books_box.visible), "en la buhardilla no hay cintas en el HUD")
 	eq(gs.hud.guide_box.mouse_filter, Control.MOUSE_FILTER_STOP, "Pendientes toma el mouse")
-	# una visita: personajes en primer plano usables, siluetas no
+	# una visita: personajes en primer plano usables, siluetas no; las cintas aparecen
 	var r: Dictionary = g.act({"t": "go", "place": "L4", "area": ""})
 	if bool(r.get("ok", false)):
 		await _settle()
-		# la banda de escena (abierta casi siempre en una visita) no apaga los bordes ni «mirar alrededor»; un panel que
-		# tapa el 3D, sí (§E.2)
 		eq(sh.top_kind(), "scene", "visita: la banda de escena abierta")
-		ok(sh.world.edge_enabled, "con la banda de escena los bordes giran (si no, no hay cómo pasar de estación)")
-		gs.set_look_around(true)
-		ok(gs.looking_around(), "con la banda de escena se mira alrededor")
-		gs.set_look_around(false)
+		ok(sh.world.edge_enabled, "con la banda de escena los bordes giran")
+		ok(bool(gs.hud.books_box.visible) == bool(f.get("hud.cuaderno", true) or f.get("desk.expediente", true)), "fuera de casa, las cintas")
 		sh.open_panel("notebook")
 		await _settle()
 		no(sh.world.edge_enabled, "con el cuaderno abierto los bordes no giran")
-		gs.set_look_around(true)
-		no(gs.looking_around(), "con el cuaderno abierto no se mira alrededor")
 		sh.close_all()
 		await _settle()
 		await _check_usable_rule("visita L4")

@@ -1,4 +1,8 @@
-# core/scenes/dialogue.gd — preguntar, afirmar, presentar, pagar y encargar (§4.12, §5.7; GDD §8.7). Dueño: W2-SCENES.
+# core/scenes/dialogue.gd — preguntar, afirmar, presentar, pagar y encargar (§4.12, §5.7; GDD §8.7). Dueño: CORE-EXPEDIENTE.
+# v3: se presentan recortes o preguntas del Expediente ({kind: "clip" | "pregunta", id}); HB12 (Mycroft) vale con Q3 en
+#   tinta cuyas pruebas no salen de S.HC06 (GDD_v3 §6.10). «¿Dónde consigo…?» (GDD_v3 §5.2): donde_items (q_donde) y
+#   act_ask_donde (acción comprometida y NO pública: Crane no es canal); el ítem que revela un lugar lo suma al plano con
+#   «Me lo dijo Crane.» (Reveal.reveal, cargado en tiempo de llamada: scenes no precarga sim).
 # Respuesta por capas (§4.12): afirmacion -> tema -> documento -> entidad -> tipo -> generica (Det.pick).
 #   `match` SÓLO sobre propiedades visibles (T20b): topic, ents, docs, kinds, assertion. `when` = DSL §4.18 (estado).
 #   Líneas con `reaction` y sin `match` sólo se usan como respuesta especial (HB4, HB6, HB8, M4, HB12).
@@ -36,35 +40,12 @@ const SPECIAL_HB4_CHARS := ["watson"]      # HB4: Watson + Mary/«vive» (§5.7)
 const HB8_ENTS := ["vieja_tarifa"]          # «the old scale of pay» (D44, GDD HB8)
 const SHILLING_D := 12
 const TASKS := ["seguir_chico_pell", "seguir_parker"]   # §3.5
-const HB12_CONCS := ["C6", "C7"]
+const HB12_QUESTION := "Q3"
 const HB12_EXCLUDED_ORIGIN := "S.HC06"      # §12.1.4
 const HB12_EXCLUDED_SCENE := "HC06"
 const CHANNELS := ["kbm", "kw", "kh", "ks", "kt"]
 const L3_INTERIOR := ["interior", "vestibulo", "salita"]
 
-# Vista mínima de GameState para revalidar un asiento sin mutar st (HB12).
-class StView extends RefCounted:
-	var seed := 0
-	var clock := {}
-	var world := {}
-	var ded := {}
-	var react := {}
-	var scenes := {}
-	var flags := {}
-	var events := []
-	var seq := {}
-	var notes := []
-	var pending_events := []
-	func next_id(_kind: String, prefix: String, width: int) -> String:
-		return prefix + "0".repeat(width)
-	func note(_kind: String, _payload := {}) -> void:
-		pass
-	func push_event(_ev: Dictionary) -> void:
-		pass
-	func canon() -> Dictionary:
-		return {}
-
-# ---------------- contrato §3.8 ----------------
 static func init_state(st, repo) -> void:
 	if typeof(st.scenes) != TYPE_DICTIONARY:
 		st.scenes = {}
@@ -102,7 +83,7 @@ static func respond(st, repo, char_id: String, visible: Dictionary) -> Dictionar
 # Frase exacta de Lisle (ask, assert, present, pay, task). "" si no aplica.
 static func preview(st, repo, a: Dictionary) -> String:
 	var ch := String(a.get("char", ""))
-	var addr := _addr(repo, ch)
+	var addr := _addr(repo, ch, st)
 	match String(a.get("t", "")):
 		"ask":
 			var topic := String(a.get("topic", ""))
@@ -120,9 +101,8 @@ static func preview(st, repo, a: Dictionary) -> String:
 			var item = a.get("item", {})
 			if typeof(item) != TYPE_DICTIONARY:
 				return ""
-			if String(item.get("kind", "")) == "entry":
-				var e := Deps.entry(st, String(item.get("id", "")))
-				return Deps.txt(repo, "scenes.present.entry", {"addr": addr, "resumen": Deps.entry_summary(repo, e)}, "Mire este asiento, ${addr}: ${resumen}.")
+			if String(item.get("kind", "")) == "pregunta":
+				return Deps.txt(repo, "v3core.present.pregunta", {"addr": addr, "resumen": Deps.question_summary(st, repo, String(item.get("id", "")))}, "Mire esto que anoté, ${addr}: ${resumen}")
 			var v: Dictionary = Deps.clipper().visible(st, String(item.get("id", "")))
 			return Deps.txt(repo, "scenes.present.clip", {"addr": addr, "texto": String(v.get("text", ""))}, "Mire esto, ${addr}: «${texto}»")
 		"pay":
@@ -144,6 +124,19 @@ static func topics(st, repo, char_id: String) -> Array:
 		if label == "":
 			label = Deps.index().display(repo, id)
 		out.append({"id": id, "label": label})
+	# playtest v3: también lo que Lisle conoce por haberlo leído u oído (st.world.known), como el selector de respuestas
+	# (GDD_v3 §1.9): «Sherlock Holmes» no salía en el 221B porque nadie lo había recortado.
+	var seen := {}
+	for x in out:
+		seen[String(x.id)] = true
+	var kn = st.world.get("known", {}) if typeof(st.world) == TYPE_DICTIONARY else {}
+	if typeof(kn) == TYPE_DICTIONARY:
+		for e in kn:
+			var eid := String(e)
+			if eid == "" or eid.begins_with("act.") or seen.has(eid) or repo.entity(eid).is_empty():
+				continue
+			seen[eid] = true
+			out.append({"id": eid, "label": Deps.index().display(repo, eid)})
 	out.sort_custom(func(x, y): return String(x.label).naturalnocasecmp_to(String(y.label)) < 0)
 	return out
 
@@ -153,7 +146,7 @@ static func act_ask(st, repo, a) -> Dictionary:
 	var e := _check_char(st, repo, ch)
 	if e != "":
 		return _err(e)
-	if topic == "" or topic.begins_with("act.") or not Deps.index().has(st, topic):
+	if topic == "" or topic.begins_with("act.") or not (Deps.index().has(st, topic) or _known(st, topic)):
 		return _err("no_indexado")   # los actos (act_ref) no son temas: topics() tampoco los ofrece
 	if budget_left(st, repo, ch) <= 0:
 		return _err("sin_preguntas")
@@ -202,7 +195,7 @@ static func act_assert(st, repo, a) -> Dictionary:
 static func act_present(st, repo, a) -> Dictionary:
 	var ch := String(a.get("char", ""))
 	var item = a.get("item", {})
-	if typeof(item) != TYPE_DICTIONARY or not ["clip", "entry"].has(String(item.get("kind", ""))):
+	if typeof(item) != TYPE_DICTIONARY or not ["clip", "pregunta"].has(String(item.get("kind", ""))):
 		return _err("forma")
 	var e := _check_char(st, repo, ch)
 	if e != "":
@@ -214,8 +207,8 @@ static func act_present(st, repo, a) -> Dictionary:
 		return _err("no_existe")
 	var camden := Deps.item_camden(st, repo, item)
 	var tokens: Array = vis.ents.duplicate()
-	for k in vis.get("entry_values", {}):
-		tokens.append(String(vis.entry_values[k]))
+	if String(vis.get("answer", "")) != "" and not tokens.has(String(vis.answer)):
+		tokens.append(String(vis.answer))
 	var special := ""
 	var outcome := ""
 	var opts := {}
@@ -224,6 +217,11 @@ static func act_present(st, repo, a) -> Dictionary:
 		"watson":
 			if _touches_group(repo, "mary", tokens) or _says_alive(repo, tokens):
 				special = "HB4"
+			elif String(item.get("kind", "")) == "pregunta":
+				# una pregunta cuya respuesta dice que vive (Moran la leería «holmes_vive»: Q5 con holmes, GDD_v3 §6.10)
+				var wc = Deps.moran().report_cats(st, repo, {"kind": "pregunta", "id": String(item.get("id", ""))})
+				if typeof(wc) == TYPE_ARRAY and wc.has("holmes_vive"):
+					special = "HB4"
 		"mrs_hudson":
 			special = "HB6"
 		"pell":
@@ -313,7 +311,7 @@ static func assertions(st, repo, char_id := "") -> Array:
 		if not okk or (char_id != "" and not _assert_channel_ok(repo, char_id, asr)):
 			continue
 		out.append({"id": String(asr.id), "kind": String(asr.get("kind", "")), "topic": String(asr.get("topic", "")),
-			"phrase": Deps.cap_first(_fill(repo, String(asr.get("phrase", "")), {"addr": _addr(repo, char_id)}))})
+			"phrase": Deps.cap_first(_fill(repo, String(asr.get("phrase", "")), {"addr": _addr(repo, char_id, st)}))})
 	return out
 
 # Personajes presentes para el panel de escena: [{id, label, trait, can_ask, can_present}] (nombre sólo si se presentó).
@@ -604,32 +602,25 @@ static func _inter(want, have: Array) -> bool:
 			return true
 	return false
 
-# Propiedades visibles de un ítem presentado. Recorte: Clipper.visible (nunca get_clip). Asiento: valores, tinta y
-# orígenes de sus recortes (§5.7). {item_kind, ents, docs, origins, src_types, text?, entry_values?, ink?, template?}
+# Propiedades visibles de un ítem presentado. Recorte: Clipper.visible (nunca get_clip). Pregunta: su texto, la
+# respuesta (lápiz o tinta) y los orígenes de sus pruebas (GDD_v3 §6.10). {item_kind, ents, docs, origins, src_types,
+# text?, answer?, ink?, q?}
 static func _visible_item(st, repo, item: Dictionary) -> Dictionary:
 	var id := String(item.get("id", ""))
-	if String(item.get("kind", "")) == "entry":
-		var e := Deps.entry(st, id)
-		if e.is_empty():
+	if String(item.get("kind", "")) == "pregunta":
+		var qi := Deps.question_item(st, repo, id)
+		if qi.is_empty():
 			return {}
-		var vals := Deps.entry_values(e)
-		var ents: Array = []
-		for ln in e.get("lines", []):
-			var f = ln.get("fields", {}) if typeof(ln) == TYPE_DICTIONARY else {}
-			var ks: Array = f.keys() if typeof(f) == TYPE_DICTIONARY else []
-			ks.sort()
-			for k in ks:
-				var val := String(f[k])
-				if val != "" and not repo.entity(val).is_empty() and not ents.has(val):
-					ents.append(val)
+		var ans := String(qi.get("answer", ""))
+		var ents: Array = [ans] if ans != "" and not repo.entity(ans).is_empty() else []
 		var origins: Array = []
-		for cid in Deps.entry_clip_ids(st, id):
+		for cid in Deps.question_proofs(st, id):
 			var o := String(Deps.clipper().visible(st, cid).get("origin", ""))
 			if o != "" and not origins.has(o):
 				origins.append(o)
 		var r := _docs_of(repo, origins, [])
-		return {"item_kind": "entry", "ents": ents, "docs": r.docs, "origins": origins, "src_types": r.src_types,
-			"entry_values": vals, "ink": String(e.get("ink", "lapiz")), "template": String(e.get("template", ""))}
+		return {"item_kind": "pregunta", "ents": ents, "docs": r.docs, "origins": origins, "src_types": r.src_types,
+			"answer": ans, "ink": "tinta" if bool(qi.get("inked", false)) else "lapiz", "q": id}
 	var v: Dictionary = Deps.clipper().visible(st, id)
 	if v.is_empty():
 		return {}
@@ -665,13 +656,10 @@ static func _pub_item(repo, item: Dictionary, vis: Dictionary, camden: bool) -> 
 		return {"kind": kind, "withheld": true, "doc_ids": [], "ents": [], "origins": [], "src_types": []}
 	var it := {"kind": kind, "doc_ids": vis.docs.duplicate(), "ents": _pub_ents(repo, vis.ents), "origins": vis.origins.duplicate(),
 		"src_types": vis.src_types.duplicate()}
-	if kind == "entry":
+	if kind == "pregunta":
 		var camden_ents: Array = repo.lists().get("camden_entities", [])
-		var vals := {}
-		for k in vis.entry_values:
-			if not camden_ents.has(String(vis.entry_values[k])):
-				vals[k] = vis.entry_values[k]
-		it["entry_values"] = vals
+		it["q"] = String(vis.get("q", ""))
+		it["answer"] = "" if camden_ents.has(String(vis.get("answer", ""))) else String(vis.get("answer", ""))
 	return it
 
 static func _pub_ents(repo, ents: Array) -> Array:
@@ -717,7 +705,7 @@ static func _hb8_open(st) -> bool:
 	var f := Deps.flags(st)
 	return Deps.day(st) >= 3 and not bool(f.get("wiggins_aliado", false)) and not bool(f.get("wiggins_quemado", false))
 
-# HB12 (GDD §9.6, §12.1.4): éxito si es un asiento SELLADO de C6 o C7 que sigue valiendo sin recortes de origen S.HC06;
+# HB12 (GDD §9.6, §12.1.4; GDD_v3 §6.10): éxito si es Q3 EN TINTA y vale sin pruebas de origen S.HC06;
 # material secreto_camden = error sin leerlo; 1.er error tolerado; 2.º -> forasteros_cerrada (Mycroft se va).
 static func _hb12(st, repo, item: Dictionary, camden: bool) -> Dictionary:
 	var S := Deps.ensure(st)
@@ -725,7 +713,7 @@ static func _hb12(st, repo, item: Dictionary, camden: bool) -> Dictionary:
 	M["presented"] = int(M.get("presented", 0)) + 1
 	if bool(M.get("ok", false)):
 		return {"sub": "", "outcome": ""}
-	if not camden and String(item.get("kind", "")) == "entry" and _hb12_valid(st, repo, String(item.get("id", ""))):
+	if not camden and String(item.get("kind", "")) == "pregunta" and _hb12_valid(st, repo, String(item.get("id", ""))):
 		M["ok"] = true
 		if String(Deps.flags(st).get("errata_ofrecida", "")) == "":
 			st.flags["errata_ofrecida"] = "mycroft"
@@ -737,52 +725,13 @@ static func _hb12(st, repo, item: Dictionary, camden: bool) -> Dictionary:
 		return {"sub": "hb12.err2", "outcome": "HB12_cerrada"}
 	return {"sub": "hb12.err1", "outcome": "HB12_error"}
 
-static func _hb12_valid(st, repo, entry_id: String) -> bool:
-	var cid := ""
-	var sealed := Deps.sealed(st)
-	for c in HB12_CONCS:
-		if sealed.has(c) and Deps.sealed_entry_id(sealed[c]) == entry_id:
-			cid = c
-	if cid == "":
+static func _hb12_valid(st, repo, qid: String) -> bool:
+	if qid != HB12_QUESTION or not Deps.question_inked(st, qid):
 		return false
-	var excluded: Array = []
-	for clip_id in Deps.entry_clip_ids(st, entry_id):
+	for clip_id in Deps.question_proofs(st, qid):
 		if _from_hc06(st, clip_id):
-			excluded.append(clip_id)
-	if excluded.is_empty():
-		return true   # sellado = pasó entry_ok al sellarse
-	var view := StView.new()
-	view.seed = st.seed
-	view.clock = st.clock
-	view.world = st.world
-	view.react = st.react
-	view.scenes = st.scenes
-	view.flags = st.flags
-	view.events = st.events
-	view.seq = st.seq
-	view.ded = st.ded.duplicate(true)
-	var e: Dictionary = view.ded.get("entries", {}).get(entry_id, {})
-	for ln in e.get("lines", []):
-		var sup: Array = []
-		for it in ln.get("support", []):
-			var p := Deps.pair(st, String(it))
-			if p.is_empty():
-				if not excluded.has(String(it)):
-					sup.append(it)
-				continue
-			var keep: Array = []
-			for m in [String(p.get("a", "")), String(p.get("b", ""))]:
-				if m != "" and not excluded.has(m):
-					keep.append(m)
-			if keep.size() == 2:
-				sup.append(it)
-			else:
-				for m in keep:
-					if not sup.has(m):
-						sup.append(m)
-		ln["support"] = sup
-	var r: Dictionary = Deps.validator().entry_ok(view, repo, entry_id)
-	return bool(r.get("ok", false)) and String(r.get("cid", cid)) == cid
+			return false
+	return bool(Deps.dossier().check(st, repo, qid, {"exclude_origins": [HB12_EXCLUDED_ORIGIN]}).get("ok", false))
 
 # Recorte de origen S.HC06, o de una línea dicha (st.world.lines / st.scenes.lines) de la escena HC06.
 static func _from_hc06(st, clip_id: String) -> bool:
@@ -796,6 +745,103 @@ static func _from_hc06(st, clip_id: String) -> bool:
 		return false
 	var rec := Deps.line_record(st, ref)
 	return String(rec.get("scene", "")) == HB12_EXCLUDED_SCENE or String(rec.get("origin", "")) == HB12_EXCLUDED_ORIGIN
+
+# ---------------- «¿Dónde consigo…?» (GDD_v3 §5.2) ----------------
+const DONDE_SCENE := "CRANE"   # scenes/CRANE.json (CRANE.intro): desde que Crane se presentó, el panel ofrece la lista
+
+static func _donde_field(it: Dictionary, keys: Array, def = ""):
+	for k in keys:
+		if it.has(k) and it[k] != null:
+			return it[k]
+	return def
+
+# ¿Ya se presentó Crane? (se dijo alguna línea de la escena CRANE).
+static func crane_presented(st) -> bool:
+	for src in [st.world.get("lines", {}) if typeof(st.world) == TYPE_DICTIONARY else {}, Deps.sc(st, "lines")]:
+		if typeof(src) != TYPE_DICTIONARY:
+			continue
+		for uid in src:
+			var r = src[uid]
+			if typeof(r) == TYPE_DICTIONARY and String(r.get("scene", "")) == DONDE_SCENE:
+				return true
+	return false
+
+static func _known(st, ent: String) -> bool:
+	var k = st.world.get("known", {}) if typeof(st.world) == TYPE_DICTIONARY else {}
+	return typeof(k) == TYPE_DICTIONARY and k.has(ent)
+
+static func _donde_asked(st) -> Dictionary:
+	var d = Deps.sc(st, "dialogue").get("donde", {})
+	return d if typeof(d) == TYPE_DICTIONARY else {}
+
+# Ítems ofrecidos ahora: [{id, phrase, asked}] en el orden del archivo, los ya preguntados al final (plegados en la UI).
+static func donde_items(st, repo, char_id: String) -> Array:
+	if not crane_presented(st):
+		return []
+	var asked := _donde_asked(st)
+	var fresh: Array = []
+	var old: Array = []
+	for it in repo.dialogue(char_id).get("donde", []):
+		if typeof(it) != TYPE_DICTIONARY:
+			continue
+		var req = _donde_field(it, ["requiere", "requires"], [])
+		var ok: bool = typeof(req) != TYPE_ARRAY or (req as Array).is_empty()
+		if not ok:
+			for e in req:
+				if _known(st, String(e)):
+					ok = true
+					break
+		if not ok:
+			continue
+		var row := {"id": String(it.get("id", "")), "phrase": String(_donde_field(it, ["frase", "phrase"], "")), "asked": asked.has(String(it.get("id", "")))}
+		if row.asked:
+			old.append(row)
+		else:
+			fresh.append(row)
+	return fresh + old
+
+static func _donde_item(repo, char_id: String, iid: String) -> Dictionary:
+	for it in repo.dialogue(char_id).get("donde", []):
+		if typeof(it) == TYPE_DICTIONARY and String(it.get("id", "")) == iid:
+			return it
+	return {}
+
+# ask_donde {char, item}: Crane contesta en personaje (línea recortable); si el ítem revela un lugar que no estaba en el
+# plano, entra con via "crane". Gratis, sin límite, sin evento público. -> {ok, line:{uid, who, text}, revealed: L | ""}
+static func act_ask_donde(st, repo, a) -> Dictionary:
+	var ch := String(a.get("char", ""))
+	var iid := String(a.get("item", ""))
+	if not Deps.chars_present(st).has(ch):
+		return _err("no_esta")
+	var offered := false
+	for row in donde_items(st, repo, ch):
+		if String(row.id) == iid:
+			offered = true
+	if not offered:
+		return _err("no_existe")
+	var it := _donde_item(repo, ch, iid)
+	var text := String(_donde_field(it, ["texto", "text", "respuesta"], ""))
+	var ctx := {"st": st, "repo": repo, "tk": Deps.now_tk(st)}
+	for vv in _donde_field(it, ["variantes", "variants"], []):
+		if typeof(vv) == TYPE_DICTIONARY and Cond.eval(vv.get("when", {}), ctx):
+			text = String(_donde_field(vv, ["texto", "text"], text))
+			break
+	var S := Deps.ensure(st)
+	if typeof(S.dialogue.get("donde")) != TYPE_DICTIONARY:
+		S.dialogue["donde"] = {}
+	if not S.dialogue.donde.has(iid):
+		S.dialogue.donde[iid] = Deps.now_tk(st)
+	var lines: Array = []
+	if text.strip_edges() != "":
+		lines.append(say_line(st, repo, ch, text, {"id": iid, "kind": "respuesta"}))
+	var revealed := ""
+	var rv = _donde_field(it, ["revela", "reveals"], null)
+	if rv != null and String(rv) != "":
+		var L0 := String(rv).get_slice(".", 0)
+		var Rv = load("res://core/sim/reveal.gd")
+		if Rv != null and bool(Rv.call("reveal", st, repo, L0, {"via": "crane", "ref": iid})):
+			revealed = L0
+	return {"ok": true, "line": lines[0] if not lines.is_empty() else {}, "lines": lines, "revealed": revealed}
 
 # ---------------- utilidades ----------------
 static func _check_char(st, repo, ch: String) -> String:
@@ -830,8 +876,14 @@ static func _assert_channel_ok(repo, ch: String, asr: Dictionary) -> bool:
 		return true
 	return chans.has(String(sensor).replace("-", "").to_lower())
 
-static func _addr(repo, ch: String) -> String:
-	var a := String(repo.dialogue(ch).get("addr", ""))
+# st (opcional): si Lisle todavía no sabe quién es (ni en el índice —se presentó— ni `known`), el trato anónimo
+# (addr_anon: playtest v3, «Perdone, Mrs. Hudson…» con el panel llamándola «Casera con cofia»).
+static func _addr(repo, ch: String, st = null) -> String:
+	var dl: Dictionary = repo.dialogue(ch)
+	var a := String(dl.get("addr", ""))
+	var anon := String(dl.get("addr_anon", ""))
+	if st != null and anon != "" and not bool(dl.get("known", false)) and not Deps.index().has(st, ch):
+		return anon
 	return a if a != "" else Deps.txt(repo, "scenes.addr", {}, "señor")
 
 static func _raw(repo, key: String, def: String) -> String:

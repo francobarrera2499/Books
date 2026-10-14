@@ -1,8 +1,8 @@
-# Voz de los diálogos y escenas (GDD_v2 §A.3, §F.3 TEXTOS-DIÁLOGOS). Dueño: TEXTOS-DIÁLOGOS.
+# Voz de los diálogos y escenas (GDD_v2 §A.3, §F.3 TEXTOS-DIÁLOGOS). Dueño: CONTENIDO (GDD_v3 §7.2 P6; antes TEXTOS-DIÁLOGOS).
 # - Texto visible de data/dialogue/*.json y data/scenes/*.json: sin vosotros, sin peninsularismos, sin latinismos ni
 #   jerga de corrector sin explicar, y sin los términos viejos del glosario §A.1 que el jugador no entendía.
 # - Los tics de personaje se conservan: el «sir» contable de Mrs. Hudson crece con HB6 (hudson_cerrada), los adjetivos
-#   repetidos de Harris van en tramos a:harris_es_moran, «Le ahorraré el trabajo» de Mycroft, «Hum» del librero, «jefe»
+#   repetidos de Harris van en tramos a:rasgo_de_harris (GDD_v3 §1.8; también el #tic de las seis tarjetas NC.*), «Le ahorraré el trabajo» de Mycroft, «Hum» del librero, «jefe»
 #   y «la vieja tarifa» de Wiggins, y «en debida forma» de Pell a lo sumo una vez por escena.
 # - Disparadores de la v2: el bibliotecario nombra Somerset House (U5, §B.3) sin etiquetas de conclusión, y
 #   papel_crema_grueso es alias de papel_corto en Mycroft, Crane y el portero (§C.5.4).
@@ -152,9 +152,10 @@ func test_mrs_hudson_sir_grows_with_hb6():
 
 func test_character_tics_kept():
 	var r = repo()
-	# Harris / Moran: los adjetivos repetidos, siempre dentro de un tramo a:harris_es_moran
+	# Harris: los adjetivos repetidos, siempre dentro de un tramo a:rasgo_de_harris (GDD_v3 §1.8)
 	var rep := RegEx.new()
-	rep.compile("(?i)\\b(\\w{4,}), \\1\\b")
+	# «inteligente, inteligente», «a estos, a estos», «las dos cosas, las dos» (hasta tres palabras repetidas tras la coma)
+	rep.compile("(*UCP)(?i)\\b((?:\\w+ ){0,2}\\w{3,})\\b[^.]*?, \\1\\b")
 	for ref in [["M7", "inteligente"], ["M7", "exactitud"], ["PRO", "fresco"]]:
 		var txt := ""
 		for ln in r.scene(ref[0]).get("lines", []):
@@ -164,9 +165,16 @@ func test_character_tics_kept():
 		var found := false
 		for tr in pt.tramos:
 			var s := String(pt.plain).substr(int(tr.from), int(tr.to) - int(tr.from))
-			if rep.search(s) != null and (tr.tags.get("a", []) as Array).has("harris_es_moran"):
+			if rep.search(s) != null and (tr.tags.get("a", []) as Array).has("rasgo_de_harris"):
 				found = true
-		ok(found, "adjetivo repetido en tramo a:harris_es_moran: %s.%s" % ref)
+		ok(found, "adjetivo repetido en tramo a:rasgo_de_harris: %s.%s" % ref)
+	# las tarjetas del cliente (GDD_v3 §3.2): cada una repite un adjetivo en su #tic
+	for code in ["FINA", "GREE", "STUD", "SIGN", "SCAN", "TWIS"]:
+		var tr2: Dictionary = r.doc_tramo("NC." + code, "tic")
+		ok(not tr2.is_empty() and (tr2.get("tags", {}).get("a", []) as Array).has("rasgo_de_harris"), "NC.%s#tic con a:rasgo_de_harris" % code)
+		if not tr2.is_empty():
+			var pt2: Dictionary = r.parsed("NC." + code, String(tr2.part))
+			ok(rep.search(String(pt2.plain).substr(int(tr2.from), int(tr2.to) - int(tr2.from))) != null, "NC.%s#tic repite un adjetivo" % code)
 	# Mycroft
 	var a := ""
 	for ln in r.scene("HC06").lines:

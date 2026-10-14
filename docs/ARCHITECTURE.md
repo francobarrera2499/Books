@@ -3,6 +3,7 @@
 > **Lectores:** sólo agentes IA. Denso a propósito. **Diseño:** `docs/GDD.md` (citado GDD§n). **Usuario:** `design.md`. **Reglas duras:** `CLAUDE.md`.
 > Si este documento choca con el GDD en **contenido**, gana el GDD; en **técnica**, gana este documento. Ambigüedad → no asumir: reportar en la respuesta final.
 > Motor: Godot **4.7.2**, Forward+, GDScript, **sin `class_name`**. Todo bajo `C:\Dev\books`. Godot **sólo** vía `./godot.sh` desde la raíz.
+> **v3 (Expediente Holmes):** `docs/GDD_v3.md` prevalece sobre GDD/GDD_v2 y sobre lo que aquí describa conclusiones, pares, plantillas o libro mayor (ya no existen). Mapa v3: preguntas y respuestas en `data/dossier.json` + `core/deduction/dossier.gd` (`Dossier.check/view`; acciones `dq_answer`, `dq_proof`, `dq_confirm`, `clip_drop`); crónicas activas en `data/corpus.json`; la carpeta en `ui/expediente/*` (panel `dossier`, tecla E); el lector v3 (papel flotante, `ui/reader/backdrop.gdshader`, tijera suelta, paginación abajo, notas al margen) con su contrato en las cabeceras de `ui/reader/document_reader.gd` y `page_view.gd`; intrusiones en `data/reactions/*` + variantes de `data/places/L1.json`; guardado `v: 3` (un guardado anterior sólo ofrece «Partida nueva»). Partida real de punta a punta: `devtools/drivers/v3integ_partida.gd`.
 
 ## 0. Uso
 
@@ -1419,7 +1420,7 @@ D1 en runtime = paso 3 con el estado real (cortes ya aplicados + candidato; reco
 
 Pestañas: **Recortes** (búsqueda por texto; filtros por persona, lugar y fecha **de la crónica** con chips del índice; agrupado por calendario de la crónica; tarjeta = texto o miniatura, epígrafe de entidades, línea de fuente), **Índice** (alfabético por `index`; clic filtra recortes; los chips se arrastran a campos y a preguntar), **Cotejos** (pares de recortes: tarjetas con nota libre), **Diario** (D36, recortable con tijera), **Marginalia** (notas de huevos de pascua, sin contador). Abre con Tab.
 
-### 6.6 Libro mayor (`ui/ledger/*`; W3-LEDGER)
+### 6.6 Libro mayor (`ui/ledger/*`; W3-LEDGER) — RETIRADO en v3: lo reemplaza el Expediente (`ui/expediente/*`, GDD_v3 §6.1)
 
 Páginas: «Reglas del asiento» (texto fijo de GDD§8.0), «Varios», folios (encabezado = recorte que lo abrió), «Erratas inocentes» (práctica C1 con sello propio). Asiento: líneas de la plantilla con campos «Campo: ___» (soltar chips del índice; listas cerradas por menú) y una ranura «según» por línea; mensajes del chequeo formal en la voz de Lisle junto a la línea. Sello «Visto»: el jugador marca exactamente `lot_size` asientos a lápiz y estampa → animación de tinta (rasguido, secante, golpe) o golpe seco; el tampón se ve seco mientras `passes_left == 0`. Abre con L.
 
@@ -1981,3 +1982,13 @@ Aceptación común de contenido: `test_u_schema` y `Markup.lint` sin errores en 
 - **D31 · UI.** Los avisos de la Shell se corren al margen izquierdo con un compositor abierto (informe, anuncio, telegrama, carta) para no tapar el título; la tarjeta de diálogo se reajusta cuando cambia el alto del texto; las pestañas del libro mayor terminan sobre el alto real del papel del sello; la papeleta no duplica comillas; el título pregunta «Seguir / Volver al título» antes de continuar un guardado de otra versión (`Game.save_other_version`). Letra manuscrita: `ThemeInstaller.HAND_SPACE_PX` (la «S» de Homemade Apple dibuja 18 px a la izquierda de su origen a 32 px).
 - **D32 · 3D.** Maniquíes con ojos (dos puntos de tinta): una figura de frente ya no se lee de espaldas. Pell «se seca la frente» con el codo doblado (IK de dos huesos, `Mannequin._elbow`) y un pañuelo chico; Harris tres cuartos hacia la cámara en la lámina del prólogo; Mycroft y su sillón miran al encuadre de la Sala de Forasteros; L4 esquina = farmacia de Pratt (como el Kelly's, D17); L8 «vista» por la rendija de la hoja levantada.
 - **Guiones.** `devtools/scripts/slice_*.jsonl` regrabados (`slice_record.gd -- all`) con el contenido final; `slice_ui_runner` pide la copia certificada por la tarjeta de examen y lee la presentación del prólogo antes de trabajar. El runner de tests admite varios filtros separados por coma.
+
+### 12.5 v3, segundo playtest (corrector final) — vinculante
+
+Ver `docs/GDD_v3.md` §12. Lo que toca contratos de código: `WorldRoot` desarma las bandas del borde al reactivar la
+entrada o `edge_enabled` (`_edge_armed`, se arma con un movimiento fuera de las franjas); `CameraRig._settle_step` asienta
+en la dirección del giro con `SETTLE_DIR_T`; `DocumentReader`: rueda = desplazar, Ctrl + rueda = zoom; `PageView.MIN_W_MM`
+y tiras acostadas; `ClipRules.inherit` devuelve `inherited` (tramo `#fisica` con ≥ 25 %); `Dossier.act_confirm` devuelve
+`no_link` y el texto `v3core.no_se_tocan` cuando las pruebas no comparten entidades; `Dialogue.topics/act_ask` aceptan
+`st.world.known`; `dialogue.<char>.addr_anon`; `Guide` suma `v3core.pend.sin_abiertas`; `Objects.own_doc` (`_doc` de los
+nodos); entrega de reacción `del_libro`.

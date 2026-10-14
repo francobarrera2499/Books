@@ -123,7 +123,7 @@ var _b_refute: Button
 var _b_silence: Button
 var _b_follow: Button
 var _title: Label
-var _tijera_btn: Button
+var _tijera_btn: BaseButton
 var _plate_btn: Button
 var _fly: Control
 var _refresh_queued := false
@@ -255,8 +255,7 @@ func _build() -> void:
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_title.autowrap_mode = TextServer.AUTOWRAP_OFF
 	head.add_child(_title)
-	_tijera_btn = Widgets.ink_button(link.t("sceneui.tijera"))
-	_tijera_btn.toggle_mode = true
+	_tijera_btn = preload("res://ui/desk/cursors.gd").scissors_button(26)   # GDD_v3 §6.7: ícono suelto
 	_tijera_btn.toggled.connect(func(on): transcript.set_tijera(on))
 	# la tienda del día 10 también se recorta (sus dedos y su sombra, GDD §8.8 IV): rectángulo sobre la lámina, como en
 	# cualquier visita (W4: sólo se podía después, desde «Láminas de lo visto»)
@@ -268,7 +267,7 @@ func _build() -> void:
 	transcript = Transcript.new(link)
 	transcript.clipped.connect(_on_clipped)
 	transcript.failed.connect(func(e): note.say(link.t("reader.no_cuadra") if e == "no_cuadra" else link.err_text(e)))
-	transcript.tijera_changed.connect(func(on): _tijera_btn.set_pressed_no_signal(on))
+	transcript.tijera_changed.connect(func(on): preload("res://ui/desk/cursors.gd").paint_scissors(_tijera_btn, on))
 	bv.add_child(transcript)
 	# --- subpaneles
 	picker = ItemPicker.new(link)
@@ -392,7 +391,7 @@ func open_refute() -> void:
 		return
 	cancel_silence()
 	confirm_bar.visible = false
-	picker.open(link.t("sceneui.conf.picker"), ["entry", "clip"], {"merged": true})
+	picker.open(link.t("sceneui.conf.picker"), ["pregunta", "clip"], {"merged": true})
 	picker.fit_height(_free_height())
 
 # Alto libre entre la afirmación (arriba) y la banda de la transcripción (abajo): el selector no tapa la afirmación ni
@@ -405,7 +404,7 @@ func _free_height() -> float:
 	return maxf(bottom - top, 0.0)
 
 func refute(item: Dictionary) -> bool:
-	if bool(status.get("done", false)) or not ["clip", "entry"].has(String(item.get("kind", ""))):
+	if bool(status.get("done", false)) or not ["clip", "pregunta"].has(String(item.get("kind", ""))):
 		return false
 	picker.close()
 	cancel_silence()
@@ -523,7 +522,7 @@ func _on_clipped(res: Dictionary, text: String, pos: Vector2) -> void:
 	tw.chain().tween_callback(strip.queue_free)
 
 func _banner_can_drop(_at: Vector2, data) -> bool:
-	return typeof(data) == TYPE_DICTIONARY and ["clip", "entry"].has(String(data.get("kind", ""))) and not bool(status.get("done", false))
+	return typeof(data) == TYPE_DICTIONARY and ["clip", "pregunta"].has(String(data.get("kind", ""))) and not bool(status.get("done", false))
 
 func _banner_drop(_at: Vector2, data) -> void:
 	refute({"kind": String(data.get("kind", "")), "id": String(data.get("id", ""))})

@@ -5,11 +5,14 @@
 #   tests, capturas y --screen=reader:<id> cuando no hay partida (Game.sim == null). Ignora parts[].when y la
 #   accesibilidad: no se usa con una partida en curso.
 # Extras de respaldo (fuera de §3.7): doc, measure, plate, pages[i][j].part (id de la parte).
+# v3 (GDD_v3 §6.7, dueño LECTOR): normalize conserva ficha ({trata, cuando, por_que} o null) y marks ([{page, block,
+#   tramo}]) y, en cada bloque, slot ("cuerpo"|"margen"|"tarjeta"), hand y anchor. Los bloques inválidos se descartan
+#   SIN renumerar (un bloque vacío ocupa su lugar), porque el recorte y las anclas usan el índice de q_view.
 extends RefCounted
 
 const DEFAULT_MM := {
 	"diario_hueso": [300, 420], "strand": [170, 250], "diogenes_recortado": [178, 219], "telegrama": [200, 128],
-	"carta": [178, 229], "registro": [250, 350], "libro_mayor": [250, 350], "cuaderno": [180, 230],
+	"carta": [178, 229], "registro": [250, 350], "libro_mayor": [250, 350], "cuaderno": [180, 230], "tarjeta": [127, 76],
 }
 
 static func normalize(v: Dictionary) -> Dictionary:
@@ -39,8 +42,17 @@ static func normalize(v: Dictionary) -> Dictionary:
 		for b in list:
 			if typeof(b) == TYPE_DICTIONARY and typeof(b.get("parsed")) == TYPE_DICTIONARY:
 				blocks.append(b)
+			else:
+				# un hueco vacío conserva los índices de los bloques que siguen (se quitan los del final)
+				blocks.append({"parsed": {"plain": "", "styles": [], "tramos": [], "mentions": []}, "slot": "cuerpo", "_vacio": true})
+		while not blocks.is_empty() and bool(blocks[-1].get("_vacio", false)):
+			blocks.pop_back()
 		pages.append(blocks)
 	out["pages"] = pages
+	var fi = out.get("ficha")
+	out["ficha"] = fi if typeof(fi) == TYPE_DICTIONARY and not (fi as Dictionary).is_empty() else null
+	var mk = out.get("marks")
+	out["marks"] = mk if typeof(mk) == TYPE_ARRAY else []
 	return out
 
 static func src_line(repo, d: Dictionary) -> String:

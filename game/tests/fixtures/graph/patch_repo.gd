@@ -1,5 +1,5 @@
 # tests/fixtures/graph/patch_repo.gd — envoltorio de un DataRepo para casos negativos de W2-GRAPH (nada se escribe a disco).
-# PatchRepo.new(base, {conclusions:{id: dict|null}, reactions:{id: dict|null}, docs:{id: dict|null}, meta:{...},
+# PatchRepo.new(base, {questions:{id: dict|null}, dossier:{...}, reactions:{id: dict|null}, docs:{id: dict|null},
 #   schedule:{...}, places:{id: dict|null}, scenes:{id: dict|null}}). null = borrar. Implementa los métodos de DataRepo
 #   que usa core/graph y un `cache` propio (los cachés del grafo no se mezclan con los del repo base).
 extends RefCounted
@@ -40,28 +40,46 @@ func _merged(kind: String, base_dict: Dictionary) -> Dictionary:
 func errors() -> Array:
 	return []
 
-func conclusion(id: String) -> Dictionary:
-	return _get_one("conclusions", id, base.conclusion(id))
+# v3 (GDD_v3 §1.7): preguntas del Expediente. patch {questions:{id: dict|null}, dossier:{...meta}}.
+func question(id: String) -> Dictionary:
+	return _get_one("questions", id, base.question(id) if base.has_method("question") else {})
 
-func conclusions() -> Array:
+func questions() -> Array:
 	var ids := {}
-	for c in base.conclusions():
-		ids[String(c.id)] = true
-	for k in _ov("conclusions"):
+	var order := {}
+	if base.has_method("questions"):
+		for q in base.questions():
+			ids[String(q.id)] = true
+			order[String(q.id)] = int(q.get("orden", 0))
+	for k in _ov("questions"):
 		ids[k] = true
+		if typeof(_ov("questions")[k]) == TYPE_DICTIONARY:
+			order[k] = int(_ov("questions")[k].get("orden", 0))
 	var keys: Array = ids.keys()
-	keys.sort_custom(func(a, b): return String(a).naturalnocasecmp_to(String(b)) < 0)
+	keys.sort_custom(func(a, b): return int(order.get(a, 0)) < int(order.get(b, 0)) or (int(order.get(a, 0)) == int(order.get(b, 0)) and String(a) < String(b)))
 	var out: Array = []
 	for k in keys:
-		var c := conclusion(String(k))
-		if not c.is_empty():
-			out.append(c)
+		var q := question(String(k))
+		if not q.is_empty():
+			out.append(q)
 	return out
 
-func conclusions_meta() -> Dictionary:
-	if _p.has("meta"):
-		return _p.meta
-	return base.conclusions_meta()
+func dossier() -> Dictionary:
+	if _p.has("dossier"):
+		return _p.dossier
+	return base.dossier() if base.has_method("dossier") else {}
+
+func is_inactive(did: String) -> bool:
+	return base.is_inactive(did) if base.has_method("is_inactive") else false
+
+func inactive_docs() -> Array:
+	return base.inactive_docs() if base.has_method("inactive_docs") else []
+
+func files() -> Dictionary:
+	return base.files() if base.has_method("files") else {}
+
+func text(key: String, vars := {}) -> String:
+	return base.text(key, vars) if base.has_method("text") else key
 
 func reaction(id: String) -> Dictionary:
 	return _get_one("reactions", id, base.reaction(id))
@@ -175,3 +193,6 @@ func doc_tramo(doc_id: String, tid: String) -> Dictionary:
 
 func map() -> Dictionary:
 	return base.map() if base.has_method("map") else {}
+
+func parse_text(src: String, vars := {}, act := "") -> Dictionary:
+	return base.parse_text(src, vars, act)

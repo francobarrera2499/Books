@@ -12,7 +12,7 @@
    "id": "EE13",
    "name": "Trichinópolis",
    "trigger": {
-    "pair_tags": [
+    "clips_all": [
      "e:trichinopolis",
      "e:cheroot"
     ]

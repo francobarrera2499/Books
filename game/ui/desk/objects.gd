@@ -1,8 +1,8 @@
-# ui/desk/objects.gd — qué hace cada objeto del 3D al tocarlo (ARCHITECTURE §6.7). Dueño: W3-SHELL. Estática.
-# Los vínculos objeto -> acción son DATOS: data/map.json "objects" {lugar|lámina: {nodo: {do, …}}} (comodín "*" al
-# final del id de nodo; lugar "*" = cualquiera). Nada del caso en código.
-#   do: tray · map · notebook · ledger · scissors · calendar · compose · sleep · catalog · frame {frame} ·
-#       go {place, area} · leave · docs {via:[…], rest:bool}
+# ui/desk/objects.gd — qué hace cada objeto del 3D al tocarlo (ARCHITECTURE §6.7; GDD_v3 §6.4). Dueño: UI-MUNDO.
+# Estática. Los vínculos objeto -> acción son DATOS: data/map.json "objects" {lugar|lámina: {nodo: {do, …}}} (comodín
+# "*" al final del id de nodo; lugar "*" = cualquiera). Nada del caso en código.
+#   do: tray · map · notebook · dossier · scissors · calendar · compose · sleep · catalog · go {place, area} · leave ·
+#       docs {via:[…], rest:bool, skip:[ids de documento que viven en otro objeto]}
 # Documentos de un objeto (docs_for): vistas legibles ahora (q_accessible) cuya entidad de documento está entre las
 # entidades del objeto (etiquetas e: y menciones de su examen), más las de las vías del vínculo (tome, shelf, counter,
 # desk) y, con rest, los papeles de escritorio que ningún otro objeto reclama (lo que está suelto sobre la mesa).
@@ -66,6 +66,18 @@ static func _doc_entity(repo, sim, did: String) -> String:
 		return String(d.get("entity", ""))
 	return ""
 
+# Ejemplar que el nodo muestra («_doc» en places/*.json: los índices de Somerset House son D18@L6): su tarjeta lo ofrece
+# para leer aunque el examen no nombre la entidad del documento (playtest v3: sólo la tarjeta de un estante lo ofrecía).
+static func own_doc(place_def: Dictionary, node_def: Dictionary) -> String:
+	var d := String(node_def.get("_doc", ""))
+	if d != "":
+		return d
+	var nid := String(node_def.get("id", ""))
+	for n in place_def.get("nodes", []):
+		if typeof(n) == TYPE_DICTIONARY and String(n.get("id", "")) == nid:
+			return String(n.get("_doc", ""))
+	return ""
+
 # [{view, title}] (orden estable por título y vista).
 static func docs_for(sim, repo, place_def: Dictionary, node_def: Dictionary, b: Dictionary) -> Array:
 	if sim == null or repo == null:
@@ -73,6 +85,7 @@ static func docs_for(sim, repo, place_def: Dictionary, node_def: Dictionary, b: 
 	var ents := node_ents(repo, node_def)
 	var vias: Array = b.get("via", []) if typeof(b.get("via", [])) == TYPE_ARRAY else []
 	var rest := bool(b.get("rest", false))
+	var skip: Array = b.get("skip", []) if typeof(b.get("skip", [])) == TYPE_ARRAY else []
 	var tray := _tray_views(sim) if rest else {}
 	var claimed := {}
 	if rest:
@@ -82,10 +95,13 @@ static func docs_for(sim, repo, place_def: Dictionary, node_def: Dictionary, b: 
 					claimed[e] = true
 	var out: Array = []
 	var seen := {}
+	var own := own_doc(place_def, node_def)
 	for v in sim.q_accessible():
 		var view := String(v.get("view", ""))
+		if skip.has(String(v.get("doc", ""))):
+			continue
 		var ent := _doc_entity(repo, sim, String(v.get("doc", "")))
-		var hit := ent != "" and ents.has(ent)
+		var hit := (ent != "" and ents.has(ent)) or (own != "" and view == own)
 		if not hit and vias.has(String(v.get("via", ""))):
 			hit = true
 			if String(v.get("via", "")) == "desk" and rest:

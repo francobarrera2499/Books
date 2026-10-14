@@ -1,0 +1,32 @@
+{
+  "_nota": "Fixture de bots (CORE-EXPEDIENTE, GDD_v3 §1.8). El texto definitivo es de CONTENIDO. Contrato: D10#adjetivos (Q6.R2, a:rasgo_de_moran).",
+  "id": "D10",
+  "entity": "heavy_game",
+  "title": "Heavy Game of the Western Himalayas",
+  "src_type": "libro",
+  "class": "I",
+  "date": "1881-05-01",
+  "font": "imprenta",
+  "paper": "strand",
+  "paper_mm": [
+    150,
+    230
+  ],
+  "copies": [
+    {
+      "id": "D10@Crane",
+      "holder": "Crane",
+      "class": "I",
+      "via": "shelf",
+      "from": "1.M",
+      "to": "10.M"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "{{#adjetivos a:rasgo_de_moran e:adjetivos_repetidos e:moran|Un tiro limpio, limpio: el autor repite los adjetivos.}}"
+    }
+  ],
+  "words": 10
+}

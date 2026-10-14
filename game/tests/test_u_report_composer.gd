@@ -54,13 +54,13 @@ func test_first_report_items() -> void:
 	ok(rc.send_button.disabled, "sobre vacío: elegir algo o «Sin novedad»")
 	eq(rc.final_rtl.get_parsed_text(), sim.repo.text("sceneui.rep.vacio"), "la caja del texto final dice que el sobre está vacío")
 	ok(rc.add_item({"kind": "clip", "id": clip("marque")}), "un recorte al sobre")
-	ok(rc.add_item({"kind": "entry", "id": clip("practica")}), "un asiento al sobre")
+	ok(rc.add_item({"kind": "pregunta", "id": "Q1"}), "una pregunta del expediente al sobre (v3)")
 	no(rc.add_item({"kind": "clip", "id": clip("marque")}), "no se repite")
 	eq(rc.note.text(), sim.repo.text("sceneui.rep.repetido"), "nota de Lisle")
 	ok(rc._slots[2].choose.visible, "la tercera ranura ofrece «Elegir…»")
 	no(rc._slots[1].choose.visible, "una ranura llena no")
 	ok(rc._slots[0].remove.visible, "«Quitar» en la llena")
-	var a := {"t": "report_submit", "mode": "items", "items": [{"kind": "clip", "id": clip("marque")}, {"kind": "entry", "id": clip("practica")}]}
+	var a := {"t": "report_submit", "mode": "items", "items": [{"kind": "clip", "id": clip("marque")}, {"kind": "pregunta", "id": "Q1"}]}
 	eq(rc._action(), a, "acción")
 	var want: String = sim.q_preview(a)
 	ok(want != "", "texto final del sim")
@@ -141,7 +141,7 @@ func test_slot_drop() -> void:
 	mount("day2_report")
 	var s0 = rc._slots[0].panel
 	ok(s0._can_drop_data(Vector2.ZERO, {"kind": "clip", "id": clip("marque")}), "la ranura acepta un recorte")
-	ok(s0._can_drop_data(Vector2.ZERO, {"kind": "entry", "id": clip("practica")}), "y un asiento")
+	ok(s0._can_drop_data(Vector2.ZERO, {"kind": "pregunta", "id": "Q1"}), "y una pregunta del expediente")
 	no(s0._can_drop_data(Vector2.ZERO, {"kind": "ent", "id": "fina"}), "no un chip del índice")
 	s0._drop_data(Vector2.ZERO, {"kind": "clip", "id": clip("marque")})
 	eq(rc.items, [{"kind": "clip", "id": clip("marque")}], "soltar llena la ranura")

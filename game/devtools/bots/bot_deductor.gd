@@ -1,6 +1,6 @@
-# devtools/bots/bot_deductor.gd — el deductor (W3-BOTS; §9.3, GDD §15.5 T10): oráculo de rutas ★ (Feasibility.plan,
-# mínimo de salidas), asientos verificados antes de pasar en limpio, crédito ante Moran (un informe 1–3 con un asiento
-# «verdadero» que no entrega a Holmes) y errata a medida en el informe final (ofrecida por el librero al completar la
+# devtools/bots/bot_deductor.gd — el deductor (§9.3, GDD §15.5 T10; GDD_v3 §2.4): oráculo de rutas ★ (Feasibility.plan,
+# mínimo de salidas), hojas verificadas (Dossier.check) antes de pasar en limpio, crédito ante Moran (un informe 1–3 con
+# una pregunta en tinta o un recorte «verdadero» que no entrega a Holmes) y errata a medida en el informe final (ofrecida por el librero al completar la
 # confrontación con los cuatro grupos —conf_cover junta de fuentes gratuitas un recorte por grupo refutador que sus
 # rutas no traigan—; la vía de Mycroft, HB12, la ejercita bot_mycroft_azar). Es la cota superior de
 # T10: ningún bot debe superar su rank.
@@ -15,7 +15,8 @@ func _init_bot() -> void:
 
 func pol_report(n: int, final: bool) -> Dictionary:
 	if final:
-		if bool(sim.q_report_status().get("offered_erratum", false)):
+		# la errata a medida sólo si el expediente alcanza el mejor final (si no, el silencio rinde más: F3a > F3b)
+		if bool(sim.q_report_status().get("offered_erratum", false)) and _ink_meets_best():
 			return {"mode": "errata", "items": []}
 		return {"mode": "nada", "items": []}
 	if bool(sim.st.flags.get("moran_credito", false)):
@@ -25,7 +26,7 @@ func pol_report(n: int, final: bool) -> Dictionary:
 		return {"mode": "nada", "items": []}
 	return {"mode": "items", "items": [it]}
 
-# Un ítem que Moran lee como «verdadero» y nada más comprometedor (asientos antes que recortes).
+# Un ítem que Moran lee como «verdadero» y nada más comprometedor (preguntas antes que recortes).
 func credit_item() -> Dictionary:
 	var best := {}
 	for c in _report_candidates():
@@ -38,9 +39,28 @@ func credit_item() -> Dictionary:
 				bad = true
 		if bad:
 			continue
-		if best.is_empty() or (String(best.item.kind) != "entry" and String(c.item.kind) == "entry") or (String(best.item.kind) == String(c.item.kind) and cats.size() < (best.cats as Array).size()):
+		if best.is_empty() or (String(best.item.kind) != "pregunta" and String(c.item.kind) == "pregunta") or (String(best.item.kind) == String(c.item.kind) and cats.size() < (best.cats as Array).size()):
 			best = c
 	return best.get("item", {})
+
+# Condiciones de tinta (inked*, inked_count) del final de mejor rank, evaluadas sobre el estado actual.
+func _ink_meets_best() -> bool:
+	var best := {}
+	for e in repo.endings().get("endings", []):
+		if int(e.get("rank", 0)) > 0 and (best.is_empty() or int(e.rank) < int(best.rank)):
+			best = e
+	var conds: Array = []
+	var c = best.get("cond", {})
+	if typeof(c) == TYPE_DICTIONARY and c.has("all"):
+		conds = c.all
+	elif typeof(c) == TYPE_DICTIONARY:
+		conds = [c]
+	var Cond = load("res://core/util/cond.gd")
+	for x in conds:
+		if typeof(x) == TYPE_DICTIONARY and (x.has("inked") or x.has("inked_all") or x.has("inked_count")):
+			if not bool(Cond.eval(x, {"st": sim.st, "repo": repo})):
+				return false
+	return true
 
 func pol_confront(step_n: int) -> Dictionary:
 	return _confront_item(step_n)

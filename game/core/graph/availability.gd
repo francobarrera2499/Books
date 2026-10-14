@@ -24,7 +24,7 @@ const HUB := "L1"
 const T_F := 0
 const T_T := 1
 const T_U := 2
-const PLAYER_ATOMS := ["sealed", "sealed_all", "sealed_count", "counter", "event_count", "visited",
+const PLAYER_ATOMS := ["inked", "inked_all", "inked_count", "sealed", "sealed_all", "sealed_count", "counter", "event_count", "visited",
 	"report_final_cats_any", "anchor", "char_present", "pencil_wrong"]
 # flags = {ANY_FLAG: true} → todo átomo de flag vale "posible" (T_U). Lo usan las condiciones de DISPARO de las
 # reacciones: un flag que pone otra reacción o el jugador (p. ej. wiggins_aliado de HB8 para HB8b) no impide que la

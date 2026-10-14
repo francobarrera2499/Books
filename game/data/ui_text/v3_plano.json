@@ -1,0 +1,21 @@
+{
+  "_nota": "GDD_v3 §5.3 (CONTENIDO). Las líneas del plano de la pared: plano.que_hay.<L> = qué hay en cada lugar, en estilo de guía de época (una oración, sin pistas: dice qué se puede consultar, nunca qué se va a encontrar); plano.por_que.<L> = por qué está, cuando el lugar llegó por su hora garantizada (Reveal.why, via «garantia»; las otras vías las arma CORE con v3core.por_que.*). L1 no tiene por_que: es la casa. Voz de Lisle (primera persona) en por_que; impersonal en que_hay.",
+  "text": {
+    "plano.que_hay.L1": "Holywell Street: mi pieza y, abajo, la librería de Crane: libros usados, diarios atrasados, guías de viaje, fotografías.",
+    "plano.que_hay.L2": "Museo Británico, Sala de Lectura: libros y diarios de cualquier año, a pedido.",
+    "plano.que_hay.L3": "Baker Street: la casa del 221B, la calle y una agencia de alquileres.",
+    "plano.que_hay.L4": "Kensington, consultorio del doctor Watson: atiende por la mañana; el domingo recibe en su casa.",
+    "plano.que_hay.L5": "Club Diógenes, Pall Mall: club de caballeros; la portería atiende a cualquiera.",
+    "plano.que_hay.L6": "Somerset House: registros de muertes, nacimientos y testamentos.",
+    "plano.que_hay.L7": "Park Lane 427: la casa del crimen; se ve desde la vereda.",
+    "plano.que_hay.L8": "Camden House: casa vacía que se alquila; la muestra el chico de la agencia.",
+
+    "plano.por_que.L2": "Es mi lugar de trabajo.",
+    "plano.por_que.L3": "Holmes vivía ahí: lo dicen todas las crónicas.",
+    "plano.por_que.L4": "Lo dice el encargo.",
+    "plano.por_que.L5": "Lo dice la tarjeta del señor Mycroft.",
+    "plano.por_que.L6": "Lo nombra un aviso del Times.",
+    "plano.por_que.L7": "Lo dice el Times del sábado.",
+    "plano.por_que.L8": "Me lo dijo el chico de la agencia."
+  }
+}

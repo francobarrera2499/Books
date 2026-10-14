@@ -1,5 +1,5 @@
 {
-  "_nota": "W3-CT-CORPUS-B. Notas a lápiz en los tomos de la Strand de Watson (GDD §6 D01: «+150»; §2.3: las compró en la subasta de Paddington un agente de Moran; «Harris» se las deja a Lisle con los tomos). Dos manos: la de Watson (letra grande y apretada; firma «J.») y la de Mary (letra menuda e inclinada; llama a su marido «James»); el texto no dice de quién es cada una: lo dicen los tomos, D21#twis_james, Watson (dialogue/watson.json doc.tomos) y el huevo EE01. Los rótulos (tomo, historia, lugar de la página) van en imprenta; las notas, en manuscrito y lápiz. Contrato §4.8: #fina_fo (C2 raspadura_registrada: consta en las notas de los tomos; refuta falsa_tachadura → a:refuta_tachadura), #mi_james (C14 tomos_de_watson; x:EE01) y #nov93 (C14 tomos_de_watson). Enlace por claves: notas_de_los_tomos (entidad del documento) y e:tomos en todo lo de C14; #mi_james y #nov93 llevan además e:mary_watson (con D18#mary) y #nov93 e:watson (con N:L4.hueco_estante y N:L4.crespon); #fina_fo lleva e:fina (con D03#sheer). ⚠ C14.R3 (N:L4.hueco_estante + D01N#nov93) no cubre el grupo duelo: los dos fragmentos son tomos_de_watson (ver la respuesta del paquete). #herida y #nochebuena son ruido.",
+  "_nota": "W3-CT-CORPUS-B → v3 (CONTENIDO, GDD_v3 §3.3). Notas a lápiz que Watson y Mary dejaron en los tomos de la Strand (GDD §6 D01; §2.3: un agente de Moran compró los tomos en la venta de Paddington y el mayor los descosió: a Lisle le dio sólo cuatro cuadernillos y dos libros). v3: D01N ya no se lista como papel suelto (v3.solo_margen); cada tramo se muestra en el margen derecho de su crónica, junto al tramo ancla (D03.v3.margen, D01.TWIS.v3.margen), con su propio origen (D01N, ejemplar D01N@tomo, visible_cats watson_privado). Dos manos: la de Watson (letra grande y apretada; firma «J.») y la de Mary (letra menuda e inclinada; llama a su marido «James»). Quedan #fina_fo (FINA, junto a #sheer: raspadura_registrada para Q1; corte_por_orden + e:gobierno para Q4; refuta falsa_tachadura), #nov93 (FINA, al pie; curiosidad EE14) y #mi_james (TWIS, junto a #james; x:EE01). #herida y #nochebuena estaban en crónicas inactivas: se borraron. Los rótulos en imprenta no se ven en v3 (el margen muestra sólo el tramo).",
   "id": "D01N",
   "entity": "notas_de_los_tomos",
   "title": "Notas a lápiz en los tomos de la Strand",
@@ -8,12 +8,27 @@
   "date": "1893-12-01",
   "font": "imprenta",
   "paper": "strand",
-  "visible_cats": ["watson_privado"],
+  "visible_cats": [
+    "watson_privado"
+  ],
   "copies": [
-    {"id": "D01N@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"}
+    {
+      "id": "D01N@tomo",
+      "holder": "tomo",
+      "class": "P",
+      "via": "tome",
+      "from": "P.N",
+      "to": "10.N"
+    }
   ],
   "parts": [
-    {"id": "p1", "text": "<sc>Tomo II</sc> — «El hombre del labio retorcido», primera página, junto a «¿O prefieres que mande a James a la cama?». Letra menuda, inclinada:\n{{#mi_james a:tomos_de_watson x:EE01 e:mary_watson e:tomos|<f=manuscrito><ink=lapiz>mi [[james|James]]</ink></f>}}\n\n<sc>Tomo III</sc> — «El carbunclo azul», al pie de la última página. La misma letra menuda:\n{{#nochebuena e:tomos|<f=manuscrito><ink=lapiz>leído en voz alta junto al fuego, Nochebuena del 91; J\\. se rió del ganso</ink></f>}}\n\n<sc>Tomo III</sc> — «El aristócrata solterón», al margen de «la bala de jezail que traje en uno de mis miembros». Letra grande, apretada:\n{{#herida e:herida|<f=manuscrito><ink=lapiz>¿pierna?, ¿hombro?</ink></f>}} <f=manuscrito><ink=lapiz>— que quede así</ink></f>\n\n<sc>Tomo VI</sc> — «El problema final», al margen de «con una pared a pique a un lado». La letra grande:\n{{#fina_fo a:raspadura_registrada a:refuta_tachadura e:fina e:pedido_del_fo h:F.pedido_fo|<f=manuscrito><ink=lapiz>suprimido a pedido del [[foreign_office|F.O.]] — [[raspadura|la raspadura]] — pase\\. J.</ink></f>}}\n\n<sc>Tomo VI</sc> — «El problema final», última página, bajo «el mejor y el más sabio de los hombres que he conocido». La letra grande, más floja:\n{{#nov93 a:tomos_de_watson e:watson e:mary_watson e:tomos|<f=manuscrito><ink=lapiz>nov. 93 — junto a ella</ink></f>}}"}
+    {
+      "id": "p1",
+      "text": "<sc>«El hombre del labio retorcido»</sc> — junto a «¿O prefieres que mande a James a la cama?». Letra menuda, inclinada:\n{{#mi_james a:tomos_de_watson x:EE01 e:mary_watson e:tomos|<f=manuscrito><ink=lapiz>mi [[james|James]]</ink></f>}}\n\n<sc>«El problema final»</sc> — junto a «con una pared a pique a un lado». Letra grande, apretada:\n{{#fina_fo a:raspadura_registrada a:corte_por_orden a:refuta_tachadura e:fina e:pedido_del_fo e:gobierno h:F.pedido_fo|<f=manuscrito><ink=lapiz>suprimido a pedido del [[foreign_office|Foreign Office]] — [[raspadura|la raspadura]] — pase\\. J.</ink></f>}}\n\n<sc>«El problema final»</sc> — última página, bajo «el mejor y el más sabio de los hombres que he conocido». La letra grande, más floja:\n{{#nov93 a:tomos_de_watson e:watson e:mary_watson e:tomos|<f=manuscrito><ink=lapiz>nov. 93 — junto a ella</ink></f>}}"
+    }
   ],
-  "words": 150
+  "words": 80,
+  "v3": {
+    "solo_margen": true
+  }
 }

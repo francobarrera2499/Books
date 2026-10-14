@@ -162,7 +162,8 @@ func _build_galley() -> void:
 		if e < 0:
 			break
 		var slot := text.substr(k + 2, e - k - 2)
-		var b := make_blank("___", func(val):
+		var ph: String = link.t("mundo.aviso.hueco")
+		var b := make_blank(ph if ph != "mundo.aviso.hueco" else "elegir…", func(val):
 			if val == "":
 				fields.erase(slot)
 			else:
@@ -171,6 +172,9 @@ func _build_galley() -> void:
 		b.shown_fn = _printed
 		b.set_options(_options(slot))
 		_style_galley(b)
+		b.set_dashed(true, 190.0)
+		b.mouse_entered.connect(b.queue_redraw)
+		b.mouse_exited.connect(b.queue_redraw)
 		_blanks[slot] = b
 		_galley.add_child(b)
 		i = e + 1

@@ -1,7 +1,10 @@
 # core/data/data_repo.gd — único lector de data/ (§4.1–§4.2). Dueño: W1-ENG. Contrato: ARCHITECTURE §3.8.
 # Instancia cacheada por root: load_dir(root). Nunca push_error: los problemas quedan en errors() ("ruta: mensaje").
 # Accesores devuelven las estructuras internas (NO mutar; duplicar si hace falta). Faltante -> {} / [] / "".
-# Extensiones (compatibles, fuera del contrato mínimo): fresh(), clear_cache(), conclusions_meta(), plates(), scenes(),
+# v3 (GDD_v3 §1, §3.5): dossier.json (preguntas del Expediente; reemplaza al libro de conclusiones v2) y corpus.json (crónicas
+#   activas; los documentos de `inactivas` NO se cargan: quedan en el repo y se listan con inactive_docs()).
+# Extensiones (compatibles, fuera del contrato mínimo): fresh(), clear_cache(), dossier(), questions(), question(),
+#   corpus(), inactive_docs(), is_inactive(), plates(), scenes(),
 #   dialogues(), map(), fonts(), audio(), texts(), parse_text(), markup_ctx(), doc_tramo(), files(), cache (dict libre
 #   para cachés de otros módulos, p. ej. ReactionDB.compile).
 # Nota de dependencias: data -> text (Markup) por preload; text no depende de data (recibe ctx). Sin ciclos.
@@ -28,9 +31,11 @@ var _copies := {}           # copy id -> {copy, doc}
 var _parsed := {}           # "doc|part" -> ParsedText
 var _entities := {}
 var _lists := {}
-var _conc_file := {}
-var _conclusions := {}
-var _conc_list: Array = []
+var _dossier := {}
+var _questions := {}
+var _q_list: Array = []
+var _corpus := {}
+var _inactive := {}         # id de documento inactivo -> true (corpus.json)
 var _reactions := {}
 var _react_list: Array = []
 var _schedule := {}
@@ -88,6 +93,11 @@ func _load(p_root: String) -> void:
 	var lj = _files.get("lists.json")
 	if typeof(lj) == TYPE_DICTIONARY and typeof(lj.get("abbrev")) == TYPE_ARRAY:
 		_schema_ctx = {"abbrev": lj.abbrev}
+	# corpus.json antes que docs/: los documentos inactivos no se cargan (GDD_v3 §3.5)
+	var cj = _files.get("corpus.json")
+	if typeof(cj) == TYPE_DICTIONARY:
+		for did in cj.get("inactivas", []):
+			_inactive[String(did)] = true
 	for rel in rels:
 		if _files.has(rel):
 			_ingest(rel, _files[rel])
@@ -205,15 +215,23 @@ func _ingest(rel: String, data) -> void:
 			"schedule.json":
 				_schema("schedule", rel, data)
 				_schedule = data if typeof(data) == TYPE_DICTIONARY else {}
-			"conclusions.json":
-				_schema("conclusions", rel, data)
+			"dossier.json":
+				_schema("dossier", rel, data)
 				if typeof(data) == TYPE_DICTIONARY:
-					_conc_file = data
-					for c in data.get("conclusions", []):
-						if typeof(c) == TYPE_DICTIONARY and c.has("id"):
-							_conclusions[c.id] = c
-					_conc_list = _conclusions.keys()
-					_conc_list.sort_custom(func(a, b): return String(a).naturalnocasecmp_to(String(b)) < 0)
+					_dossier = data
+					var qs: Array = []
+					for q in data.get("preguntas", []):
+						if typeof(q) == TYPE_DICTIONARY and q.has("id"):
+							if _questions.has(q.id):
+								_errors.append("%s: pregunta duplicada '%s'" % [rel, q.id])
+							_questions[q.id] = q
+							qs.append(q)
+					qs.sort_custom(func(a, b): return int(a.get("orden", 0)) < int(b.get("orden", 0)) or (int(a.get("orden", 0)) == int(b.get("orden", 0)) and String(a.id) < String(b.id)))
+					for q in qs:
+						_q_list.append(String(q.id))
+			"corpus.json":
+				_schema("corpus", rel, data)
+				_corpus = data if typeof(data) == TYPE_DICTIONARY else {}
 			"endings.json":
 				_schema("endings", rel, data)
 				_endings = data if typeof(data) == TYPE_DICTIONARY else {}
@@ -249,6 +267,8 @@ func _ingest(rel: String, data) -> void:
 					_entities[e.id] = e
 		"docs":
 			var did := rel.substr(5).trim_suffix(".json").replace("/", ".")
+			if _inactive.has(did):
+				return   # crónica desactivada (corpus.json): no se carga, ni sus ejemplares ni su ficha de catálogo
 			_schema("docs", rel, data)
 			if typeof(data) != TYPE_DICTIONARY:
 				return
@@ -364,27 +384,50 @@ func _cross_checks() -> void:
 						var val := s.substr(pre.length() + 1)
 						if (pre == "e" or pre == "p") and val != "" and not val.contains("${") and not ents.has(val):
 							_errors.append("%s: %s: etiqueta %s inexistente" % [f.rel, f.path, s])
-	# conclusiones: plantilla y fragmentos de documentos existentes
-	var tpls: Dictionary = _lists.get("templates", {})
-	for cid in _conc_list:
-		var c: Dictionary = _conclusions[cid]
-		if not tpls.is_empty() and not tpls.has(c.get("template", "")):
-			_errors.append("conclusions %s: plantilla '%s' inexistente" % [cid, c.get("template", "")])
-		var frs: Array = []
-		for r in c.get("routes", []):
-			frs.append_array(r.get("frags", []))
-		for s in c.get("subroutes", {}).values():
-			frs.append_array(s.get("frags", []))
-		for f in frs:
-			var ref := String(f.get("ref", ""))
-			var h := ref.find("#")
-			if h > 0 and not ref.contains(":"):
-				var did := ref.substr(0, h)
-				if _docs.has(did) and doc_tramo(did, ref.substr(h + 1)).is_empty():
-					_errors.append("conclusions %s: %s: el documento no tiene el tramo #%s" % [cid, ref, ref.substr(h + 1)])
-			var cp := String(f.get("copy", ""))
-			if cp != "" and cp.contains("@") and _docs.has(cp.get_slice("@", 0)) and not _copies.has(cp):
-				_errors.append("conclusions %s: ejemplar '%s' inexistente" % [cid, cp])
+	# expediente: ningún fragmento nombra un documento inactivo (GDD_v3 §3.5; el contenido que falta lo informa T1)
+	for qid in _q_list:
+		var q: Dictionary = _questions[qid]
+		for v in q.get("variantes", []):
+			if typeof(v) != TYPE_DICTIONARY:
+				continue
+			for r in v.get("rutas", []):
+				if typeof(r) != TYPE_DICTIONARY:
+					continue
+				for f in r.get("frags", []):
+					var ref := String(f.get("ref", "")) if typeof(f) == TYPE_DICTIONARY else ""
+					var cp := String(f.get("copy", "")) if typeof(f) == TYPE_DICTIONARY else ""
+					for did in [ref.get_slice("#", 0) if ref.contains("#") and not ref.contains(":") else "", cp.get_slice("@", 0) if cp.contains("@") else ""]:
+						if did != "" and _inactive.has(did):
+							_errors.append("dossier %s %s: %s nombra un documento inactivo (%s)" % [qid, r.get("id", "?"), ref, did])
+	for e in _eggs:
+		if typeof(e) != TYPE_DICTIONARY:
+			continue
+		for did in inactive_refs(e.get("trigger", {})):
+			_errors.append("easter_eggs %s: nombra un documento inactivo (%s)" % [e.get("id", "?"), did])
+
+# Ids de documentos inactivos nombrados en cualquier texto de una estructura (refs "D01.REDH#x", ejemplares "D01.REDH@BM",
+# match.doc): lint de §3.5 y T38.
+func inactive_refs(v) -> Array:
+	var out: Array = []
+	_collect_inactive(v, out)
+	return out
+
+func _collect_inactive(v, out: Array) -> void:
+	match typeof(v):
+		TYPE_DICTIONARY:
+			for k in v:
+				if String(k).begins_with("_"):
+					continue
+				_collect_inactive(v[k], out)
+		TYPE_ARRAY:
+			for x in v:
+				_collect_inactive(x, out)
+		TYPE_STRING:
+			var s := String(v)
+			for did in _inactive:
+				if s == did or s.begins_with(did + "#") or s.begins_with(did + "@") or s.contains(":" + did + "#") or s.contains(":" + did + "@"):
+					if not out.has(did):
+						out.append(did)
 
 func _ent_errors(text: String, ctx: Dictionary) -> Array:
 	var out: Array = []
@@ -433,17 +476,30 @@ func entities() -> Dictionary:
 func lists() -> Dictionary:
 	return _lists
 
-func template(id: String) -> Dictionary:
-	return _lists.get("templates", {}).get(id, {})
+# ---------------- expediente y corpus (GDD_v3) ----------------
+func dossier() -> Dictionary:
+	return _dossier
 
-func conclusion(id: String) -> Dictionary:
-	return _conclusions.get(id, {})
-
-func conclusions() -> Array:
+# Preguntas en orden (`orden`, luego id).
+func questions() -> Array:
 	var out: Array = []
-	for id in _conc_list:
-		out.append(_conclusions[id])
+	for id in _q_list:
+		out.append(_questions[id])
 	return out
+
+func question(id: String) -> Dictionary:
+	return _questions.get(id, {})
+
+func corpus() -> Dictionary:
+	return _corpus
+
+func inactive_docs() -> Array:
+	var out: Array = _inactive.keys()
+	out.sort()
+	return out
+
+func is_inactive(did: String) -> bool:
+	return _inactive.has(did)
 
 func reaction(id: String) -> Dictionary:
 	return _reactions.get(id, {})
@@ -516,10 +572,6 @@ func content_hash() -> String:
 	return _hash
 
 # ---------------- extensiones ----------------
-func conclusions_meta() -> Dictionary:
-	return {"mandatory": _conc_file.get("mandatory", []), "lot_counts": _conc_file.get("lot_counts", []),
-		"alias_rules": _conc_file.get("alias_rules", [])}
-
 func plates() -> Dictionary:
 	return _plates
 

@@ -13,7 +13,7 @@
  "observers": [
   "cotter"
  ],
- "epigraph": "—¿El Journal de Genève, señor?",
+ "epigraph": "—Anote el número de su asiento en la papeleta, señor.",
  "frames": [
   {
    "id": "mostrador",
@@ -678,14 +678,15 @@
      0.8
     ]
    },
-   "examine": "Un hombre delgado, con un [[fajo_de_papel|fajo de papel]] bajo el brazo, junto a la canastilla de los pedidos del mostrador: lee cada [[papeleta|pedido]] (título y número de [[asiento|asiento]]) antes de pasárselo al empleado.",
+   "examine": "Un hombre flaco, que lleva un [[fajo_de_papel|fajo de papel]] con membrete del [[club_diogenes|club Diógenes]], lee cada [[papeleta|pedido]] de la canastilla antes que el empleado.",
    "tags": [
     "a:me_vigila_de_cerca",
     "e:hombre_de_la_canastilla",
     "e:canastilla",
     "e:papeleta",
     "e:asiento",
-    "e:fajo_de_papel"
+    "e:fajo_de_papel",
+    "e:club_diogenes"
    ],
    "cls": "I",
    "area": "*",
@@ -707,13 +708,14 @@
      0.42
     ]
    },
-   "examine": "Un [[cesto|cesto]] junto a un puesto vacío, lleno de [[tiras_de_papel|tiras]] de un centímetro cortadas del borde de arriba de hojas de [[papel_crema_grueso|papel crema grueso]]; en una se lee, en letras grabadas: «…GENES CLUB · [[pall_mall|PALL MALL]]…».",
+   "examine": "Un [[cesto|cesto]] lleno de [[tiras_de_papel|tiras]] de un centímetro, cortadas de [[papel_crema_grueso|papel crema grueso]]; una dice, grabado: «…GENES CLUB · [[pall_mall|PALL MALL]]…».",
    "tags": [
     "a:vinculo_mycroft",
     "e:cesto",
     "e:tiras_de_papel",
     "e:membrete_recortado",
-    "e:pall_mall"
+    "e:pall_mall",
+    "e:papel_crema_grueso"
    ],
    "cls": "I",
    "area": "*",

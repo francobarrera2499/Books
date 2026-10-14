@@ -1,17 +1,17 @@
-# T04 (W2-DED, GDD§10.6): ningún recorte legal máximo cubre todos los grupos de una conclusión.
-# Fuentes: cada parte de cada documento, líneas de escenas (y variantes, plantillas por canal), diálogos, rastros de
-# reacciones (texto y nodos), plantillas del diario (la línea entera es un tramo), nodos de lugares y láminas (y sus
-# variantes) y etiquetas de medida. Un recorte de texto hereda de UN tramo: se prueban los recortes legales máximos
-# (ClipRules.max_legal_clips + inherit) y cada tramo que algún recorte legal cubre ≥50 %. Un recorte de lámina hereda
-# las etiquetas de UN nodo (el de mayor cobertura, ajustado): «cada par de nodos» se reduce a cada nodo.
-# Se excluyen las conclusiones de práctica (C1) y toda conclusión cuyos grupos llevan TODOS el mismo juego de etiquetas
-# (degenerada: un recorte con esa etiqueta «cubre» todo por definición; la exigencia real es una etiqueta por línea y dos
-# orígenes, condiciones 2 y 3). Hoy: C1.xx (inc_a/inc_b) y C10a de data (harris/moran = harris_es_moran). Se listan con
-# degenerate(repo) para que el informe lo muestre.
+# T04 (W2-DED, GDD§10.6; CORE-EXPEDIENTE, GDD_v3 §2.4): ningún recorte legal máximo cubre los DOS grupos de una variante de
+# una pregunta. Recortes legales v3: la oración entera si tiene ≤15 palabras, si no todas las ventanas de 15 palabras
+# consecutivas; un bloque de ≤15 palabras, entero (ClipRules.max_legal_clips). Fuentes: cada parte de cada documento,
+# líneas de escenas (y variantes, plantillas por canal), diálogos, rastros de reacciones (texto y nodos), plantillas del
+# diario (la línea entera es un tramo), nodos de lugares y láminas (y sus variantes) y etiquetas de medida. Un recorte de
+# texto hereda de UN tramo: se prueban los recortes legales máximos (+ inherit) y cada tramo que algún recorte legal cubre
+# ≥50 %. Un recorte de lámina hereda las etiquetas de UN nodo.
+# Se excluye toda variante cuyos dos grupos llevan el mismo juego de etiquetas (degenerada: un recorte con esa etiqueta
+# «cubre» todo por definición; la exigencia real es dos orígenes). Se listan con degenerate(repo).
 extends "res://tests/test_base.gd"
 
 const ClipRules = preload("res://core/text/clip_rules.gd")
 const Validator = preload("res://core/deduction/validator.gd")
+const PatchRepo = preload("res://tests/fixtures/graph/patch_repo.gd")
 
 const CHS := ["kbm", "kw", "kh", "ks", "kt"]
 const DUMMY := {"seat": "214", "title": "Título", "hour": "10:00", "phrase": "Frase", "streets": "Strand", "act_day": "1",
@@ -34,38 +34,61 @@ func test_detects_violations():
 	ok(str(v).contains("N:L2.todo"), "el nodo L2.todo: " + str(v))
 	no(str(v).contains("Primera oración"), "la oración sin tramo no cuenta")
 
-func test_degenerate_conclusions_are_listed():
+func test_degenerate_variants_are_listed():
 	var r = fixture_repo("ded")
-	eq(degenerate(r), ["C1.01", "C1.10"], "práctica: inc_a/inc_b comparten etiqueta")
+	eq(degenerate(r), [])
+	eq(units(r).map(func(u): return String(u.uid)), ["C2", "C10", "C10.B", "C12"], "cada variante de cada pregunta")
+	var q: Dictionary = r.question("C12").duplicate(true)
+	q.variantes[0].grupos[1].tags = ["librero_falso"]
+	eq(degenerate(PatchRepo.new(r, {"questions": {"C12": q}})), ["C12"])
+
+# GDD_v3 §2.4: una oración de 20 palabras con las dos etiquetas en sus extremos no se recorta entera.
+func test_fifteen_word_windows():
+	var r = fixture_repo("ded")
+	var txt := "{{#a a:fina_impreso_sin_raspadura|Uno dos tres cuatro cinco seis siete ocho nueve diez}} {{#b a:raspadura_registrada|once doce trece catorce quince dieciséis diecisiete dieciocho diecinueve veinte.}}"
+	var parsed: Dictionary = r.parse_text(txt, {}, "act.0")
+	var clips: Array = ClipRules.max_legal_clips(parsed)
+	eq(clips.size(), 6, "ventanas de 15 sobre 20 palabras")
+	var out: Array = []
+	_scan_parsed(r, units(r), parsed, "X", out)
+	eq(out, [], "ninguna ventana cubre ≥50 %% de los dos tramos con la etiqueta de cada uno: %s" % str(out))
 
 func test_real_data():
 	var r = repo()
-	if r.conclusions().is_empty():
-		pending_content("data/conclusions.json (W2-STRUCT) todavía no existe")
+	if r.questions().is_empty():
+		pending_content("data/dossier.json todavía no existe")
 		return
 	var v := scan(r)
 	for x in v:
 		fail(x)
 
 # ---------------- escaneo ----------------
+# Unidades = variantes de cada pregunta: {uid, g1, g2}.
+static func units(repo) -> Array:
+	var out: Array = []
+	for q in repo.questions():
+		for v in q.get("variantes", []):
+			var gs: Array = v.get("grupos", [])
+			if gs.size() != 2:
+				continue
+			var uid := String(q.id) if bool(v.get("principal", false)) else "%s.%s" % [q.id, v.get("id", "?")]
+			out.append({"uid": uid, "g1": gs[0].get("tags", []), "g2": gs[1].get("tags", [])})
+	return out
+
 static func degenerate(repo) -> Array:
 	var out: Array = []
-	for c in repo.conclusions():
-		var sets := {}
-		for g in c.get("groups", []):
-			var ts: Array = g.get("tags", []).duplicate()
-			ts.sort()
-			sets[str(ts)] = true
-		if c.get("groups", []).size() > 1 and sets.size() == 1:
-			out.append(String(c.id))
+	for u in units(repo):
+		var a: Array = (u.g1 as Array).duplicate()
+		var b: Array = (u.g2 as Array).duplicate()
+		a.sort()
+		b.sort()
+		if a == b:
+			out.append(String(u.uid))
 	return out
 
 static func scan(repo) -> Array:
-	var cids: Array = []
 	var deg := degenerate(repo)
-	for c in repo.conclusions():
-		if String(c.get("kind", "")) != "practica" and not c.get("groups", []).is_empty() and not deg.has(String(c.id)):
-			cids.append(String(c.id))
+	var cids: Array = units(repo).filter(func(u): return not deg.has(String(u.uid)))
 	var out: Array = []
 	if cids.is_empty():
 		return out
@@ -194,8 +217,8 @@ static func _check_variants(repo, cids: Array, tags: Array, label: String, out: 
 static func _check(repo, cids: Array, tags: Array, label: String, out: Array) -> void:
 	if tags.is_empty():
 		return
-	for cid in cids:
-		if Validator.covers_all_groups(repo, cid, tags):
-			var msg := "%s: un recorte legal cubre todos los grupos de %s (%s)" % [label, cid, ", ".join(tags)]
+	for u in cids:
+		if Validator.covers_both(tags, u.g1, u.g2):
+			var msg := "%s: un recorte legal cubre los dos grupos de %s (%s)" % [label, u.uid, ", ".join(tags)]
 			if not out.has(msg):
 				out.append(msg)

@@ -1,4 +1,6 @@
-# core/scenes/composers.gd — anuncios, telegramas, cartas e informes (§5.7, §3.2, §3.5; GDD §7.3, §8.2). Dueño: W2-SCENES.
+# core/scenes/composers.gd — anuncios, telegramas, cartas e informes (§5.7, §3.2, §3.5; GDD §7.3, §8.2). Dueño: CORE-EXPEDIENTE.
+# v3 (GDD_v3 §6.10): los ítems de un informe son recortes o preguntas del Expediente ({kind: "clip" | "pregunta", id},
+#   en lápiz o en tinta); el evento lleva, por pregunta, q, answer e inked además de cats/copies/cls.
 # Anuncios: formas cerradas de lists.ad_forms. Un valor se ofrece/acepta sólo si su entidad está en el índice; nunca
 #   un lugar de Londres (lists.london_places, si forbid_kinds_lugar_londres) ni una entidad secreto_camden
 #   (lists.camden_entities, si forbid_tags tiene secreto_camden). Slots: options | kinds | assertions. form.when (DSL).
@@ -127,7 +129,7 @@ static func act_report_submit(st, repo, a) -> Dictionary:
 	var items: Array = []
 	var seen := {}
 	for it in items_in:
-		if typeof(it) != TYPE_DICTIONARY or not ["clip", "entry"].has(String(it.get("kind", ""))):
+		if typeof(it) != TYPE_DICTIONARY or not ["clip", "pregunta"].has(String(it.get("kind", ""))):
 			return _err("forma")
 		var key := "%s|%s" % [String(it.kind), String(it.get("id", ""))]
 		if seen.has(key):
@@ -458,9 +460,12 @@ static func _report_item(st, repo, it: Dictionary) -> Dictionary:
 	var cats = Deps.moran().report_cats(st, repo, {"kind": it.kind, "id": it.id})
 	var clips: Array = []
 	var out := {"kind": String(it.kind), "cats": cats.duplicate() if typeof(cats) == TYPE_ARRAY else [], "copies": [], "cls": []}
-	if it.kind == "entry":
-		clips = Deps.entry_clip_ids(st, String(it.id))
-		out["values"] = Deps.entry_values(Deps.entry(st, String(it.id)))
+	if it.kind == "pregunta":
+		clips = Deps.question_proofs(st, String(it.id))
+		var qi := Deps.question_item(st, repo, String(it.id))
+		out["q"] = String(it.id)
+		out["answer"] = String(qi.get("answer", ""))
+		out["inked"] = bool(qi.get("inked", false))
 	else:
 		clips = [String(it.id)]
 	for cid in clips:
@@ -489,8 +494,8 @@ static func _report_text(st, repo, n: int, final: bool, mode: String, items: Arr
 			for it in items:
 				k += 1
 				var body := ""
-				if it.kind == "entry":
-					body = Deps.entry_summary(repo, Deps.entry(st, String(it.id)))
+				if it.kind == "pregunta":
+					body = Deps.question_summary(st, repo, String(it.id))
 				else:
 					var v: Dictionary = Deps.clipper().visible(st, String(it.id))
 					body = "«%s»" % String(v.get("text", ""))

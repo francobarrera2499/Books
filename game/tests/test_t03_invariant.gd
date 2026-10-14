@@ -1,4 +1,5 @@
-# T3 (W2-GRAPH; GDD§10.3/§10.6, ARCHITECTURE §5.6): invariante acotada. Por conclusión: sin cortes, subconjuntos de
+# T3 (CORE-EXPEDIENTE; GDD§10.3/§10.6, ARCHITECTURE §5.6, GDD_v3 §2.2): invariante acotada sobre las variantes
+# principales de las preguntas obligatorias (Q8: desde que puede nacer). Por conclusión: sin cortes, subconjuntos de
 # K_C (≤5) × momentos {temprano, tardío, +1 D2} con D1 modelado, control (todos los cortes), factibilidad global y
 # fuzzing sembrado (300 partidas; --slow: 10 000). Presupuesto: < 10 s (falla si > 20 s). Negativos: falta sólo-I,
 # corte sin variante_blanda, |K_C| > 5, plan imposible.
@@ -31,7 +32,7 @@ func test_t03_fixture():
 	eq(res.fuzz, n)
 	ok(res.states > 10000, "estados evaluados: %d" % res.states)
 	ok(res.plan.ok, "factibilidad global desde P.N")
-	eq(res.k.size(), 12)
+	eq(res.k.size(), 11)
 	for cid in res.k:
 		ok(res.k[cid].size() <= 5, cid)
 	# presupuesto (§5.6): objetivo < 10 s en modo normal (aviso), falla si > 20 s; --slow (10 000 partidas) sólo informa.
@@ -50,29 +51,37 @@ func test_t03_deterministic():
 
 func test_t03_neg_no_star_route():
 	var r = _r()
-	var c: Dictionary = r.conclusion("C3").duplicate(true)
-	c.routes = [c.routes[3], {"id": "C3.R5", "deps": "fija", "frags": [{"ref": "D05#corniche", "copy": "D05@BM"}, {"ref": "D03#sheer", "copy": "D03@tomo"}]}]
-	var res := Inv.t3(PatchRepo.new(r, {"conclusions": {"C3": c}}), {"only": ["C3"], "fuzz": 0, "feasibility": false})
+	var c: Dictionary = r.question("C3").duplicate(true)
+	c.variantes[0].rutas = [c.variantes[0].rutas[3], {"id": "C3.R5", "deps": "fija", "frags": [{"ref": "D05#corniche", "copy": "D05@BM"}, {"ref": "D03#sheer", "copy": "D03@tomo"}]}]
+	var res := Inv.t3(PatchRepo.new(r, {"questions": {"C3": c}}), {"only": ["C3"], "fuzz": 0, "feasibility": false})
 	no(res.ok)
 	ok(_flist(res).contains("ninguna ruta intacta es sólo-I"), _flist(res))
 
+# v3: la ruta sintética tiene que cubrir los dos grupos de C9 (una ruta con errores de datos no cuenta): #recibo lleva
+# además a:preparativos_221b en este parche.
+func _d30(r) -> Dictionary:
+	var d: Dictionary = r.doc("D30").duplicate(true)
+	for p in d.parts:
+		p.text = String(p.text).replace("{{#recibo a:en_vida", "{{#recibo a:preparativos_221b a:en_vida")
+	return d
+
 func _c9_with_c_route(r) -> Dictionary:
-	var c: Dictionary = r.conclusion("C9").duplicate(true)
-	c.routes = [c.routes[0], {"id": "C9.R3", "deps": "fija", "frags": [{"ref": "S:HC06.e"}, {"ref": "D30#recibo", "copy": "D30@L3"}]}]
+	var c: Dictionary = r.question("C9").duplicate(true)
+	c.variantes[0].rutas = [c.variantes[0].rutas[0], {"id": "C9.R3", "deps": "fija", "frags": [{"ref": "S:HC06.e"}, {"ref": "D30#recibo", "copy": "D30@L3"}]}]
 	return c
 
 func test_t03_neg_cut_without_soft_variant():
 	var r = _r()
 	var cut := [{"copy": "D30@L3", "ventana": {"permanente": true}}]
 	var eff := [{"op": "arrancar", "copy": "D30@L3"}]
-	var p = PatchRepo.new(r, {"conclusions": {"C9": _c9_with_c_route(r)}, "reactions": {"XX": _moran("XX", cut, eff, null)}})
+	var p = PatchRepo.new(r, {"docs": {"D30": _d30(r)}, "questions": {"C9": _c9_with_c_route(r)}, "reactions": {"XX": _moran("XX", cut, eff, null)}})
 	var res := Inv.t3(p, {"only": ["C9"], "fuzz": 60, "feasibility": false})
 	no(res.ok)
 	ok(_flist(res).contains("XX en 3.M viola la invariante y no tiene variante_blanda (D1)"), _flist(res))
 	ok(_flist(res).contains("fuzz #"), "el fuzzing también lo detecta: " + _flist(res))
 	has(res.k["C9"], "XX")
 	# misma reacción con variante_blanda: D1 la aplica y la invariante se sostiene
-	var q = PatchRepo.new(r, {"conclusions": {"C9": _c9_with_c_route(r)}, "reactions": {"XX": _moran("XX", cut, eff, {"efecto": [], "corta": []})}})
+	var q = PatchRepo.new(r, {"docs": {"D30": _d30(r)}, "questions": {"C9": _c9_with_c_route(r)}, "reactions": {"XX": _moran("XX", cut, eff, {"efecto": [], "corta": []})}})
 	var res2 := Inv.t3(q, {"only": ["C9"], "fuzz": 60, "feasibility": false})
 	ok(res2.ok, _flist(res2))
 	ok(res2.softened > 0, "D1 suavizó")
@@ -83,14 +92,14 @@ func test_t03_neg_soft_variant_hits_other_conclusion():
 	var r = _r()
 	var soft := {"efecto": [{"op": "arrancar", "copy": "D30@L3"}], "corta": [{"copy": "D30@L3", "ventana": {"permanente": true}}]}
 	var xs := _moran("XS", [{"copy": "D29a@L4", "ventana": {"permanente": true}}], [{"op": "retirar", "copy": "D29a@L4", "dias": null}], soft)
-	var p = PatchRepo.new(r, {"conclusions": {"C9": _c9_with_c_route(r)}, "reactions": {"XS": xs}})
+	var p = PatchRepo.new(r, {"docs": {"D30": _d30(r)}, "questions": {"C9": _c9_with_c_route(r)}, "reactions": {"XS": xs}})
 	var res := Inv.t3(p, {"only": ["C9"], "fuzz": 0, "feasibility": false})
 	no(res.ok)
 	ok(_flist(res).contains("la variante_blanda de XS en 3.M viola la invariante (D1 puede aplicarla por otra conclusión)"), _flist(res))
 	has(res.k["C9"], "XS")
 	# si la blanda no toca C9, nada cambia
 	xs.variante_blanda = {"efecto": [], "corta": []}
-	var q = PatchRepo.new(r, {"conclusions": {"C9": _c9_with_c_route(r)}, "reactions": {"XS": xs}})
+	var q = PatchRepo.new(r, {"docs": {"D30": _d30(r)}, "questions": {"C9": _c9_with_c_route(r)}, "reactions": {"XS": xs}})
 	ok(Inv.t3(q, {"only": ["C9"], "fuzz": 0, "feasibility": false}).ok)
 
 func test_t03_neg_kc_over_5():
@@ -106,7 +115,8 @@ func test_t03_neg_kc_over_5():
 func test_t03_neg_infeasible_plan():
 	var r = _r()
 	var sch: Dictionary = r.schedule().duplicate(true)
-	sch.places.L2.areas.sala.open = [{"days": [1], "slots": ["M"]}]
+	# v3: con rutas de dos fragmentos una sola visita a la Sala (1.M, tres papeletas) alcanza; cerrada del todo, no.
+	sch.places.L2.areas.sala.open = []
 	var res := Inv.t3(PatchRepo.new(r, {"schedule": sch}), {"fuzz": 0})
 	no(res.ok)
 	ok(_flist(res).contains("factibilidad global"), _flist(res))
@@ -126,8 +136,8 @@ func test_t03_feasibility_models_resources():
 
 func test_t03_real_data():
 	var r = repo()
-	if r.conclusions().is_empty() or r.schedule().is_empty():
-		pending_content("T3: data/conclusions.json o data/schedule.json sin datos (W2-STRUCT)")
+	if r.questions().is_empty() or r.schedule().is_empty():
+		pending_content("T3: data/dossier.json o data/schedule.json sin datos")
 		return
 	var res := Inv.t3(r, {"clock": Time.get_ticks_msec, "fuzz": 10000 if slow else 300})
 	print("T3 datos reales: %d estados, %d ms, %d pendientes" % [res.states, res.ms, res.pending.size()])
@@ -136,4 +146,4 @@ func test_t03_real_data():
 	if res.ms > 20000 and not slow:
 		fail("T3 tardó %d ms (> 20 s)" % res.ms)
 	if res.failures.is_empty() and not res.pending.is_empty():
-		pending_content("T3: conclusiones con contenido pendiente: %s" % str(res.pending.slice(0, 6)))
+		pending_content("T3: preguntas con contenido pendiente: %s" % str(res.pending.slice(0, 6)))

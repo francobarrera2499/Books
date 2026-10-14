@@ -1,0 +1,13 @@
+{
+  "_nota": "GDD_v3 §5.1 (CONTENIDO). CRANE.intro: escena automática de la tienda de Crane (place L1, area tienda) la primera vez que Lisle baja, desde 1.M (la tienda está cerrada la noche del prólogo y el domingo). Crane se presenta y deja claro que se le puede preguntar DÓNDE conseguir cualquier cosa impresa en Londres; desde entonces el panel de Crane ofrece «¿Dónde consigo…?» (dialogue/crane.json, sección donde; motor: Dialogue.crane_presented / donde_items, CORE, que mira si se dijo alguna línea de la escena CRANE). once: true = se dice una sola vez por partida (si el motor no lo aplica todavía, ver diff propuesto a WorldModel.start_visit). Sin etiquetas: es una presentación, no una prueba. Crane conserva su gesto (se rasca la oreja con el lápiz).",
+  "id": "CRANE",
+  "place": "L1",
+  "area": "tienda",
+  "auto": true,
+  "once": true,
+  "when": {"tk": {"gte": "1.M"}},
+  "origin": "S.CRANE",
+  "lines": [
+    {"id": "intro", "who": "crane", "text": "Se rasca la oreja con el lápiz. —Abel Crane, librero de viejo, para servirle; y su casero, aunque eso usted ya lo sabe. Si busca algo impreso en Londres, señor, pregúnteme <i>dónde</i>: lo que no tengo yo, sé quién lo tiene."}
+  ]
+}

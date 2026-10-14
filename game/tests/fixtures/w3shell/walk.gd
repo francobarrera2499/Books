@@ -5,6 +5,7 @@
 extends RefCounted
 
 const Fallback = preload("res://ui/desk/fallback.gd")
+const ClipRules = preload("res://core/text/clip_rules.gd")
 
 static var _dir := ""
 static var errs: Array = []
@@ -23,36 +24,53 @@ static func repo():
 		return null
 	return DR.load_dir(d)
 
-# Recorta el tramo #tid de una vista accesible. "" si no se pudo (errs lo dice).
+# Recorta el tramo #tid de una vista accesible (v3, GDD_v3 §6.2: ≤15 palabras; el tramo entero si cabe, si no la ventana
+# legal que más lo cubre). "" si no se pudo (errs lo dice).
 static func clip(sim, act: Callable, view: String, tid: String) -> String:
 	var v: Dictionary = sim.q_view(view)
 	var pages: Array = v.get("pages", [])
 	for pi in pages.size():
 		for bi in (pages[pi] as Array).size():
-			for tr in pages[pi][bi].get("parsed", {}).get("tramos", []):
+			var parsed: Dictionary = pages[pi][bi].get("parsed", {})
+			for tr in parsed.get("tramos", []):
 				if String(tr.id) == tid:
-					var r: Dictionary = act.call({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(tr.from), "len": int(tr.to) - int(tr.from)})
+					var span := best_window(parsed, int(tr.from), int(tr.to))
+					var r: Dictionary = act.call({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(span[0]), "len": int(span[1]) - int(span[0])})
 					if not bool(r.get("ok", false)):
 						errs.append("clip %s#%s: %s" % [view, tid, str(r.get("err", ""))])
 					return String(r.get("clip", ""))
 	errs.append("sin tramo %s#%s" % [view, tid])
 	return ""
 
-# Tutorial del prólogo completo (GDD§3.2): recortar, juntar, folio, asiento, práctica C1.10, aviso de testigos.
-# Devuelve {aviso, abril, octubre, pair, folio, entry}.
+# [from, to) del recorte legal (≤15 palabras, una oración) que más cubre [a, b).
+static func best_window(p: Dictionary, a: int, b: int) -> Array:
+	var words: Array = p.get("words", [])
+	var idx: Array = []
+	for k in words.size():
+		if int(words[k][0]) >= a and int(words[k][1]) <= b:
+			idx.append(k)
+	if idx.size() <= ClipRules.MAX_WORDS:
+		return [a, b]
+	var best := [int(words[idx[0]][0]), int(words[idx[ClipRules.MAX_WORDS - 1]][1])]
+	var bcov := -1
+	for st in range(0, idx.size() - ClipRules.MAX_WORDS + 1):
+		var f := int(words[idx[st]][0])
+		var e := int(words[idx[st + ClipRules.MAX_WORDS - 1]][1])
+		var sn: Dictionary = ClipRules.snap(p, f, e - f)
+		if not bool(sn.get("ok", false)):
+			continue
+		var cov := mini(int(sn.to), b) - maxi(int(sn.from), a)
+		if cov > bcov:
+			bcov = cov
+			best = [int(sn.from), int(sn.to)]
+	return best
+
+# Tutorial del prólogo completo, v3 (GDD_v3 §6.9): leer el encargo, recortar el aviso del pie, aviso de testigos con el
+# tintero. Devuelve {aviso} (sin pares, folios ni asientos: ya no existen).
 static func tutorial(sim, act: Callable) -> Dictionary:
 	var out := {}
+	_ok(act, {"t": "read", "view": "D23@L1", "part": 0})
 	out.aviso = clip(sim, act, "D23@L1", "aviso")
-	out.abril = clip(sim, act, "D01.REDH@tomo", "abril")
-	out.octubre = clip(sim, act, "D01.REDH@tomo", "octubre")
-	out.pair = String(_ok(act, {"t": "link", "a": out.abril, "b": out.octubre, "note": ""}).get("pair", ""))
-	out.folio = String(_ok(act, {"t": "folio_open", "clip": out.abril}).get("folio", ""))
-	out.entry = String(_ok(act, {"t": "entry_new", "folio": out.folio, "template": "T1"}).get("entry", ""))
-	for x in [[0, "fuente_a", "redh"], [0, "dice_a", "abril_27_1890"], [1, "fuente_b", "redh"], [1, "dice_b", "octubre_9_1890"]]:
-		_ok(act, {"t": "entry_set", "entry": out.entry, "line": x[0], "field": x[1], "value": x[2]})
-	_ok(act, {"t": "entry_support_add", "entry": out.entry, "line": 0, "item": out.abril})
-	_ok(act, {"t": "entry_support_add", "entry": out.entry, "line": 1, "item": out.octubre})
-	_ok(act, {"t": "practice", "entry": out.entry})
 	_ok(act, {"t": "compose_ad", "form": "testigo", "fields": {"suceso": "suceso_reichenbach"}})
 	if not bool(sim.q_tutorial().get("complete", false)):
 		errs.append("tutorial incompleto: %s" % str(sim.q_tutorial()))

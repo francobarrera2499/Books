@@ -1,31 +1,24 @@
-// world/affordance/affordance.gdshader — realce de afordancias sobre el look (GDD_v2 §D.3). Dueño: CÁMARA + AFORDANCIAS.
-// Quad a pantalla completa colgado de la cámara (affordance_post.gd), dibujado DESPUÉS del look (misma prioridad, sorting
-// offset mayor). Lee sólo el buffer normal_roughness (no la pantalla): dibuja con alfa encima del resultado del look.
-// Códigos en la rugosidad (world/affordance/affordance.gd): 0 escenario · 1 examinable · 2 usable · 3 bajo el mouse.
-//  - bajo el mouse: borde = dilatación de la máscara 3 (8 tomas a hover_px = 2,5 px) menos la máscara, tinta α 0,8, y por
-//    fuera un filete de papel (hasta halo_px = 5 px) α 0,75 para que se lea sobre fondos oscuros; interior: papel α 0,1;
-//  - usable: borde exterior de 1,5 px de la máscara 2, rojo de las cintas (#8a2b22) α 0,7 (con 0,45 no se leía sobre el
-//    escritorio oscuro de la aguada);
-//  - mirar alrededor (reveal_all): borde donde cambia el valor entre dueños (cada examinable lleva una de 5 variantes de
-//    rugosidad dentro de su código), así también se contornea lo apoyado sobre otro examinable; tinta α 0,6.
-// Grosores en px a 900 p de alto (escalan con el viewport). En alto contraste: negro y rojo oscuro con α 1.
+// world/affordance/affordance.gdshader — v3 (GDD_v3 §6.5): SÓLO un contorno blanco alrededor de lo que está bajo el
+// mouse. Dueño: UI-MUNDO. Quad a pantalla completa colgado de la cámara (affordance_post.gd), dibujado DESPUÉS del look
+// (misma prioridad, sorting offset mayor). Lee el buffer normal_roughness y la profundidad (no la pantalla): dibuja con
+// alfa encima.
+// Códigos en la rugosidad (world/affordance/affordance.gd): 0 escenario · 1 examinable · 3 bajo el mouse. El código
+// «usable permanente» (2) y el «mirar alrededor» de la v2 ya no existen: lo usable sólo cambia el cursor (mano).
+// Contorno: la dilatación de la máscara 3 (8 direcciones a outline_px y a la mitad) menos la máscara: blanco #ffffff
+// α 0,9, 2 px a 900 p de alto (escala con el viewport). Nada adentro (sin aclarado). Alto contraste: α 1.
+// Sólo el borde de AFUERA (verificador v3): un píxel que tapa al objeto bajo el mouse (está claramente más cerca que él:
+// el farol y el puesto delante de la fachada de enfrente, los tomos delante de la ventana) no se contornea; si no, al
+// pasar por la fachada se marcaban el farol y el puesto, que son decoración (§6.4: sólo es interactivo lo útil).
 shader_type spatial;
 render_mode unshaded, blend_mix, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled, shadows_disabled, ambient_light_disabled;
 
 uniform sampler2D nr_tex : hint_normal_roughness_texture, repeat_disable, filter_nearest;
-uniform vec4 ink : source_color = vec4(0.231, 0.141, 0.078, 1.0);
-uniform vec4 paper : source_color = vec4(0.941, 0.894, 0.784, 1.0);
-uniform vec4 usable_col : source_color = vec4(0.541, 0.169, 0.133, 1.0);
-uniform float hover_px = 2.5;
-uniform float halo_px = 5.0;
-uniform float line_px = 1.5;
-uniform float hover_a = 0.8;
-uniform float hover_fill = 0.1;
-uniform float halo_a = 0.75;
-uniform float usable_a = 0.7;
-uniform float reveal_a = 0.6;
-uniform bool reveal_all = false;
-uniform bool show_usable = true;
+uniform sampler2D depth_tex : hint_depth_texture, repeat_disable, filter_nearest;
+uniform float occl_tol = 0.04;   // m: un vecino «bajo el mouse» más lejos que esto (o que occl_rel·z) está DETRÁS del píxel
+uniform float occl_rel = 0.03;
+uniform vec4 outline_col : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float outline_px = 2.0;
+uniform float outline_a = 0.9;
 uniform bool high_contrast = false;
 uniform int debug_view = 0;   // 1: códigos en gris (0 negro … 3 blanco)
 
@@ -51,6 +44,18 @@ int code_at(vec2 uv) {
 	return code_of(rough_at(uv));
 }
 
+float lin_z(vec2 uv, mat4 ipm) {
+	float d = texture(depth_tex, uv).r;
+	vec4 v = ipm * vec4(uv * 2.0 - 1.0, d, 1.0);
+	return max(-v.z / v.w, 1e-4);
+}
+
+// ¿q está «bajo el mouse» y NO detrás del píxel actual (de profundidad zp)?
+bool edge_from(vec2 q, float zp, mat4 ipm) {
+	if (code_at(q) != 3) return false;
+	return lin_z(q, ipm) <= zp + max(occl_tol, zp * occl_rel);
+}
+
 void vertex() {
 	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
 }
@@ -59,8 +64,7 @@ void fragment() {
 	vec2 uv = SCREEN_UV;
 	vec2 px = 1.0 / VIEWPORT_SIZE;
 	float sc = VIEWPORT_SIZE.y / 900.0;
-	float r0 = rough_at(uv);
-	int c0 = code_of(r0);
+	int c0 = code_at(uv);
 	if (debug_view == 1) {
 		ALBEDO = vec3(float(c0) / 3.0);
 		ALPHA = 1.0;
@@ -68,43 +72,25 @@ void fragment() {
 		ALBEDO = vec3(texture(nr_tex, uv).a);
 		ALPHA = 1.0;
 	} else {
-		// 8 direcciones a dos radios (fino y realce)
-		float r1 = max(1.0, line_px * sc);
-		float r2 = max(1.0, hover_px * sc);
-		float r3 = max(2.0, halo_px * sc);
+		float r1 = max(1.0, outline_px * sc);
 		bool near3 = false;
-		bool halo3 = false;
-		bool near2 = false;
-		bool edge_any = false;   // un vecino con otro valor y alguno examinable: borde entre dueños
-		for (int i = 0; i < 8; i++) {
-			float ang = float(i) * 0.78539816;
-			vec2 d = vec2(cos(ang), sin(ang));
-			float ra = rough_at(uv + d * px * r1);
-			int ca = code_of(ra);
-			int cb = code_at(uv + d * px * r2);
-			if (ca == 3 || cb == 3) near3 = true;
-			if (code_at(uv + d * px * r3) == 3 || code_at(uv + d * px * (r2 + r3) * 0.5) == 3) halo3 = true;
-			if (ca == 2) near2 = true;
-			if (r0 > ra + 0.5 / 255.0 && (ca >= 1 || c0 >= 1)) edge_any = true;
+		if (c0 != 3) {
+			mat4 ipm = INV_PROJECTION_MATRIX;
+			float zp = lin_z(uv, ipm);
+			for (int i = 0; i < 8; i++) {
+				float ang = float(i) * 0.78539816;
+				vec2 d = vec2(cos(ang), sin(ang));
+				if (edge_from(uv + d * px * r1, zp, ipm) || edge_from(uv + d * px * r1 * 0.5, zp, ipm)) {
+					near3 = true;
+				}
+			}
 		}
-		vec3 ink_c = high_contrast ? vec3(0.0) : ink.rgb;
-		vec3 red_c = high_contrast ? vec3(0.45, 0.0, 0.0) : usable_col.rgb;
-		vec4 outc = vec4(0.0);
-		if (reveal_all && edge_any) {
-			outc = vec4(ink_c, high_contrast ? 1.0 : reveal_a);
+		if (near3) {
+			ALBEDO = outline_col.rgb;
+			ALPHA = high_contrast ? 1.0 : outline_a;
+		} else {
+			ALBEDO = vec3(0.0);
+			ALPHA = 0.0;
 		}
-		if (show_usable && c0 != 2 && c0 != 3 && near2) {
-			outc = vec4(red_c, high_contrast ? 1.0 : usable_a);
-		}
-		if (c0 == 3) {
-			outc = vec4(paper.rgb, high_contrast ? 0.0 : hover_fill);
-		} else if (near3) {
-			outc = vec4(ink_c, high_contrast ? 1.0 : hover_a);
-		} else if (halo3) {
-			// filete de papel por fuera de la tinta: el contorno se lee igual sobre el escritorio oscuro y sobre la pared clara
-			outc = vec4(high_contrast ? vec3(1.0) : paper.rgb, high_contrast ? 1.0 : halo_a);
-		}
-		ALBEDO = outc.rgb;
-		ALPHA = outc.a;
 	}
 }

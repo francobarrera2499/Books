@@ -1,0 +1,35 @@
+{
+  "_nota": "GDD_v3 §3.2, §3.4 (CONTENIDO). Tarjeta del cliente: cartulina sujeta con un clip al final de «Escándalo en Bohemia» (D01.SCAN), escrita por el «mayor Harris» con lápiz grueso y firmada «—H.». Se ve sólo dentro de su crónica, como última hoja del ejemplar del cliente (v3.tarjeta_de; WorldModel.view). #tic = la repetición de adjetivo de Harris (a:rasgo_de_harris e:adjetivos_repetidos): prueba de Q6 (ruta Q6.R5, con D10#adjetivos). Clase P: es un original del cliente (ejemplar NC.<código>@tomo, desde P.N).",
+  "id": "NC.SCAN",
+  "entity": "nota_del_cliente",
+  "title": "Tarjeta del mayor en «Escándalo en Bohemia»",
+  "src_type": "papel_privado",
+  "class": "P",
+  "date": "1894-03-26",
+  "font": "manuscrito",
+  "paper": "tarjeta",
+  "paper_mm": [
+    127,
+    76
+  ],
+  "copies": [
+    {
+      "id": "NC.SCAN@tomo",
+      "holder": "tomo",
+      "class": "P",
+      "via": "tome",
+      "from": "P.N",
+      "to": "10.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "Fíjese en los disfraces, señor. {{#tic a:rasgo_de_harris e:adjetivos_repetidos e:harris|Un hombre que se disfraza tan bien no necesita morirse para desaparecer, para desaparecer.}} —H."
+    }
+  ],
+  "words": 20,
+  "v3": {
+    "tarjeta_de": "D01.SCAN"
+  }
+}

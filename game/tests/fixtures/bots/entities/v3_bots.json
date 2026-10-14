@@ -1,0 +1,12 @@
+{
+  "_nota": "Fixture de bots (CORE-EXPEDIENTE): entidades que piden las claves v3 y todavía no están en los archivos estructurales (GDD_v3 §1.8; las define CONTENIDO).",
+  "entities": [
+    {
+      "id": "gobierno",
+      "kind": "concepto",
+      "name": "el gobierno",
+      "index": "gobierno",
+      "noun": "gobierno"
+    }
+  ]
+}

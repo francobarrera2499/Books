@@ -1,0 +1,256 @@
+{
+ "_nota": "Fixture mínimo (CORE-EXPEDIENTE, GDD_v3 §1.7).",
+ "max_abiertas": 3,
+ "mostrar_todas": "8.dawn",
+ "alias": [
+  {
+   "cuando_tinta": "Q6",
+   "equiv": [
+    "harris",
+    "moran"
+   ]
+  }
+ ],
+ "preguntas": [
+  {
+   "id": "Q2",
+   "orden": 2,
+   "obligatoria": true,
+   "texto": "¿Qué pasó en la cascada?",
+   "nace": [
+    {
+     "leer": "D03#sheer",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "concepto",
+    "objeto",
+    "lugar"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "raspadura"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fina_impreso_sin_raspadura"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "raspadura_registrada"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "pared",
+       "raspadura"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta.",
+     "rutas": [
+      {
+       "id": "Q2.R1",
+       "star": true,
+       "deps": "fija",
+       "from": "1.M",
+       "frags": [
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@BM"
+        },
+        {
+         "ref": "D05#marque",
+         "copy": "D05@BM"
+        }
+       ],
+       "cut_by": []
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q1",
+   "orden": 1,
+   "obligatoria": true,
+   "texto": "¿Qué no contó Watson?",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "concepto",
+    "objeto",
+    "lugar"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "raspadura"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fina_impreso_sin_raspadura"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "raspadura_registrada"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "pared",
+       "raspadura"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta.",
+     "rutas": [
+      {
+       "id": "Q1.R1",
+       "star": true,
+       "deps": "fija",
+       "from": "1.M",
+       "frags": [
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@BM"
+        },
+        {
+         "ref": "D05#marque",
+         "copy": "D05@BM"
+        }
+       ],
+       "cut_by": []
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  },
+  {
+   "id": "Q6",
+   "orden": 6,
+   "obligatoria": true,
+   "texto": "¿Quién es mi cliente?",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "concepto",
+    "objeto",
+    "lugar"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "raspadura"
+     ],
+     "grupos": [
+      {
+       "id": "g1",
+       "tags": [
+        "fina_impreso_sin_raspadura"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "raspadura_registrada"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "pared",
+       "raspadura"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta.",
+     "rutas": [
+      {
+       "id": "Q6.R1",
+       "star": true,
+       "deps": "fija",
+       "from": "1.M",
+       "frags": [
+        {
+         "ref": "D03#sheer",
+         "copy": "D03@BM"
+        },
+        {
+         "ref": "D05#marque",
+         "copy": "D05@BM"
+        }
+       ],
+       "cut_by": []
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  }
+ ]
+}

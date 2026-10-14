@@ -1,4 +1,4 @@
-# T00 (W1-ENG): todo .gd de res:// (salvo tests/fixtures y .godot) carga y compila (can_instantiate).
+# T00 (W1-ENG; v3: tabla de core/ de CORE-EXPEDIENTE, GDD_v3 §7.1): todo .gd de res:// (salvo tests/fixtures y .godot) carga y compila (can_instantiate).
 # Un archivo ajeno a medio hacer falla acá: el mensaje nombra el archivo (no es falla del dueño de T00).
 extends "res://tests/test_base.gd"
 
@@ -25,24 +25,24 @@ func test_core_stubs_present():
 		"res://core/util/log.gd": ["d", "i", "w", "e", "bug"],
 		"res://core/util/cond.gd": ["eval"],
 		"res://core/util/timekey.gd": ["tk", "parse", "label", "idx", "idx_count", "from_idx"],
-		"res://core/data/data_repo.gd": ["load_dir", "errors", "doc", "docs", "copy", "parsed", "entity", "entities", "lists", "template", "conclusion", "conclusions", "reaction", "reactions", "schedule", "place", "places", "plate", "dialogue", "scene", "canon", "endings", "eggs", "catalog", "text", "content_hash"],
+		"res://core/data/data_repo.gd": ["load_dir", "errors", "doc", "docs", "copy", "parsed", "entity", "entities", "lists", "dossier", "questions", "question", "corpus", "inactive_docs", "reaction", "reactions", "schedule", "place", "places", "plate", "dialogue", "scene", "canon", "endings", "eggs", "catalog", "text", "content_hash"],
 		"res://core/data/schema.gd": ["check"],
 		"res://core/text/markup.gd": ["fill", "parse", "lint"],
 		"res://core/text/clip_rules.gd": ["snap", "inherit", "max_legal_clips"],
 		"res://core/save/event_log.gd": ["write", "read"],
-		"res://core/sim/game_sim.gd": ["apply", "can", "actions_log", "canon", "state_hash", "replay", "clip_text", "clip_plate", "clip_measure", "link", "folio_open", "entry_new", "entry_set", "entry_support_add", "pass_clean", "go", "slip", "ask", "assert_claim", "present", "leave", "end_slot", "sleep", "compose_ad", "report_submit", "confront", "q_clock", "q_view", "q_plate"],
+		"res://core/sim/game_sim.gd": ["apply", "can", "actions_log", "canon", "state_hash", "replay", "clip_text", "clip_plate", "dq_answer", "dq_proof", "dq_confirm", "examine", "ask_donde", "q_dossier", "q_answer_options", "q_donde", "q_missing", "go", "slip", "ask", "assert_claim", "present", "leave", "end_slot", "sleep", "compose_ad", "report_submit", "confront", "q_clock", "q_view", "q_plate"],
 		"res://core/sim/game_state.gd": ["canon", "next_id", "note", "push_event"],
 		"res://core/sim/actions.gd": ["normalize", "shape_error", "is_commit"],
-		"res://core/sim/player_actions.gd": ["dispatch", "act_folio_open"],
-		"res://core/sim/clock.gd": ["init_state", "place_open", "passes_left", "crossed_tks", "act_go", "act_leave", "act_end_slot", "act_sleep", "act_night_choice", "act_publish_errata"],
+		"res://core/sim/player_actions.gd": ["dispatch", "act_examine"],
+		"res://core/sim/clock.gd": ["init_state", "place_open", "crossed_tks", "act_go", "act_leave", "act_end_slot", "act_sleep", "act_night_choice", "act_publish_errata"],
 		"res://core/sim/world_model.gd": ["init_state", "accessible", "view_accessible", "view", "start_visit", "snapshot", "instantiate_doc", "deliver", "act_slip", "act_order_copy"],
 		"res://core/sim/diary.gd": ["on_event", "on_arrival", "on_line"],
 		"res://core/sim/tutorial.gd": ["init_state", "allowed", "after", "step", "verbs_taught"],
 		"res://core/sim/endings.gd": ["evaluate", "blue_pencil"],
-		"res://core/deduction/clipper.gd": ["init_state", "act_clip_text", "act_clip_plate", "act_clip_measure", "act_link", "act_unlink", "get_clip", "visible"],
+		"res://core/deduction/clipper.gd": ["init_state", "act_clip_text", "act_clip_plate", "get_clip", "visible"],
 		"res://core/deduction/index.gd": ["add_entities", "known", "has"],
-		"res://core/deduction/ledger.gd": ["init_state", "create_folio", "act_entry_new", "act_entry_set", "act_entry_support_add", "act_entry_support_remove", "act_entry_delete", "formal_check", "entry_clips"],
-		"res://core/deduction/validator.gd": ["values_match", "which_conclusion", "entry_ok", "lot_size", "entry_tags", "act_pass_clean", "act_practice"],
+		"res://core/deduction/dossier.gd": ["init_state", "update", "act_answer", "act_proof", "act_confirm", "act_examine", "check", "view", "answer_options", "item_view", "inked", "alias_groups"],
+		"res://core/deduction/validator.gd": ["tag_match", "origins_of", "canon"],
 		"res://core/react/reaction_db.gd": ["compile", "candidates"],
 		"res://core/react/sensors.gd": ["observe"],
 		"res://core/react/latency.gd": ["due_tk", "voice_b_day"],

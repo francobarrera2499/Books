@@ -4,7 +4,6 @@ extends "res://tests/test_base.gd"
 
 const Clipper = preload("res://core/deduction/clipper.gd")
 const Index = preload("res://core/deduction/index.gd")
-const Ledger = preload("res://core/deduction/ledger.gd")
 const J = preload("res://core/util/j.gd")
 const FakeState = preload("res://tests/fixtures/ded/fake_state.gd")
 
@@ -21,7 +20,6 @@ func _st(day := 3, slot := "M"):
 	var st = FakeState.new()
 	st.clock = {"day": day, "slot": slot, "phase": "desk"}
 	Clipper.init_state(st, r)
-	Ledger.init_state(st, r)
 	return st
 
 # [from, len] del texto `needle` en la parte `part` (índice) de la vista `view`.
@@ -77,7 +75,7 @@ func test_snap_errors():
 	var s3 := _sel("D98@BM", 0, "Uno dos")
 	var p3: String = r.parsed("D98", "p1").plain
 	var r3 := Clipper.act_clip_text(st, r, {"src": {"kind": "doc", "ref": "D98@BM", "part": 0}, "from": s3[0], "len": p3.find(" Corta")})
-	eq(r3.get("err"), "mas_de_40")
+	eq(r3.get("err"), "mas_de_15", "GDD_v3 §1.1: tope de 15 palabras")
 	eq(Index.ensure(st).clips.size(), 0, "los errores no recortan")
 
 func test_partial_cover_gives_entities_but_no_tags():
@@ -89,7 +87,7 @@ func test_partial_cover_gives_entities_but_no_tags():
 	eq(c.tags, [], "menos de la mitad del tramo: sin afirmaciones")
 	has(c.ents, "cornisa")
 	has(c.ents, "reichenbach", "e: del tramo ganador se hereda siempre")
-	var res2 := _clip(st, "D05@BM", 0, "Más arriba hay una cornisa que no se ve desde el sendero, «une corniche que l'on ne voit pas du sentier»")
+	var res2 := _clip(st, "D05@BM", 0, "Más arriba hay una cornisa que no se ve desde el sendero, «une corniche que")
 	eq(Clipper.get_clip(st, res2.clip).tags, ["a:cornisa_existe"])
 
 func test_inaccesible():
@@ -190,7 +188,8 @@ func test_scene_of_lines_and_runtime_doc_voice():
 func test_node_examine_text_clip():
 	var st = _st()
 	var p: Dictionary = r.parse_text(r.plate("PRO").nodes[0].examine)
-	var a := Clipper.act_clip_text(st, r, {"src": {"kind": "node", "ref": "PL.prologo/harris"}, "from": 0, "len": p.plain.length()})
+	var w: Array = load("res://devtools/bots/bot_base.gd").best_window(p, 0, p.plain.length())
+	var a := Clipper.act_clip_text(st, r, {"src": {"kind": "node", "ref": "PL.prologo/harris"}, "from": int(w[0]), "len": int(w[1]) - int(w[0])})
 	ok(a.ok, str(a))
 	var c := Clipper.get_clip(st, a.clip)
 	eq(c.origin, "PL.prologo")
@@ -328,23 +327,13 @@ func test_clip_measure():
 	eq(Clipper.act_clip_measure(st, r, {"src": {"kind": "doc", "ref": "D05@BM"}}).get("err"), "sin_medida")
 	eq(Clipper.act_clip_measure(st, r, {"src": {"kind": "scene", "ref": "M7"}}).get("err"), "sin_medida")
 
-func test_link_unlink():
+# GDD_v3 §1.1: sin pares; el cuaderno guarda recortes sueltos (el tope de 15 palabras: test_u_clip_rules, test_u_game_sim).
+func test_no_pairs():
 	var st = _st()
+	no(Clipper.new().has_method("act_link"), "v3: sin act_link")
+	no(st.ded.has("pairs"))
 	var a: String = _clip(st, "D05@BM", 0, "une marque").clip
-	var b: String = _clip(st, "D03@Crane", "p7", "Era un sendero").clip
-	var p := Clipper.act_link(st, r, {"a": a, "b": b, "note": "contradice"})
-	ok(p.ok)
-	eq(p.pair, "PR001")
-	eq(Clipper.get_pair(st, "PR001").note, "contradice")
-	eq(Clipper.act_link(st, r, {"a": b, "b": a}).pair, "PR001", "el mismo par no se duplica")
-	eq(Clipper.act_link(st, r, {"a": "PR001", "b": a}).get("err"), "anidado")
-	eq(Clipper.act_link(st, r, {"a": a, "b": "PR001"}).get("err"), "anidado")
-	eq(Clipper.act_link(st, r, {"a": a, "b": a}).get("err"), "mismo")
-	eq(Clipper.act_link(st, r, {"a": a, "b": "RC9999"}).get("err"), "no_existe")
-	ok(Clipper.act_unlink(st, r, {"pair": "PR001"}).ok)
-	eq(Clipper.get_pair(st, "PR001"), {})
-	eq(Clipper.act_unlink(st, r, {"pair": "PR001"}).get("err"), "no_existe")
-	ok(not Clipper.get_clip(st, a).is_empty(), "los recortes sobreviven al par")
+	ok(a != "")
 
 func test_visible_hides_hidden_tags():
 	var st = _st()
@@ -378,10 +367,18 @@ func test_real_game_state_compatible():
 	var st = GS.new()
 	st.clock = {"day": 1, "slot": "M", "phase": "desk"}
 	Clipper.init_state(st, r)
-	Ledger.init_state(st, r)
 	var res := _clip(st, "D05@BM", 0, "une marque")
 	ok(res.ok, str(res))
 	eq(res.clip, "RC0001")
 	var s := J.stringify_canon(st.canon())
 	ok(s.contains("RC0001"), "el recorte va al canon")
 	ok(not s.contains("\"notes\""), "notes fuera del canon")
+
+# Integración v3 (GDD_v3 §6.2): el recorte guarda la letra de su tramo cuando un <f=…> lo cubre (el aviso manuscrito
+# de Pell al pie del encargo a máquina) y la tarjeta la usa.
+func test_span_font_of_the_clipped_run():
+	var p := {"plain": "Aviso a máquina. Se busca testigo.", "styles": [{"kind": "font", "from": 17, "to": 34, "val": "manuscrito"}]}
+	eq(Clipper.span_font(p, 17, 34), "manuscrito", "el tramo entero en <f=manuscrito>")
+	eq(Clipper.span_font(p, 10, 30), "manuscrito", "más de la mitad adentro")
+	eq(Clipper.span_font(p, 0, 16), "", "fuera del estilo: la letra del documento")
+	eq(Clipper.span_font({"plain": "x", "styles": []}, 0, 1), "", "sin estilos")

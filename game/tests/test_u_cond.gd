@@ -80,14 +80,22 @@ func test_flags():
 	ok(_ev({"channel_closed": "K-H"}))
 	no(_ev({"channel_closed": "K-W"}))
 
-func test_sealed():
-	ok(_ev({"sealed": "C2"}))
-	no(_ev({"sealed": "C10"}))
-	ok(_ev({"sealed_all": ["C2", "C6"]}))
-	no(_ev({"sealed_all": ["C2", "C10"]}))
-	ok(_ev({"sealed_count": {"of": "mandatory", "gte": 2}}))
-	ok(_ev({"sealed_count": {"of": "mandatory", "lt": 3}}))
-	no(_ev({"sealed_count": {"of": ["C10"], "gte": 1}}))
+# GDD_v3 §6.10: átomos del Expediente (inked*) y la traducción de los viejos sealed* (C<n> -> su pregunta).
+func test_inked():
+	var s := FakeSt.new()
+	s.ded = {"dossier": {"inked": {"Q1": {}, "Q2": {}, "Q3": {}}}}
+	var ctx := {"st": s, "repo": rp}
+	ok(Cond.eval({"inked": "Q1"}, ctx))
+	no(Cond.eval({"inked": "Q6"}, ctx))
+	ok(Cond.eval({"inked_all": ["Q1", "Q3"]}, ctx))
+	no(Cond.eval({"inked_all": ["Q1", "Q6"]}, ctx))
+	ok(Cond.eval({"inked_count": {"gte": 2}}, ctx), "Q1 y Q2 son obligatorias del fixture (Q3 no está en él)")
+	ok(Cond.eval({"inked_count": {"lt": 3}}, ctx))
+	ok(Cond.eval({"sealed": "C2"}, ctx), "C2 -> Q1")
+	ok(Cond.eval({"sealed": "C7"}, ctx), "C7 -> Q3")
+	no(Cond.eval({"sealed": "C12"}, ctx), "C12 no tiene pregunta")
+	s.flags = {"curiosidad_tomos": true}
+	ok(Cond.eval({"sealed": "C14"}, ctx), "C14 -> flag curiosidad_tomos")
 
 func test_counter_event_count_visited():
 	ok(_ev({"counter": {"name": "bait.pared", "gte": 2}}))
@@ -129,9 +137,9 @@ func test_object_state():
 	var s := FakeSt.new()
 	s.clock = {"day": 8, "slot": "T"}
 	s.flags = {"moran_credito": true}
-	s.ded = {"sealed": {"C6": "AS1"}}
+	s.ded = {"dossier": {"inked": {"Q3": {}}}}
 	s.events = [{"type": "go", "place": "L3"}]
-	ok(Cond.eval({"all": [{"day": {"gte": 8}}, {"flag": "moran_credito"}, {"sealed": "C6"}, {"event_count": {"type": "go", "gte": 1}}]}, {"st": s, "repo": rp}))
+	ok(Cond.eval({"all": [{"day": {"gte": 8}}, {"flag": "moran_credito"}, {"inked": "Q3"}, {"event_count": {"type": "go", "gte": 1}}]}, {"st": s, "repo": rp}))
 
 func test_unknown_atom_is_bug():
 	expect_error("átomo desconocido")

@@ -1,0 +1,9 @@
+{
+  "_nota": "GDD_v3 §7.1 (CONTENIDO). Entidades nuevas de los textos v3: gobierno (las claves de Q4: D04#cajista, D01N#fina_fo, D33#lote_pruebas, D01.GREE#cuentas), nota_del_cliente (las tarjetas NC.* del mayor sujetas a las crónicas), cuadernillos (las crónicas que el mayor sacó de los tomos de Watson y le dio a Lisle) y disfraces (lo que el cliente marcó en SCAN y TWIS). mano_harris no hace falta como entidad: es un medio de data/fisica.json.",
+  "entities": [
+    {"id": "gobierno", "kind": "concepto", "name": "el gobierno", "index": "gobierno (los ministerios)", "noun": "gobierno", "aliases": ["los ministerios"]},
+    {"id": "nota_del_cliente", "kind": "documento", "name": "las tarjetas del mayor", "index": "tarjetas del mayor (en las crónicas)", "noun": "tarjeta"},
+    {"id": "cuadernillos", "kind": "documento", "name": "los cuadernillos del cliente", "index": "cuadernillos de la Strand (del cliente)", "noun": "cuadernillos"},
+    {"id": "disfraces", "kind": "concepto", "name": "los disfraces de Holmes", "index": "disfraces de Holmes", "noun": "disfraces"}
+  ]
+}

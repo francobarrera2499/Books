@@ -47,21 +47,20 @@ func test_entities_lists_templates():
 	eq(rp.entity("watson").kind, "persona")
 	ok(rp.entities().size() > 60)
 	eq(rp.entity("nadie"), {})
-	eq(rp.lists().verbos.size(), 16)
-	eq(rp.template("T6").lines.size(), 2)
-	eq(rp.template("T9").lines[2].fields[0].accept.list, "verbos")
-	eq(rp.template("T0"), {})
+	no(rp.has_method("template"), "v3: sin plantillas")
 
-func test_conclusions_order_and_meta():
+# GDD_v3 §1.7, §3.5: preguntas en orden (`orden`), el archivo entero y el corpus.
+func test_dossier_order_and_corpus():
 	var ids: Array = []
-	for c in rp.conclusions():
-		ids.append(c.id)
-	eq(ids, ["C2", "C6", "C10"], "orden natural por id")
-	eq(rp.conclusion("C6").template, "T6")
-	eq(rp.conclusion("C99"), {})
-	var m: Dictionary = rp.conclusions_meta()
-	eq(m.mandatory, ["C2", "C6", "C10"])
-	eq(m.alias_rules[0].when_sealed, "C10a")
+	for q in rp.questions():
+		ids.append(q.id)
+	eq(ids, ["Q1", "Q2", "Q6"], "orden por `orden`")
+	eq(rp.question("Q2").texto, "¿Qué pasó en la cascada?")
+	eq(rp.question("Q99"), {})
+	eq(rp.dossier().alias[0].cuando_tinta, "Q6")
+	eq(rp.inactive_docs(), ["D01.REDH"])
+	ok(rp.is_inactive("D01.REDH"))
+	no(rp.has_method("conclusions"), "v3: sin conclusiones")
 
 func test_reactions_and_rest():
 	var ids: Array = []
@@ -118,7 +117,7 @@ func test_missing_root_is_empty():
 	var e = R.fresh("res://no/existe")
 	eq(e.errors(), [])
 	eq(e.docs(), {})
-	eq(e.conclusions(), [])
+	eq(e.questions(), [])
 	eq(e.text("x"), "x")
 	eq(e.content_hash().length(), 32)
 
@@ -147,8 +146,13 @@ func test_error_detection():
 	_write(root, "ui_text/b.json", {"text": {"k": "dos"}})
 	_write(root, "rotos.json", "{mal")
 	_write(root, "otro/x.json", {})
-	_write(root, "conclusions.json", {"mandatory": ["C2"], "conclusions": [{"id": "C2", "kind": "obligatoria", "template": "T2", "answers": {}, "groups": [], "keys": {},
-		"routes": [{"id": "C2.R1", "frags": [{"ref": "D01.SCAN#nada", "copy": "D01.SCAN@BM"}]}]}]})
+	_write(root, "corpus.json", {"activas": ["D01.SCAN"], "inactivas": ["D01.REDH"]})
+	_write(root, "docs/D01/REDH.json", {"id": "D01.REDH", "entity": "x", "title": "t", "src_type": "cronica", "class": "I", "date": "1891-01-01", "font": "imprenta", "paper": "strand", "words": 1,
+		"copies": [{"id": "D01.REDH@BM", "holder": "BM", "via": "slip"}], "parts": [{"id": "p1", "text": "{{#fecha a:x|Hola.}}"}]})
+	_write(root, "dossier.json", {"preguntas": [{"id": "Q1", "orden": 1, "obligatoria": true, "texto": "¿?", "nace": [{"inicio": "prologo", "origen": "o"}],
+		"dudas": ["a", "b"], "acepta": ["concepto"], "variantes": [{"id": "A", "principal": true, "respuestas": ["x"], "grupos": [{"id": "g1", "tags": ["a"]}, {"id": "g2", "tags": ["b"]}],
+		"claves": {"entities": [], "kinds": []}, "tinta": "t", "rutas": [{"id": "Q1.R1", "deps": "fija", "frags": [{"ref": "D01.REDH#fecha", "copy": "D01.REDH@BM"}, {"ref": "D01.SCAN#q1", "copy": "C@1"}]}]}],
+		"blue_pencil": {"missing": "m", "wrong": "w"}, "invariante": "normal"}]})
 	_write(root, "reactions/r.json", {"reactions": [{"id": "M1", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
 		"disparador": {"evento": "report"}, "latencia": {"tipo": "siguiente_salida"}, "efecto": [{"op": "retirar"}], "rastro": [], "corta": [{"copias": "informadas"}]}]})
 	var e: Array = R.fresh(root).errors()
@@ -163,8 +167,8 @@ func test_error_detection():
 	ok(_has(e, "clave de ui_text duplicada 'k'"), "ui_text duplicada")
 	ok(_has(e, "rotos.json: JSON inválido"), "JSON roto")
 	ok(_has(e, "otro/x.json: carpeta desconocida"), "carpeta desconocida")
-	ok(_has(e, "no tiene el tramo #nada"), "ref de ruta a tramo inexistente")
-	ok(_has(e, "ejemplar 'D01.SCAN@BM' inexistente"), "ejemplar de ruta inexistente")
+	ok(_has(e, "nombra un documento inactivo (D01.REDH)"), "GDD_v3 §3.5: ruta a un documento inactivo")
+	ok(R.fresh(root).doc("D01.REDH").is_empty(), "el documento inactivo no se carga")
 	ok(_has(e, "corta sin variante_blanda"), "D1: variante_blanda obligatoria")
 
 func test_real_data():

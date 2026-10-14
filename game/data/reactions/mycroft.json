@@ -17,7 +17,7 @@
         {"tpl": "holmes_monografia", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: la [[ceniza|ceniza]] no es su ramo, señor.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: devuelva el volumen.}}"},
         {"tpl": "sigerson", "texto": "{{#ancla a:ancla_kbm a:me_vigila_de_cerca|[[@act|Asiento ${seat}]]: los noruegos escriben de montañas, no de usted.}} {{#giro a:me_vigila_de_cerca e:giro_ahorrare|Le ahorraré el trabajo: el [[tibet|Tíbet]] queda lejos de Holywell Street.}}"}
       ],
-      "corta": [], "agrega": ["C6", "C7.R1", "C7.R3", "C7.R8"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q3"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "HA2", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-BM",
@@ -27,12 +27,12 @@
       "condiciones": {"all": [{"day": {"gte": 1, "lte": 9}}, {"not": {"weekday": "dom"}}]},
       "ancla": ["seat", "title"],
       "latencia": {"tipo": "inmediata"},
-      "efecto": [{"op": "carta", "entrega": "en_mano"}],
-      "doc": {"entity": "senalador", "title": "Tira de papel usada como señalador", "src_type": "lugar", "class": "P", "font": "imprenta", "paper": "diogenes_recortado", "paper_mm": [22, 190], "firma": ""},
+      "efecto": [{"op": "carta", "entrega": "del_libro"}],
+      "doc": {"entity": "senalador", "title": "Tira de papel usada como señalador", "src_type": "papel_privado", "class": "P", "font": "imprenta", "paper": "diogenes_recortado", "paper_mm": [22, 190], "firma": ""},
       "rastro": [
         {"tpl": "senalador", "texto": "{{#tira a:vinculo_mycroft e:membrete_recortado e:tiras_de_papel|Entre las páginas de [[@act|«${title}»]], de señalador, una tira de papel de carta con medio membrete impreso: «…GENES CLUB · [[pall_mall|PALL MALL]]…».}}"}
       ],
-      "corta": [], "agrega": ["C7.R4"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q3"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "HA3", "tipo": "garantizada_por_acto", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-S",
@@ -47,7 +47,7 @@
       "rastro": [
         {"tpl": "calles", "texto": "{{#ancla a:ancla_ks a:me_vigila_de_cerca|[[@act|${itinerario}]]: un hombre de su vista no debería caminar tanto.}}"}
       ],
-      "corta": [], "agrega": ["C6", "C7.R3"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q3"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "HA4", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "*",
@@ -70,7 +70,69 @@
         {"tpl": "lisle_boda.kh", "when": {"anchor": {"channel": "K-H", "topic": "lisle_boda"}}, "texto": "{{#ancla a:ancla_kh a:me_vigila_de_cerca|Mis respetos [[@act|al impresor y a su hija]], señor.}}"},
         {"tpl": "lisle_boda.kw", "when": {"anchor": {"channel": "K-W", "topic": "lisle_boda"}}, "texto": "{{#ancla a:ancla_kw a:me_vigila_de_cerca|Mis respetos [[@act|al impresor y a su hija]], señor.}}"}
       ],
-      "corta": [], "agrega": ["C6"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q3"], "variante_blanda": null, "exento_d2": false
+    },
+    {
+      "id": "HA5", "tipo": "garantizada_por_acto", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "*",
+      "actor": ["wiggins", "cotter"],
+      "_nota": "GDD_v3 §4.1–§4.2 (REACCIONES-PIEZA). «El muchacho de los techos»: por orden permanente de Mycroft (vía Cotter), un chico de los Irregulares entra por los techos y la ventana y se lleva UN original P relacionado con lo que Lisle hizo ese día, para copiarlo (lee, no destruye: Ley 3); vuelve solo al amanecer siguiente a su lugar del estante, con una marca chica a lápiz al margen («v.», mano del copista). Disparador: el primer acto observado desde el día 3 (Wiggins trabaja desde el 3, HC02) por K-BM, K-W, K-H o K-T, siempre que haya en casa un original relacionado (disparador.relacion: la primera entrada cuyo `si` pasa da su lista; de ella, el primer original P que está en casa; si no hay ninguno, no dispara y no gasta su única vez). Latencia intrusion: lo que ve Cotter en el momento (K-BM, K-T) ocurre mientras Lisle sigue afuera en esa salida (se aplica al volver: Director.on_leave); lo que cuenta otro sensor esa noche (K-W, K-H), en la primera salida del día siguiente; si Lisle no sale, de noche. Firma: ventana abierta con la traba levantada desde afuera, hollín en el alféizar, dos hojas en el piso (variante techos de L1, hasta el final del día siguiente); todo lo demás en orden. Sin carteles ni sonido de alerta (la corriente de aire al entrar la pone UI-MUNDO: Audio.play_event(\"intrusion_techos\")). Crane oyó pasos en el techo: L:crane.pasos_techo desde la mañana siguiente (contador techos.manana, Effects.process_returns). Variante blanda (D1): sólo la ventana abierta, no se lleva nada. Exenta de D2. Una sola vez.",
+      "disparador": {"evento": ["slip", "say", "show", "go", "ad"], "match": {"channel": ["K-BM", "K-W", "K-H", "K-T"]}, "una_vez_por": ["*"],
+        "relacion": [
+          {"si": {"channel": "K-T"}, "copias": ["D23@L1"]},
+          {"si": {"topic": "holmes_cronicas"}, "copias": ["D03@tomo"]},
+          {"si": {"topic": ["holmes_monografia", "sigerson"]}, "copias": ["D44@tomo"]},
+          {"si": {"topic": "holmes_prensa_1891"}, "copias": ["D02@L1", "D03@tomo"]},
+          {"si": {"topic_group": "roca"}, "copias": ["D02@L1", "D03@tomo"]},
+          {"si": {"topic_group": "mary"}, "copias": ["D01.TWIS@tomo"]},
+          {"si": {"topic_group": "221b"}, "copias": ["D01.GREE@tomo"]},
+          {"si": {"topic_group": "sigerson"}, "copias": ["D44@tomo"]},
+          {"si": {"channel": "K-H"}, "copias": ["D01.GREE@tomo"]}
+        ]},
+      "condiciones": {"day": {"gte": 3}},
+      "ancla": ["topic", "seat", "title", "hour"],
+      "latencia": {"tipo": "intrusion"},
+      "efecto": [
+        {"op": "retirar", "copias": "relacionada", "dias": 1},
+        {"op": "alterar_lugar", "place": "L1", "variant": "techos", "dias": 2},
+        {"op": "linea", "char": "crane", "line": "pasos_techo"},
+        {"op": "devolver", "copias": "relacionada", "al": "amanecer", "entrega": "estante", "marca": {"texto": "v.", "mano": "copista"}}
+      ],
+      "rastro": [
+        {"tpl": "ventana", "nodo": "N:L1.ventana_abierta", "tags": ["a:entro_por_los_techos", "e:techos", "e:muchacho"]},
+        {"tpl": "papeles", "nodo": "N:L1.papeles_viento", "tags": []},
+        {"tpl": "pasos", "nodo": "L:crane.pasos_techo", "tags": ["a:entro_por_los_techos", "e:techos", "e:muchacho"]}
+      ],
+      "corta": [{"copias": "relacionada", "ventana": {"dias": 1}}],
+      "variante_blanda": {"efecto": [
+        {"op": "alterar_lugar", "place": "L1", "variant": "techos", "dias": 2},
+        {"op": "linea", "char": "crane", "line": "pasos_techo"},
+        {"op": "devolver", "copias": "relacionada", "al": "amanecer", "entrega": "estante", "marca": {"texto": "v.", "mano": "copista"}}
+      ], "corta": []},
+      "agrega": ["Q8"], "exento_d2": true
+    },
+    {
+      "id": "HA6", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "*",
+      "actor": ["wiggins", "cotter"],
+      "_nota": "GDD_v3 §4.2. «Otra vez los techos»: igual que HA5, una vez, la primera vez después de HA5 que Lisle MUESTRA un original P a Watson o a Mrs. Hudson (evento show observado por K-W/K-H): se llevan ese mismo original (relacion {mostrado}: el documento del recorte mostrado, su ejemplar de casa, o la carta recibida de la bandeja). Latencia intrusion (K-W/K-H: la primera salida del día siguiente, o esa noche). Opcional: un canal cerrado (HB11) la apaga. Variante blanda: sólo la ventana.",
+      "disparador": {"evento": "show", "match": {"channel": ["K-W", "K-H"]}, "una_vez_por": ["*"], "relacion": [{"mostrado": true}]},
+      "condiciones": {"all": [{"counter": {"name": "delivered.HA5", "gte": 1}}, {"counter": {"name": "intrusiones", "lt": 3}}]},
+      "ancla": [],
+      "latencia": {"tipo": "intrusion"},
+      "efecto": [
+        {"op": "retirar", "copias": "relacionada", "dias": 1},
+        {"op": "alterar_lugar", "place": "L1", "variant": "techos", "dias": 2},
+        {"op": "devolver", "copias": "relacionada", "al": "amanecer", "entrega": "estante", "marca": {"texto": "v.", "mano": "copista"}}
+      ],
+      "rastro": [
+        {"tpl": "ventana", "nodo": "N:L1.ventana_abierta", "tags": ["a:entro_por_los_techos", "e:techos", "e:muchacho"]},
+        {"tpl": "papeles", "nodo": "N:L1.papeles_viento", "tags": []}
+      ],
+      "corta": [{"copias": "relacionada", "ventana": {"dias": 1}}],
+      "variante_blanda": {"efecto": [
+        {"op": "alterar_lugar", "place": "L1", "variant": "techos", "dias": 2},
+        {"op": "devolver", "copias": "relacionada", "al": "amanecer", "entrega": "estante", "marca": {"texto": "v.", "mano": "copista"}}
+      ], "corta": []},
+      "agrega": ["Q8"], "exento_d2": true
     },
     {
       "id": "HB4", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 3, "canal": "K-W",
@@ -90,7 +152,7 @@
       ],
       "corta": [{"acceso": "L4.consulta", "ventana": {"dias": 2}, "si_n": [2]}],
       "variante_blanda": {"efecto": [{"op": "carta", "entrega": "correo", "si_n": [1]}], "corta": []},
-      "agrega": ["C6", "C7"], "exento_d2": false
+      "agrega": ["Q3"], "exento_d2": false
     },
     {
       "id": "HB5", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-W",
@@ -106,11 +168,11 @@
         {"op": "linea", "char": "watson", "line": "hb5_llevadas"}
       ],
       "rastro": [
-        {"tpl": "recibo", "nodo": "N:L4.recibo", "tags": ["a:vinculo_mycroft", "e:recibo_pp_mh", "e:remington_s_alzada"]}
+        {"tpl": "recibo", "nodo": "N:L4.recibo", "tags": ["a:vinculo_mycroft", "a:mycroft_gobierno", "e:recibo_pp_mh", "e:remington_s_alzada", "e:gobierno"]}
       ],
       "corta": [{"copy": "D29a@L4", "ventana": {"permanente": true}}],
       "variante_blanda": {"efecto": [{"op": "linea", "char": "watson", "line": "hb5_pedidas"}], "corta": []},
-      "agrega": ["C7.R5"], "exento_d2": false
+      "agrega": ["Q3", "Q4"], "exento_d2": false
     },
     {
       "id": "HB6", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "K-H",
@@ -127,9 +189,9 @@
       "rastro": [
         {"tpl": "ordenes", "nodo": "L:mrs_hudson.ordenes", "tags": ["a:ancla_kh", "a:vinculo_mycroft", "e:mycroft"]}
       ],
-      "corta": [{"copy": "D30@L3", "ventana": {"permanente": true}}, {"ref": "C4.R5", "ventana": {"permanente": true}}],
+      "corta": [{"copy": "D30@L3", "ventana": {"permanente": true}}, {"char": "mrs_hudson", "ventana": {"permanente": true}}],
       "variante_blanda": {"efecto": [{"op": "evento_mundo", "id": "hudson_mas_sir"}], "corta": []},
-      "agrega": ["C6"], "exento_d2": false
+      "agrega": ["Q3"], "exento_d2": false
     },
     {
       "id": "HB8", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "K-S",
@@ -145,9 +207,9 @@
       ],
       "rastro": [
         {"tpl": "tarifa", "nodo": "L:wiggins.vieja_tarifa", "tags": ["a:vinculo_mycroft", "e:vieja_tarifa", "e:pall_mall", "e:whitehall"]},
-        {"tpl": "conduit", "nodo": "L:wiggins.conduit", "tags": ["a:harris_es_moran", "e:conduit_street"]}
+        {"tpl": "conduit", "nodo": "L:wiggins.conduit", "tags": ["a:rasgo_de_harris", "e:conduit_street"]}
       ],
-      "corta": [], "agrega": ["C7.R7", "C10"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q3", "Q6"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "HB8b", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 3, "canal": "K-S",
@@ -166,9 +228,9 @@
       "rastro": [
         {"tpl": "chelin", "texto": "{{#ancla a:ancla_ks a:me_vigila_de_cerca|[[@act|Lo que le contó usted al muchacho de la gorra el ${act_day}]] llegó, y no era cierto.}} {{#chelin a:me_vigila_de_cerca|Un chelín compra a un chico, señor; no compra un hecho.}}"}
       ],
-      "corta": [{"ref": "C7.R7", "ventana": {"permanente": true}}, {"ref": "C10.R4", "ventana": {"permanente": true}}],
+      "corta": [{"ref": "Q3.R7", "ventana": {"permanente": true}}, {"ref": "Q6.R6", "ventana": {"permanente": true}}],
       "variante_blanda": {"efecto": [{"op": "carta", "entrega": "correo"}], "corta": []},
-      "agrega": ["C7"], "exento_d2": false
+      "agrega": ["Q3"], "exento_d2": false
     },
     {
       "id": "HB9", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 3, "canal": "*",
@@ -185,10 +247,10 @@
       ],
       "doc": {"entity": "cartas_a_maquina", "title": "Carta a máquina, matasellos S.W.", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [203, 244], "firma": "Un amigo de la exactitud"},
       "rastro": [
-        {"tpl": "1", "texto": "{{#hombres a:me_vigila_de_cerca a:busca_a_holmes e:hombres_de_moran|Desde el ${act_day} hay dos hombres frente a la puerta del [[watson|doctor]], y no esperan al doctor.}} {{#aviso a:me_vigila_de_cerca|Puede usted leer lo que él imprimió.}} Lo que no imprimió no es suyo."},
-        {"tpl": "2", "texto": "{{#hombres a:me_vigila_de_cerca a:busca_a_holmes e:hombres_de_moran|Los dos hombres siguen frente a la puerta del [[watson|doctor]].}} Se lo dije."}
+        {"tpl": "1", "texto": "{{#hombres a:me_vigila_de_cerca a:busca_a_holmes e:hombres_de_moran|Desde el ${act_day} hay dos hombres frente a la puerta del [[watson|doctor]], y no esperan al doctor: esperan ver [[donde|adónde]] va usted.}} {{#aviso a:me_vigila_de_cerca|Puede usted leer lo que él imprimió.}} Lo que no imprimió no es suyo."},
+        {"tpl": "2", "texto": "{{#hombres a:me_vigila_de_cerca a:busca_a_holmes e:hombres_de_moran|Los dos hombres siguen frente a la puerta del [[watson|doctor]], esperando ver [[donde|adónde]] va usted.}} Se lo dije."}
       ],
-      "corta": [], "agrega": ["C10.Cd"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q9"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "HB10", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "*",
@@ -205,9 +267,9 @@
       "doc": {"entity": "tarjeta_de_devolucion", "title": "Paquete en el mostrador de Crane, tarjeta a máquina", "src_type": "carta_recibida", "class": "P", "font": "maquina", "machine": "remington_cotter", "paper": "diogenes_recortado", "paper_mm": [89, 57]},
       "rastro": [
         {"tpl": "devuelto", "when": {"not": {"flag": "wiggins_aliado"}}, "texto": "Devuelto. {{#cerrojo a:me_vigila_de_cerca e:cerrojo|Ponga cerrojo.}}"},
-        {"tpl": "conduit", "when": {"flag": "wiggins_aliado"}, "texto": "Devuelto. {{#cerrojo a:me_vigila_de_cerca e:cerrojo|Ponga cerrojo.}} {{#conduit a:harris_es_moran e:conduit_street|Estaban en una casa de [[conduit_street|Conduit Street]].}}"}
+        {"tpl": "conduit", "when": {"flag": "wiggins_aliado"}, "texto": "Devuelto. {{#cerrojo a:me_vigila_de_cerca e:cerrojo|Ponga cerrojo.}} {{#conduit a:rasgo_de_harris e:conduit_street|Estaban en una casa de [[conduit_street|Conduit Street]].}}"}
       ],
-      "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q6"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "HB11", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 2, "canal": "*",
@@ -229,7 +291,7 @@
       ],
       "corta": [{"acceso": "canal:*", "ventana": {"permanente": true}, "solo_opcionales": true}],
       "variante_blanda": {"efecto": [{"op": "carta", "entrega": "correo"}], "corta": []},
-      "agrega": ["C6"], "exento_d2": false
+      "agrega": ["Q3"], "exento_d2": false
     },
     {
       "id": "HB12", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 4, "canal": "*",
@@ -258,7 +320,7 @@
         {"op": "linea", "char": "mycroft", "line": "hb12_error_1", "resultado": "error_1"},
         {"op": "linea", "char": "mycroft", "line": "hb12_error_2", "resultado": "error_2"}
       ], "corta": []},
-      "agrega": ["C7"], "exento_d2": true
+      "agrega": ["Q3"], "exento_d2": true
     },
     {
       "id": "HB13", "tipo": "opcional", "lado": "mycroft", "voz": "A", "nivel": 1, "canal": "inactividad",

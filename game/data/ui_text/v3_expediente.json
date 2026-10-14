@@ -1,0 +1,52 @@
+{
+  "_nota": "UI-EXPEDIENTE (GDD_v3 §6.1, §6.2, §6.10). Textos del Expediente Holmes (ui/expediente/*), de las tarjetas de recortes y del lápiz azul que lee el expediente. Voz de Lisle (primera persona) para la forma; interfaz en infinitivo; botones de ≤3 palabras. Nunca el contenido: «Algo no cierra.» no dice si falló la respuesta o una prueba. Sin contadores.",
+  "text": {
+    "exp.tapa": "Holmes",
+    "exp.encargo": "El encargo",
+    "exp.encargo.sub": "La carta del cliente",
+    "exp.en_tinta": "En tinta",
+    "exp.preguntas": "Preguntas",
+    "exp.vacia": "Elegir una pregunta de la izquierda.",
+    "exp.sin_preguntas": "Todavía no hay preguntas en la carpeta.",
+    "exp.sin_abiertas": "Ninguna pregunta abierta por ahora. Lo nuevo sale de lo que leo, de lo que oigo y de lo que publico con el tintero.",
+    "exp.volver": "Volver",
+
+    "exp.respuesta.rotulo": "Respuesta:",
+    "exp.respuesta.vacia": "elegir…",
+    "exp.respuesta.ayuda": "Elegir la respuesta entre lo que conozco",
+    "exp.pruebas.rotulo": "Pruebas:",
+    "exp.prueba.vacia": "Soltar acá un recorte del cuaderno",
+    "exp.prueba.quitar": "Clic derecho: sacar esta prueba",
+    "exp.prueba.ayuda": "Arrastro un recorte del cuaderno hasta acá.",
+    "exp.prueba.sin_recortes": "Todavía no recorté nada: los recortes salen de lo que leo, con la tijera.",
+    "exp.hoja.ayuda": "Una respuesta y dos pruebas: dos recortes de papeles distintos, cada uno con lo que pide su rótulo.",
+    "exp.pruebas.regla": "Las dos pruebas tienen que tocarse: una persona, un lugar o una cosa en común.",
+    "exp.pasar": "Pasar en limpio",
+    "exp.no_cierra": "Algo no cierra.",
+
+    "exp.formal.falta_respuesta": "Me falta la respuesta.",
+    "exp.formal.faltan_pruebas": "Hacen falta dos pruebas.",
+    "exp.formal.mismo_papel": "Las dos pruebas salen del mismo papel.",
+    "exp.formal.desconocido": "Todavía falta algo en la hoja.",
+
+    "exp.err.no_abierta": "Esa pregunta no está en la carpeta.",
+    "exp.err.en_tinta": "Lo que está en tinta ya no se toca.",
+    "exp.err.no_indexado": "De eso todavía no sé nada.",
+    "exp.err.fuera_de_lista": "Esta pregunta pide otra clase de respuesta.",
+    "exp.err.no_existe": "Ese recorte ya no está.",
+    "exp.err.no_sim": "No hay partida.",
+
+    "exp.picker.titulo": "Respuesta",
+    "exp.picker.buscar": "Buscar…",
+    "exp.picker.mas": "Hay más: escribir para buscar.",
+    "exp.picker.vacio": "Todavía no tengo nada para elegir.",
+    "exp.picker.nada": "Nada con esas letras.",
+    "exp.picker.borrar": "Dejar en blanco",
+
+    "exp.tinta.respuesta": "Respuesta:",
+    "exp.tinta.pruebas": "Pruebas:",
+
+    "exp.lapiz.sin_preguntas": "La carpeta volvió sin hojas escritas.",
+    "exp.lapiz.encabezado": "El expediente de E. L., corregido a lápiz azul. No requiere respuesta."
+  }
+}

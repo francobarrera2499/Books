@@ -14,10 +14,11 @@
   "catalog": {"label": "«El intérprete griego», The Strand Magazine, vol. VI (septiembre de 1893)", "entities": ["gree", "mycroft", "club_diogenes", "pall_mall", "melas"]},
   "copies": [
     {"id": "D01.GREE@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
-    {"id": "D01.GREE@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+    {"id": "D01.GREE@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"},
+    {"id": "D01.GREE@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "1.M", "to": "10.M"}
   ],
   "parts": [
-    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XXII\\. — El intérprete griego</b>\n{{#parientes e:holmes q:parientes|En mi larga e íntima relación con el señor [[holmes|Sherlock Holmes]] nunca le había oído aludir a sus parientes, y casi nunca a sus primeros años.}} {{#huerfano e:holmes q:huerfano|Había llegado a creer que era huérfano y que no le quedaba ningún pariente vivo, pero un día, con gran sorpresa mía, empezó a hablarme de su hermano.}}\n\\[…\\] {{#arte e:holmes q:arte|—El arte en la sangre suele tomar las formas más extrañas.}}\n—Pero ¿cómo sabe usted que es hereditario?\n{{#hermano e:mycroft q:hermano|—Porque mi hermano [[mycroft|Mycroft]] lo posee en mayor grado que yo.}}\n—¿Es menor que usted?\n{{#mayor e:mycroft q:mayor|—Siete años mayor.}}\n\\[…\\] {{#club e:mycroft q:club|—[[club_diogenes|El club Diógenes]] es el club más raro de Londres, y Mycroft uno de los hombres más raros.}} {{#horario e:mycroft q:horario|Está allí siempre de las cinco menos cuarto a las ocho menos veinte.}}\n\\[…\\] —{{#pall_mall a:vinculo_mycroft e:mycroft q:pall_mall q:enfrente|[[mycroft|Mycroft]] se aloja en [[pall_mall|Pall Mall]], justo enfrente del [[club_diogenes|club Diógenes]].}} {{#whitehall a:vinculo_mycroft e:mycroft e:pall_mall q:whitehall|Cada mañana dobla la esquina hasta [[whitehall|Whitehall]], y cada tarde vuelve.}} {{#ejercicio e:mycroft q:ejercicio|De un año a otro no hace ningún otro ejercicio, ni se lo ve en ninguna otra parte.}}"},
+    {"id": "p1", "text": "<sc>Aventuras de Sherlock Holmes</sc>\n<b>XXII\\. — El intérprete griego</b>\n{{#parientes e:holmes q:parientes|En mi larga e íntima relación con el señor [[holmes|Sherlock Holmes]] nunca le había oído aludir a sus parientes, y casi nunca a sus primeros años.}} {{#huerfano e:holmes q:huerfano|Había llegado a creer que era huérfano y que no le quedaba ningún pariente vivo, pero un día, con gran sorpresa mía, empezó a hablarme de su hermano.}}\n\\[…\\] {{#arte e:holmes q:arte|—El arte en la sangre suele tomar las formas más extrañas.}}\n—Pero ¿cómo sabe usted que es hereditario?\n{{#hermano e:mycroft q:hermano|—Porque mi hermano [[mycroft|Mycroft]] lo posee en mayor grado que yo.}}\n—¿Es menor que usted?\n{{#mayor e:mycroft q:mayor|—Siete años mayor.}}\n\\[…\\] {{#club e:mycroft q:club|—[[club_diogenes|El club Diógenes]] es el club más raro de Londres, y Mycroft uno de los hombres más raros.}} {{#horario e:mycroft q:horario|Está allí siempre de las cinco menos cuarto a las ocho menos veinte.}}\n\\[…\\] —{{#cuentas a:mycroft_gobierno e:mycroft e:gobierno q:cuentas|Tiene una facultad extraordinaria para los números y revisa las cuentas de algunos [[gobierno|ministerios]].}} {{#pall_mall a:vinculo_mycroft e:mycroft q:pall_mall q:enfrente|[[mycroft|Mycroft]] se aloja en [[pall_mall|Pall Mall]], justo enfrente del [[club_diogenes|club Diógenes]].}} {{#whitehall a:vinculo_mycroft e:mycroft e:pall_mall q:whitehall|Cada mañana dobla la esquina hasta [[whitehall|Whitehall]], y cada tarde vuelve.}} {{#ejercicio e:mycroft q:ejercicio|De un año a otro no hace ningún otro ejercicio, ni se lo ve en ninguna otra parte.}}"},
     {"id": "p2", "text": "\\[…\\] —{{#misantropia e:holmes q:misantropia|Hay en Londres muchos hombres que, por timidez o por misantropía, no desean la compañía de sus semejantes.}} {{#insociables e:club_diogenes q:insociables|Para comodidad de estos se fundó [[club_diogenes|el club Diógenes]], que hoy reúne a los hombres más insociables y menos aptos para un club de toda la ciudad.}} {{#founders a:vinculo_mycroft e:mycroft e:club_diogenes e:pall_mall q:founders|[[mycroft|Mi hermano]] fue uno de los fundadores}}, y yo mismo he encontrado en él un ambiente muy sedante.\n{{#carlton p:pall_mall q:carlton|Habíamos llegado a [[pall_mall|Pall Mall]] mientras hablábamos, y lo recorríamos desde el extremo de St. James.}} {{#forasteros p:sala_de_forasteros q:forasteros|Holmes me hizo pasar a una salita que daba a Pall Mall y, dejándome solo un minuto, volvió con un acompañante que no podía ser sino su hermano.}}\n{{#corpulento e:mycroft q:corpulento|[[mycroft|Mycroft Holmes]] era un hombre mucho más voluminoso y corpulento que Sherlock.}}\n{{#foca e:mycroft q:foca|—Me alegro de conocerlo, señor —dijo, tendiéndome una mano ancha y gruesa como la aleta de una foca—.}} {{#cronista e:mycroft q:cronista|Oigo hablar de Sherlock en todas partes desde que usted se hizo su cronista.}}\n{{#soldado e:holmes q:soldado|—Un viejo soldado, por lo que veo —dijo Sherlock.}}\n{{#licenciado e:mycroft q:licenciado|—Y dado de baja hace muy poco —observó el hermano.}}"}
   ],
   "src_en": {
@@ -28,6 +29,7 @@
     "mayor": "Seven years my senior.",
     "club": "The Diogenes Club is the queerest club in London, and Mycroft one of the queerest men.",
     "horario": "He’s always there from quarter to five to twenty to eight.",
+    "cuentas": "He has an extraordinary faculty for figures, and audits the books in some of the government departments.",
     "pall_mall": "Mycroft lodges in Pall Mall",
     "enfrente": "except only in the Diogenes Club, which is just opposite his rooms.",
     "whitehall": "he walks round the corner into Whitehall every morning and back every evening.",
@@ -43,5 +45,12 @@
     "soldado": "An old soldier, I perceive,” said Sherlock.",
     "licenciado": "And very recently discharged,” remarked the brother."
   },
-  "words": 353
+  "words": 370,
+  "v3": {
+    "_nota": "GDD_v3 §3.2 (CONTENIDO). Ficha de Lisle, tarjeta NC.GREE y marquitas del cliente en todo lo que dice del hermano (#pall_mall, #whitehall, #club, #horario). #cuentas (Q4, mycroft_gobierno) no lleva marquita: el cliente no la marcó. Sólo en el ejemplar del cliente (D01.GREE@tomo); D01.GREE@Crane son las «Memorias» de Newnes en el estante de Crane (Q4.R2).",
+    "ficha": {"trata": "Holmes le presenta a Watson a su hermano Mycroft, en el club Diógenes, y juntos ayudan a un intérprete griego.", "cuando": "Pasó hacia 1888; salió en la Strand en septiembre de 1893.", "por_que": "El cliente marcó todo lo que dice del hermano de Holmes."},
+    "nota_cliente": "NC.GREE",
+    "marcas": [{"parte": "p1", "tramo": "pall_mall"}, {"parte": "p1", "tramo": "whitehall"}, {"parte": "p1", "tramo": "club"}, {"parte": "p1", "tramo": "horario"}],
+    "margen": []
+  }
 }

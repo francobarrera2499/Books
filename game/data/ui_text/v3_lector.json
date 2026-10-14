@@ -1,0 +1,8 @@
+{
+  "_nota": "LECTOR (GDD_v3 §6.7). Textos nuevos del lector flotante (ui/reader/*). La tijera es un ícono sin palabra (ni rótulo ni ayuda flotante: sólo la línea de ayuda de reader.tijera_ayuda mientras está en la mano y todavía no se recortó nada). La paginación va abajo al centro («‹  2 / 5  ›»). Los textos anteriores del lector siguen en reader.json (Volver, Ver la imagen, ayuda de la tijera) y los errores de recorte en rules.json y v3_core.json.",
+  "text": {
+    "lector.pagina": "${n} / ${total}",
+    "lector.pagina.anterior": "Hoja anterior",
+    "lector.pagina.siguiente": "Hoja siguiente"
+  }
+}

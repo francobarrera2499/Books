@@ -12,6 +12,8 @@
 #   «verdadero» (crédito) mira entry_conclusions (Validator.values_match) y, con entry_ink, exige el asiento en tinta;
 #   recorte → por etiquetas c:, visible_cats del doc, clase del ejemplar (P → original_p) y voz del documento runtime
 #   de origen (clip_voice). Nunca por a: ocultas.
+#   v3: pregunta del expediente ({kind:"pregunta", id:"Q5"}) → por su respuesta visible y lápiz/tinta (Dossier.item_view;
+#   tabla Q_CATS o lists.report_cats[].pregunta), GDD_v3 §6.10.
 # Extensión: report_item(st, repo, item) -> {kind, id, cats, values, copies, cls} (lo que Composers mete en el evento).
 extends RefCounted
 
@@ -19,8 +21,25 @@ const RDB = preload("res://core/react/reaction_db.gd")
 # deduction/ se carga en tiempo de ejecución (sólo report_cats): un módulo ajeno a medio hacer no rompe react/.
 const CLIPPER_PATH := "res://core/deduction/clipper.gd"
 const VALIDATOR_PATH := "res://core/deduction/validator.gd"
+const DOSSIER_PATH := "res://core/deduction/dossier.gd"
 
 const ENTREGA_CATS := ["paradero_extranjero", "regreso_jueves", "baker_street", "camden"]
+const MORAN_ANSWERS := ["moran", "harris", "autor_heavy_game"]
+# v3 (GDD_v3 §6.10): qué lee Moran de una PREGUNTA del expediente informada (en lápiz o en tinta): sólo la respuesta
+# visible y si está en tinta, nunca si es correcta. Manda lists.report_cats[].pregunta (dueño CORE): [{q: [ids],
+# respuestas?: [entidades] (sin la clave = cualquier respuesta, incluso vacía), no_respuestas?, kind? (tipo de entidad de
+# la respuesta), tinta?: true (sólo en tinta), lapiz?: true (sólo en lápiz)}]; basta una forma. Sin esas entradas, esta
+# tabla (mismo formato). Las respuestas se comparan tal cual (harris, moran y autor_heavy_game están listados).
+const Q_CATS := [
+	{"cat": "holmes_vive", "q": ["Q5"], "respuestas": ["holmes"]},
+	{"cat": "regreso_jueves", "q": ["Q10"], "respuestas": ["holmes"]},
+	{"cat": "baker_street", "q": ["Q10"], "respuestas": ["holmes"]},
+	{"cat": "camden", "q": ["Q10"], "respuestas": MORAN_ANSWERS},
+	{"cat": "moran_autor", "q": ["Q6", "Q7", "Q8"], "respuestas": MORAN_ANSWERS},
+	{"cat": "moran_autor", "q": ["Q9"]},
+	{"cat": "verdadero", "q": ["Q1", "Q2"], "tinta": true},
+	{"cat": "falso_verificable", "q": ["Q10"], "lapiz": true, "kind": "persona", "no_respuestas": ["holmes", "moran", "harris", "autor_heavy_game"]},
+]
 
 static func init_state(st, repo) -> void:
 	if typeof(st.react) != TYPE_DICTIONARY:
@@ -138,12 +157,14 @@ static func report_cats(st, repo, item: Dictionary) -> Array:
 				hit = true
 			if hit and not out.has(String(c.cat)):
 				out.append(String(c.cat))
+	elif kind == "pregunta":
+		return question_cats(st, repo, String(item.get("id", "")))
 	elif kind == "entry":
 		var entry := _entry(st, item)
 		if entry.is_empty():
 			return out
 		var sealed := _sealed(st)
-		var val = load(VALIDATOR_PATH)
+		var val = load(VALIDATOR_PATH) if ResourceLoader.exists(VALIDATOR_PATH) else null
 		var inked := String(entry.get("ink", "")) == "tinta"
 		for c in rc:
 			if typeof(c) != TYPE_DICTIONARY:
@@ -151,7 +172,8 @@ static func report_cats(st, repo, item: Dictionary) -> Array:
 			var hit := false
 			if inked or not bool(c.get("entry_ink", false)):
 				for cid in RDB._as_arr(c.get("entry_conclusions", [])):
-					if val != null and val.values_match(repo, entry, String(cid), sealed):
+					# v3: el libro de conclusiones se retira (Validator sin values_match): sólo los campos visibles
+					if val != null and val.has_method("values_match") and val.values_match(repo, entry, String(cid), sealed):
 						hit = true
 						break
 			if not hit and typeof(c.get("entry_template_values")) == TYPE_DICTIONARY:
@@ -173,6 +195,80 @@ static func report_item(st, repo, item: Dictionary) -> Dictionary:
 			out.cls.append(String(clip.cls))
 	elif kind == "entry":
 		out["values"] = entry_values(_entry(st, item))
+	elif kind == "pregunta":
+		# los originales detrás de sus dos pruebas también quedan «informados» (M1 se los lleva)
+		var iv := _qview(st, repo, String(item.get("id", "")))
+		if String(iv.get("answer", "")) != "":
+			out["values"] = {"respuesta": String(iv.answer)}
+		for cid in _q_proofs(st, repo, String(item.get("id", ""))):
+			var c := _clip(st, {"id": cid})
+			if String(c.get("copy", "")) != "" and not out.copies.has(String(c.copy)):
+				out.copies.append(String(c.copy))
+			if String(c.get("cls", "")) != "" and not out.cls.has(String(c.cls)):
+				out.cls.append(String(c.cls))
+	return out
+
+# ---------------- v3: preguntas del expediente (GDD_v3 §6.10) ----------------
+static func _dossier():
+	return load(DOSSIER_PATH) if ResourceLoader.exists(DOSSIER_PATH) else null
+
+# Dossier.item_view: {q, answer, inked, variant, tags}. {} si la pregunta no nació.
+static func _qview(st, repo, qid: String) -> Dictionary:
+	var D = _dossier()
+	if D == null or qid == "" or not D.has_method("item_view"):
+		return {}
+	var v = D.item_view(st, repo, qid)
+	return v if typeof(v) == TYPE_DICTIONARY else {}
+
+# Recortes de prueba de la pregunta (tinta o lápiz), por la hoja visible del expediente (Dossier.sheet).
+static func _q_proofs(st, repo, qid: String) -> Array:
+	var D = _dossier()
+	if D == null or qid == "" or not D.has_method("sheet"):
+		return []
+	var sh = D.sheet(st, repo, qid)
+	var out: Array = []
+	if typeof(sh) == TYPE_DICTIONARY:
+		for p in RDB._as_arr(sh.get("proofs", [])):
+			if typeof(p) == TYPE_DICTIONARY and String(p.get("id", "")) != "":
+				out.append(String(p.id))
+	return out
+
+static func _q_rules(repo) -> Array:
+	var from_lists: Array = []
+	for c in repo.lists().get("report_cats", []):
+		if typeof(c) != TYPE_DICTIONARY or typeof(c.get("pregunta")) != TYPE_ARRAY:
+			continue
+		for p in c.pregunta:
+			if typeof(p) == TYPE_DICTIONARY:
+				var r: Dictionary = p.duplicate(true)
+				r["cat"] = String(c.get("cat", ""))
+				from_lists.append(r)
+	return from_lists if not from_lists.is_empty() else Q_CATS
+
+# Categorías de una pregunta informada (nacida): por su respuesta visible y su estado (lápiz/tinta), nunca por si cierra.
+static func question_cats(st, repo, qid: String) -> Array:
+	var out: Array = []
+	var iv := _qview(st, repo, qid)
+	if iv.is_empty():
+		return out
+	var ans := String(iv.get("answer", ""))
+	var inked := bool(iv.get("inked", false))
+	for r in _q_rules(repo):
+		if not RDB._as_arr(r.get("q", [])).has(qid):
+			continue
+		if bool(r.get("tinta", r.get("ink", false))) and not inked:
+			continue
+		if bool(r.get("lapiz", r.get("pencil", false))) and inked:
+			continue
+		var want = r.get("respuestas", r.get("answers"))
+		if want != null and not RDB._as_arr(want).has(ans):
+			continue
+		if RDB._as_arr(r.get("no_respuestas", r.get("not", []))).has(ans):
+			continue
+		if String(r.get("kind", "")) != "" and (ans == "" or String(repo.entity(ans).get("kind", "")) != String(r.kind)):
+			continue
+		if not out.has(String(r.cat)):
+			out.append(String(r.cat))
 	return out
 
 static func entry_values(entry: Dictionary) -> Dictionary:

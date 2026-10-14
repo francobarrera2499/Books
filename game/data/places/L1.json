@@ -1,5 +1,5 @@
 {
- "_nota": "W2-PLACES-A. L1: buhardilla de Holywell Street (piso y=0) sobre la tienda de Crane (piso y=-6.33), con la calle al norte (−Z). GDD §5. Escrito con un generador de trabajo no versionado (.work/w2placesa/): este JSON es la fuente de verdad. La buhardilla se repite (mismos ids de props y nodos) en plates/PRO.json y plates/M7.json: un cambio acá se copia allá.",
+ "_nota": "W2-PLACES-A → v3 (REACCIONES-PIEZA, GDD_v3 §4.3, §6.4). L1: buhardilla de Holywell Street (piso y=0) sobre la tienda de Crane (piso y=-6.33), con la calle al norte (−Z). En la buhardilla sólo es interactivo lo útil (bandeja, tintero, cuaderno, expediente, plano en la pared, estante, puerta, ventana, la calle y enfrente) y lo que cambió (variantes); el resto queda como props sin examen ni hover. La ventana se arma con props propios (ventana_marco, hoja_ventana, traba, cortina; el vano del ático es «void») para que las intrusiones la cambien. Variantes: «techos» (HA5/HA6, los de Holmes: hoja baja subida 0,45 m, traba levantada, cortina hacia adentro, dos hojas en el piso y hollín en el alféizar; hide_nodes: ventana → ventana_abierta), «registrada» (M1, los de Moran: cajón abierto 12 cm, silla corrida y girada, ceniza de cheroot sobre el escritorio, rayones en la cerradura) y «registrada+techos» (las dos a la vez: Effects.place_variant compone el nombre). Los nodos con «aviso» hacen nacer Q8 al examinarlos (acción examine). plates/PRO.json y plates/M7.json repiten la decoración de la buhardilla (dueño CONTENIDO).",
  "id": "L1",
  "name": "Buhardilla de Holywell Street y tienda de Crane",
  "streets": [
@@ -16,7 +16,9 @@
  },
  "observers": [],
  "epigraph": "—Con esos anteojos azules, señor Lisle, no sé cómo ve usted los errores.",
- "epigraph_by_area": {"tienda": "—Todo libro tiene precio, señor; algunos, dos."},
+ "epigraph_by_area": {
+  "tienda": "—Todo libro tiene precio, señor; algunos, dos."
+ },
  "frames": [
   {
    "id": "escritorio",
@@ -192,13 +194,11 @@
     "openings": [
      {
       "wall": "n",
-      "kind": "window",
+      "kind": "void",
       "x": 0.0,
       "w": 1.0,
       "h": 1.25,
-      "sill": 0.85,
-      "panes": 4,
-      "open": 1.0
+      "sill": 0.85
      },
      {
       "wall": "s",
@@ -209,6 +209,61 @@
       "open": 0.12
      }
     ]
+   }
+  },
+  {
+   "id": "ventana_marco",
+   "type": "l1.sash_frame",
+   "pos": [
+    0.0,
+    0.85,
+    -2.28
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 1.0,
+    "h": 1.25,
+    "depth": 0.128,
+    "panes": 4
+   }
+  },
+  {
+   "id": "hoja_ventana",
+   "type": "l1.sash_lower",
+   "pos": [
+    0.0,
+    0.898,
+    -2.255
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 0.88,
+    "h": 0.591,
+    "panes": 4
+   }
+  },
+  {
+   "id": "traba",
+   "type": "l1.sash_lock",
+   "pos": [
+    0.0,
+    1.489,
+    -2.245
+   ],
+   "rot": 0.0
+  },
+  {
+   "id": "cortina",
+   "type": "l1.curtain",
+   "pos": [
+    -0.66,
+    2.2,
+    -2.17
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 0.4,
+    "h": 1.32
    }
   },
   {
@@ -255,6 +310,21 @@
    }
   },
   {
+   "id": "cajon",
+   "type": "l1.desk_drawer",
+   "pos": [
+    0.0,
+    0.675,
+    -1.449
+   ],
+   "rot": 0.0,
+   "p": {
+    "w": 0.52,
+    "h": 0.07,
+    "d": 0.4
+   }
+  },
+  {
    "id": "silla",
    "type": "furniture.chair",
    "pos": [
@@ -265,20 +335,6 @@
    "rot": 180.0,
    "p": {
     "style": "oficina"
-   }
-  },
-  {
-   "id": "tomos",
-   "type": "small.tome_set",
-   "pos": [
-    -0.24,
-    0.76,
-    -2.05
-   ],
-   "rot": 0.0,
-   "p": {
-    "n": 5,
-    "first": 2
    }
   },
   {
@@ -305,9 +361,9 @@
    "id": "tintero",
    "type": "small.ink_pot",
    "pos": [
-    0.27,
+    0.1,
     0.76,
-    -2.1
+    -1.84
    ],
    "rot": 0.0
   },
@@ -315,9 +371,9 @@
    "id": "sello",
    "type": "small.stamp",
    "pos": [
-    0.4,
+    0.44,
     0.76,
-    -1.74
+    -2.08
    ],
    "rot": 0.0
   },
@@ -348,8 +404,8 @@
    }
   },
   {
-   "id": "libro_mayor",
-   "type": "l1.ledger_open",
+   "id": "expediente",
+   "type": "l1.dossier_folder",
    "pos": [
     0.38,
     0.76,
@@ -366,16 +422,6 @@
     -1.6
    ],
    "rot": 72.0
-  },
-  {
-   "id": "tijera",
-   "type": "small.scissors",
-   "pos": [
-    -0.05,
-    0.76,
-    -1.52
-   ],
-   "rot": -35.0
   },
   {
    "id": "monedas",
@@ -1075,194 +1121,24 @@
  ],
  "nodes": [
   {
-   "id": "escritorio",
-   "prop": "escritorio",
-   "noun": "escritorio",
-   "anchor": {
-    "c": [
-     0.0,
-     0.38,
-     -1.8
-    ],
-    "s": [
-     1.52,
-     0.78,
-     0.77
-    ]
-   },
-   "examine": "Un escritorio de pedestales, de tapa de cuero gastada; en el borde del cuero hay cortes de tijera.",
-   "tags": [
-    "e:escritorio_de_lisle"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "cajon",
-   "prop": "escritorio",
-   "noun": "cajón",
-   "anchor": {
-    "c": [
-     0.0,
-     0.675,
-     -1.395
-    ],
-    "s": [
-     0.5,
-     0.11,
-     0.06
-    ]
-   },
-   "examine": "El cajón del centro cierra mal. Dentro, doblada en cuatro, una [[galerada|prueba de imprenta]] con un sello: «1.ª prueba — lector: E. L.».",
-   "tags": [
-    "e:galerada",
-    "e:cajon_del_escritorio"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "tomos",
-   "prop": "tomos",
-   "noun": "tomos",
-   "anchor": {
-    "c": [
-     -0.24,
-     0.89,
-     -2.05
-    ],
-    "s": [
-     0.36,
-     0.27,
-     0.2
-    ]
-   },
-   "examine": "Cinco [[tomos|tomos encuadernados]] de la [[strand|Strand]], volúmenes II a VI, con el lomo gastado y papeles que asoman entre las hojas.",
-   "tags": [
-    "e:tomos",
-    "e:strand"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "calendario",
-   "prop": "calendario",
-   "noun": "calendario",
-   "anchor": {
-    "c": [
-     0.06,
-     0.83,
-     -2.07
-    ],
-    "s": [
-     0.15,
-     0.15,
-     0.1
-    ]
-   },
-   "examine": "Un [[calendario_de_escritorio|calendario perpetuo]] de tarjetas que se cambian a mano.",
-   "tags": [
-    "e:calendario_de_escritorio"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
    "id": "tintero",
    "prop": "tintero",
    "noun": "tintero",
    "anchor": {
     "c": [
-     0.31,
-     0.79,
-     -2.1
+     0.11,
+     0.81,
+     -1.84
     ],
     "s": [
-     0.2,
-     0.07,
-     0.08
+     0.24,
+     0.14,
+     0.22
     ]
    },
    "examine": "Un tintero de vidrio con tapa de latón y una pluma de acero.",
    "tags": [
     "e:tintero_de_lisle"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "sello",
-   "prop": "sello",
-   "noun": "sello",
-   "anchor": {
-    "c": [
-     0.45,
-     0.805,
-     -1.74
-    ],
-    "s": [
-     0.2,
-     0.1,
-     0.08
-    ]
-   },
-   "examine": "Un [[sello_visto|sello de goma]] que dice «Confirmado», con su almohadilla de tinta en una caja de lata.",
-   "tags": [
-    "e:sello_visto"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "lampara",
-   "prop": "lampara",
-   "noun": "lámpara",
-   "anchor": {
-    "c": [
-     0.62,
-     1.0,
-     -2.0
-    ],
-    "s": [
-     0.28,
-     0.48,
-     0.28
-    ]
-   },
-   "examine": "Una lámpara de mesa de gas, con tubo de goma y pantalla opalina.",
-   "tags": [
-    "e:luz_de_gas"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "atril",
-   "prop": "atril",
-   "noun": "atril",
-   "anchor": {
-    "c": [
-     -0.58,
-     0.9,
-     -1.98
-    ],
-    "s": [
-     0.44,
-     0.3,
-     0.32
-    ]
-   },
-   "examine": "Un atril de lectura con una pinza de latón para sujetar la hoja.",
-   "tags": [
-    "e:atril_de_lisle"
    ],
    "cls": "I",
    "area": "buhardilla",
@@ -1293,30 +1169,6 @@
    "when": {}
   },
   {
-   "id": "libro_mayor",
-   "prop": "libro_mayor",
-   "noun": "libro de conclusiones",
-   "anchor": {
-    "c": [
-     0.38,
-     0.775,
-     -1.62
-    ],
-    "s": [
-     0.5,
-     0.04,
-     0.36
-    ]
-   },
-   "examine": "Un libro grande, de renglones y columnas rojas: el libro de conclusiones. En la primera hoja, a pluma: «Correcciones».",
-   "tags": [
-    "e:libro_mayor"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
    "id": "cuaderno",
    "prop": "cuaderno",
    "noun": "cuaderno",
@@ -1341,278 +1193,22 @@
    "when": {}
   },
   {
-   "id": "tijera",
-   "prop": "tijera",
-   "noun": "tijera",
+   "id": "expediente",
+   "prop": "expediente",
+   "noun": "expediente",
    "anchor": {
     "c": [
-     -0.05,
-     0.77,
-     -1.52
+     0.38,
+     0.775,
+     -1.62
     ],
     "s": [
-     0.17,
-     0.03,
-     0.17
-    ]
-   },
-   "examine": "Una [[tijera|tijera]] de corrector, de hojas largas y punta roma.",
-   "tags": [
-    "e:tijera"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "monedas",
-   "prop": "monedas",
-   "noun": "monedas",
-   "anchor": {
-    "c": [
-     0.69,
-     0.77,
-     -1.5
-    ],
-    "s": [
-     0.12,
-     0.03,
-     0.1
-    ]
-   },
-   "examine": "Unas [[monedas|monedas]] sobre la mesa: chelines, peniques y un soberano.",
-   "tags": [
-    "e:monedas"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "silla",
-   "prop": "silla",
-   "noun": "silla",
-   "anchor": {
-    "c": [
-     0.08,
-     0.45,
-     -1.06
-    ],
-    "s": [
-     0.52,
-     0.9,
-     0.52
-    ]
-   },
-   "examine": "Una silla de escritorio de brazos curvos, con el asiento gastado.",
-   "tags": [],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "mesita",
-   "prop": "mesita",
-   "noun": "mesita",
-   "anchor": {
-    "c": [
-     -1.6,
-     0.36,
-     -1.55
-    ],
-    "s": [
-     0.78,
-     0.72,
-     0.52
-    ]
-   },
-   "examine": "Una mesita de patas torneadas, arrimada al faldón del techo.",
-   "tags": [],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "pliegos",
-   "prop": "pliegos",
-   "noun": "papel",
-   "anchor": {
-    "c": [
-     -1.45,
-     0.745,
-     -1.68
-    ],
-    "s": [
-     0.26,
+     0.3,
      0.05,
-     0.34
+     0.36
     ]
    },
-   "examine": "Hojas de papel en blanco, cortadas a medida.",
-   "tags": [],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "concordancia",
-   "prop": "concordancia",
-   "noun": "notas de lectura",
-   "anchor": {
-    "c": [
-     -1.74,
-     0.755,
-     -1.6
-    ],
-    "s": [
-     0.26,
-     0.08,
-     0.32
-    ]
-   },
-   "examine": "Un cuaderno grueso de tapas de hule, cerrado con una cinta: las [[concordancia|notas de lectura]] de E. L., llenas de fichas sujetas con alfileres.",
-   "tags": [
-    "e:concordancia"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "estuche",
-   "prop": "estuche",
-   "noun": "estuche",
-   "anchor": {
-    "c": [
-     -1.42,
-     0.75,
-     -1.42
-    ],
-    "s": [
-     0.18,
-     0.08,
-     0.1
-    ]
-   },
-   "examine": "Un estuche de cuero para anteojos, abierto y vacío; tiene el nombre de un óptico del Strand.",
-   "tags": [
-    "e:anteojos_azules"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "brazo_gas",
-   "prop": "brazo_gas",
-   "noun": "brazo de gas",
-   "anchor": {
-    "c": [
-     -1.1,
-     1.72,
-     -2.0
-    ],
-    "s": [
-     0.2,
-     0.3,
-     0.3
-    ]
-   },
-   "examine": "Un brazo de gas de pared con globo de vidrio esmerilado; el techo de encima está ahumado.",
-   "tags": [
-    "e:luz_de_gas"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "brazo_gas_puerta",
-   "prop": "brazo_gas_puerta",
-   "noun": "brazo de gas",
-   "anchor": {
-    "c": [
-     -0.15,
-     1.78,
-     2.0
-    ],
-    "s": [
-     0.2,
-     0.3,
-     0.3
-    ]
-   },
-   "examine": "Otro brazo de gas junto a la puerta, de llave dura; alumbra la escalera cuando se deja la puerta abierta.",
-   "tags": [
-    "e:luz_de_gas"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "estufa",
-   "prop": "estufa",
-   "noun": "estufa",
-   "anchor": {
-    "c": [
-     1.3,
-     1.0,
-     -1.78
-    ],
-    "s": [
-     0.6,
-     2.0,
-     0.6
-    ]
-   },
-   "examine": "Una [[estufa|estufa]] de hierro de las que llaman tortugas; el caño sale por el techo inclinado.",
-   "tags": [
-    "e:estufa"
-   ],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "cama",
-   "prop": "cama",
-   "noun": "cama",
-   "anchor": {
-    "c": [
-     1.72,
-     0.45,
-     1.12
-    ],
-    "s": [
-     0.95,
-     0.7,
-     1.95
-    ]
-   },
-   "examine": "Una cama de hierro, angosta, con una manta gris bien estirada.",
-   "tags": [],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
-   "id": "lavamanos",
-   "prop": "lavamanos",
-   "noun": "lavamanos",
-   "anchor": {
-    "c": [
-     -1.7,
-     0.45,
-     0.8
-    ],
-    "s": [
-     0.45,
-     0.9,
-     0.62
-    ]
-   },
-   "examine": "Un lavamanos con palangana, jarra y una toalla doblada.",
+   "examine": "Una carpeta de cartón atada con cinta roja. En la tapa, a pluma: «Holmes». Adentro, el [[encargo|encargo]] y mis preguntas.",
    "tags": [],
    "cls": "I",
    "area": "buhardilla",
@@ -1634,7 +1230,7 @@
      1.12
     ]
    },
-   "examine": "Un estante bajo con diccionarios, una guía [[baedeker|Baedeker]] de Londres y pruebas de imprenta viejas atadas con cordel.",
+   "examine": "Mi estante: los cuadernillos y los dos libros que me dio el cliente, mis pruebas de imprenta y una guía [[baedeker|Baedeker]] de Londres.",
    "tags": [
     "e:baedeker"
    ],
@@ -1668,28 +1264,6 @@
    "when": {}
   },
   {
-   "id": "percha",
-   "prop": "percha",
-   "noun": "gabán",
-   "anchor": {
-    "c": [
-     1.17,
-     1.15,
-     2.08
-    ],
-    "s": [
-     0.6,
-     1.2,
-     0.26
-    ]
-   },
-   "examine": "Un gabán largo, un sombrero hongo y una bufanda en la percha de la pared.",
-   "tags": [],
-   "cls": "I",
-   "area": "buhardilla",
-   "when": {}
-  },
-  {
    "id": "puerta",
    "prop": "buhardilla",
    "noun": "puerta",
@@ -1715,7 +1289,7 @@
   },
   {
    "id": "ventana",
-   "prop": "buhardilla",
+   "prop": "ventana_marco",
    "noun": "ventana",
    "anchor": {
     "c": [
@@ -1781,78 +1355,6 @@
    "tags": [
     "e:alero",
     "e:holywell_street"
-   ],
-   "cls": "I",
-   "area": "*",
-   "when": {}
-  },
-  {
-   "id": "media_luna",
-   "prop": "enfrente",
-   "noun": "letrero",
-   "anchor": {
-    "c": [
-     -0.47,
-     -2.23,
-     -7.38
-    ],
-    "s": [
-     0.9,
-     0.9,
-     0.2
-    ]
-   },
-   "examine": "Un letrero antiguo sobre una tienda de enfrente: una media luna de latón con cara.",
-   "tags": [
-    "e:media_luna"
-   ],
-   "cls": "I",
-   "area": "*",
-   "when": {}
-  },
-  {
-   "id": "puesto_libros",
-   "prop": "enfrente",
-   "noun": "caballete",
-   "anchor": {
-    "c": [
-     -6.055,
-     -5.38,
-     -7.21
-    ],
-    "s": [
-     2.44,
-     1.9,
-     0.85
-    ]
-   },
-   "examine": "Un caballete con libros de a penique en la vereda de enfrente, bajo un toldo de hule.",
-   "tags": [
-    "e:puesto_de_libros"
-   ],
-   "cls": "I",
-   "area": "*",
-   "when": {}
-  },
-  {
-   "id": "farol",
-   "prop": "farol",
-   "noun": "farol",
-   "anchor": {
-    "c": [
-     -2.75,
-     -4.63,
-     -6.98
-    ],
-    "s": [
-     0.5,
-     3.4,
-     0.5
-    ]
-   },
-   "examine": "Un farol de gas de hierro fundido, con travesaño para la escalera del farolero.",
-   "tags": [
-    "e:luz_de_gas"
    ],
    "cls": "I",
    "area": "*",
@@ -2006,72 +1508,6 @@
    "when": {}
   },
   {
-   "id": "estantes_sermones",
-   "prop": "estantes_o2",
-   "noun": "estantes",
-   "anchor": {
-    "c": [
-     -2.22,
-     -4.98,
-     2.8
-    ],
-    "s": [
-     0.36,
-     2.7,
-     1.92
-    ]
-   },
-   "examine": "Sermones encuadernados, tratados de agricultura y almanaques viejos; nadie los mira.",
-   "tags": [],
-   "cls": "I",
-   "area": "tienda",
-   "when": {}
-  },
-  {
-   "id": "estantes_varios",
-   "prop": "estantes_e1",
-   "noun": "estantes",
-   "anchor": {
-    "c": [
-     2.22,
-     -4.98,
-     0.9
-    ],
-    "s": [
-     0.36,
-     2.7,
-     1.92
-    ]
-   },
-   "examine": "Novelas de a chelín, de tapas amarillas, apiladas de canto.",
-   "tags": [],
-   "cls": "I",
-   "area": "tienda",
-   "when": {}
-  },
-  {
-   "id": "estantes_fondo",
-   "prop": "estantes_fondo",
-   "noun": "estantes",
-   "anchor": {
-    "c": [
-     -0.75,
-     -4.28,
-     4.03
-    ],
-    "s": [
-     2.62,
-     1.3,
-     0.36
-    ]
-   },
-   "examine": "Los libros que Crane no deja tocar, detrás del mostrador: ediciones ilustradas y tomos atados de dos en dos.",
-   "tags": [],
-   "cls": "I",
-   "area": "tienda",
-   "when": {}
-  },
-  {
    "id": "revistas",
    "prop": "revistas",
    "noun": "revistas",
@@ -2195,53 +1631,6 @@
    "when": {}
   },
   {
-   "id": "escaparate",
-   "prop": "escaparate",
-   "noun": "vidriera",
-   "anchor": {
-    "c": [
-     -0.85,
-     -4.88,
-     -2.18
-    ],
-    "s": [
-     2.3,
-     1.85,
-     0.6
-    ]
-   },
-   "examine": "La vidriera da a [[holywell_street|Holywell Street]]; los libros expuestos tienen los lomos descoloridos por el sol.",
-   "tags": [
-    "e:escaparate_de_crane",
-    "e:holywell_street"
-   ],
-   "cls": "I",
-   "area": "tienda",
-   "when": {}
-  },
-  {
-   "id": "puerta_calle",
-   "prop": "puerta_calle",
-   "noun": "puerta",
-   "anchor": {
-    "c": [
-     1.45,
-     -5.15,
-     -2.22
-    ],
-    "s": [
-     0.97,
-     2.36,
-     0.22
-    ]
-   },
-   "examine": "La puerta de la calle, con vidrios arriba y una campanilla de resorte que suena al abrir.",
-   "tags": [],
-   "cls": "I",
-   "area": "tienda",
-   "when": {}
-  },
-  {
    "id": "escalera_tienda",
    "prop": "tienda",
    "noun": "escalera",
@@ -2318,7 +1707,7 @@
      0.24
     ]
    },
-   "examine": "Con el mechero bajo, la [[sombra|sombra]] del librero sube por la pared del fondo, junto a la escalera, y llega al techo: es más alta que el hombre encorvado que la proyecta.",
+   "examine": "Con el mechero bajo, la [[sombra|sombra]] del librero sube por la pared del fondo hasta el techo: es más alta que el hombre encorvado que la proyecta.",
    "tags": [
     "a:librero_falso",
     "e:librero",
@@ -2459,7 +1848,11 @@
   }
  ],
  "silhouettes": {
-  "wiggins": {"talk": ["tienda"], "where": "afuera",
+  "wiggins": {
+   "talk": [
+    "tienda"
+   ],
+   "where": "afuera",
    "frame": "ventana",
    "pos": [
     -2.05,
@@ -2489,160 +1882,544 @@
   }
  },
  "variants": {
-  "registrada": {
-   "_nota": "M1 (y su variante blanda, ARCHITECTURE §12.1.3): registran la buhardilla. Ceniza de cheroot y una pisada pesada; objetos corridos.",
+  "techos": {
+   "_nota": "HA5/HA6 (GDD_v3 §4.3), los de Holmes por los techos: la hoja baja subida 0,45 m, la traba levantada desde afuera, la cortina hacia adentro (se mueve 4 s al entrar: l1.curtain), dos hojas en el piso y hollín con una suela chica en la repisa. Todo lo demás en orden. Dura desde la intrusión hasta el final del día siguiente.",
    "move": {
-    "silla": {
+    "hoja_ventana": {
      "pos": [
-      0.5,
-      0,
-      -0.62
+      0.0,
+      1.348,
+      -2.255
      ],
-     "rot": 128
+     "rot": 0.0
     },
-    "bandeja": {
+    "traba": {
      "pos": [
-      -0.5,
-      0.76,
-      -1.6
+      0.0,
+      1.939,
+      -2.245
      ],
-     "rot": 38
+     "rot": 90.0
     },
-    "atril": {
+    "cortina": {
      "pos": [
-      -0.5,
-      0.76,
-      -1.86
+      -0.66,
+      2.2,
+      -2.17
      ],
-     "rot": 70
-    },
-    "pliegos": {
-     "pos": [
-      -1.3,
-      0.72,
-      -1.55
-     ],
-     "rot": 40
+     "rot": [
+      -25.0,
+      0.0,
+      0.0
+     ]
     }
    },
    "add_props": [
     {
-     "id": "ceniza_suelo",
-     "type": "small.ash_pile",
+     "id": "papeles_suelo",
+     "type": "l1.loose_papers",
      "pos": [
-      -0.3,
+      -1.15,
       0.0,
-      -1.36
+      -1.8
      ],
-     "rot": 15.0,
+     "rot": 0.0,
      "p": {
-      "size": 1.6
+      "n": 2,
+      "w": 0.12,
+      "seed": 3
      }
     },
     {
-     "id": "pisada_p",
-     "type": "l1.footprint",
+     "id": "hollin_alfeizar",
+     "type": "l1.soot_print",
      "pos": [
-      -0.74,
-      0.0,
-      -1.2
+      0.14,
+      0.851,
+      -2.165
      ],
-     "rot": 25.0,
+     "rot": 0.0,
      "p": {
-      "s": 1.15
+      "seed": 5,
+      "s": 0.8
+     }
+    }
+   ],
+   "hide_nodes": [
+    "ventana"
+   ],
+   "add_nodes": [
+    {
+     "id": "ventana_abierta",
+     "prop": "ventana_marco",
+     "noun": "ventana",
+     "anchor": {
+      "c": [
+       0.0,
+       1.48,
+       -2.24
+      ],
+      "s": [
+       1.02,
+       1.27,
+       0.2
+      ]
+     },
+     "examine": "Está abierta. Yo no la abrí. La traba está levantada desde afuera y en el alféizar hay hollín de los techos, con la marca de una suela chica, de [[muchacho|muchacho]].",
+     "tags": [
+      "a:entro_por_los_techos",
+      "e:techos",
+      "e:muchacho"
+     ],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "HA5"
+    },
+    {
+     "id": "papeles_viento",
+     "prop": "papeles_suelo",
+     "noun": "papeles",
+     "anchor": {
+      "c": [
+       -1.15,
+       0.02,
+       -1.8
+      ],
+      "s": [
+       0.4,
+       0.05,
+       0.36
+      ]
+     },
+     "examine": "Dos hojas en el piso, junto a la ventana. Las movió el viento.",
+     "tags": [],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "HA5"
+    }
+   ]
+  },
+  "registrada": {
+   "_nota": "M1 (y su variante blanda, ARCHITECTURE §12.1.3; GDD_v3 §4.3), los de Moran por la puerta: rayones nuevos alrededor del ojo de la cerradura, el cajón entreabierto (12 cm), la silla corrida y girada, ceniza de cheroot y la colilla sobre el cuero del escritorio. Sin pisada ni papeles por el piso. Dura desde la intrusión hasta el final del día siguiente.",
+   "move": {
+    "silla": {
+     "pos": [
+      0.6,
+      0.0,
+      -1.1
+     ],
+     "rot": 135.0
+    },
+    "cajon": {
+     "pos": [
+      0.0,
+      0.675,
+      -1.329
+     ],
+     "rot": 0.0
+    }
+   },
+   "add_props": [
+    {
+     "id": "ceniza_escritorio",
+     "type": "l1.ash_flakes",
+     "pos": [
+      0.16,
+      0.764,
+      -1.52
+     ],
+     "rot": 15.0,
+     "p": {
+      "r": 0.035,
+      "seed": 2
+     }
+    },
+    {
+     "id": "rayones",
+     "type": "l1.lock_scratches",
+     "pos": [
+      0.1904,
+      0.9,
+      2.0671
+     ],
+     "rot": 168.0,
+     "p": {
+      "seed": 4
+     }
+    }
+   ],
+   "add_nodes": [
+    {
+     "id": "cerradura_rayada",
+     "prop": "rayones",
+     "noun": "cerradura",
+     "anchor": {
+      "c": [
+       0.19,
+       0.93,
+       2.06
+      ],
+      "s": [
+       0.14,
+       0.22,
+       0.08
+      ]
+     },
+     "examine": "Rayones nuevos alrededor del ojo de la [[cerradura|cerradura]]. Yo cierro con llave.",
+     "tags": [
+      "a:entraron_por_la_puerta",
+      "e:cerradura"
+     ],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "M1"
+    },
+    {
+     "id": "cajon_entreabierto",
+     "prop": "cajon",
+     "noun": "cajón",
+     "anchor": {
+      "c": [
+       0.0,
+       0.675,
+       -1.47
+      ],
+      "s": [
+       0.56,
+       0.1,
+       0.1
+      ]
+     },
+     "examine": "El [[cajon_del_escritorio|cajón]] está entreabierto. Yo lo dejo cerrado.",
+     "tags": [
+      "a:entraron_por_la_puerta",
+      "e:cajon_del_escritorio"
+     ],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "M1"
+    },
+    {
+     "id": "silla_corrida",
+     "prop": "silla",
+     "noun": "silla",
+     "anchor": {
+      "c": [
+       0.08,
+       0.45,
+       -1.06
+      ],
+      "s": [
+       0.52,
+       0.9,
+       0.52
+      ]
+     },
+     "examine": "La silla no está donde la dejé.",
+     "tags": [
+      "a:entraron_por_la_puerta"
+     ],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "M1"
+    },
+    {
+     "id": "ceniza_escritorio",
+     "prop": "ceniza_escritorio",
+     "noun": "ceniza",
+     "anchor": {
+      "c": [
+       0.17,
+       0.775,
+       -1.52
+      ],
+      "s": [
+       0.17,
+       0.03,
+       0.13
+      ]
+     },
+     "examine": "[[ceniza_negra|Ceniza negra]] y escamosa sobre el cuero del escritorio, y la colilla de un [[cheroot|cheroot]]. Yo no fumo cigarros.",
+     "tags": [
+      "a:entraron_por_la_puerta",
+      "e:cheroot",
+      "e:ceniza_negra"
+     ],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "M1"
+    }
+   ]
+  },
+  "registrada+techos": {
+   "_nota": "Las dos intrusiones a la vez (techos + registrada; Effects.place_variant compone «registrada+techos»): la unión de las dos variantes.",
+   "move": {
+    "silla": {
+     "pos": [
+      0.6,
+      0.0,
+      -1.1
+     ],
+     "rot": 135.0
+    },
+    "cajon": {
+     "pos": [
+      0.0,
+      0.675,
+      -1.329
+     ],
+     "rot": 0.0
+    },
+    "hoja_ventana": {
+     "pos": [
+      0.0,
+      1.348,
+      -2.255
+     ],
+     "rot": 0.0
+    },
+    "traba": {
+     "pos": [
+      0.0,
+      1.939,
+      -2.245
+     ],
+     "rot": 90.0
+    },
+    "cortina": {
+     "pos": [
+      -0.66,
+      2.2,
+      -2.17
+     ],
+     "rot": [
+      -25.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "add_props": [
+    {
+     "id": "ceniza_escritorio",
+     "type": "l1.ash_flakes",
+     "pos": [
+      0.16,
+      0.764,
+      -1.52
+     ],
+     "rot": 15.0,
+     "p": {
+      "r": 0.035,
+      "seed": 2
+     }
+    },
+    {
+     "id": "rayones",
+     "type": "l1.lock_scratches",
+     "pos": [
+      0.1904,
+      0.9,
+      2.0671
+     ],
+     "rot": 168.0,
+     "p": {
+      "seed": 4
      }
     },
     {
      "id": "papeles_suelo",
      "type": "l1.loose_papers",
      "pos": [
-      -1.18,
+      -1.15,
       0.0,
-      -0.98
+      -1.8
      ],
      "rot": 0.0,
      "p": {
-      "n": 8,
-      "w": 0.32,
-      "crumpled": true,
-      "seed": 7
+      "n": 2,
+      "w": 0.12,
+      "seed": 3
+     }
+    },
+    {
+     "id": "hollin_alfeizar",
+     "type": "l1.soot_print",
+     "pos": [
+      0.14,
+      0.851,
+      -2.165
+     ],
+     "rot": 0.0,
+     "p": {
+      "seed": 5,
+      "s": 0.8
      }
     }
    ],
+   "hide_nodes": [
+    "ventana"
+   ],
    "add_nodes": [
     {
-     "id": "ceniza_registro",
-     "prop": "ceniza_suelo",
+     "id": "cerradura_rayada",
+     "prop": "rayones",
+     "noun": "cerradura",
+     "anchor": {
+      "c": [
+       0.19,
+       0.93,
+       2.06
+      ],
+      "s": [
+       0.14,
+       0.22,
+       0.08
+      ]
+     },
+     "examine": "Rayones nuevos alrededor del ojo de la [[cerradura|cerradura]]. Yo cierro con llave.",
+     "tags": [
+      "a:entraron_por_la_puerta",
+      "e:cerradura"
+     ],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "M1"
+    },
+    {
+     "id": "cajon_entreabierto",
+     "prop": "cajon",
+     "noun": "cajón",
+     "anchor": {
+      "c": [
+       0.0,
+       0.675,
+       -1.47
+      ],
+      "s": [
+       0.56,
+       0.1,
+       0.1
+      ]
+     },
+     "examine": "El [[cajon_del_escritorio|cajón]] está entreabierto. Yo lo dejo cerrado.",
+     "tags": [
+      "a:entraron_por_la_puerta",
+      "e:cajon_del_escritorio"
+     ],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "M1"
+    },
+    {
+     "id": "silla_corrida",
+     "prop": "silla",
+     "noun": "silla",
+     "anchor": {
+      "c": [
+       0.08,
+       0.45,
+       -1.06
+      ],
+      "s": [
+       0.52,
+       0.9,
+       0.52
+      ]
+     },
+     "examine": "La silla no está donde la dejé.",
+     "tags": [
+      "a:entraron_por_la_puerta"
+     ],
+     "cls": "I",
+     "area": "buhardilla",
+     "when": {},
+     "aviso": "M1"
+    },
+    {
+     "id": "ceniza_escritorio",
+     "prop": "ceniza_escritorio",
      "noun": "ceniza",
      "anchor": {
       "c": [
-       -0.29,
-       0.012,
-       -1.36
+       0.17,
+       0.775,
+       -1.52
       ],
       "s": [
-       0.2,
+       0.17,
        0.03,
-       0.16
+       0.13
       ]
      },
-     "examine": "Un poco de [[ceniza_negra|ceniza negra]] y escamosa en el piso, delante del escritorio, y la colilla de un [[cheroot|cheroot]].",
+     "examine": "[[ceniza_negra|Ceniza negra]] y escamosa sobre el cuero del escritorio, y la colilla de un [[cheroot|cheroot]]. Yo no fumo cigarros.",
      "tags": [
-      "a:tirador",
+      "a:entraron_por_la_puerta",
       "e:cheroot",
-      "e:ceniza_negra",
-      "f:secreto_camden"
+      "e:ceniza_negra"
      ],
      "cls": "I",
      "area": "buhardilla",
-     "when": {}
+     "when": {},
+     "aviso": "M1"
     },
     {
-     "id": "pisada",
-     "prop": "pisada_p",
-     "noun": "pisada",
+     "id": "ventana_abierta",
+     "prop": "ventana_marco",
+     "noun": "ventana",
      "anchor": {
       "c": [
-       -0.74,
-       0.006,
-       -1.2
+       0.0,
+       1.48,
+       -2.24
       ],
       "s": [
-       0.22,
-       0.02,
-       0.36
+       1.02,
+       1.27,
+       0.2
       ]
      },
-     "examine": "Una [[pisada|pisada pesada]] marcada en la ceniza: bota grande, de suela clavada.",
+     "examine": "Está abierta. Yo no la abrí. La traba está levantada desde afuera y en el alféizar hay hollín de los techos, con la marca de una suela chica, de [[muchacho|muchacho]].",
      "tags": [
-      "e:pisada",
-      "e:registro_de_la_buhardilla"
+      "a:entro_por_los_techos",
+      "e:techos",
+      "e:muchacho"
      ],
      "cls": "I",
      "area": "buhardilla",
-     "when": {}
+     "when": {},
+     "aviso": "HA5"
     },
     {
-     "id": "papeles_suelo",
+     "id": "papeles_viento",
      "prop": "papeles_suelo",
      "noun": "papeles",
      "anchor": {
       "c": [
-       -1.18,
-       0.03,
-       -0.98
+       -1.15,
+       0.02,
+       -1.8
       ],
       "s": [
-       0.85,
-       0.06,
-       0.6
+       0.4,
+       0.05,
+       0.36
       ]
      },
-     "examine": "Papeles desparramados por el piso, algunos arrugados; nadie los ordenó al irse.",
+     "examine": "Dos hojas en el piso, junto a la ventana. Las movió el viento.",
      "tags": [],
      "cls": "I",
      "area": "buhardilla",
-     "when": {}
+     "when": {},
+     "aviso": "HA5"
     }
    ]
   }

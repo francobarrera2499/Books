@@ -1,6 +1,7 @@
-# core/scenes/confrontation.gd — la confrontación del día 10 en la tienda de Crane (GDD §8.8, §5.7; T18). Dueño: W2-SCENES.
+# core/scenes/confrontation.gd — la confrontación del día 10 en la tienda de Crane (GDD §8.8, §5.7; T18). Dueño: CORE-EXPEDIENTE.
 # Cuatro afirmaciones del librero, en orden, cada una con su grupo refutador propio (GROUPS). Un ítem (recorte o
-# asiento) acierta si sus etiquetas internas (Clipper.get_clip.tags / Validator.entry_tags) contienen una del grupo.
+# pregunta EN TINTA, GDD_v3 §6.10) acierta si sus etiquetas internas (Clipper.get_clip.tags / las de las dos pruebas de
+# la pregunta) contienen una del grupo. Una pregunta en lápiz se puede mostrar, pero no acierta.
 #   item {} = callar: no es error y pasa a la siguiente afirmación.
 #   Error: NO avanza (se puede volver a intentar mientras dure la paciencia, como en Ace Attorney):
 #     1.º recoge el paquete · 2.º se pone el sombrero · 3.º se va («Buenos días, señor.»): confront_estado = incompleta.
@@ -20,7 +21,7 @@ const Deps = preload("res://core/scenes/deps.gd")
 const Dialogue = preload("res://core/scenes/dialogue.gd")
 const Markup = preload("res://core/text/markup.gd")
 
-const GROUPS := [["harris_es_moran"], ["cornisa_existe", "raspadura_registrada"], ["ancla_*"], ["librero_falso"]]
+const GROUPS := [["rasgo_de_moran"], ["cornisa_existe", "raspadura_registrada"], ["ancla_*"], ["librero_falso"]]
 const PATIENCE := ["paquete", "sombrero"]
 const MAX_ERRORS := 3
 const SCENE := "HC07"
@@ -57,7 +58,7 @@ static func act_confront(st, repo, a) -> Dictionary:
 		return {"ok": false, "err": "forma"}
 	var silent: bool = item.is_empty()
 	if not silent:
-		if not ["clip", "entry"].has(String(item.get("kind", ""))):
+		if not ["clip", "pregunta"].has(String(item.get("kind", ""))):
 			return {"ok": false, "err": "forma"}
 		if not Deps.item_exists(st, item):
 			return {"ok": false, "err": "no_existe"}
@@ -72,7 +73,8 @@ static func act_confront(st, repo, a) -> Dictionary:
 		C.answers.append({"step": step, "item": {}, "hit": false, "silent": true})
 	else:
 		camden = Deps.item_camden(st, repo, item)
-		hit = not camden and _hits(Deps.item_tags(st, item), GROUPS[step - 1])
+		var counts: bool = String(item.get("kind", "")) != "pregunta" or Deps.question_inked(st, String(item.get("id", "")))
+		hit = not camden and counts and _hits(Deps.item_tags(st, item), GROUPS[step - 1])
 		C.answers.append({"step": step, "item": {"kind": String(item.kind), "id": String(item.id)}, "hit": hit, "silent": false})
 	var line := {}
 	if hit:
@@ -178,11 +180,7 @@ static func _spoken(repo, lab: String) -> String:
 
 # Etiqueta del acto propio citado por el ítem (entidad act.<seq> visible en el recorte o en los recortes del asiento).
 static func _act_label(st, repo, item: Dictionary) -> String:
-	var clips: Array = []
-	if String(item.get("kind", "")) == "entry":
-		clips = Deps.entry_clip_ids(st, String(item.get("id", "")))
-	else:
-		clips = [String(item.get("id", ""))]
+	var clips: Array = Deps.item_clip_ids(st, item)
 	for cid in clips:
 		var v: Dictionary = Deps.clipper().visible(st, cid)
 		for e in v.get("ents", []):

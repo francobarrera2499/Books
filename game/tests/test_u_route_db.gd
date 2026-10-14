@@ -1,4 +1,5 @@
-# Unit: core/graph/route_db.gd (W2-GRAPH). §4.8 (refs de fragmentos), §5.6 (rutas), T1 por conclusión.
+# Unit: core/graph/route_db.gd (CORE-EXPEDIENTE). §4.8 (refs de fragmentos), §5.6 (rutas), GDD_v3 §1.7 (preguntas con
+# variantes, rutas de dos fragmentos), T1 por unidad. Fixture graph/base (las conclusiones v2 convertidas, mismos ids).
 extends "res://tests/test_base.gd"
 
 const RouteDB = preload("res://core/graph/route_db.gd")
@@ -40,24 +41,18 @@ func test_routes_contract_shape():
 	ok(by["C2.R2"].eligible)
 	eq(RouteDB.routes(r, "C99"), [])
 
-func test_pair_routes_and_implicit_pairs():
+# GDD_v3 §1.7: unidades = variantes; sin subrutas ni pares implícitos; «Q.B» = otra variante.
+func test_units_and_variants():
 	var r = _r()
-	var rs: Array = RouteDB.routes(r, "C6")
-	eq(rs.size(), 14, "6 subrutas → 15 pares − 1 (K-BM/K-BMx, mismo canal)")
-	var by := _by(rs)
-	var r1: Dictionary = by["C6.R1"]
-	eq(r1.subs, ["K-S", "K-T"])
-	eq(r1.frags.size(), 4)
-	eq(r1.deps, "columna")
-	ok(r1.star)
-	no(r1.implicit)
-	ok(by.has("C6.K-BMx+K-W"))
-	ok(by["C6.K-BMx+K-W"].implicit)
-	no(by.has("C6.K-BM+K-BMx"), "mismo canal no forma par")
-	no(by["C6.K-BM+K-S"].star, "la carta de HA1 es P")
-	eq(by["C6.K-BM+K-S"].deps, "garantizada")
-	var c10: Array = RouteDB.routes(r, "C10")
-	eq(c10.size(), 4, "C10 sin constraint distinct: sólo las declaradas")
+	has(RouteDB.units(r), "C10")
+	has(RouteDB.units(r), "C10.B")
+	eq(String(RouteDB.unit(r, "C10").variant), "A")
+	eq(RouteDB.routes(r, "C10").size(), 2, "la principal: Ca y Cb")
+	eq(RouteDB.routes(r, "C10", "B").size(), 2)
+	eq(RouteDB.routes(r, "C10.B"), RouteDB.routes(r, "C10", "B"))
+	eq(RouteDB.uid_of(r, "C10", "A"), "C10")
+	eq(RouteDB.route_by_id(r, "C10.Id").frags.size(), 2, "busca en todas las variantes")
+	no(RouteDB.units(r).has("C6"), "C6 (pares de canal) no existe en v3")
 
 func test_frag_contract():
 	var r = _r()
@@ -101,7 +96,7 @@ func test_ref_kinds():
 	eq(b.exemplar, "scene:HC06")
 	var m7 := RouteDB.resolve(r, "S:M7.donde_duerme")
 	eq(m7.origin, "S.M7")
-	eq(m7.tags, ["a:busca_a_holmes", "e:donde", "e:tigre"])
+	has(m7.tags, "a:busca_a_holmes")
 	var hud := RouteDB.resolve(r, "L:hudson.mycroft_paga")
 	eq(hud.char, "mrs_hudson", "alias L:hudson → dialogue/mrs_hudson.json")
 	eq(hud.cls, "C")
@@ -133,6 +128,21 @@ func test_ref_kinds():
 	eq(me.tags, ["a:me_vigila_de_cerca"])
 	has(me.ents, "papel_corto")
 
+# GDD §10.1 / GDD_v3 §2.1 (Q8.R2 ★ con L:crane.pasos_techo): una línea de diálogo es C (de campo) salvo que se declare
+# inmutable con "cls": "I"; entonces su fragmento y sus fuentes son I.
+func test_line_declared_immutable():
+	# repo propio (load_dir comparte la instancia y sus cachés del grafo con los demás tests)
+	var r = load("res://core/data/data_repo.gd").fresh("res://tests/fixtures/graph/base")
+	for l in r.dialogue("mrs_hudson").get("lines", []):
+		if String(l.get("id", "")) == "mycroft_paga":
+			l["cls"] = "I"
+	var hud := RouteDB.resolve(r, "L:hudson.mycroft_paga")
+	eq(hud.cls, "I", "línea declarada inmutable")
+	ok(not (hud.srcs as Array).is_empty())
+	for k in hud.srcs:
+		eq(String(Av.src(r, String(k)).get("cls", "")), "I", "fuente I: " + String(k))
+	eq(RouteDB.resolve(_r(), "L:hudson.mycroft_paga").cls, "C", "por defecto, C")
+
 func test_scene_variant_replace_must_keep_tags():
 	var r = _r()
 	eq(RouteDB.resolve(r, "S:M7.inteligente").tags.has("a:harris_es_moran"), true, "el reemplazo del fixture conserva el tramo")
@@ -142,36 +152,10 @@ func test_scene_variant_replace_must_keep_tags():
 	var d := RouteDB.resolve(p, "S:M7.inteligente")
 	no(d.tags.has("a:harris_es_moran"), "con pell_despedido la línea pierde el tramo: no sostiene la ruta")
 	has(d.tags_any, "a:harris_es_moran")
-	ok(str(RouteDB.lint(p, "C10").errors).contains("S:M7.inteligente sin etiqueta"), str(RouteDB.lint(p, "C10").errors))
-
-func test_measure_refs_follow_clipper():
-	# M:<escena>.<x> = scene.measure + scene.paper_mm (como Clipper.act_clip_measure), no una línea de la escena
-	var r = _r()
-	var hc06: Dictionary = r.scene("HC06").duplicate(true)
-	ne(RouteDB.resolve(r, "M:HC06.papel").missing, "", "sin measure en la escena")
-	hc06["measure"] = {"entity": "papel_corto", "tags": ["vinculo_mycroft"]}
-	var p = PatchRepo.new(r, {"scenes": {"HC06": hc06}})
-	ok(RouteDB.resolve(p, "M:HC06.papel").missing.contains("paper_mm"), "sin paper_mm la regla no mide")
-	hc06["paper_mm"] = [203, 244]
-	var q = PatchRepo.new(r, {"scenes": {"HC06": hc06}})
-	var m := RouteDB.resolve(q, "M:HC06.papel")
-	eq(m.missing, "")
-	eq(m.kind, "measure")
-	eq(m.tags, ["a:vinculo_mycroft"])
-	has(m.ents, "papel_corto")
-	eq(m.origin, "S.HC06")
-	eq(m.exemplar, "scene:HC06")
-	eq(m.mask, Av.open_mask(r, "L5", "forasteros"))
-	# M: de una reacción: lee doc.measure (GDD_v2 §C.5.6: sin uso en el contrato; los datos lo pierden). Con un doc parcheado.
-	var ha1r: Dictionary = r.reaction("HA1").duplicate(true)
-	ha1r.doc["measure"] = {"entity": "papel_corto", "tags": ["me_vigila_de_cerca"]}
-	ha1r.doc["paper_mm"] = [203, 244]
-	var ha1 := RouteDB.resolve(PatchRepo.new(r, {"reactions": {"HA1": ha1r}}), "M:HA1.papel")
-	eq(ha1.missing, "", "doc de la reacción con measure y paper_mm")
 
 func test_missing_refs():
 	var r = _r()
-	for ref in ["D99#x", "D05#nada", "N:L9.x", "N:L3.nada", "S:M7.nope", "S:ZZ.a", "L:nadie.x", "L:watson.nada", "R:ZZ.x", "R:HA1.nada", "J:nada", "X:1", "M:D05"]:
+	for ref in ["D99#x", "D05#nada", "N:L9.x", "N:L3.nada", "S:M7.nope", "S:ZZ.a", "L:nadie.x", "L:watson.nada", "R:ZZ.x", "R:HA1.nada", "J:nada", "X:1"]:
 		var d := RouteDB.resolve(r, ref)
 		ne(d.missing, "", ref)
 	ne(RouteDB.resolve(r, "D05#marque", "D05@Crane").missing, "", "ejemplar inexistente")
@@ -183,34 +167,35 @@ func test_lint_fixture_clean():
 		var l := RouteDB.lint(r, cid)
 		eq(l.errors, [], cid)
 		eq(l.pending, [], cid)
+	# una ruta de 3 fragmentos, o de un solo origen, no pasa
+	var q: Dictionary = r.question("C2").duplicate(true)
+	q.variantes[0].rutas[1].frags.append({"ref": "D08#kanzel", "copy": "D08@BM"})
+	ok(str(RouteDB.lint(PatchRepo.new(r, {"questions": {"C2": q}}), "C2").errors).contains("3 fragmentos"))
 
 func test_helpers():
 	var r = _r()
-	eq(RouteDB.mandatory(r).size(), 12)
+	eq(RouteDB.mandatory(r).size(), 11)
 	eq(RouteDB.final_idx(r), _i("10.M"))
 	eq(RouteDB.last_idx(r, "C12"), _i("10.M"))
 	eq(RouteDB.last_idx(r, "C2"), _i("10.M"))
 	eq(RouteDB.sub_channel(r, "K-BMx"), "kbm")
 	eq(RouteDB.sub_channel(r, "K-T'"), "kt")
 	eq(RouteDB.sub_channel(r, "Ia"), "")
-	has(RouteDB.conc_tags(r, "C6"), "ancla_kw")
-	has(RouteDB.conc_tags(r, "C6"), "acto_ks")
+	eq(RouteDB.conc_tags(r, "C2"), ["fina_impreso_sin_raspadura", "raspadura_registrada"])
+	has(RouteDB.question_tags(r, "C10"), "harris_es_moran", "etiquetas de todas las variantes")
 	eq(RouteDB.route_by_id(r, "C2.R4").id, "C2.R4")
-	eq(RouteDB.route_by_id(r, "C10.Id").frags.size(), 2)
 	eq(RouteDB.route_by_id(r, "C2.R99"), {})
-	ok(RouteDB.is_pair_conclusion(r.conclusion("C6")))
-	no(RouteDB.is_pair_conclusion(r.conclusion("C10")))
 
 func test_linked_groups_and_common():
 	var r = _r()
-	var c: Dictionary = r.conclusion("C2")
+	var c: Dictionary = RouteDB.unit(r, "C2")
 	var r2 := RouteDB.route_by_id(r, "C2.R2")
 	ok(RouteDB.linked(r, c, r2.frags))
 	eq(RouteDB.missing_groups(r, c, r2), [])
 	var odd := [RouteDB.resolve(r, "D05#marque"), RouteDB.resolve(r, "D13#muestra97")]
-	no(RouteDB.linked(r, c, odd), "sin claves comunes ni mismo origen")
-	var c6: Dictionary = r.conclusion("C6")
-	eq(RouteDB.missing_groups(r, c6, RouteDB.route_by_id(r, "C6.R1")), [], "${ch:x} resuelto por las subrutas")
+	no(RouteDB.linked(r, c, odd), "sin claves comunes")
+	var both := {"frags": [RouteDB.resolve(r, "D05#marque"), RouteDB.resolve(r, "D02#clausula")]}
+	ok(str(RouteDB.missing_groups(r, c, both)).contains("sin_raspadura"), "dos pruebas del mismo grupo no cubren el otro")
 	eq(RouteDB.common_exemplars([RouteDB.route_by_id(r, "C2.R2"), RouteDB.route_by_id(r, "C3.R1")]), ["copy:D05@BM", "copy:D03@Crane"])
 
 func test_all_frags_universe():

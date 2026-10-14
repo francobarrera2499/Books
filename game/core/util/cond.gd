@@ -1,4 +1,8 @@
-# core/util/cond.gd — DSL de condiciones (§4.18). Dueño: W1-ENG. Contrato: ARCHITECTURE §3.8.
+# core/util/cond.gd — DSL de condiciones (§4.18). Dueño: CORE-EXPEDIENTE. Contrato: ARCHITECTURE §3.8.
+# v3 (GDD_v3 §6.10): átomos del Expediente sobre st.ded.dossier.inked (preguntas en tinta):
+#   inked: "Q3" · inked_all: ["Q3", "Q6", "Q9"] · inked_count: {gte|lt|…} (cuenta las obligatorias en tinta).
+#   sealed / sealed_all / sealed_count quedan SÓLO por compatibilidad de datos viejos: traducen C<n> a su pregunta
+#   (SEALED_COMPAT; C14 = flag curiosidad_tomos; C4 y C12 no tienen pregunta: falso) y sealed_count = inked_count.
 # eval(cond, ctx): ctx = {st, repo, ev?, anchor?, char?, tk?, counters?, chars_present?} (anchor: ctx.anchor o, si falta, ctx.ev)
 #   {} = verdadero. Dict con varias claves = AND de átomos. Combinadores all/any/not/always.
 #   ctx.tk (int) fija día y franja (Director.on_time); si no, st.clock.day/slot (phase "night" -> franja night).
@@ -8,16 +12,21 @@
 #   visited        -> st.world.visits: [String "S.L3.4.M" | "L3" | {place}]
 #   char_present   -> ctx.chars_present | st.world.visit.chars ([id | {id}])
 #   report_final_cats_any -> eventos públicos "report" con n == schedule.reports[final].n (def. 4): unión de items[].cats
-#   sealed*        -> st.ded.sealed (dict cid -> entry)
-#   pencil_wrong   -> bool: hay (true) / no hay (false) algún asiento a lápiz erróneo que el lápiz azul marca
+#   inked*         -> st.ded.dossier.inked (dict qid -> registro)
+#   pencil_wrong   -> bool: hay (true) / no hay (false) alguna hoja a lápiz completa que no cierra (lápiz azul)
+#   pencil_missing -> bool: hay (true) / no hay (false) alguna pregunta obligatoria nacida sin tinta (lápiz azul)
 #                     (Endings.blue_pencil kind "wrong"; END.F1: «Una de sus entradas no es literalmente cierta»)
 extends RefCounted
 
 const TimeKey = preload("res://core/util/timekey.gd")
 const L = preload("res://core/util/log.gd")
 
-const ATOMS := ["day", "slot", "weekday", "tk", "flag", "flag_eq", "flag_gte", "sealed", "sealed_all", "sealed_count",
-	"counter", "event_count", "visited", "channel_closed", "report_final_cats_any", "anchor", "char_present", "pencil_wrong"]
+const ATOMS := ["day", "slot", "weekday", "tk", "flag", "flag_eq", "flag_gte", "inked", "inked_all", "inked_count",
+	"sealed", "sealed_all", "sealed_count",
+	"counter", "event_count", "visited", "channel_closed", "report_final_cats_any", "anchor", "char_present", "pencil_wrong", "pencil_missing"]
+# GDD_v3 §1.4: de C1–C14 a Q1–Q10 (compatibilidad de átomos sealed*). "flag:x" = flag en vez de pregunta; "" = nunca.
+const SEALED_COMPAT := {"C2": "Q1", "C3": "Q2", "C4": "", "C5": "Q6", "C6": "Q3", "C7": "Q3", "C8": "Q5", "C9": "Q10",
+	"C10": "Q9", "C10a": "Q6", "C11": "Q7", "C12": "", "C13": "Q10", "C14": "flag:curiosidad_tomos"}
 const COMBI := ["all", "any", "not", "always"]
 # Datos (validate): sólo códigos ASCII (§12.2). eval tolera «mié»/«sáb» (wd_norm).
 const WEEKDAYS_ASCII := ["lun", "mar", "mie", "jue", "vie", "sab", "dom"]
@@ -91,27 +100,25 @@ static func _atom(k: String, v, ctx: Dictionary) -> bool:
 				if _num(f2.get(name, 0)) < _num(v[name]):
 					return false
 			return true
+		"inked":
+			return _inked(st).has(String(v))
+		"inked_all":
+			var ik := _inked(st)
+			for q in v:
+				if not ik.has(String(q)):
+					return false
+			return true
+		"inked_count":
+			return _cmp(_inked_count(ctx), v)
 		"sealed":
-			return _sealed(st).has(String(v))
+			return _sealed_compat(st, String(v))
 		"sealed_all":
-			var sd := _sealed(st)
 			for c in v:
-				if not sd.has(String(c)):
+				if not _sealed_compat(st, String(c)):
 					return false
 			return true
 		"sealed_count":
-			var of = v.get("of", "mandatory")
-			var lst: Array = []
-			if typeof(of) == TYPE_ARRAY:
-				lst = of
-			else:
-				lst = _conc_list(ctx, String(of))
-			var sd2 := _sealed(st)
-			var n := 0
-			for c in lst:
-				if sd2.has(String(c)):
-					n += 1
-			return _cmp(n, v)
+			return _cmp(_inked_count(ctx), v)
 		"counter":
 			return _cmp(_counter(ctx, String(v.get("name", ""))), v)
 		"event_count":
@@ -143,6 +150,8 @@ static func _atom(k: String, v, ctx: Dictionary) -> bool:
 			return _chars_present(ctx).has(String(v))
 		"pencil_wrong":
 			return _pencil_wrong(ctx) == bool(v)
+		"pencil_missing":
+			return _pencil_kind(ctx, "missing") == bool(v)
 	L.bug("cond", "átomo desconocido: " + k)
 	return false
 
@@ -199,26 +208,23 @@ static func _val(cond, path: String, errs: Array) -> void:
 							errs.append("%s.%s: tk inválido %s" % [p, kk, str(v[kk])])
 				elif TimeKey.of(v) < 0:
 					errs.append("%s: tk inválido" % p)
-			"flag", "sealed", "visited", "channel_closed", "char_present":
+			"flag", "sealed", "inked", "visited", "channel_closed", "char_present":
 				if typeof(v) != TYPE_STRING or String(v) == "":
 					errs.append("%s: debe ser texto no vacío" % p)
 			"flag_eq", "flag_gte", "anchor":
 				if typeof(v) != TYPE_DICTIONARY or v.is_empty():
 					errs.append("%s: debe ser objeto no vacío" % p)
-			"pencil_wrong":
+			"pencil_wrong", "pencil_missing":
 				if typeof(v) != TYPE_BOOL:
 					errs.append("%s: debe ser bool" % p)
-			"sealed_all", "report_final_cats_any":
+			"sealed_all", "inked_all", "report_final_cats_any":
 				if typeof(v) != TYPE_ARRAY:
 					errs.append("%s: debe ser lista" % p)
-			"sealed_count":
+			"sealed_count", "inked_count":
 				if typeof(v) != TYPE_DICTIONARY:
 					errs.append("%s: debe ser objeto" % p)
 				else:
 					_val_cmp(v, p, errs, ["of"])
-					var of = v.get("of", "mandatory")
-					if not (typeof(of) == TYPE_ARRAY or ["mandatory", "lot_counts"].has(String(of))):
-						errs.append("%s.of: 'mandatory', 'lot_counts' o lista" % p)
 			"counter":
 				if typeof(v) != TYPE_DICTIONARY or not v.has("name"):
 					errs.append("%s: requiere name" % p)
@@ -250,12 +256,17 @@ static func _val_cmp(v: Dictionary, p: String, errs: Array, extra: Array) -> voi
 # --- helpers ---
 # endings.gd se carga en tiempo de ejecución (sim/ -> util/ sin precarga: evita el ciclo Cond <- Endings).
 static func _pencil_wrong(ctx: Dictionary) -> bool:
+	return _pencil_kind(ctx, "wrong")
+
+# GDD_v3 §6.10: alguna nota del lápiz azul de esa clase (missing: pregunta obligatoria nacida sin tinta; wrong: hoja
+# completa que no cierra).
+static func _pencil_kind(ctx: Dictionary, kind: String) -> bool:
 	var st = ctx.get("st")
 	var repo = ctx.get("repo")
 	if st == null or repo == null:
 		return false
 	for it in load("res://core/sim/endings.gd").blue_pencil(st, repo):
-		if String(it.get("kind", "")) == "wrong":
+		if String(it.get("kind", "")) == kind:
 			return true
 	return false
 
@@ -320,10 +331,31 @@ static func _flags(st) -> Dictionary:
 	var f = _field(st, "flags", {})
 	return f if typeof(f) == TYPE_DICTIONARY else {}
 
-static func _sealed(st) -> Dictionary:
+static func _inked(st) -> Dictionary:
 	var ded = _field(st, "ded", {})
-	var s = ded.get("sealed", {}) if typeof(ded) == TYPE_DICTIONARY else {}
+	var d = ded.get("dossier", {}) if typeof(ded) == TYPE_DICTIONARY else {}
+	var s = d.get("inked", {}) if typeof(d) == TYPE_DICTIONARY else {}
 	return s if typeof(s) == TYPE_DICTIONARY else {}
+
+static func _sealed_compat(st, cid: String) -> bool:
+	var m := String(SEALED_COMPAT.get(cid, cid))
+	if m == "":
+		return false
+	if m.begins_with("flag:"):
+		return _truthy(_flags(st).get(m.substr(5)))
+	return _inked(st).has(m)
+
+# Preguntas obligatorias en tinta (dossier.json preguntas[].obligatoria).
+static func _inked_count(ctx: Dictionary) -> int:
+	var ik := _inked(ctx.get("st"))
+	var repo = ctx.get("repo")
+	var n := 0
+	if repo != null and repo.has_method("questions") and not (repo.questions() as Array).is_empty():
+		for q in repo.questions():
+			if bool(q.get("obligatoria", false)) and ik.has(String(q.get("id", ""))):
+				n += 1
+		return n
+	return ik.size()
 
 static func _clock(st) -> Dictionary:
 	var c = _field(st, "clock", {})
@@ -364,14 +396,6 @@ static func _weekday(ctx: Dictionary) -> String:
 		if int(d.get("day", -1)) == day:
 			return String(d.get("weekday", ""))
 	return ""
-
-static func _conc_list(ctx: Dictionary, of: String) -> Array:
-	var repo = ctx.get("repo")
-	if repo == null:
-		return []
-	if repo.has_method("conclusions_meta"):
-		return repo.conclusions_meta().get(of, [])
-	return []
 
 static func _counter(ctx: Dictionary, name: String) -> float:
 	if ctx.has("counters") and typeof(ctx.counters) == TYPE_DICTIONARY and ctx.counters.has(name):

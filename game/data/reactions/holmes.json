@@ -51,7 +51,7 @@
         {"tpl": "mintio.2.kh", "when": {"all": [{"anchor": {"channel": "K-H", "bait_topic": "mintio"}}, {"counter": {"name": "n", "eq": 2}}]}, "texto": "{{#ancla a:ancla_kh a:latencia_s a:me_vigila_de_cerca|[[@act|«Mintió»]], le repitió usted a [[mrs_hudson|Mrs. Hudson]] el ${act_day}.}} {{#fuente a:remite_pruebas e:pruebas_de_watson h:F.pedido_fo|El «omitir» de la prueba no es de la mano del doctor.}} —S.", "tono": {"alto": "{{#ancla a:ancla_kh a:latencia_s a:me_vigila_de_cerca|[[@act|«Mintió»]], le repitió usted a [[mrs_hudson|Mrs. Hudson]] el ${act_day}.}} {{#fuente a:remite_pruebas e:pruebas_de_watson h:F.pedido_fo|El «omitir» de la prueba no es de la mano del doctor.}} Bien visto; no del todo. —S.", "bajo": "{{#ancla a:ancla_kh a:latencia_s a:me_vigila_de_cerca|[[@act|«Mintió»]], le repitió usted a [[mrs_hudson|Mrs. Hudson]] el ${act_day}.}} {{#fuente a:remite_pruebas e:pruebas_de_watson h:F.pedido_fo|El «omitir» de la prueba no es de la mano del doctor.}} Tut. —S."}}
       ],
       "corta": [],
-      "agrega": ["C6", "C7.R5", "C9.R3"],
+      "agrega": ["Q3", "Q10"],
       "variante_blanda": null,
       "exento_d2": true
     },
@@ -131,7 +131,7 @@
         {"tpl": "nota", "texto": "<sc>Los viajeros.</sc> — {{#nota f:refutado a:falsa_jartum e:sigerson e:alto_nilo e:foreign_office|Nota comunicada por el [[foreign_office|Foreign Office]]: el explorador noruego [[sigerson|S. Sigerson]], cuyos despachos del [[tibet|Tíbet]] publicó este diario, ha dejado [[jartum|Jartum]] y sigue viaje hacia el [[alto_nilo|Alto Nilo]].}}"}
       ],
       "corta": [],
-      "agrega": ["C7", "C8"],
+      "agrega": ["Q3", "Q5"],
       "variante_blanda": null,
       "exento_d2": true
     },
@@ -151,10 +151,10 @@
       "efecto": [{"op": "columna"}],
       "doc": {"entity": "columna_de_anuncios", "title": "The Times, columna de anuncios", "src_type": "prensa_londres", "class": "I", "font": "imprenta", "paper": "diario_hueso"},
       "rastro": [
-        {"tpl": "texto", "texto": "AL LECTOR. — {{#ancla a:ancla_kt a:latencia_s|[[@act|Su aviso del ${act_day}]]: los muertos no leen la columna.}} {{#otro a:busca_a_holmes|Usted sí; y no es el único.}} —S."}
+        {"tpl": "texto", "texto": "AL LECTOR. — {{#ancla a:ancla_kt a:latencia_s|[[@act|Su aviso del ${act_day}]]: los muertos no leen la columna.}} {{#otro a:busca_a_holmes|Usted sí; y no es el único: el [[tigre|tigre]] también lee.}} —S."}
       ],
       "corta": [],
-      "agrega": ["C6", "C10.Cc"],
+      "agrega": ["Q3", "Q9"],
       "variante_blanda": null,
       "exento_d2": true
     },

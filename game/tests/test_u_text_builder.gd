@@ -399,7 +399,8 @@ func test_reader_open_before_tree_lays_out() -> void:
 	await tree.process_frame
 	await tree.process_frame
 	var vp: Vector2 = tree.root.get_visible_rect().size
-	ok(rd._tools.position.x > vp.x * 0.5, "útiles a la derecha (x=%.0f)" % rd._tools.position.x)
+	ok(rd._b_tijera.position.x > vp.x * 0.5, "la tijera a la derecha (x=%.0f)" % rd._b_tijera.position.x)
+	ok(rd._caption.position.x < vp.x * 0.25, "el título a la izquierda")
 	ok(rd.visible, "visible")
 	rd.free()
 

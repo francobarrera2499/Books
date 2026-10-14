@@ -14,10 +14,10 @@ const SliceBot = preload("res://devtools/drivers/slice_bot.gd")
 
 const ENDINGS := {"f1": "F1", "f2": "F2", "f3a": "F3a", "f4": "F4"}
 const TITLES := {
-	"f1": "el camino del mejor final (F1 «Al menos un lector»): crédito ante Moran, C6/C7/C10 y ocho más, confrontación completa y la errata a medida",
-	"f2": "la misma investigación que f1 hasta el informe final; el informe es fiel (un asiento que dice que Holmes vive) → F2 «El informe fiel», y en 1903 publica la fe de erratas",
+	"f1": "el camino del mejor final (F1 «Al menos un lector»): crédito ante Moran, Q3/Q6/Q9 en tinta y al menos siete preguntas, confrontación completa y el informe trampa",
+	"f2": "la misma investigación que f1 hasta el informe final; el informe es fiel (una pregunta que dice que Holmes vive) → F2 «El informe fiel», y en 1903 publica la fe de erratas",
 	"f3a": "la misma investigación que f1 hasta el informe final; Lisle quema el informe → F3a «El silencio»",
-	"f4": "un lector distraído: tres conclusiones, el informe 1 como f1 (crédito y M1) y los demás «Sin novedad», confrontación callada → F4 «Ve, pero no observa»",
+	"f4": "un lector distraído: tres preguntas, el informe 1 como f1 (crédito y M1) y los demás «Sin novedad», confrontación callada → F4 «Ve, pero no observa»",
 }
 const MAX_STEPS := 20000
 

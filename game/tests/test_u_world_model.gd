@@ -5,6 +5,7 @@ extends "res://tests/test_base.gd"
 
 const Kit = preload("res://tests/fixtures/sim/sim_kit.gd")
 const WorldModel = preload("res://core/sim/world_model.gd")
+const GameSim = preload("res://core/sim/game_sim.gd")
 const TimeKey = preload("res://core/util/timekey.gd")
 const Clipper = preload("res://core/deduction/clipper.gd")
 
@@ -289,12 +290,10 @@ func test_contract_word_boundary():
 func test_eggs_one_per_visit():
 	var s = _at(1, "M")
 	var st = s.st
-	# como lo harían clip_text y link: recortes y par nuevos (los contadores avanzan)
+	# como lo haría clip_text: recortes nuevos (el contador avanza). v3: sin pares (GDD_v3 §3.6), EE13 = clips_all
 	st.ded.clips["RC0901"] = {"id": "RC0901", "tags": ["x:EE01"], "ents": ["trichinopolis"]}
 	st.ded.clips["RC0902"] = {"id": "RC0902", "tags": [], "ents": ["cheroot"]}
-	st.ded.pairs["PR901"] = {"a": "RC0901", "b": "RC0902", "note": ""}
 	st.seq["clip"] = int(st.seq.get("clip", 0)) + 2
-	st.seq["pair"] = int(st.seq.get("pair", 0)) + 1
 	WorldModel.check_eggs(st, s.repo)
 	eq(st.world.eggs.keys(), ["EE01"])
 	WorldModel.check_eggs(st, s.repo)
@@ -507,6 +506,21 @@ func test_certified_copy_pages():
 
 # W4: pedir nunca es gratis. Una ficha de ruido del catálogo ({doc: "", noise}) y un documento cuyo ejemplar BM no se
 # sirve hoy gastan una papeleta y el ujier vuelve sin nada (view ""), como cualquier otra papeleta.
+# Prólogo v3 sobre data/ real (GDD_v3 §6.9): abrir el encargo, recortar ≤15 palabras del aviso, el aviso y dormir.
+func _real_prologue(g) -> void:
+	ok(g.apply({"t": "read", "view": "D23@L1", "part": 0}).ok, "abrir el encargo")
+	var v: Dictionary = g.q_view("D23@L1")
+	var done := false
+	for pi in (v.pages as Array).size():
+		for bi in (v.pages[pi] as Array).size():
+			for tr in v.pages[pi][bi].parsed.tramos:
+				if not done and String(tr.id) == "aviso":
+					var sp: Array = load("res://devtools/bots/bot_base.gd").best_window(v.pages[pi][bi].parsed, int(tr.from), int(tr.to))
+					done = g.apply({"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": pi, "block": bi}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])}).ok
+	ok(done, "recorte del aviso")
+	ok(g.apply({"t": "compose_ad", "form": "testigo", "fields": {"suceso": "suceso_reichenbach"}}).ok, "el aviso")
+	ok(g.apply({"t": "sleep"}).ok, "dormir tras el prólogo")
+
 func test_w4_slip_always_costs():
 	var s = _at(1, "M")
 	ok(s.apply({"t": "go", "place": "L2", "area": "sala", "seat": 214}).ok)
@@ -527,14 +541,9 @@ func test_w4_slip_always_costs():
 	eq(noise[0].title, "Viaje a la Luna")
 	eq(noise[0].topic, "otros")
 	# datos reales: D16@BM se sirve desde el día 8; pedirlo el día 1 gasta la papeleta igual
-	var W = load("res://tests/fixtures/w3shell/walk.gd")
-	var GS = load("res://core/sim/game_sim.gd")
-	var g = GS.new(repo(), 3)
-	var act := func(a): return g.apply(a)
-	W.errs.clear()
-	W.tutorial(g, act)
-	ok(bool(g.apply({"t": "sleep"}).get("ok", false)), "dormir tras el prólogo")
-	ok(W.advance_to(g, act, 1, "M"), str(W.errs))
+	var g = GameSim.new(repo(), 3)
+	_real_prologue(g)
+	eq([int(g.q_clock().day), String(g.q_clock().slot), String(g.q_clock().phase)], [1, "M", "desk"], "prólogo v3 hecho")
 	var rg: Dictionary = g.apply({"t": "go", "place": "L2", "area": "sala", "seat": 214})
 	ok(rg.ok, str(rg))
 	var r16: Dictionary = g.apply({"t": "slip", "doc": "D16"})
@@ -542,3 +551,60 @@ func test_w4_slip_always_costs():
 	eq(String(r16.get("view", "")), "", "fuera de su ventana: no se sirve")
 	eq(g.q_slips_used(), 1)
 	eq(g.apply({"t": "slip", "doc": "D23"}).err, "no_esta", "un documento sin ejemplar del BM no se pide")
+
+# GDD_v3 §3.2–§3.4, §6.7: la crónica del cliente (ejemplar «tomo») trae la ficha de Lisle, las marquitas, la nota a lápiz
+# del margen (con su propio origen) y la tarjeta del cliente como última hoja; los otros ejemplares, limpios.
+func test_v3_client_chronicle_view():
+	var base = repo()
+	var PatchRepo = load("res://tests/fixtures/graph/patch_repo.gd")
+	var d03: Dictionary = base.doc("D03").duplicate(true)
+	var sheer_part := String(base.doc_tramo("D03", "sheer").get("part", ""))
+	d03["v3"] = {"ficha": {"trata": "De qué trata.", "cuando": "Cuándo pasó.", "por_que": "Por qué me la dio."}, "nota_cliente": "NC.FINA",
+		"marcas": [{"parte": sheer_part, "tramo": "sheer"}], "margen": [{"doc": "D01N", "tramo": "fina_fo", "junto_a": {"parte": sheer_part, "tramo": "sheer"}}]}
+	var nc := {"id": "NC.FINA", "entity": "fina", "title": "Nota del cliente", "src_type": "papel_privado", "class": "P", "date": "1894-03-26",
+		"font": "manuscrito", "paper": "tarjeta", "words": 6, "v3": {"tarjeta_de": "D03"},
+		"copies": [{"id": "NC.FINA@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N"}],
+		"parts": [{"id": "p1", "text": "Léalos despacio, despacio. —H."}]}
+	var pr = PatchRepo.new(base, {"docs": {"D03": d03, "NC.FINA": nc}})
+	var s = GameSim.new(base, 7)
+	var v: Dictionary = WorldModel.view_any(s.st, pr, "D03@tomo")
+	eq(String(v.ficha.trata), "De qué trata.")
+	eq(v.marks.size(), 1)
+	eq(String(v.marks[0].tramo), "sheer")
+	var margin: Array = []
+	var cards: Array = []
+	for pi in v.pages.size():
+		for b in v.pages[pi]:
+			if String(b.slot) == "margen":
+				margin.append({"page": pi, "b": b})
+			if String(b.slot) == "tarjeta":
+				cards.append(pi)
+	eq(margin.size(), 1, "la nota de Watson al margen")
+	eq(String(margin[0].b.doc), "D01N", "con su propio origen")
+	eq(String(margin[0].b.anchor.tramo), "sheer")
+	eq(int(margin[0].page), int(v.marks[0].page), "junto a su tramo")
+	eq(cards, [v.pages.size() - 1], "la tarjeta del cliente es la última hoja")
+	var other: Dictionary = WorldModel.view_any(s.st, pr, "D03@BM")
+	eq(other.ficha, null, "otros ejemplares: sin ficha")
+	eq(other.marks, [])
+	# D01N y NC.* no se listan solos
+	ok(WorldModel.inside_only(nc))
+
+# GDD_v3 §4.3: una variante de lugar esconde nodos de la base (hide_nodes) y lo que falta en casa se lista.
+func test_v3_hide_nodes_and_missing():
+	var s = GameSim.new(repo(), 7)
+	var pl: Dictionary = s.repo.place("L1")
+	if typeof(pl.get("variants", {}).get("techos")) != TYPE_DICTIONARY:
+		pending_content("L1 sin la variante techos (REACCIONES-PIEZA)")
+		return
+	s.st.world.place_variants["L1"] = "techos"
+	var snap := WorldModel.snapshot(s.st, s.repo, "L1", "buhardilla", "techos")
+	for h in pl.variants.techos.get("hide_nodes", []):
+		no((snap.nodes as Array).has(String(h)), "escondido: " + String(h))
+	has(snap.nodes, "ventana_abierta")
+	eq(WorldModel.missing(s.st, s.repo), [])
+	WorldModel.withdraw_copy(s.st, "D03@tomo", 999)
+	var m: Array = WorldModel.missing(s.st, s.repo)
+	eq(m.size(), 1)
+	eq(String(m[0].copy), "D03@tomo")
+	eq(s.q_missing(), [{"copy": "D03@tomo", "title": String(s.repo.doc("D03").title)}])

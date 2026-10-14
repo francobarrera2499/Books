@@ -3,7 +3,7 @@
  "frames": [{"id": "general", "area": "*", "pos": [0.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0], "fov": 45}],
  "props": [],
  "nodes": [
-  {"id": "cotter_canastilla", "noun": "hombre con canastilla", "anchor": {"c": [1.4, 1.0, 1.2], "s": [0.5, 1.7, 0.5]}, "examine": "Un hombre recoge papeletas junto a la canastilla y anota los asientos.", "tags": ["a:me_vigila_de_cerca", "e:asiento", "e:hombre_de_la_canastilla"], "cls": "I", "area": "*"},
+  {"id": "cotter_canastilla", "noun": "hombre con canastilla", "anchor": {"c": [1.4, 1.0, 1.2], "s": [0.5, 1.7, 0.5]}, "examine": "Un hombre recoge papeletas junto a la canastilla y anota los asientos.", "tags": ["a:me_vigila_de_cerca", "e:asiento", "e:hombre_de_la_canastilla", "e:diogenes"], "cls": "I", "area": "*"},
   {"id": "cesto_tiras", "noun": "cesto", "anchor": {"c": [0.8, 0.85, 1.0], "s": [0.3, 0.2, 0.3]}, "examine": "Un cesto con tiras de membrete del club Diógenes, de Pall Mall.", "tags": ["a:vinculo_mycroft", "e:diogenes", "e:pall_mall"], "cls": "I", "area": "*"}
  ],
  "characters": [{"id": "cotter", "area": "*", "pos": [1.4, 0.0, 1.2]}],

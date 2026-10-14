@@ -1,29 +1,29 @@
-# devtools/bots/bot_base.gd — motor común de los bots (W3-BOTS; ARCHITECTURE §9.3, GDD §15.5 T10/T24).
+# devtools/bots/bot_base.gd — motor común de los bots (ARCHITECTURE §9.3, GDD §15.5 T10/T24; GDD_v3 §1.9, §2.4).
 # Contrato §9.3: sim, seed, stats; setup(sim, seed) · step() -> bool (una decisión, ≥1 apply; false = terminó) ·
-#   play(max_steps) -> {ending, rank, sealed, words_read, est_minutes, acts, steps, …} · act(a) (sim.apply + estadística;
+#   play(max_steps) -> {ending, rank, inked, words_read, est_minutes, acts, steps, …} · act(a) (sim.apply + estadística;
 #   un ok:false es fallo del bot salvo en bots «al azar» o en intentos marcados may_fail) · read(view) (palabras leídas) ·
 #   clip_ref(ref) (oráculo: recorta el fragmento de contrato §4.8 desde su ejemplar).
 # Juega SÓLO por GameSim.apply (la puerta de §3.1); lee con q_* y, como oráculo, con core/graph (RouteDB, Feasibility),
-#   Validator (para no pasar en limpio a ciegas) y el estado interno de recortes (Clipper.get_clip) — los bots que
-#   modelan a un jugador honesto (pesca, recorta_todo, fuerza bruta) no usan las etiquetas ocultas para elegir valores.
+#   Dossier.check (para no pasar en limpio a ciegas) y el estado interno de recortes (Clipper.get_clip) — los bots que
+#   modelan a un jugador honesto (pesca, fuerza bruta, sabelotodo) no usan las etiquetas ocultas para elegir.
 # Motor (lo heredan todos; cada bot cambia la política con los ganchos «pol_*»):
-#   prólogo  : tutorial v2 (abrir el encargo, recortar, aviso de testigos, dormir); día 1: la primera conclusión C1 de
-#              práctica (juntar, hoja, conclusión, practicar) antes de cualquier confirmación (GDD_v2 §B.7).
-#   objetivos: Feasibility.plan (rutas ★ elegibles, mínimo de salidas) desde 1.M → targets {cid: ruta} + itinerario
+#   prólogo  : tutorial (abrir el expediente y leer el encargo, recortar, aviso de testigos, dormir); día 1 guiado
+#              (GDD_v3 §6.9): leer «El problema final», una hoja con respuesta y dos pruebas, pasar en limpio.
+#   objetivos: Feasibility.plan (rutas ★ elegibles, mínimo de salidas) desde 1.M → targets {pregunta: ruta} + itinerario
 #              {idx: (lugar, área)}; replanifica si una salida no se pudo hacer o faltan fragmentos.
 #   cosecha  : en cada paso recorta todo fragmento pendiente obtenible AHORA (documentos legibles, láminas archivadas,
-#              siluetas, líneas dichas, diario, rastros entregados, avisos impresos, medidas). En la Sala de Lectura pide
-#              papeletas (≤3) de lo que falta; baja a la tienda de Crane (gratis) si hay ejemplares de Crane pendientes.
-#   asientos : con todos los fragmentos de la ruta, arma el asiento (valores indexados de answers; «según» por grupo) y lo
-#              verifica con Validator.evaluate antes de escribirlo. Pasa en limpio lotes de lot_size con conclusiones
-#              distintas y válidas (oráculo).
+#              la buhardilla, siluetas, líneas dichas, diario, rastros entregados, avisos impresos). En la Sala de Lectura
+#              pide papeletas (≤3) de lo que falta; baja a la tienda de Crane (gratis) si hay ejemplares de Crane pendientes.
+#   hojas    : con los dos fragmentos de la ruta y la pregunta abierta, escribe la respuesta (oráculo: una respuesta
+#              válida que esté en el índice) y las dos pruebas, verifica con Dossier.check y pasa en limpio (dq_confirm;
+#              sin límite de intentos, GDD_v3 §1.6). Intrusiones: examina lo que cambió en la pieza (nace Q8).
 #   confrontación: con conf_cover (deductor), además un recorte por grupo refutador de fuentes gratuitas (_conf_plan).
 #   oráculo   : stats.oracle registra rutas ★ planificadas cuyos fragmentos no se pudieron obtener en su ventana.
 #   informes, confrontación, Mycroft, noche y epílogo: ganchos.
 # Estadística (stats): acts, steps, errors (ok:false inesperados), words_read, words_by_day, est_minutes,
-#   est_minutes_act {I, II, III}, passes, passes_inked, sealed, outings, blocked (novato), oracle (fallas del oráculo),
-#   ending, rank, franjas (= salidas con costo), verbs {t: {free, costly}}, places {L.área: n}, runaway. log: [{t, ok, err,
-#   tk, day, slot, phase, free, costly, taught, place?, area?, char?, form?, mode?, silent?}] (T24).
+#   est_minutes_act {I, II, III}, confirms, confirms_inked, inked, outings, blocked (novato), oracle (fallas del oráculo),
+#   ending, rank, franjas (= salidas con costo), verbs {t: {free, costly}}, places {L.área: n}, runaway, attempts {q: n}.
+#   log: [{t, ok, err, tk, day, slot, phase, free, costly, taught, place?, area?, char?, form?, mode?, silent?, q?}] (T24).
 # Salvaguardas (carga del PC): MAX_ACTS_PER_STEP apply por paso y budget_ms de reloj por partida; si se exceden, la
 #   partida se corta con stats.errors «runaway: …» y result().runaway (los tests lo exigen vacío).
 extends RefCounted
@@ -38,7 +38,7 @@ const Av = preload("res://core/graph/availability.gd")
 const Feasibility = preload("res://core/graph/feasibility.gd")
 const Validator = preload("res://core/deduction/validator.gd")
 const Clipper = preload("res://core/deduction/clipper.gd")
-const Ledger = preload("res://core/deduction/ledger.gd")
+const Dossier = preload("res://core/deduction/dossier.gd")
 const Index = preload("res://core/deduction/index.gd")
 const MoranAgent = preload("res://core/react/moran_agent.gd")
 const RDB = preload("res://core/react/reaction_db.gd")
@@ -55,8 +55,8 @@ const SEAT := 214
 const HUB := "L1"
 const SHOP := "tienda"
 # Verbos con contexto gratuito propio (T24): su primer uso con costo debe ir precedido de un uso gratis.
-const FREE_TWIN := {"pass_clean": "practice", "ask": "ask", "assert": "assert", "present": "present", "go": "go"}
-const COSTLY := ["slip", "order_copy", "pass_clean", "compose_ad", "compose_telegram", "compose_letter", "report_submit",
+const FREE_TWIN := {"ask": "ask", "assert": "assert", "present": "present", "go": "go"}
+const COSTLY := ["slip", "order_copy", "compose_ad", "compose_telegram", "compose_letter", "report_submit",
 	"confront", "night_choice", "publish_errata", "end_slot"]
 const TALK := ["ask", "assert", "present", "pay", "task"]
 const CONF_GROUPS = Confrontation.GROUPS   # grupos refutadores de las cuatro afirmaciones (W2-SCENES)
@@ -64,15 +64,13 @@ const CONF_GROUPS = Confrontation.GROUPS   # grupos refutadores de las cuatro af
 const ACTS := {"P": [0, 0], "I": [1, 4], "II": [5, 7], "III": [8, 10], "E": [11, 11]}
 # Modelo de tiempo de juego (W4-BALANCE; supuestos, no mediciones): minutos por acto ACEPTADO, más 3 min de deliberación
 # por conclusión sellada ese día. play_minutes = lectura (palabras/WPM × REREAD) + interacción + deliberación.
-const T_ACT := {"go_costly": 1.0, "go_free": 0.5, "clip": 0.3, "link": 0.15, "folio_open": 0.2, "entry_new": 0.5,
-	"entry_set": 0.3, "entry_support_add": 0.3, "pass_clean": 0.7, "practice": 0.5, "slip": 0.5, "ask": 0.4, "assert": 0.4,
+const T_ACT := {"go_costly": 1.0, "go_free": 0.5, "clip": 0.3, "dq_answer": 0.3, "dq_proof": 0.3, "dq_confirm": 0.7,
+	"examine": 0.2, "ask_donde": 0.3, "slip": 0.5, "ask": 0.4, "assert": 0.4,
 	"present": 0.4, "pay": 0.2, "task": 0.3, "compose_ad": 1.5, "compose_telegram": 1.5, "compose_letter": 1.5,
 	"report_submit": 1.5, "confront": 1.0, "night_choice": 0.5, "publish_errata": 0.5}
 const T_THINK_PER_SEAL := 3.0
 # Peso de las palabras de la línea física en el modelo de lectura (0 = no cuenta, 1 = como el texto). Ver _read_parsed.
 const PACE_FISICA := 1.0
-# Conclusiones opcionales que el oráculo usa de compañeras de lote (C10a no cuenta para el tamaño del lote, pero sella).
-const FILLERS := ["C10a", "C14"]
 
 var sim
 var repo
@@ -84,23 +82,24 @@ var only_taught := false     # novato: sólo verbos ya enseñados (Tutorial.verb
 var reads_all := false       # novato: lee todo lo legible en cada paso
 var emit_reads := false      # novato: cada hoja que lee por primera vez emite la acción libre `read` (GDD_v2 §B.4)
 var _read_emitted := {}
-var deduce := true           # junta fragmentos y asienta (pasivo: false)
-var focus: Array = []        # conclusiones objetivo ([] = todas las obligatorias)
-var fillers := true          # el oráculo agrega opcionales factibles (FILLERS) como compañeras de lote
+var deduce := true           # junta fragmentos y escribe hojas (pasivo: false)
+var focus: Array = []        # preguntas objetivo ([] = todas las obligatorias nacidas)
+var fillers := false         # (v3: sin lotes; se conserva por compatibilidad de los bots viejos)
 var idle_until_day := 0      # > 1: los días 1..idle_until_day-1 sólo pasa franjas, duerme e informa «nada» (sondas del oráculo)
-var value_mode := "oracle"   # valores de los asientos: "oracle" (answers) | "random" (pesca: candidatos al azar)
+var value_mode := "oracle"   # respuesta de las hojas: "oracle" (respuestas válidas) | "random" (pesca: opción al azar)
+var max_attempts := 0        # > 0: tope de dq_confirm por pregunta (bots al azar de T10, GDD_v3 §1.9)
 var log: Array = []
 var rnd_n := 0               # contador de sorteos (Det con la semilla del bot)
-var attempt := {}            # cid -> nº de juego de valores (pesca)
-var waits := {}              # cid -> motivo transitorio por el que todavía no hay asiento
+var attempt := {}            # qid -> nº de intentos de dq_confirm
+var waits := {}              # qid -> motivo transitorio por el que todavía no hay hoja
 var replan_next := false     # replanificar en el próximo escritorio (se salteó una salida del itinerario)
 var seen_clips := {}         # recortes legales máximos ya hechos (fuerza_bruta, recorta_todo)
 
-var targets := {}            # cid -> {rid, subs:[], frags:[{ref, copy, key, desc, want:[]}]}
+var targets := {}            # qid -> {rid, frags:[{ref, copy, key, desc, want:[]}]}
 var itinerary := {}          # idx -> {place, area, refs}
 var clip_of := {}            # key de fragmento -> id de recorte
-var entry_of := {}           # cid -> id de asiento
-var bad_entry := {}          # cid -> motivo (oráculo no pudo armar un asiento válido)
+var sheet_of := {}           # qid -> {answer, proofs} escritos por el bot (a lápiz)
+var bad_sheet := {}          # qid -> motivo (oráculo no pudo armar una hoja que cierre)
 var read_sig := {}
 var _slot_flags := {}        # "<tk>|<qué>" -> true (una vez por franja)
 var _planned := false
@@ -128,7 +127,7 @@ func setup(p_sim, p_seed: int) -> void:
 	repo = p_sim.repo
 	seed = p_seed
 	stats = {"bot": bot_name, "seed": p_seed, "acts": 0, "ok_acts": 0, "steps": 0, "errors": [], "words_read": 0, "words_by_day": {},
-		"passes": 0, "passes_inked": 0, "sealed": [], "outings": 0, "blocked": {}, "oracle": [], "reports": [],
+		"confirms": 0, "confirms_inked": 0, "inked": [], "outings": 0, "blocked": {}, "oracle": [], "reports": [],
 		"confront": [], "mycroft": []}
 	log = []
 	_init_bot()
@@ -252,7 +251,7 @@ func act(a: Dictionary, may_fail := false) -> Dictionary:
 		stats.ok_acts = int(stats.ok_acts) + 1
 	var le := {"t": t, "ok": ok, "err": String(r.get("err", "")), "tk": int(c.tk), "day": int(c.day), "slot": String(c.slot),
 		"phase": String(c.phase), "free": free, "costly": _costly(a, c, free), "taught": taught}
-	for k in ["place", "area", "char", "form", "mode"]:
+	for k in ["place", "area", "char", "form", "mode", "q"]:
 		if a.has(k):
 			le[k] = String(a[k])
 	if t == "confront":
@@ -262,10 +261,12 @@ func act(a: Dictionary, may_fail := false) -> Dictionary:
 		_err("%s -> %s (fase %s, %s)" % [J.stringify_canon(a), String(r.get("err", "")), c.phase, c.get("date_label", "")])
 	if ok and t == "go" and not free:
 		stats.outings = int(stats.outings) + 1
-	if ok and t == "pass_clean":
-		stats.passes = int(stats.passes) + 1
+	if ok and t == "dq_confirm":
+		stats.confirms = int(stats.confirms) + 1
+		var qk := String(a.get("q", ""))
+		attempt[qk] = int(attempt.get(qk, 0)) + 1
 		if bool(r.get("inked", false)):
-			stats.passes_inked = int(stats.passes_inked) + 1
+			stats.confirms_inked = int(stats.confirms_inked) + 1
 	return r
 
 func read(view: String) -> void:
@@ -286,9 +287,9 @@ func result() -> Dictionary:
 	var en: Dictionary = sim.q_ending()
 	if en.is_empty():
 		en = load("res://core/sim/endings.gd").evaluate(sim.st, repo)
-	var sealed: Array = sim.st.ded.get("sealed", {}).keys()
+	var sealed: Array = Dossier.inked(sim.st).keys()
 	sealed.sort()
-	stats["sealed"] = sealed
+	stats["inked"] = sealed
 	stats["ending"] = String(en.get("ending", ""))
 	stats["rank"] = int(en.get("rank", 0))
 	stats["variants"] = (en.get("variants", []) as Array).map(func(v): return String(v.get("id", "")))
@@ -324,12 +325,10 @@ func result() -> Dictionary:
 		var ak := _act_of_day(int(e.day))
 		if ak != "":
 			pm[ak] = float(pm[ak]) + float(T_ACT.get(cat, 0.0))
-	for ps in sim.st.ded.get("passes", []):
-		if not bool(ps.get("inked", false)):
-			continue
-		var ak2 := _act_of_day(TimeKey.day_of(int(ps.get("tk", 0))))
+	for qk in Dossier.inked(sim.st):
+		var ak2 := _act_of_day(TimeKey.day_of(int(Dossier.inked(sim.st)[qk].get("tk", 0))))
 		if ak2 != "":
-			pm[ak2] = float(pm[ak2]) + T_THINK_PER_SEAL * float((ps.get("entries", []) as Array).size())
+			pm[ak2] = float(pm[ak2]) + T_THINK_PER_SEAL
 	var pm_total := 0.0
 	for a in pm:
 		pm[a] = snappedf(float(pm[a]), 0.1)
@@ -341,17 +340,19 @@ func result() -> Dictionary:
 		"watson_expuesto": bool(sim.st.flags.get("watson_expuesto", false)), "errata_ofrecida": String(sim.st.flags.get("errata_ofrecida", "")),
 		"informe_final": String(sim.st.flags.get("informe_final", "")), "confront_estado": String(sim.st.flags.get("confront_estado", "")),
 		"moran_credito_perdido": bool(sim.st.flags.get("moran_credito_perdido", false))}
-	# obligatorias sin sellar y por qué (para el informe del bot; sólo los bots que deducen)
+	# obligatorias sin tinta y por qué (para el informe del bot; sólo los bots que deducen)
 	var unsealed := {}
 	if deduce:
 		for cid in RouteDB.mandatory(repo):
 			var c := String(cid)
 			if sealed.has(c):
 				continue
-			if bad_entry.has(c):
-				unsealed[c] = "asiento inválido: " + String(bad_entry[c]).left(160)
-			elif entry_of.has(c):
-				unsealed[c] = "asiento %s sin pasar en limpio" % entry_of[c]
+			if bad_sheet.has(c):
+				unsealed[c] = "hoja inválida: " + String(bad_sheet[c]).left(160)
+			elif not Dossier.is_born(sim.st, c):
+				unsealed[c] = "no nació"
+			elif not Dossier.is_open(sim.st, c):
+				unsealed[c] = "en espera (tope de abiertas)"
 			elif waits.has(c):
 				unsealed[c] = String(waits[c])
 			elif targets.has(c):
@@ -382,14 +383,24 @@ func result() -> Dictionary:
 			places[pk] = int(places.get(pk, 0)) + 1
 	stats["verbs"] = verbs
 	stats["franjas"] = int(stats.outings)   # franjas gastadas en salidas con costo (§9.3)
-	return {"bot": bot_name, "seed": seed, "ending": stats.ending, "rank": stats.rank, "sealed": sealed, "words_read": words,
+	return {"bot": bot_name, "seed": seed, "ending": stats.ending, "rank": stats.rank, "inked": sealed, "sealed": sealed, "words_read": words,
 		"verbs": verbs, "places": places, "ads": int(stats.get("ads", 0)),
 		"est_minutes": stats.est_minutes, "est_minutes_act": em, "play_minutes": stats.play_minutes, "play_minutes_act": stats.play_minutes_act,
 		"acts": stats.acts, "steps": stats.steps,
-		"outings": stats.outings, "franjas": stats.franjas, "passes": stats.passes, "passes_inked": stats.passes_inked, "errors": stats.errors.duplicate(),
+		"outings": stats.outings, "franjas": stats.franjas, "confirms": stats.confirms, "confirms_inked": stats.confirms_inked,
+		"attempts": attempt.duplicate(), "born": Dossier.inked(sim.st).keys() + _born_open(), "errors": stats.errors.duplicate(),
 		"oracle": stats.oracle.duplicate(), "flags": stats.flags, "variants": stats.variants, "phase": stats.phase,
 		"blocked": stats.blocked.duplicate(), "reports": stats.reports.duplicate(), "confront": stats.confront.duplicate(),
 		"mycroft": stats.mycroft.duplicate(), "unsealed": unsealed, "runaway": _runaway}
+
+func _born_open() -> Array:
+	var out: Array = []
+	var d = sim.st.ded.get("dossier", {})
+	for q in (d.get("born", {}) as Dictionary).keys():
+		if not Dossier.inked(sim.st).has(q):
+			out.append(String(q))
+	out.sort()
+	return out
 
 func _act_of_day(d: int) -> String:
 	for a in ACTS:
@@ -433,15 +444,21 @@ func pol_night_choice() -> String:
 func pol_publish_errata() -> bool:
 	return false
 
-# Valores de un campo de asiento (candidatos ya filtrados por aceptación). Por defecto, el oráculo (answers).
 func pol_values_mode() -> String:
-	return "oracle"
+	return value_mode
 
-# Pasada en limpio de esta franja: lista de asientos (tamaño lot_size) o [].
-func pol_lot(n: int) -> Array:
-	if value_mode == "oracle":
-		return _oracle_lot(n)
-	return _blind_lot(n)
+# Hojas a pasar en limpio ahora (preguntas abiertas). Por defecto: las hojas que el bot escribió y (oráculo) cierran.
+func pol_confirm() -> Array:
+	var out: Array = []
+	for q in _sorted(sheet_of.keys()):
+		if not Dossier.is_open(sim.st, String(q)):
+			continue
+		if max_attempts > 0 and int(attempt.get(q, 0)) >= max_attempts:
+			continue
+		if value_mode == "oracle" and not bool(Dossier.check(sim.st, repo, String(q)).get("ok", false)):
+			continue
+		out.append(String(q))
+	return out
 
 # Azar determinista con la semilla del bot (cada sorteo distinto).
 func rnd_pick(arr: Array, tag := ""):
@@ -571,10 +588,9 @@ func _go(place: String, area: String) -> Dictionary:
 		a["seat"] = SEAT
 	return act(a, true)
 
-# ======================================================================= prólogo (tutorial, GDD_v2 §B.7)
-# Prólogo: abrir el encargo (read), recortar (los fragmentos de la práctica y lo que pide el aviso), el aviso de
-# testigos y dormir. La primera conclusión (juntar, hoja, conclusión, práctica) es del día 1 (_first_conclusion): sin
-# práctica no se confirma (practica_pendiente).
+# ======================================================================= prólogo (tutorial, GDD_v3 §6.9)
+# Prólogo: abrir el expediente y leer el encargo (read), recortar (el aviso al pie y lo que pide el aviso de testigos), el
+# aviso de testigos y dormir. El día 1 guiado (leer FINA, una hoja, pasar en limpio) va en _day1().
 func _do_prologue() -> void:
 	var tut: Dictionary = sim.q_tutorial()
 	var sid := String(tut.step.get("id", "")) if typeof(tut.get("step")) == TYPE_DICTIONARY else ""
@@ -605,181 +621,99 @@ func _prologue_read() -> void:
 		return
 	act({"t": "read", "view": first, "part": 0})
 
-# Día 1 (o el primer escritorio sin práctica): la primera conclusión guiada por las notas de Lisle. Una vez por franja.
-func _first_conclusion() -> void:
-	if bool(sim.q_tutorial().get("practice_done", false)) or not _once("first_conclusion"):
-		return
-	if _practice_clips().size() < 2:
-		_prologue_clips()
-	var pc := _uniq(_practice_clips())
-	if pc.size() >= 2:
-		act({"t": "link", "a": pc[0], "b": pc[1], "note": "dos fechas"})
-	else:
-		var ids := _uniq(pc + _clip_ids())
-		if ids.size() < 2:
-			for x in sim.q_accessible():
-				if _clip_ids().size() >= 2:
-					break
-				_clip_first_sentence(String(x.view), _clip_ids())
-			ids = _uniq(pc + _clip_ids())
-		if ids.size() >= 2:
-			act({"t": "link", "a": ids[0], "b": ids[1], "note": ""})
-	var pc2 := _practice_clips()
-	var cl := _clip_ids()
-	if pc2.is_empty() and cl.is_empty():
-		_err("primera conclusión: sin recortes")
-		return
-	var head: String = pc2[0] if not pc2.is_empty() else String(cl[0])
-	stats["practice_folio"] = String(act({"t": "folio_open", "clip": head}).get("folio", ""))
-	_prologue_entry()
-	var eid := String(stats.get("practice_entry", ""))
-	for tries in 3:
-		var r := act({"t": "practice", "entry": eid}, true)
-		if bool(r.get("ok", false)):
-			return
-		# chequeo formal: se arregla la FORMA de las pruebas (dos pasajes, ≤4 recortes) y se reintenta
-		_fix_practice_support(eid, r.get("formal", []))
-	_err("primera conclusión: la práctica no pasa el chequeo formal tras 3 intentos")
-
-# Recortes del prólogo: los fragmentos de una C1 practicable desde P.N y lo que pide el aviso de testigos.
+# Recortes del prólogo: una oración del encargo (Pell pide el aviso al pie) y lo que pide el aviso de testigos.
 func _prologue_clips() -> void:
-	var plan := _practice_plan()
-	stats["practice_cid"] = String(plan.get("cid", ""))
-	for f in plan.get("frags", []):
-		_try_frag(f)
 	_ensure_testigo()
 	if _clip_ids().is_empty():
-		# nada practicable: un recorte cualquiera del primer documento legible (el tutorial pide recortar)
+		for x in sim.q_accessible():
+			if String(x.doc) == "D23" and _clip_first_sentence(String(x.view)) != "":
+				break
+	if _clip_ids().is_empty():
 		for x in sim.q_accessible():
 			if _clip_first_sentence(String(x.view)) != "":
 				break
 
-# {cid, rid, frags} de una conclusión de práctica cuyos fragmentos son legibles en el prólogo.
-func _practice_plan() -> Dictionary:
-	for c in repo.conclusions():
-		if String(c.get("kind", "")) != "practica":
-			continue
-		for r in RouteDB.routes(repo, String(c.id)):
-			if not (r.get("missing", []) as Array).is_empty():
-				continue
-			var fr: Array = []
-			var ok := true
-			for f in r.frags:
-				var fd := _frag(String(f.ref), String(f.get("copy", "")), String(c.id))
-				var cp := String(fd.copy)
-				if fd.desc.kind != "doc" or cp == "" or sim.q_view(cp).is_empty():
-					ok = false
-					break
-				fr.append(fd)
-			if ok and fr.size() >= 2:
-				return {"cid": String(c.id), "rid": String(r.id), "frags": fr}
-	return {}
-
-func _practice_clips() -> Array:
-	var out: Array = []
-	var cid := String(stats.get("practice_cid", ""))
-	if cid == "":
-		return out
-	for k in clip_of:
-		if String(k).begins_with(cid + "|"):
-			out.append(String(clip_of[k]))
-	out.sort()
-	return out
-
-func _prologue_entry() -> void:
-	var cid := String(stats.get("practice_cid", ""))
-	var folio := String(stats.get("practice_folio", "varios"))
-	var plan := _practice_plan_cached()
-	var spec := {}
-	if cid != "" and not plan.is_empty():
-		spec = _entry_spec(cid, plan.frags, [])
-	if spec.is_empty():
-		# sin práctica posible: un asiento cualquiera con un campo y su «según» (el paso lo exige)
-		var ids := _clip_ids()
-		var e := String(act({"t": "entry_new", "folio": folio if folio != "" else "varios", "template": "T1"}).get("entry", ""))
-		var cands := _field_candidates(_field_def("T1", 0, "fuente_a"))
-		if not cands.is_empty():
-			act({"t": "entry_set", "entry": e, "line": 0, "field": "fuente_a", "value": String(cands[0])})
-		if not ids.is_empty():
-			act({"t": "entry_support_add", "entry": e, "line": 0, "item": String(ids[0])})
-		stats["practice_entry"] = e
+# Día 1 guiado (GDD_v3 §6.9): 5 leer «El problema final» · 6 una hoja con respuesta y dos pruebas · 7 pasar en limpio.
+# Una vez por franja; el deductor usa lo que tenga a mano (la hoja puede no cerrar: «Algo no cierra.»).
+func _day1() -> void:
+	var st1: Dictionary = sim.q_tutorial().get("day1", {})
+	if st1.is_empty() or not _once("day1"):
 		return
-	stats["practice_entry"] = _write_entry(spec, folio)
+	# 5: leer FINA (cualquier ejemplar legible; el del cliente está en casa)
+	if String(st1.get("id", "")) == "d1_leer":
+		for x in sim.q_accessible():
+			if String(x.doc) == "D03":
+				_read_view_all(String(x.view))
+				break
+	st1 = sim.q_tutorial().get("day1", {})
+	if String(st1.get("id", "")) == "d1_pruebas":
+		_day1_sheet()
+	st1 = sim.q_tutorial().get("day1", {})
+	if String(st1.get("id", "")) == "d1_pasar":
+		var q := _day1_question()
+		if q != "":
+			var r := act({"t": "dq_confirm", "q": q}, true)
+			if bool(r.get("inked", false)):
+				if not stats.inked.has(q):
+					stats.inked.append(q)
+				sheet_of.erase(q)
+			else:
+				pol_after_fail(q)   # la hoja de práctica no cerró: el plan la rearma con la ruta
 
-# Repara la forma de un asiento de práctica: «según» en cada línea llena, ≥2 pasajes distintos, ≤ MAX_CLIPS recortes.
-func _fix_practice_support(eid: String, formal: Array) -> void:
-	var e: Dictionary = sim.st.ded.get("entries", {}).get(eid, {})
-	if e.is_empty():
+# Emite `read` de todas las hojas de una vista (como el lector al hojearla).
+func _read_view_all(view: String) -> void:
+	var v: Dictionary = sim.q_view(view)
+	for pi in (v.get("pages", []) as Array).size():
+		act({"t": "read", "view": view, "part": pi}, true)
+
+func _day1_question() -> String:
+	var dv: Dictionary = sim.q_dossier()
+	for h in dv.get("open", []):
+		return String(h.id)
+	return ""
+
+# Una hoja completa: la pregunta abierta más antigua, una respuesta (oráculo si puede) y dos recortes de papeles distintos.
+func _day1_sheet() -> void:
+	var q := _day1_question()
+	if q == "":
 		return
-	var lines: Array = e.get("lines", [])
-	var codes: Array = []
-	for f in formal:
-		codes.append(String(f.get("code", "")) if typeof(f) == TYPE_DICTIONARY else String(f))
-	var used: Array = Ledger.entry_clips_of(sim.st, e)
-	if codes.has("demasiado_papel"):
-		for li in lines.size():
-			for it in (lines[li].get("support", []) as Array).duplicate():
-				if Ledger.entry_clips_of(sim.st, sim.st.ded.entries[eid]).size() <= Ledger.MAX_CLIPS:
-					break
-				if (lines[li].support as Array).size() > 1:
-					act({"t": "entry_support_remove", "entry": eid, "line": li, "item": String(it)}, true)
-		used = Ledger.entry_clips_of(sim.st, sim.st.ded.entries[eid])
-	if codes.has("falta_segun"):
-		for li in lines.size():
-			var filled := false
-			for f in lines[li].get("fields", {}):
-				if String(lines[li].fields[f]) != "":
-					filled = true
-			if filled and (lines[li].get("support", []) as Array).is_empty() and not _clip_ids().is_empty():
-				act({"t": "entry_support_add", "entry": eid, "line": li, "item": String(used[0] if not used.is_empty() else _clip_ids()[0])}, true)
-		used = Ledger.entry_clips_of(sim.st, sim.st.ded.entries[eid])
-	if codes.has("una_fuente") and used.size() < Ledger.MAX_CLIPS:
-		var have: Array = Ledger.passages_of(sim.st, used)
-		var li0 := 0
-		for li in lines.size():
-			if not (lines[li].get("support", []) as Array).is_empty():
-				li0 = li
+	var ids := _clip_ids()
+	if ids.size() < 2:
+		for x in sim.q_accessible():
+			if _clip_ids().size() >= 2:
 				break
-		var added := false
-		for cl in _clip_ids():
-			if used.has(cl):
-				continue
-			var p: Array = Ledger.passages_of(sim.st, [cl])
-			if not p.is_empty() and not have.has(p[0]):
-				act({"t": "entry_support_add", "entry": eid, "line": li0, "item": String(cl)}, true)
-				added = true
+			_clip_first_sentence(String(x.view), _clip_ids())
+		ids = _clip_ids()
+	var pair := _two_origins(ids)
+	if pair.size() < 2:
+		for x in sim.q_accessible():
+			_clip_first_sentence(String(x.view), _clip_ids())
+			pair = _two_origins(_clip_ids())
+			if pair.size() >= 2:
 				break
-		if not added:
-			# ningún recorte de otro pasaje: se recorta una oración de otra vista legible
-			for x in sim.q_accessible():
-				var nc := _clip_first_sentence(String(x.view), _clip_ids())
-				if nc == "":
-					continue
-				var p2: Array = Ledger.passages_of(sim.st, [nc])
-				if not p2.is_empty() and not have.has(p2[0]):
-					act({"t": "entry_support_add", "entry": eid, "line": li0, "item": nc}, true)
-					break
+	if pair.size() < 2:
+		_err("día 1: no hay dos recortes de papeles distintos")
+		return
+	var opts: Array = sim.q_answer_options(q)
+	if opts.is_empty():
+		_err("día 1: %s no ofrece respuestas" % q)
+		return
+	var ans := String(opts[0].id)
+	for v in _valid_answers(q):
+		for o in opts:
+			if String(o.id) == String(v):
+				ans = String(v)
+	_write_sheet(q, ans, pair[0], pair[1])
 
-var _pplan := {}
-func _practice_plan_cached() -> Dictionary:
-	if _pplan.is_empty():
-		var cid := String(stats.get("practice_cid", ""))
-		for c in repo.conclusions():
-			if String(c.id) != cid:
-				continue
-			for r in RouteDB.routes(repo, cid):
-				var fr: Array = []
-				var all := true
-				for f in r.frags:
-					var fd := _frag(String(f.ref), String(f.get("copy", "")), cid)
-					if not clip_of.has(fd.key):
-						all = false
-						break
-					fr.append(fd)
-				if all and fr.size() >= 2:
-					_pplan = {"cid": cid, "rid": String(r.id), "frags": fr}
-					return _pplan
-	return _pplan
+# Dos recortes de orígenes distintos (los primeros).
+func _two_origins(ids: Array) -> Array:
+	for i in ids.size():
+		for j in range(i + 1, ids.size()):
+			var oa := String(Clipper.get_clip(sim.st, String(ids[i])).get("origin", ""))
+			var ob := String(Clipper.get_clip(sim.st, String(ids[j])).get("origin", ""))
+			if oa != ob:
+				return [String(ids[i]), String(ids[j])]
+	return []
 
 # La forma «testigo» sólo ofrece sucesos indexados (R8): asegura uno recortando algo legible que lo nombre.
 func _ensure_testigo() -> void:
@@ -813,22 +747,19 @@ func _do_desk() -> void:
 		_read_all()
 	if deduce:
 		_harvest()
-		_build_entries()
+	if deduce or reads_all:
+		_examine_intrusions()
 	if deduce or value_mode != "oracle":
-		_first_conclusion()
+		_day1()
+	if deduce:
+		_build_sheets()
+		_confirm_now()
 	pol_desk_extra()
 	if String(sim.q_clock().phase) != "desk":
 		return
 	# tienda de Crane (gratis): ejemplares de Crane pendientes
 	if deduce and _crane_pending() and Clock.place_open(repo, sim.st, HUB, SHOP, int(_c().day), String(_c().slot)).open and _once("crane"):
 		if bool(_go(HUB, SHOP).get("ok", false)):
-			return
-	# pasada en limpio
-	if int(_c().passes_left) > 0 and _once("pass"):
-		var lot := pol_lot(int(_c().lot_size))
-		if not lot.is_empty():
-			var r := act({"t": "pass_clean", "entries": lot}, random_bot)
-			_after_pass(lot, r)
 			return
 	# salida de la franja
 	if not bool(_c().outing_done) and _once("outing"):
@@ -848,48 +779,34 @@ func _do_desk() -> void:
 func pol_desk_extra() -> void:
 	pass
 
-func _after_pass(lot: Array, r: Dictionary) -> void:
-	if not bool(r.get("ok", false)):
-		return
-	var by_entry := {}
-	for cid in entry_of:
-		by_entry[String(entry_of[cid])] = String(cid)
-	if bool(r.get("inked", false)):
-		for cid in r.get("sealed", []):
-			if not stats.sealed.has(String(cid)):
-				stats.sealed.append(String(cid))
-		# un asiento entintado que selló otra conclusión (valores al azar) deja a la suya sin asiento
-		var sealed: Dictionary = sim.st.ded.get("sealed", {})
-		for e in lot:
-			var tc := String(by_entry.get(String(e), ""))
-			if tc != "" and not sealed.has(tc):
-				entry_of.erase(tc)
-		return
-	# pasada fallida: los bots sin oráculo de valores prueban otro juego de valores en los asientos del lote
-	if value_mode != "oracle":
-		for e in lot:
-			var tc2 := String(by_entry.get(String(e), ""))
-			if tc2 == "":
-				continue
-			attempt[tc2] = int(attempt.get(tc2, 0)) + 1
-			_reroll(String(e), tc2)
+# Pasa en limpio las hojas listas (pol_confirm). Sin límite de intentos (GDD_v3 §1.6).
+func _confirm_now() -> void:
+	for q in pol_confirm():
+		var r := act({"t": "dq_confirm", "q": String(q)}, true)
+		if bool(r.get("inked", false)):
+			if not stats.inked.has(String(q)):
+				stats.inked.append(String(q))
+			sheet_of.erase(String(q))
+		elif bool(r.get("ok", false)):
+			pol_after_fail(String(q))
 
-# Otro juego de valores al azar para un asiento a lápiz (mismo «según»).
-func _reroll(eid: String, cid: String) -> void:
-	var e: Dictionary = sim.st.ded.get("entries", {}).get(eid, {})
-	if e.is_empty() or String(e.get("ink", "")) == "tinta":
+# Gancho: la hoja no cerró («Algo no cierra.»). Los bots sin oráculo prueban otra cosa.
+func pol_after_fail(q: String) -> void:
+	sheet_of.erase(q)
+
+# Intrusiones (GDD_v3 §4.4): mira lo que cambió en la pieza (nodos con aviso) y busca el papel que falta.
+func _examine_intrusions() -> void:
+	if String(sim.q_clock().phase) != "desk":
 		return
-	var tid := String(e.get("template", ""))
-	var lines: Array = e.get("lines", [])
-	for li in lines.size():
-		for fid in _sorted((lines[li].get("fields", {}) as Dictionary).keys()):
-			var fd := _field_def(tid, li, String(fid))
-			var cands := _field_candidates(fd)
-			if cands.is_empty():
-				continue
-			var v := String(Det.pick(seed, [bot_name, cid, int(attempt.get(cid, 0)), li, String(fid)], cands))
-			if v != String(lines[li].fields[fid]):
-				act({"t": "entry_set", "entry": eid, "line": li, "field": String(fid), "value": v})
+	var hub: Dictionary = sim.q_hub_plate()
+	var defs: Dictionary = hub.get("node_defs", {}) if typeof(hub.get("node_defs")) == TYPE_DICTIONARY else {}
+	for nid in hub.get("nodes", []):
+		var nd = defs.get(String(nid), {})
+		if typeof(nd) == TYPE_DICTIONARY and String(nd.get("aviso", "")) != "" and _once("examine|" + String(nid)):
+			act({"t": "examine", "ref": "hub/" + String(nid)}, true)
+	for m in sim.q_missing():
+		if _once("missing|" + String(m.copy)):
+			act({"t": "examine", "ref": "missing/" + String(m.copy)}, true)
 
 # ¿Quedó atrás alguna salida del itinerario sin sus fragmentos? (se replanifica)
 func _overdue() -> bool:
@@ -990,7 +907,8 @@ func _do_night() -> void:
 		_read_all()
 	if deduce:
 		_harvest()
-		_build_entries()
+		_build_sheets()
+		_confirm_now()
 	var rs: Dictionary = sim.q_report_status()
 	if bool(rs.get("due", false)):
 		_report(int(rs.n), false)
@@ -1032,26 +950,25 @@ func _do_confront() -> void:
 		act({"t": "confront", "step": step_n, "item": {}})
 
 func _do_final_report() -> void:
-	if deduce or value_mode != "oracle":
-		_first_conclusion()
 	if deduce:
 		_harvest()
-		_build_entries()
-		if int(_c().passes_left) > 0 and _once("pass"):
-			var lot := pol_lot(int(_c().lot_size))
-			if not lot.is_empty():
-				var r := act({"t": "pass_clean", "entries": lot}, random_bot)
-				_after_pass(lot, r)
-				return
+		_build_sheets()
+	if deduce or value_mode != "oracle":
+		_confirm_now()
 	_report(int(sim.q_report_status().get("n", 4)), true)
 
 # ======================================================================= objetivos y plan (oráculo)
 func _need() -> Array:
 	var out: Array = []
-	var sealed: Dictionary = sim.st.ded.get("sealed", {})
-	for cid in (focus if not focus.is_empty() else RouteDB.mandatory(repo)):
+	var sealed: Dictionary = Dossier.inked(sim.st)
+	var pool: Array = focus if not focus.is_empty() else RouteDB.mandatory(repo)
+	if focus.is_empty():
+		for q in RouteDB.from_birth(repo):
+			if Dossier.is_born(sim.st, String(q)):
+				pool = pool + [q]
+	for cid in pool:
 		var c := String(cid)
-		if sealed.has(c) or entry_of.has(c):
+		if sealed.has(c):
 			continue
 		if targets.has(c) and _complete(c):
 			continue
@@ -1112,16 +1029,6 @@ func _replan() -> void:
 			else:
 				_oracle("sin ruta ★ factible para %s desde %s: %s" % [cid, TimeKey.label(TimeKey.tk(int(_c().day), String(_c().slot))), str(p1.get("unmet", []))])
 		p = Feasibility.plan(prepo, i, [], ok_need) if not ok_need.is_empty() else {"ok": true, "plan": [], "routes": {}}
-	# opcionales como compañeras de lote, si caben sin romper el plan de las obligatorias
-	if fillers and focus.is_empty() and value_mode == "oracle":
-		var sealed: Dictionary = sim.st.ded.get("sealed", {})
-		for fc in FILLERS:
-			if repo.conclusion(fc).is_empty() or sealed.has(fc) or entry_of.has(fc) or (targets.has(fc) and _complete(fc)):
-				continue
-			var p2: Dictionary = Feasibility.plan(prepo, i, [], ok_need + [fc])
-			if bool(p2.get("ok", false)):
-				ok_need.append(fc)
-				p = p2
 	for cid in p.get("routes", {}):
 		_set_target(String(cid), String(p.routes[cid]))
 	for x in p.get("plan", []):
@@ -1132,12 +1039,28 @@ func _replan() -> void:
 func _conf_plan() -> void:
 	conf_frags = []
 	var seen := {}
+	# candidatos: fragmentos de rutas y, como en v3 el librero no tiene pregunta (GDD_v3 §1.10, C12), cualquier tramo de
+	# documento con la etiqueta del grupo
+	var cands: Array = []
+	for uid in RouteDB.units(repo):
+		for r in RouteDB.routes(repo, String(uid)):
+			for f in r.get("frags", []):
+				cands.append({"ref": String(f.get("ref", "")), "copy": String(f.get("copy", ""))})
+	for fd0 in RouteDB.all_frags(repo):
+		if String(fd0.get("kind", "")) != "doc" or String(fd0.get("ref", "")) == "":
+			continue
+		var any_hit := false
+		for g0 in CONF_GROUPS:
+			for t0 in (fd0.get("tags_any", []) as Array) + (fd0.get("tags", []) as Array):
+				if _tags_hit([String(t0)], g0):
+					any_hit = true
+		if any_hit:
+			cands.append({"ref": String(fd0.ref), "copy": ""})
 	for gi in CONF_GROUPS.size():
 		var grp: Array = CONF_GROUPS[gi]
-		for c in repo.conclusions():
-			var cid := String(c.get("id", ""))
-			for r in RouteDB.routes(repo, cid):
-				for f in r.get("frags", []):
+		if true:
+			for f in cands:
+				if true:
 					var ref := String(f.get("ref", ""))
 					var copies: Array = [String(f.get("copy", ""))]
 					var d0: Dictionary = RouteDB.resolve(repo, ref, "")
@@ -1167,7 +1090,7 @@ func _conf_plan() -> void:
 func _conf_covered(n: int) -> bool:
 	if _conf_ok.has(n):
 		var id := String(_conf_ok[n])
-		if sim.st.ded.get("clips", {}).has(id) or sim.st.ded.get("entries", {}).has(id):
+		if sim.st.ded.get("clips", {}).has(id) or Dossier.inked(sim.st).has(id):
 			return true
 		_conf_ok.erase(n)
 	var it := _confront_item(n)
@@ -1206,7 +1129,7 @@ func _set_target(cid: String, rid: String) -> void:
 		var fd := _frag(String(f.ref), String(f.get("copy", "")), cid)
 		fd["sub"] = String(f.get("sub", ""))
 		frs.append(fd)
-	targets[cid] = {"rid": rid, "subs": (r.get("subs", []) as Array).duplicate(), "frags": frs}
+	targets[cid] = {"rid": rid, "frags": frs}
 
 # Descriptor de trabajo de un fragmento: {ref, copy, key, cid, desc, want:[etiquetas a: de la conclusión]}.
 func _frag(ref: String, copy: String, cid := "") -> Dictionary:
@@ -1233,7 +1156,7 @@ func _frag(ref: String, copy: String, cid := "") -> Dictionary:
 func _pending_targets() -> Array:
 	var out: Array = []
 	for cid in _sorted(targets.keys()):
-		if sim.st.ded.get("sealed", {}).has(cid) or entry_of.has(cid):
+		if Dossier.inked(sim.st).has(cid):
 			continue
 		for f in targets[cid].frags:
 			if not clip_of.has(f.key):
@@ -1307,7 +1230,8 @@ func _try_doc(f: Dictionary) -> String:
 		return ""
 	return _clip_tramo(view, String(f.ref).get_slice("#", 1))
 
-# Recorta exactamente el tramo #tid de una vista legible.
+# Recorta el tramo #tid de una vista legible: entero si mide ≤15 palabras; si no, la ventana legal de 15 palabras que
+# más lo cubre (GDD_v3 §6.2: hereda sus etiquetas si cubre ≥50 %).
 func _clip_tramo(view: String, tid: String) -> String:
 	var v: Dictionary = sim.q_view(view)
 	var pages: Array = v.get("pages", [])
@@ -1316,9 +1240,33 @@ func _clip_tramo(view: String, tid: String) -> String:
 			var p: Dictionary = pages[pi][bi].get("parsed", {})
 			for t in p.get("tramos", []):
 				if String(t.get("id", "")) == tid:
-					var r := act({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(t.from), "len": int(t.to) - int(t.from)}, true)
+					var span := best_window(p, int(t.from), int(t.to))
+					var r := act({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(span[0]), "len": int(span[1]) - int(span[0])}, true)
 					return String(r.get("clip", ""))
 	return ""
+
+# [from, to) del recorte legal (≤15 palabras, una oración) que más cubre [a, b).
+static func best_window(p: Dictionary, a: int, b: int) -> Array:
+	var words: Array = p.get("words", [])
+	var idx: Array = []
+	for k in words.size():
+		if int(words[k][0]) >= a and int(words[k][1]) <= b:
+			idx.append(k)
+	if idx.size() <= ClipRules.MAX_WORDS:
+		return [a, b]
+	var best := [int(words[idx[0]][0]), int(words[idx[ClipRules.MAX_WORDS - 1]][1])]
+	var bcov := -1
+	for st in range(0, idx.size() - ClipRules.MAX_WORDS + 1):
+		var f := int(words[idx[st]][0])
+		var e := int(words[idx[st + ClipRules.MAX_WORDS - 1]][1])
+		var sn: Dictionary = ClipRules.snap(p, f, e - f)
+		if not bool(sn.get("ok", false)):
+			continue
+		var cov := mini(int(sn.to), b) - maxi(int(sn.from), a)
+		if cov > bcov:
+			bcov = cov
+			best = [int(sn.from), int(sn.to)]
+	return best
 
 # Recorta en una vista el primer tramo (de un bloque cuyo doc pase el filtro) que lleve alguna etiqueta pedida.
 func _clip_tagged(view: String, want: Array, doc_filter := "") -> String:
@@ -1341,7 +1289,8 @@ func _clip_tagged(view: String, want: Array, doc_filter := "") -> String:
 					if not dd.begins_with(doc_filter):
 						continue
 				if _tramo_has(t, want):
-					var r := act({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(t.from), "len": int(t.to) - int(t.from)}, true)
+					var sp := best_window(p, int(t.from), int(t.to))
+					var r := act({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])}, true)
 					var id := String(r.get("clip", ""))
 					if id != "":
 						return id
@@ -1390,6 +1339,32 @@ func _try_node(f: Dictionary) -> String:
 			continue
 		var id := _clip_node(pid, nid)
 		if id != "" and _clip_has_any(id, f.want):
+			return id
+	# la buhardilla de ahora (desde el escritorio): el texto de su tarjeta de examen (GDD_v3 §6.2)
+	if owner == HUB and String(sim.q_clock().phase) == "desk":
+		var hub: Dictionary = sim.q_hub_plate()
+		if (hub.get("nodes", []) as Array).has(nid):
+			var id2 := _clip_exam("hub/" + nid, f.want)
+			if id2 != "":
+				return id2
+	return ""
+
+# Recorta del texto del examen de un nodo (src kind node) el pedazo legal que hereda alguna etiqueta pedida.
+func _clip_exam(ref: String, want: Array) -> String:
+	var pid := ref.get_slice("/", 0)
+	var nid := ref.get_slice("/", 1)
+	var snap: Dictionary = sim.q_hub_plate() if pid == "hub" else sim.q_plate(pid)
+	var ex := String(Clipper.node_def(sim.st, repo, snap, nid).get("examine", ""))
+	if ex == "":
+		return ""
+	var p: Dictionary = repo.parse_text(ex)
+	var plain := String(p.get("plain", ""))
+	var spans: Array = [{"from": 0, "to": plain.length()}]
+	spans.append_array(ClipRules.max_legal_clips(p))
+	for sp in spans:
+		var r := act({"t": "clip_text", "src": {"kind": "node", "ref": ref}, "from": int(sp.from), "len": int(sp.to) - int(sp.from)}, true)
+		var id := String(r.get("clip", ""))
+		if id != "" and _clip_has_any(id, want):
 			return id
 	return ""
 
@@ -1450,7 +1425,8 @@ func _clip_line(uid: String, want: Array) -> String:
 	var p: Dictionary = ln.get("parsed", {})
 	for t in p.get("tramos", []):
 		if _tramo_has(t, want):
-			var r := act({"t": "clip_text", "src": {"kind": "line", "ref": uid}, "from": int(t.from), "len": int(t.to) - int(t.from)}, true)
+			var sp := best_window(p, int(t.from), int(t.to))
+			var r := act({"t": "clip_text", "src": {"kind": "line", "ref": uid}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])}, true)
 			var id := String(r.get("clip", ""))
 			if id != "":
 				return id
@@ -1499,7 +1475,8 @@ func _try_journal(f: Dictionary) -> String:
 		var p: Dictionary = e.get("parsed", {})
 		for t in p.get("tramos", []):
 			if _tramo_has(t, f.want):
-				var r := act({"t": "clip_text", "src": {"kind": "diary", "ref": String(e.id)}, "from": int(t.from), "len": int(t.to) - int(t.from)}, true)
+				var sp := best_window(p, int(t.from), int(t.to))
+				var r := act({"t": "clip_text", "src": {"kind": "diary", "ref": String(e.id)}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])}, true)
 				var id := String(r.get("clip", ""))
 				if id != "":
 					return id
@@ -1547,8 +1524,7 @@ func _try_measure(f: Dictionary) -> String:
 		if view == "" or sim.q_view(view).is_empty():
 			return ""
 		src = {"kind": "doc", "ref": view}
-	var r := act({"t": "clip_measure", "src": src}, true)
-	return String(r.get("clip", ""))
+	return ""   # v3: sin refs M: (la regla no existe)
 
 # Recorta la primera oración de una vista (prólogo sin práctica; recorta_todo usa max_legal_clips) que no dé un
 # recorte ya existente (except).
@@ -1611,349 +1587,112 @@ func _clip_ids() -> Array:
 	ids.sort()
 	return ids
 
-# ======================================================================= asientos
-func _field_def(tpl_id: String, line: int, field: String) -> Dictionary:
-	var tpl: Dictionary = repo.template(tpl_id)
-	var lines: Array = tpl.get("lines", [])
-	if line < 0 or line >= lines.size():
-		return {}
-	for fd in lines[line].get("fields", []):
-		if String(fd.get("id", "")) == field:
-			return fd
-	return {}
-
-# Valores aceptables AHORA por un campo (índice con el kind correcto o lista cerrada). Orden estable.
-func _field_candidates(fd: Dictionary) -> Array:
-	var acc: Dictionary = fd.get("accept", {})
+# ======================================================================= hojas del Expediente
+# Respuestas válidas (variante principal primero) de una pregunta, con los alias vigentes ya resueltos.
+func _valid_answers(q: String) -> Array:
 	var out: Array = []
-	if acc.has("list"):
-		for x in repo.lists().get(String(acc.list), []):
-			out.append(String(x.get("id", "")) if typeof(x) == TYPE_DICTIONARY else String(x))
-			# medios: también valen los sensores ya indexados (GDD §8.2)
-			if typeof(x) == TYPE_DICTIONARY:
-				for en in x.get("entities", []):
-					if _known(String(en)) and not out.has(String(en)):
-						out.append(String(en))
-		return out
-	for e in Index.known(sim.st, repo):
-		var id := String(e.get("id", "")) if typeof(e) == TYPE_DICTIONARY else String(e)
-		if id.begins_with("act.") or id == "":
-			continue
-		if Ledger.accept_error(sim.st, repo, acc, id) == "":
-			out.append(id)
+	var qd: Dictionary = repo.question(q)
+	var groups: Array = Dossier.alias_groups(repo, sim.st)
+	var vs: Array = (qd.get("variantes", []) as Array).duplicate()
+	vs.sort_custom(func(a, b): return bool(a.get("principal", false)) and not bool(b.get("principal", false)))
+	for v in vs:
+		for r0 in v.get("respuestas", []):
+			var s0 := String(r0)
+			if s0.begins_with("@alias:"):
+				var x := s0.substr(7)
+				var on := false
+				for g in groups:
+					if g.has(x):
+						on = true
+				if not on:
+					continue
+				s0 = x
+			if not out.has(s0):
+				out.append(s0)
 	return out
 
-# Especificación de asiento {cid, template, lines:[{fields, support}]} con valores del oráculo y «según» por grupo.
-# frags = fragmentos de la ruta (con clip en clip_of). {} si falta algo (valor no indexado, recorte faltante).
-func _entry_spec(cid: String, frags: Array, subs: Array) -> Dictionary:
-	var c: Dictionary = repo.conclusion(cid)
-	var tid := String(c.get("template", ""))
-	var tpl: Dictionary = repo.template(tid)
-	if tpl.is_empty():
-		return {}
-	var clips: Array = []
-	var by_sub := {}
-	for f in frags:
-		if not clip_of.has(f.key):
-			return {}
-		var cl := String(clip_of[f.key])
-		if not clips.has(cl):
-			clips.append(cl)
-		var sb := String(f.get("sub", f.desc.get("sub", "")))
-		if sb != "":
-			if not by_sub.has(sb):
-				by_sub[sb] = []
-			by_sub[sb].append(cl)
-	var lines: Array = []
-	for ln in tpl.get("lines", []):
-		lines.append({"fields": {}, "support": []})
-	var ans: Dictionary = c.get("answers", {})
-	var sealed: Dictionary = sim.st.ded.get("sealed", {})
-	var alias_on := not Validator.alias_groups(repo, sealed).is_empty()
-	# 1) medios por canal de subruta (C6: por_medio = canal de la 1.ª subruta, y_de = de la 2.ª)
-	var ch_vals := []
-	for sb in subs:
-		var code := RouteDB.sub_channel(repo, String(sb))
-		for m in repo.lists().get("medios", []):
-			if typeof(m) == TYPE_DICTIONARY and String(m.get("ch", "")) == code:
-				ch_vals.append(String(m.id))
-	var list_fields_seen := 0
-	for li in (tpl.lines as Array).size():
-		for fd in tpl.lines[li].get("fields", []):
-			var fid := String(fd.get("id", ""))
-			var want = ans.get(fid)
-			if typeof(want) == TYPE_DICTIONARY and want.has("list"):
-				var v := ""
-				if list_fields_seen < ch_vals.size():
-					v = String(ch_vals[list_fields_seen])
-				list_fields_seen += 1
-				if v == "":
-					var lc := _field_candidates(fd)
-					v = String(lc[0]) if not lc.is_empty() else ""
-				if v == "":
-					_oracle("%s.%s: lista sin valores" % [cid, fid])
-					return {}
-				lines[li].fields[fid] = v
-	var spec := {"cid": cid, "template": tid, "lines": lines}
-	# 2) «según»: por grupo, un recorte con su etiqueta (resuelta con los medios ya elegidos)
-	var gt: Dictionary = Validator.group_tags(repo, cid, spec)
-	var used_cl := {}
-	for g in gt.groups:
-		var li2 := int(g.line)
-		var got := ""
-		var any := ""
-		for cl in clips:
-			var tags: Array = Clipper.get_clip(sim.st, String(cl)).get("tags", [])
-			var hit := false
-			for t in g.tags:
-				if Validator.tag_match(tags, String(t)):
-					hit = true
-					break
-			if not hit:
-				continue
-			if any == "":
-				any = String(cl)
-			# grupos de líneas distintas con la misma etiqueta (pares INC, C6): un recorte distinto por línea
-			if (lines[li2].support as Array).has(String(cl)) or not used_cl.has(String(cl)):
-				got = String(cl)
-				break
-		if got == "":
-			got = any
-		if got != "":
-			used_cl[got] = true
-		if got == "":
-			_oracle("%s: ningún recorte de la ruta lleva el grupo %s (%s)" % [cid, g.id, str(g.tags)])
-			return {}
-		if not lines[li2].support.has(got):
-			lines[li2].support.append(got)
-	# 2b) el resto de los recortes de la ruta también va al «según» (dan el 2.º origen y el enlace por claves): a la línea
-	#     de un grupo cuya etiqueta lleven, si no a la primera línea con «según»
-	for cl in clips:
-		var placed := false
-		for ln0 in lines:
-			if (ln0.support as Array).has(String(cl)):
-				placed = true
-		if placed:
-			continue
-		var tags2: Array = Clipper.get_clip(sim.st, String(cl)).get("tags", [])
-		var dest := -1
-		for g in gt.groups:
-			for t in g.tags:
-				if dest < 0 and Validator.tag_match(tags2, String(t)):
-					dest = int(g.line)
-		if dest < 0:
-			for li4 in lines.size():
-				if dest < 0 and not (lines[li4].support as Array).is_empty():
-					dest = li4
-		lines[maxi(dest, 0)].support.append(String(cl))
-	# 3) valores: por campo, el primer valor aceptado e indexado, prefiriendo los que nombra el «según» de su línea
-	#    (constraints.distinct: los campos del mismo grupo no repiten valor)
-	var distinct_of := {}
-	for con in c.get("constraints", []):
-		if typeof(con) == TYPE_DICTIONARY and con.has("distinct"):
-			for f0 in con.distinct:
-				distinct_of[String(f0)] = con.distinct
-	var taken := {}
-	for li in (tpl.lines as Array).size():
-		for fd in tpl.lines[li].get("fields", []):
-			var fid := String(fd.get("id", ""))
-			var want = ans.get(fid)
-			if typeof(want) != TYPE_ARRAY or fid.begins_with("_"):
-				continue
-			var vals: Array = []
-			for x in want:
-				var s := String(x)
-				if s.begins_with("@alias:"):
-					if not alias_on:
-						continue
-					s = s.substr(7)
-				vals.append(s)
-			var pref: Array = (lines[li].support as Array) + clips
-			if distinct_of.has(fid):
-				var ex: Array = []
-				for f1 in distinct_of[fid]:
-					if taken.has(String(f1)):
-						ex.append(String(taken[String(f1)]))
-				vals = vals.filter(func(x): return not ex.has(String(x)))
-			var v2 := _pick_value(fd, vals, pref)
-			if v2 == "":
-				waits[cid] = "%s: ningún valor aceptado está en el índice (%s)" % [fid, str(want)]
-				return {}
-			lines[li].fields[fid] = v2
-			taken[fid] = v2
-	# 4) líneas llenas sin grupo: un recorte que ya sostiene (cuenta una vez)
-	for li3 in lines.size():
-		if not lines[li3].fields.is_empty() and lines[li3].support.is_empty():
-			lines[li3].support.append(String(clips[0]))
-	waits.erase(cid)
-	# 5) pesca: mismos campos y mismo «según», valores al azar entre los aceptables ahora
-	if value_mode == "random":
-		for li5 in lines.size():
-			for fid5 in _sorted((lines[li5].fields as Dictionary).keys()):
-				var cands := _field_candidates(_field_def(tid, li5, String(fid5)))
-				if not cands.is_empty():
-					lines[li5].fields[fid5] = String(Det.pick(seed, [bot_name, cid, int(attempt.get(cid, 0)), li5, String(fid5)], cands))
-	return spec
+# Escribe la hoja (lápiz): respuesta y dos pruebas.
+func _write_sheet(q: String, answer: String, c1: String, c2: String) -> bool:
+	var ok := true
+	ok = bool(act({"t": "dq_answer", "q": q, "value": answer}, true).get("ok", false)) and ok
+	ok = bool(act({"t": "dq_proof", "q": q, "slot": 0, "clip": c1}, true).get("ok", false)) and ok
+	ok = bool(act({"t": "dq_proof", "q": q, "slot": 1, "clip": c2}, true).get("ok", false)) and ok
+	if ok:
+		sheet_of[q] = {"answer": answer, "proofs": [c1, c2]}
+	return ok
 
-# Primer valor aceptado e indexado; prefiere los que nombran los recortes dados (en orden: los de su línea primero).
-func _pick_value(fd: Dictionary, vals: Array, clips: Array) -> String:
-	var acc: Dictionary = fd.get("accept", {})
+# Respuesta del oráculo: una respuesta válida que esté (o se pueda poner) en el índice, prefiriendo la que nombran las
+# pruebas. "" si ninguna.
+func _oracle_answer(q: String, clips: Array) -> String:
+	var vals := _valid_answers(q)
 	for cl in clips:
 		var ents: Array = Clipper.get_clip(sim.st, String(cl)).get("ents", [])
 		for v in vals:
-			if ents.has(v) and Ledger.accept_error(sim.st, repo, acc, String(v)) == "":
+			if ents.has(v) and _answer_ok(q, String(v)):
 				return String(v)
 	for v in vals:
-		if Ledger.accept_error(sim.st, repo, acc, String(v)) == "":
+		if _answer_ok(q, String(v)):
 			return String(v)
 	for v in vals:
-		if not acc.has("list") and _ensure_indexed(String(v)) and Ledger.accept_error(sim.st, repo, acc, String(v)) == "":
+		if _ensure_indexed(String(v)) and _answer_ok(q, String(v)):
 			return String(v)
 	return ""
 
-# Escribe un asiento a partir de una especificación. Devuelve el id ("" si algo falló).
-func _write_entry(spec: Dictionary, folio := "") -> String:
-	var fo := folio
-	if fo == "":
-		var head := ""
-		for ln in spec.lines:
-			for s in ln.support:
-				if head == "":
-					head = String(s)
-		fo = String(act({"t": "folio_open", "clip": head}, true).get("folio", "")) if head != "" else "varios"
-		if fo == "":
-			fo = "varios"
-	var e := String(act({"t": "entry_new", "folio": fo, "template": String(spec.template)}).get("entry", ""))
-	if e == "":
-		return ""
-	for li in (spec.lines as Array).size():
-		var ln: Dictionary = spec.lines[li]
-		for fid in _sorted(ln.fields.keys()):
-			act({"t": "entry_set", "entry": e, "line": li, "field": String(fid), "value": String(ln.fields[fid])})
-		for s in ln.support:
-			act({"t": "entry_support_add", "entry": e, "line": li, "item": String(s)})
-	return e
+func _answer_ok(q: String, v: String) -> bool:
+	for o in sim.q_answer_options(q):
+		if String(o.id) == v:
+			return true
+	return false
 
-# Arma los asientos de las conclusiones con todos sus fragmentos (oráculo: sólo si Validator los da por buenos).
-func _build_entries() -> void:
-	for cid in _sorted(targets.keys()):
-		if entry_of.has(cid) or bad_entry.has(cid) or sim.st.ded.get("sealed", {}).has(cid) or not _complete(cid):
+# Escribe las hojas de las preguntas abiertas cuya ruta objetivo ya tiene sus dos recortes (oráculo: sólo si cierra).
+func _build_sheets() -> void:
+	for q in _sorted(targets.keys()):
+		if sheet_of.has(q) or bad_sheet.has(q) or Dossier.inked(sim.st).has(q) or not _complete(q):
 			continue
-		var spec := _entry_spec(cid, targets[cid].frags, targets[cid].get("subs", []))
-		if spec.is_empty():
+		if not Dossier.is_open(sim.st, q):
+			waits[q] = "la pregunta no está abierta (no nació o espera lugar)"
 			continue
+		var clips: Array = []
+		for f in targets[q].frags:
+			var cl := String(clip_of[f.key])
+			if not clips.has(cl):
+				clips.append(cl)
+		if clips.size() != 2:
+			bad_sheet[q] = "la ruta %s no da dos recortes distintos" % targets[q].rid
+			continue
+		var ans := ""
 		if value_mode == "oracle":
-			var ev: Dictionary = Validator.evaluate(sim.st, repo, spec, {"practice": false})
-			if not bool(ev.get("ok", false)) or String(ev.get("cid", "")) != cid:
-				bad_entry[cid] = "evaluate %s" % str(ev)
-				_oracle("%s (%s): el asiento armado no valida: %s" % [cid, targets[cid].rid, str(ev)])
+			ans = _oracle_answer(q, clips)
+		else:
+			var opts: Array = sim.q_answer_options(q)
+			if not opts.is_empty():
+				ans = String(Det.pick(seed, [bot_name, q, int(attempt.get(q, 0)), "ans"], opts).id)
+		if ans == "":
+			waits[q] = "ninguna respuesta válida está en el índice"
+			continue
+		waits.erase(q)
+		if value_mode == "oracle":
+			var ev: Dictionary = Dossier.check(sim.st, repo, q, {"answer": ans, "proofs": clips})
+			if not bool(ev.get("ok", false)):
+				bad_sheet[q] = "check %s" % str(ev)
+				_oracle("%s (%s): la hoja armada no cierra: %s" % [q, targets[q].rid, str(ev)])
 				continue
-		var e := _write_entry(spec)
-		if e != "":
-			entry_of[cid] = e
-
-# Lote del oráculo: asientos válidos, conclusiones distintas, sin sellar, en ventana; prioridad a la ventana más corta.
-func _oracle_lot(n: int) -> Array:
-	if n <= 0:
-		return []
-	var ready: Array = []
-	var sealed: Dictionary = sim.st.ded.get("sealed", {})
-	var tk := Clipper.now_tk(sim.st)
-	for cid in _sorted(entry_of.keys()):
-		if sealed.has(cid):
-			continue
-		var e := String(entry_of[cid])
-		var r: Dictionary = Validator.entry_ok(sim.st, repo, e)
-		if not bool(r.get("ok", false)) or String(r.cid) != cid or not Validator._in_window(repo, cid, tk):
-			continue
-		ready.append({"cid": cid, "e": e, "last": RouteDB.last_idx(repo, cid)})
-	if ready.size() < n:
-		return []
-	# prioridad: obligatorias de ventana más corta; las opcionales (FILLERS) sólo completan el lote
-	ready.sort_custom(func(a, b):
-		var fa := FILLERS.has(String(a.cid))
-		var fb := FILLERS.has(String(b.cid))
-		if fa != fb:
-			return fb
-		return int(a.last) < int(b.last) or (int(a.last) == int(b.last) and String(a.cid) < String(b.cid)))
-	var out: Array = []
-	for i in n:
-		out.append(String(ready[i].e))
-	# una obligatoria con una opcional de compañera sólo si hace falta: los lotes son exactos, y si quedan por sellar
-	# (antes de la pasada final, cuyo lote de 1 es de las que sólo valen ahí: C12) un número impar de obligatorias más,
-	# ésta se puede emparejar con una de ellas; la opcional queda para la última pasada doble.
-	if n == 2 and not FILLERS.has(String(ready[0].cid)) and FILLERS.has(String(ready[1].cid)) and not _filler_needed(String(ready[0].cid)):
-		return []
-	# no se gasta un lote sólo de opcionales mientras falten obligatorias
-	var all_fill := true
-	for i in n:
-		if not FILLERS.has(String(ready[i].cid)):
-			all_fill = false
-	if all_fill:
-		for cid in RouteDB.mandatory(repo):
-			if not sealed.has(String(cid)):
-				return []
-	return out
-
-# ¿Hace falta una opcional para pasar ya la obligatoria cid? Sí si no queda otra pasada doble antes de la final, o si
-# las demás obligatorias por sellar antes de la final (las que no sólo valen en ella) son pares: ésta quedaría sola.
-func _filler_needed(cid: String) -> bool:
-	var fin := RouteDB.final_idx(repo)
-	var later := false
-	for i in range(_idx() + 1, fin):
-		var x := TimeKey.from_idx(i)
-		if not x.is_empty() and Clock.passes_for(repo, int(x.day), String(x.slot)) > 0:
-			later = true
-			break
-	if not later:
-		return true
-	var sealed: Dictionary = sim.st.ded.get("sealed", {})
-	var k := 0
-	for m in RouteDB.mandatory(repo):
-		var ms := String(m)
-		if ms == cid or sealed.has(ms):
-			continue
-		var v = repo.conclusion(ms).get("validate", {})
-		var vf = v.get("from") if typeof(v) == TYPE_DICTIONARY else null
-		if vf != null and TimeKey.idx_at_or_after(TimeKey.of(vf)) >= fin:
-			continue
-		k += 1
-	return k % 2 == 0
-
-# Lote sin oráculo de valores (pesca): asientos a lápiz de conclusiones (propias) distintas y sin sellar, al azar.
-func _blind_lot(n: int) -> Array:
-	if n <= 0:
-		return []
-	var sealed: Dictionary = sim.st.ded.get("sealed", {})
-	var cands: Array = []
-	for cid in _sorted(entry_of.keys()):
-		if sealed.has(cid):
-			continue
-		var e: Dictionary = sim.st.ded.get("entries", {}).get(String(entry_of[cid]), {})
-		if e.is_empty() or String(e.get("ink", "")) == "tinta":
-			continue
-		cands.append(String(entry_of[cid]))
-	if cands.size() < n:
-		return []
-	rnd_n += 1
-	return Det.shuffle(seed, [bot_name, "lote", rnd_n], cands).slice(0, n)
+		_write_sheet(q, ans, String(clips[0]), String(clips[1]))
 
 # ======================================================================= informes y confrontación (ayudas)
-# Ítems (asientos y recortes) con sus categorías de Moran: [{item:{kind,id}, cats:[...]}].
+# Ítems (preguntas y recortes) con sus categorías de Moran: [{item:{kind,id}, cats:[...]}].
 func _report_candidates() -> Array:
 	var out: Array = []
-	for eid in _sorted(sim.st.ded.get("entries", {}).keys()):
-		var e: Dictionary = sim.st.ded.entries[eid]
-		if bool(e.get("practice", false)):
-			continue
-		var it := {"kind": "entry", "id": String(eid)}
+	var dv: Dictionary = sim.q_dossier()
+	for h in (dv.get("inked", []) as Array) + (dv.get("open", []) as Array):
+		var it := {"kind": "pregunta", "id": String(h.id)}
 		out.append({"item": it, "cats": MoranAgent.report_cats(sim.st, repo, it)})
 	for cl in _clip_ids():
 		var it2 := {"kind": "clip", "id": String(cl)}
 		out.append({"item": it2, "cats": MoranAgent.report_cats(sim.st, repo, it2)})
 	return out
 
-# Ítem que refuta la afirmación step_n (grupo propio; nunca material secreto_camden). Recortes antes que asientos.
+# Ítem que refuta la afirmación step_n (grupo propio; nunca material secreto_camden). Recortes antes que preguntas.
 func _confront_item(step_n: int) -> Dictionary:
 	if step_n < 1 or step_n > CONF_GROUPS.size():
 		return {}
@@ -1964,11 +1703,11 @@ func _confront_item(step_n: int) -> Dictionary:
 			continue
 		if _tags_hit(Clipper.get_clip(sim.st, String(cl)).get("tags", []), grp):
 			return it
-	for eid in _sorted(sim.st.ded.get("entries", {}).keys()):
-		var it2 := {"kind": "entry", "id": String(eid)}
+	for q in _sorted(Dossier.inked(sim.st).keys()):
+		var it2 := {"kind": "pregunta", "id": String(q)}
 		if Deps.item_camden(sim.st, repo, it2):
 			continue
-		if _tags_hit(Validator.entry_tags(sim.st, String(eid)), grp):
+		if _tags_hit(Deps.item_tags(sim.st, it2), grp):
 			return it2
 	return {}
 

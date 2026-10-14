@@ -1,5 +1,7 @@
-# core/sim/clock.gd — calendario, fases y horarios (§3.2). Dueño: W2-SIM. Contrato: ARCHITECTURE §3.8.
-# st.clock = {day, slot, phase, outing_done, passes_used, ads_by_day:{"<día>": {ad, pub_day, form, text}}, d10:{},
+# core/sim/clock.gd — calendario, fases y horarios (§3.2). Dueño: CORE-EXPEDIENTE. Contrato: ARCHITECTURE §3.8.
+# v3 (GDD_v3 §5.4): cada salida es pieza -> lugar -> pieza: `go` desde una visita (o la tienda) responde «desde_casa»;
+#   `leave` siempre vuelve a la buhardilla y avisa a Director.on_leave(st, repo, visit_id) (latencia «intrusion», §4.2).
+# st.clock = {day, slot, phase, outing_done, ads_by_day:{"<día>": {ad, pub_day, form, text}}, d10:{},
 #             scene:"" (escena fija en curso), deferred:[{tk, ev}] (eventos públicos a emitir al cruzar tk),
 #             reports_done:{"<n>": true}, errata_decided: bool}
 # slot ∈ dawn|M|T|N|night: "dawn" sólo durante una escena fija del amanecer (M6); "night" = 22 h (fase night, escena M7,
@@ -31,10 +33,11 @@ const CLOSE_UNTIL_FLAGS := {"L4.consulta": "consulta_cerrada_hasta"}
 # Flags de §3.9 que cierran un área mientras sean verdaderos.
 const CLOSE_FLAGS := {"L5.forasteros": "forasteros_cerrada"}
 const NIGHT_CHOICES := ["baker_street", "casa"]
-const EPILOGUE_SCENE := "EPI"   # scenes/EPI.json (W3-CT-DLG-B): se dice al entrar al epílogo
+const EPILOGUE_SCENE := "EPI"
+const DIRECTOR := "res://core/react/director.gd"   # sin preload: sim no depende de react en tiempo de carga   # scenes/EPI.json (W3-CT-DLG-B): se dice al entrar al epílogo
 
 static func init_state(st, repo) -> void:
-	st.clock = {"day": TimeKey.DAY_P, "slot": "N", "phase": "prologue", "outing_done": false, "passes_used": 0,
+	st.clock = {"day": TimeKey.DAY_P, "slot": "N", "phase": "prologue", "outing_done": false,
 		"ads_by_day": {}, "d10": {}, "scene": "", "deferred": [], "reports_done": {}, "errata_decided": false}
 	st.flags["noche_final"] = ""
 	st.flags["publica_errata"] = false
@@ -188,22 +191,7 @@ static func _truthy(v) -> bool:
 		TYPE_STRING: return String(v) != ""
 	return true
 
-# ---------------- pasadas, informes, anuncios ----------------
-static func passes_for(repo, day: int, slot: String) -> int:
-	if not ["M", "T", "N"].has(slot):
-		return 0
-	var p: Dictionary = repo.schedule().get("passes", {})
-	var key := TimeKey.label(TimeKey.tk(day, slot))
-	if p.has(key):
-		return int(p[key])
-	return int(p.get("default", 1))
-
-static func passes_left(st, repo) -> int:
-	var c: Dictionary = st.clock
-	if not ["desk", "visit", "final_report", "prologue"].has(String(c.get("phase", ""))):
-		return 0
-	return maxi(0, passes_for(repo, int(c.day), String(c.slot)) - int(c.get("passes_used", 0)))
-
+# ---------------- informes, anuncios (v3: sin pasadas por franja; se pasa en limpio de a una, sin límite) ----------------
 # Informe que corresponde ahora (fase night en su tk, o final_report): {n, tk, final} o {}.
 static func report_now(st, repo) -> Dictionary:
 	var c: Dictionary = st.clock
@@ -302,6 +290,8 @@ static func fixed_scene(st, repo, t: int) -> String:
 # ---------------- acciones ----------------
 static func act_go(st, repo, a) -> Dictionary:
 	var c: Dictionary = st.clock
+	if String(c.get("phase", "")) != "desk":
+		return {"ok": false, "err": "desde_casa"}
 	var place := String(a.get("place", ""))
 	var day := int(c.day)
 	var slot := String(c.slot)
@@ -353,8 +343,12 @@ static func act_leave(st, repo, a) -> Dictionary:
 	var c: Dictionary = st.clock
 	match String(c.phase):
 		"visit":
+			var vid := String(st.world.get("visit", {}).get("id", ""))
 			WorldModel.end_visit(st)
 			c.phase = "desk"
+			var dir = load(DIRECTOR)
+			if dir != null and dir.has_method("on_leave"):
+				dir.call("on_leave", st, repo, vid)
 		"scene":
 			WorldModel.end_visit(st)
 			c.scene = ""
@@ -395,7 +389,6 @@ static func act_end_slot(st, repo, a) -> Dictionary:
 		e["tk"] = t
 		st.push_event(e)
 	st.world["outbox"] = []
-	c.passes_used = 0
 	c.outing_done = false
 	var slots := day_slots(repo, day)
 	var i := slots.find(String(c.slot))
@@ -436,7 +429,6 @@ static func enter_day(st, repo, nd: int) -> void:
 	var c: Dictionary = st.clock
 	WorldModel.end_visit(st)
 	c.day = nd
-	c.passes_used = 0
 	c.outing_done = false
 	c.scene = ""
 	var slots := day_slots(repo, nd)

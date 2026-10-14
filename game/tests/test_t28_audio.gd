@@ -1,6 +1,6 @@
 # T28 (W1-AUDIO; ARCHITECTURE §8, GDD§14.6): audio procedural.
 # Hash del PCM estable (dos generaciones en el mismo proceso: hilos y serie; y contra tests/fixtures/audio_hashes.json),
-# todos los ids de §8, banco completo < 2 s, bucles sin clic, play emite subtítulo, nada se genera en _ready,
+# todos los ids de §8, banco completo en paralelo (el < 2 s, en test_a00_audio_budget), bucles sin clic, play emite subtítulo, nada se genera en _ready,
 # y firmas de señal de cada receta (no se puede escuchar: se mide).
 extends "res://tests/test_base.gd"
 
@@ -14,9 +14,10 @@ const HASHES := "res://tests/fixtures/audio_hashes.json"
 const SPEC_IDS := ["sfx.tijera", "sfx.papel", "sfx.pagina", "sfx.plumin", "sfx.secante", "sfx.sello", "sfx.sello_seco",
 	"sfx.sobre", "evt.persiana_crane", "evt.lechero", "bells.st_clement", "clock.cuartos", "clock.tic", "hooves.madera",
 	"hooves.granito", "harp.parker", "whistle.policia", "shot.silbido", "glass.tintineo", "evt.ladrillo",
-	"evt.golpe_puerta", "amb.calle", "amb.gas", "amb.sala_lectura", "amb.diogenes", "amb.tienda", "amb.viento", "amb.parque"]
-const LOOP_IDS := ["clock.tic", "amb.calle", "amb.gas", "amb.sala_lectura", "amb.diogenes", "amb.tienda", "amb.viento", "amb.parque",
-	"amb.calle_parker", "amb.gas_parker", "amb.casa_vacia"]
+	"evt.golpe_puerta", "amb.calle", "amb.noche", "amb.sala_lectura", "amb.diogenes", "amb.tienda", "amb.viento", "amb.parque"]
+# v3 (GDD_v3 §6.8): sin amb.gas ni amb.gas_parker; la noche es amb.noche / amb.noche_parker (T35: calma)
+const LOOP_IDS := ["clock.tic", "amb.calle", "amb.noche", "amb.sala_lectura", "amb.diogenes", "amb.tienda", "amb.viento", "amb.parque",
+	"amb.calle_parker", "amb.noche_parker", "amb.casa_vacia", "amb.consultorio", "amb.vestibulo"]
 
 static var _warm_inst = null       # instancia de audio.gd calentada (compartida entre tests del archivo)
 static var _floats := {}           # id -> PackedFloat32Array decodificado del WAV
@@ -45,13 +46,17 @@ func _add_to_tree(n: Node) -> void:
 	tree.root.add_child(n)
 
 # ---------------------------------------------------------------- banco
-func test_bank_under_2s_threaded() -> void:
+# El presupuesto de < 2 s se mide en tests/test_a00_audio_budget.gd, el primer archivo de la suite (proceso fresco, como
+# el arranque del juego): en el mismo proceso, después de cientos de tests (o de otra generación completa), la misma
+# generación en paralelo tarda ~2,5 veces más (estado del asignador de memoria; medido en la integración v3). Acá sólo
+# se exige que el banco completo se genere en paralelo en un tiempo razonable.
+func test_bank_threaded() -> void:
 	var a = AudioScript.new()
 	ok(a.threaded, "warm en paralelo por defecto")
 	a.warm()
 	ok(a.is_warm(), "warm genera todas las variantes de todos los ids")
-	print("    T28 banco completo: %.0f ms (%d hilos)" % [a.last_warm_ms, OS.get_processor_count()])
-	ok(a.last_warm_ms > 0.0 and a.last_warm_ms < 2000.0, "banco completo < 2 s (fue %.0f ms)" % a.last_warm_ms)
+	print("    T28 banco completo (con la suite ya corrida): %.0f ms (%d hilos)" % [a.last_warm_ms, OS.get_processor_count()])
+	ok(a.last_warm_ms > 0.0 and a.last_warm_ms < 6000.0, "banco completo en paralelo < 6 s en medio de la suite (fue %.0f ms)" % a.last_warm_ms)
 	_warm_inst = a
 	_floats.clear()
 
@@ -248,8 +253,8 @@ func test_sig_events() -> void:
 
 func test_sig_ambience() -> void:
 	ok(_centroid("amb.calle") < 700.0, "calle: rodar grave")
-	ok(_centroid("amb.gas") > 4000.0, "gas: siseo agudo")
-	ok(linear_to_db(Synth.rms(_x("amb.gas"))) < -38.0, "gas muy bajo")
+	ok(_centroid("amb.noche") < 700.0, "noche: rumor grave, sin siseo")
+	ok(linear_to_db(Synth.rms(_x("amb.noche"))) < -42.0, "noche casi en silencio")
 	ok(An.band_ratio(An.avg_spectrum(_x("amb.sala_lectura"), 2048), 2048, 150.0, 900.0) > 0.4, "sala: tono 200–800 Hz")
 	# Diógenes: el tono de sala (mediana de la envolvente) ronda −48 dBFS
 	var de := An.env_rms(_x("amb.diogenes"), 0.05)
@@ -341,14 +346,14 @@ func test_place_ambience_and_config() -> void:
 	_add_to_tree(a)
 	var got: Array = []
 	a.subtitle.connect(func(t: String, s: float) -> void: got.append(t))
-	var cases := [["L2", "M", "amb.sala_lectura"], ["L1.tienda", "T", "amb.tienda"], ["L1", "N", "amb.gas"],
+	var cases := [["L2", "M", "amb.sala_lectura"], ["L1.tienda", "T", "amb.tienda"], ["L1", "N", "amb.noche"],
 		["L1", "M", "amb.calle"], ["L3", "N", "amb.calle_parker"], ["L3", "10.N", "amb.viento"], ["L3", "9.N", "amb.calle_parker"],
-		["L5", "T", "amb.diogenes"], ["L7", "10.T", "amb.parque"], ["L1", "10.night", "amb.viento"], ["L1", "9.night", "amb.gas"],
-		["L1", "P.N", "amb.gas"]]
+		["L5", "T", "amb.diogenes"], ["L7", "10.T", "amb.parque"], ["L1", "10.night", "amb.viento"], ["L1", "9.night", "amb.noche"],
+		["L1", "P.N", "amb.noche"]]
 	for c in cases:
 		a.set_place_ambience(c[0], c[1])
 		eq(a.current_amb(), c[2], "ambiente de %s/%s" % [c[0], c[1]])
-	ok(got.has("siseo del gas") and got.has("viento"), "cambiar de ambiente emite subtítulo")
+	ok(got.has(a.caption("amb.noche")) and got.has("viento"), "cambiar de ambiente emite subtítulo")
 	a.set_place_ambience("L99", "M")
 	eq(a.current_amb(), "", "lugar sin ambiente: silencio")
 	eq(a.stream("amb.street"), a.stream("amb.calle"), "alias de §4.17")
@@ -376,7 +381,7 @@ func test_playback_through_audioserver() -> void:
 	# el mezclador (driver Dummy en headless) avanza los bucles y los sueltos sin errores
 	var a = AudioScript.new()
 	_add_to_tree(a)
-	a.play_amb("amb.gas", 0.1)
+	a.play_amb("amb.noche", 0.1)
 	a.play("sfx.sello")
 	await tree.create_timer(0.4).timeout
 	var amb: AudioStreamPlayer = a._amb[a._amb_cur]

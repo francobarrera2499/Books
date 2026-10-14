@@ -1,16 +1,18 @@
-# devtools/lint.gd — lint estático del código y de los datos. Dueño: W1-ENG. ARCHITECTURE §3.1, §11, §9.2 (T14).
+# devtools/lint.gd — lint estático del código y de los datos. Dueño: CORE-EXPEDIENTE. ARCHITECTURE §3.1, §11, §9.2 (T14).
 # CLI (desde la raíz):  ./godot.sh --headless -s devtools/lint.gd [-- code|data|all] [-- <root de datos>]
 #   code: determinismo en core/ (randi/randf/randomize/RandomNumberGenerator/Time./OS.get_ticks…), pureza de core/
-#         (sin autoloads, Node, Input, get_tree, print salvo log.gd), class_name en game/, create_folio( fuera de
-#         player_actions.gd (T14).
-#   data: errores de DataRepo (esquema §4, marcado §4.3, referencias) sobre res://data (o el root indicado).
+#         (sin autoloads, Node, Input, get_tree, print salvo log.gd), class_name en game/, escrituras de lo entintado
+#         (st.ded.dossier.inked) fuera de core/deduction/dossier.gd (T14 v3).
+#   data: errores de DataRepo (esquema §4, marcado §4.3 —incluye ≤30 palabras en tramos con a:/c: y en exámenes con
+#         etiquetas, GDD_v3 §6.2—, referencias, documentos inactivos) sobre res://data (o el root indicado), y los nodos
+#         etiquetados cuyo examen no admite ningún recorte legal (≤15 palabras, una oración) que herede sus etiquetas.
 # Sale con 1 si hay hallazgos. Las reglas son static func: los tests las llaman (test_lint_determinism, test_t14_static).
 # Los comentarios y los literales de texto se ignoran (se blanquean antes de buscar).
 extends SceneTree
 
 const CORE := "res://core"
 const LOG_FILE := "res://core/util/log.gd"
-const FOLIO_CALLER := "res://core/sim/player_actions.gd"
+const INK_WRITER := "res://core/deduction/dossier.gd"
 
 static var _rx := {}
 
@@ -142,15 +144,17 @@ static func class_names(root := "res://") -> Array:
 	var kw := "class" + "_" + "name"
 	return _all(root, [["^\\s*" + kw + "\\b", kw + " prohibido"]], ["res://.godot"])
 
-# T14 (GDD§15.5: «sólo PlayerActions llama a create_folio»): create_folio( sólo en player_actions.gd; en cualquier
-# otro archivo (ledger.gd incluido) sólo cuenta su definición `func create_folio(`. tests/ queda fuera (tests unitarios).
-static func create_folio_calls(root := "res://") -> Array:
-	var tok := "create" + "_folio"
+# T14 v3 (GDD_v3 §2.4): sólo core/deduction/dossier.gd escribe st.ded.dossier.inked (asignar, borrar o vaciar la tinta
+# en otro lado). tests/ y devtools/ quedan fuera.
+static func inked_writers(root := "res://") -> Array:
+	var tok := "ink" + "ed"
 	var out: Array = []
-	for p in gd_files(root, ["res://.godot", "res://tests"]):
-		if p == FOLIO_CALLER:
+	for p in gd_files(root, ["res://.godot", "res://tests", "res://devtools"]):
+		if p == INK_WRITER:
 			continue
-		out.append_array(_scan(p, [["(?<!func )(?<!func\\t)\\b" + tok + "\\s*\\(", tok + " sólo desde player_actions.gd (T14)"]]))
+		out.append_array(_scan(p, [["\\b" + tok + "\\s*\\[[^\\]]*\\]\\s*=(?!=)", "sólo dossier.gd escribe la tinta (T14)"],
+			["\\." + tok + "\\s*\\.\\s*(erase|clear|merge)\\s*\\(", "sólo dossier.gd escribe la tinta (T14)"],
+			["\\." + tok + "\\s*=(?!=)", "sólo dossier.gd escribe la tinta (T14)"]]))
 	return out
 
 static func _all(root: String, pats: Array, exclude: Array) -> Array:
@@ -164,12 +168,55 @@ static func code_findings() -> Array:
 	out.append_array(determinism())
 	out.append_array(core_purity())
 	out.append_array(class_names())
-	out.append_array(create_folio_calls())
+	out.append_array(inked_writers())
 	return out
 
 static func data_findings(root := "res://data") -> Array:
 	var R = load("res://core/data/data_repo.gd")
-	return R.fresh(root).errors()
+	var repo = R.fresh(root)
+	var out: Array = repo.errors()
+	out.append_array(node_clip_findings(repo))
+	return out
+
+# GDD_v3 §6.2: lo del 3D se recorta del texto de su examen. Un nodo con etiquetas a:/c: debe admitir un recorte legal
+# (≤15 palabras, una oración; o el examen entero si mide ≤15) que herede sus etiquetas (cubra ≥50 % del examen).
+static func node_clip_findings(repo) -> Array:
+	var ClipRules = load("res://core/text/clip_rules.gd")
+	var Markup = load("res://core/text/markup.gd")
+	var out: Array = []
+	var owners: Array = []
+	for pid in repo.places():
+		owners.append(["places", String(pid), repo.place(String(pid))])
+	for pid in repo.plates():
+		owners.append(["plates", String(pid), repo.plate(String(pid))])
+	for o in owners:
+		var nodes: Array = (o[2].get("nodes", []) as Array).duplicate()
+		var vs = o[2].get("variants", {})
+		if typeof(vs) == TYPE_DICTIONARY:
+			for vk in vs:
+				if typeof(vs[vk]) == TYPE_DICTIONARY:
+					nodes.append_array(vs[vk].get("add_nodes", []))
+		for nd in nodes:
+			if typeof(nd) != TYPE_DICTIONARY or typeof(nd.get("tags")) != TYPE_ARRAY:
+				continue
+			var tagged := false
+			for t in nd.tags:
+				if String(t).begins_with("a:") or String(t).begins_with("c:"):
+					tagged = true
+			if not tagged:
+				continue
+			var p: Dictionary = repo.parse_text(String(nd.get("examine", "")))
+			var plain := String(p.get("plain", ""))
+			if plain.length() == 0:
+				out.append("%s/%s: nodo %s con etiquetas y sin examen" % [o[0], o[1], nd.get("id", "?")])
+				continue
+			var best := 0.0
+			for c in ClipRules.max_legal_clips(p):
+				best = maxf(best, float(int(c.to) - int(c.from)) / float(plain.length()))
+			if best < 0.5 - 1e-9:
+				out.append("%s/%s: nodo %s: ningún recorte legal de su examen cubre ≥50 %% (mejor %d %%): no se puede usar de prueba" % [o[0], o[1], nd.get("id", "?"), int(best * 100)])
+	out.sort()
+	return out
 
 func _init() -> void:
 	_go.call_deferred()

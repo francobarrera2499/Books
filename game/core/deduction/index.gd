@@ -1,7 +1,7 @@
-# core/deduction/index.gd — índice del jugador (GDD§8.2). Dueño: W2-DED. Contrato: ARCHITECTURE §3.8.
+# core/deduction/index.gd — índice del jugador (GDD§8.2). Dueño: W2-DED. Contrato: ARCHITECTURE §3.8 (v3: GDD_v3 §1).
 # st.ded.index: {ent: {"n": orden de entrada, "label": etiqueta runtime ("" para entidades de data)}}.
 # Entidades runtime: "act.<seq>" (kind act_ref, §3.6); su etiqueta es la superficie recortada («asiento 214, mar. 27»).
-# Extensiones (fuera del contrato mínimo): ensure(st) (estado st.ded completo e idempotente; lo usan clipper/ledger/
+# Extensiones (fuera del contrato mínimo): ensure(st) (estado st.ded completo e idempotente; lo usan clipper/dossier/
 #   validator), label(), kind(), rows() (= q_index), is_runtime(), sort_key().
 # known(st, repo) -> [ids] ordenados por la forma de índice (sin tildes, sin mayúsculas, ñ tras n), desempate por id;
 #   label() devuelve el nombre natural (display) para mostrar.
@@ -9,8 +9,9 @@ extends RefCounted
 
 const L = preload("res://core/util/log.gd")
 
-const DED_DICTS := ["clips", "pairs", "folios", "entries", "index", "sealed"]
-const DED_ARRAYS := ["practice", "passes"]
+# v3 (GDD_v3 §1): sin pares, folios, asientos, sellos, práctica ni pasadas; el Expediente vive en st.ded.dossier.
+const DED_DICTS := ["clips", "index", "dossier"]
+const DED_ARRAYS := []
 
 # st.ded con todas sus claves (§3.3). Idempotente: nunca pisa lo existente.
 static func ensure(st) -> Dictionary:

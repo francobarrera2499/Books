@@ -12,7 +12,7 @@ const BotData = preload("res://devtools/bots/bot_data.gd")
 const GameSim = preload("res://core/sim/game_sim.gd")
 const J = preload("res://core/util/j.gd")
 
-const BOTS := ["deductor", "novato", "pasivo", "pesca", "fuerza_bruta", "recorta_todo", "cebo", "informa_todo",
+const BOTS := ["deductor", "novato", "pasivo", "pesca", "fuerza_bruta", "sabelotodo", "recorta_todo", "cebo", "informa_todo",
 	"solo_bm", "confront_azar", "mycroft_azar"]
 
 static func make(name: String):

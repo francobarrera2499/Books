@@ -1,6 +1,7 @@
-# PROGRESIÓN (GDD_v2 §B.6): guía indirecta. Pendientes (q_guide): ≤3 líneas, en orden de prioridad, deterministas y
-# ciegas a lo oculto (etiquetas, lo sellado); nunca nombran conclusiones ni cuentan progreso. «Lo que me preguntaron»
-# (q_questions): citas textuales que aparecen cuando su fuente se dijo o se entregó. Datos reales.
+# PROGRESIÓN (GDD_v2 §B.6; GDD_v3 §6.9): guía indirecta. Pendientes (q_guide): ≤3 líneas, en orden de prioridad,
+# deterministas y ciegas a lo oculto (etiquetas, lo entintado); nunca nombran preguntas ni cuentan progreso. El día 1
+# guiado (notas de Lisle, v3core.d1.*) va segundo; «Una pregunta nueva en el expediente.» la mañana después. «Lo que me
+# preguntaron» (q_questions) ya no existe: las preguntas viven en el expediente. Datos reales.
 extends "res://tests/test_base.gd"
 
 const TIMEOUT_S := 240.0
@@ -10,8 +11,8 @@ const Kit = preload("res://tests/fixtures/sim/sim_kit.gd")
 const J = preload("res://core/util/j.gd")
 
 const KEYS := ["pend.informe_hoy", "pend.informe_manana", "pend.informe_final", "pend.visitas", "pend.confirmar_noche",
-	"pend.lugar_nuevo", "pend.crane.s1", "pend.crane.s2", "pend.crane.s3", "pend.practica", "pend.sin_abrir",
-	"pend.sin_visitar", "pend.pregunta", "tut.d1.clip", "tut.d1.link", "tut.d1.folio", "tut.d1.entry", "tut.d1.practice"]
+	"pend.lugar_nuevo", "pend.crane.s1", "pend.crane.s2", "pend.crane.s3", "pend.sin_abrir", "pend.sin_visitar",
+	"v3core.pend.pregunta_nueva", "v3core.d1.leer", "v3core.d1.pruebas", "v3core.d1.pasar", "v3core.pend.sin_abiertas"]
 
 func _clip_tramo(s, view: String, tid: String) -> String:
 	var v: Dictionary = s.q_view(view)
@@ -20,7 +21,8 @@ func _clip_tramo(s, view: String, tid: String) -> String:
 		for bi in (pages[pi] as Array).size():
 			for tr in pages[pi][bi].get("parsed", {}).get("tramos", []):
 				if String(tr.id) == tid:
-					var r: Dictionary = s.apply({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(tr.from), "len": int(tr.to) - int(tr.from)})
+					var sp: Array = load("res://devtools/bots/bot_base.gd").best_window(pages[pi][bi].parsed, int(tr.from), int(tr.to))
+					var r: Dictionary = s.apply({"t": "clip_text", "src": {"kind": "doc", "ref": view, "part": pi, "block": bi}, "from": int(sp[0]), "len": int(sp[1]) - int(sp[0])})
 					return String(r.get("clip", ""))
 	return ""
 
@@ -43,8 +45,8 @@ func _check_lines(s, label: String) -> void:
 		var txt: String = s.repo.text(String(x.key), x.get("vars", {}))
 		no(txt == String(x.key), "%s: texto de %s en ui_text" % [label, x.key])
 		no(txt.contains("${"), "%s: sin variables sin llenar: %s" % [label, txt])
-		for cid in ["C1", "C2", "C7", "C12"]:
-			no(txt.contains(cid + " ") or txt.ends_with(cid), "nunca nombra conclusiones")
+		for cid in ["Q1", "Q2", "Q7", "Q10"]:
+			no(txt.contains(cid + " ") or txt.ends_with(cid), "nunca nombra preguntas")
 	eq(s.q_guide(), g, label + " determinista")
 
 func test_prologue_has_no_guide():
@@ -54,45 +56,48 @@ func test_prologue_has_no_guide():
 func test_day1_lines():
 	var s = _sim()
 	var k := _keys(s.q_guide())
-	# §B.6.3 (día 1): el paso en curso de la primera conclusión (§B.7: «los pasos quedan en Pendientes hasta que se
-	# hagan»), las novedades del plano y el informe de mañana. La interfaz reemplaza la 3.ª línea por la ayuda de «mirar
-	# alrededor» hasta su primer uso: la práctica no puede ir tercera.
-	eq(k, ["tut.d1.clip", "pend.lugar_nuevo", "pend.informe_manana"], "día 1: primer paso de la práctica, plano nuevo, informe de mañana")
-	var g: Array = s.q_guide()
-	var plano: String = s.repo.text(String(g[1].key), g[1].vars)
-	ok(plano.contains(" y "), "los lugares nuevos en una línea: " + plano)
-	for L in ["L2", "L4"]:
-		ok(plano.contains(String(s.repo.map().places[L].label)), "con el rótulo del plano (%s): %s" % [L, plano])
+	# GDD_v3 §6.9: el paso en curso del día 1 guiado (la nota de Lisle) va antes de las novedades.
+	eq(k[0], "v3core.d1.leer", "día 1: primero, leer «El problema final»: %s" % str(k))
 	no(k.has("pend.mirar"), "la ayuda de mirar alrededor la pone la interfaz (hasta su primer uso)")
 	_check_lines(s, "1.M")
 
-func test_practice_line_follows_steps_and_goes_away():
+func test_day1_step_follows_state():
 	var s = _sim()
-	eq(_keys(s.q_guide())[0], "tut.d1.clip")
-	s.st.seq["clip"] = 3
-	s.st.seq["pair"] = 1
-	eq(_keys(s.q_guide())[0], "tut.d1.folio", "el paso en curso: abrir una hoja")
-	# los días siguientes, con dos novedades, la práctica pendiente sigue a la vista (sin ella no hay sello)
+	eq(_keys(s.q_guide())[0], "v3core.d1.leer")
+	ok(s.apply({"t": "read", "view": "D03@tomo", "part": 0}).ok)
+	eq(_keys(s.q_guide())[0], "v3core.d1.pruebas", "leída FINA: una hoja con respuesta y dos pruebas")
+	# los días siguientes la nota sigue a la vista hasta pasar en limpio una pregunta (cierre o no)
 	eq(Kit.advance_to(s, 2, "M"), "")
-	ok(_keys(s.q_guide()).has("tut.d1.folio"), "día 2: %s" % str(_keys(s.q_guide())))
-	s.st.world.tutorial.d1["practice"] = 11
+	ok(_keys(s.q_guide()).has("v3core.d1.pruebas"), "día 2: %s" % str(_keys(s.q_guide())))
+	s.st.seq["clip"] = 2
+	s.st.ded.dossier.inked["Q2"] = {"tk": 90}
+	s.st.ded.dossier.attempts["Q2"] = 1
 	for k in _keys(s.q_guide()):
-		no(String(k).begins_with("tut.d1.") or k == "pend.practica", "práctica hecha: ya no se pide")
+		no(String(k).begins_with("v3core.d1."), "pasó en limpio: ya no se pide")
 
-func test_reaction_question_skips_fisica_line():
+# La mañana después de que una pregunta se muestra: «Una pregunta nueva en el expediente.» (sin decir cuál). Lo mostrado
+# al amanecer se anuncia ese mismo día (Q5 nace el 4.dawn con la respuesta de «S.», GDD_v3 §1.3).
+func test_question_news_next_morning():
 	var s = _sim()
-	var r = s.repo
-	var fl := String(r.fisica_tpl_line("notas_de_pell", [180, 115]))
-	var txt := "[[harris|El mayor]] exige el lugar antes del jueves a mediodía."
-	s.st.world.docs["R.M8.1"] = {"rid": "M8", "delivered": true, "created_tk": 90, "day": 9,
-		"blocks": [{"text": (fl + "\n" if fl != "" else "") + txt + "\n—H.", "act": ""}]}
-	var q := Guide._q_react(s.st, r, "M8")
-	eq(String(q.get("text", "")), "El mayor exige el lugar antes del jueves a mediodía.", "la cita no es la descripción física")
-	eq(String(q.get("who", "")), "harris", "firmada «—H.»: la dice el mayor")
+	eq(Kit.advance_to(s, 4, "M"), "")
+	var TK = load("res://core/util/timekey.gd")
+	var shown: Array = load("res://core/deduction/dossier.gd").shown_tks(s.st)
+	ok(shown.has(TK.tk(4, "dawn")), "Q5 se muestra el 4.dawn: %s" % str(shown))
+	ok(Guide._question_news(s.st, 4), "anunciada el mismo día (se mostró al amanecer)")
+	if not shown.any(func(x): return int(x) > TK.tk(1, "night") and int(x) < TK.tk(3, "dawn")):
+		no(Guide._question_news(s.st, 3), "nada mostrado el 2: sin novedad el 3")
+
+# Quien ya hizo el día 1 guiado (leyó FINA, armó una hoja y la pasó en limpio): sin la nota de Lisle.
+func _day1_done(s) -> void:
+	s.st.world.read["D03@tomo"] = [0]
+	s.st.seq["clip"] = maxi(int(s.st.seq.get("clip", 0)), 2)
+	s.st.ded.dossier.attempts["Q1"] = 1
+	s.st.ded.dossier.drafts["Q1"] = {"answer": "x", "proofs": ["RC0001", "RC0002"]}
 
 func test_walk_days():
 	var s = _sim()
-	s.st.world.tutorial.d1["practice"] = 11   # quien hizo la práctica el día 1 (quien no la hizo: test_practice_line_*)
+	_day1_done(s)
+	eq(s.q_tutorial().day1, {}, "día 1 guiado hecho")
 	var seen := {}
 	for d in [2, 3, 4, 5, 7, 8, 9]:
 		eq(Kit.advance_to(s, d, "M"), "")
@@ -117,35 +122,37 @@ func test_unopened_papers():
 			s.apply({"t": "read", "view": String(it.view), "part": pi})
 	eq(Guide._unopened(s.st, s.repo, 2), {}, "leído todo: ya no está")
 
-func test_blind_to_hidden_tags_and_sealed():
+func test_blind_to_hidden_tags_and_inked():
 	var s = _sim()
 	eq(Kit.advance_to(s, 3, "M"), "")
-	var c := _clip_tramo(s, "D01.REDH@tomo", "abril")
+	var c := _clip_tramo(s, "D03@tomo", "sheer")
 	ok(c != "")
 	var g0: Array = s.q_guide()
-	var q0: Array = s.q_questions()
 	var s2 = GameSim.replay(s.repo, 7, s.actions_log())
 	for id in s2.st.ded.clips:
 		s2.st.ded.clips[id]["tags"] = ["a:otra_cosa", "c:falso"]
-	s2.st.ded["sealed"] = {"C2": "AS001", "C7": "AS002"}
-	eq(s2.q_guide(), g0, "Pendientes no lee etiquetas ocultas ni lo sellado")
-	eq(s2.q_questions(), q0)
+	eq(s2.q_guide(), g0, "Pendientes no lee etiquetas ocultas")
+	var shown_before: Array = load("res://core/deduction/dossier.gd").shown_tks(s2.st)
+	# en tinta con el mismo tk de aparición: lo visible no cambia
+	var d: Dictionary = s2.st.ded.dossier
+	for qid in d.open.keys():
+		d.inked[qid] = {"shown_tk": int(d.open[qid].get("tk", -1)), "tk": 200}
+		d.open.erase(qid)
+	eq(load("res://core/deduction/dossier.gd").shown_tks(s2.st).size(), shown_before.size())
 
-func test_questions_quote_sources():
+# playtest v3: con todo lo visible en tinta (ninguna hoja abierta) Pendientes empuja a buscar algo nuevo
+func test_idle_dossier_line():
 	var s = _sim()
-	var qs: Array = s.q_questions()
-	eq(qs.map(func(x): return String(x.id)), ["q.pell.1", "q.pell.2", "q.pell.3"], "las tres preguntas del encargo")
-	for q in qs:
-		ok(String(q.text).begins_with("Uno") or String(q.text).begins_with("Dos") or String(q.text).begins_with("Tres"), "cita textual: " + String(q.text))
-		ok(String(q.quien) != "" and String(q.dia) != "", str(q))
-		no(q.has("resuelta") or q.has("done"), "nunca se marcan resueltas")
-	# M6 (amanecer del 5): «pregunta dónde» aparece cuando Pell lo dice
-	eq(Kit.advance_to(s, 5, "M"), "")
-	var ids: Array = s.q_questions().map(func(x): return String(x.id))
-	ok(ids.has("q.m6"), "la pregunta del mayor (M6) ya se dijo: %s" % str(ids))
-	for q in s.q_questions():
-		if String(q.id) == "q.m6":
-			ok(String(q.text).contains("dónde"), String(q.text))
+	ok(s.apply({"t": "read", "view": "D03@tomo", "part": 0}).ok)
+	eq(Kit.advance_to(s, 2, "M"), "")
+	no(_keys(s.q_guide()).has("v3core.pend.sin_abiertas"), "con preguntas abiertas, no")
+	s.st.seq["clip"] = 2
+	var d: Dictionary = s.st.ded.dossier
+	for qid in d.open.keys():
+		d.inked[qid] = {"shown_tk": int(d.open[qid].get("tk", -1)), "tk": 100, "variant": "A", "answer": "", "proofs": ["", ""], "n": d.inked.size() + 1}
+		d.open.erase(qid)
+		d.attempts[qid] = 1
+	ok(_keys(s.q_guide()).has("v3core.pend.sin_abiertas"), "todo en tinta: %s" % str(_keys(s.q_guide())))
 
 func test_stock_now():
 	var s = _sim()

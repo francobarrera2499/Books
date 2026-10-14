@@ -1,4 +1,4 @@
-# core/sim/actions.gd — catálogo de acciones (§3.5). Dueño: W2-SIM. Contrato: ARCHITECTURE §3.8.
+# core/sim/actions.gd — catálogo de acciones (§3.5; GDD_v3 §1.7). Dueño: CORE-EXPEDIENTE. Contrato: ARCHITECTURE §3.8.
 # SPEC: t -> {args:{nombre: TYPE_*}, opt:{nombre: valor por defecto}, commit: bool, phases:[...]}
 #   commit = acción comprometida (Game.act la escribe a disco antes de devolver el resultado).
 #   phases = fases en que se admite (las libres: todas salvo "done"; el tutorial filtra más en el prólogo).
@@ -12,23 +12,28 @@ const J = preload("res://core/util/j.gd")
 const PHASES := ["prologue", "desk", "visit", "scene", "night", "confront", "final_report", "parklane", "night_choice", "epilogue", "done"]
 const FREE := ["prologue", "desk", "visit", "scene", "night", "confront", "final_report", "parklane", "night_choice", "epilogue"]
 
+# Fases en que se puede pasar en limpio (GDD_v3 §1.6): hasta el informe final (después, lo entintado no cambia).
+const DOSSIER_COMMIT := ["prologue", "desk", "visit", "scene", "night", "confront", "final_report"]
+
 const SPEC := {
 	"clip_text": {"args": {"src": TYPE_DICTIONARY, "from": TYPE_INT, "len": TYPE_INT}, "opt": {}, "commit": false, "phases": FREE},
+	# bots y tests (GDD_v3 §6.2: la interfaz recorta todo lo del 3D del texto de su tarjeta de examen)
 	"clip_plate": {"args": {"plate": TYPE_STRING, "hits": TYPE_ARRAY, "touched": TYPE_ARRAY, "area_frac": TYPE_FLOAT}, "opt": {"touched": [], "area_frac": 0.0}, "commit": false, "phases": FREE},
-	"clip_measure": {"args": {"src": TYPE_DICTIONARY}, "opt": {}, "commit": false, "phases": FREE},
 	# GDD_v2 §B.4: el lector la emite la primera vez que muestra cada hoja en la sesión. Libre y ciega (sin evento).
 	"read": {"args": {"view": TYPE_STRING, "part": TYPE_INT}, "opt": {"part": 0}, "commit": false, "phases": FREE},
-	"link": {"args": {"a": TYPE_STRING, "b": TYPE_STRING, "note": TYPE_STRING}, "opt": {"note": ""}, "commit": false, "phases": FREE},
-	"unlink": {"args": {"pair": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
-	"folio_open": {"args": {"clip": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
-	"entry_new": {"args": {"folio": TYPE_STRING, "template": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
-	"entry_set": {"args": {"entry": TYPE_STRING, "line": TYPE_INT, "field": TYPE_STRING, "value": TYPE_STRING}, "opt": {"value": ""}, "commit": false, "phases": FREE},
-	"entry_support_add": {"args": {"entry": TYPE_STRING, "line": TYPE_INT, "item": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
-	"entry_support_remove": {"args": {"entry": TYPE_STRING, "line": TYPE_INT, "item": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
-	"entry_delete": {"args": {"entry": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
-	"practice": {"args": {"entry": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
-	"pass_clean": {"args": {"entries": TYPE_ARRAY}, "opt": {}, "commit": true, "phases": ["desk", "final_report"]},
-	"go": {"args": {"place": TYPE_STRING, "area": TYPE_STRING, "seat": TYPE_INT}, "opt": {"area": "", "seat": 0}, "commit": true, "phases": ["desk"]},
+	# playtest v3: tirar un recorte equivocado (clic derecho en el cuaderno); no si es prueba de una hoja en tinta
+	"clip_drop": {"args": {"clip": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
+	# GDD_v3 §1.6–§1.7: Expediente Holmes (respuesta, pruebas, pasar en limpio de a una pregunta)
+	"dq_answer": {"args": {"q": TYPE_STRING, "value": TYPE_STRING}, "opt": {"value": ""}, "commit": false, "phases": FREE},
+	"dq_proof": {"args": {"q": TYPE_STRING, "slot": TYPE_INT, "clip": TYPE_STRING}, "opt": {"clip": ""}, "commit": false, "phases": FREE},
+	"dq_confirm": {"args": {"q": TYPE_STRING}, "opt": {}, "commit": true, "phases": DOSSIER_COMMIT},
+	# GDD_v3 §4.4: la UI la emite al abrir la tarjeta de un nodo con `aviso` ("hub/<nodo>") o al tocar un faltante del
+	# estante ("missing/<copia>"). Libre y ciega.
+	"examine": {"args": {"ref": TYPE_STRING}, "opt": {}, "commit": false, "phases": FREE},
+	# GDD_v3 §5.2: «¿Dónde consigo…?» a Crane (gratis, sin límite, no pública: Crane no es canal)
+	"ask_donde": {"args": {"char": TYPE_STRING, "item": TYPE_STRING}, "opt": {}, "commit": true, "phases": ["visit"]},
+	# GDD_v3 §5.4: cada salida es pieza -> lugar -> pieza; desde una visita la respuesta es «desde_casa»
+	"go": {"args": {"place": TYPE_STRING, "area": TYPE_STRING, "seat": TYPE_INT}, "opt": {"area": "", "seat": 0}, "commit": true, "phases": ["desk", "visit"]},
 	"slip": {"args": {"doc": TYPE_STRING, "noise": TYPE_STRING}, "opt": {"noise": ""}, "commit": true, "phases": ["visit"]},
 	"order_copy": {"args": {"doc": TYPE_STRING}, "opt": {}, "commit": true, "phases": ["visit"]},
 	"ask": {"args": {"char": TYPE_STRING, "topic": TYPE_STRING}, "opt": {}, "commit": true, "phases": ["visit"]},

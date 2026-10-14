@@ -1,5 +1,10 @@
 # core/sim/world_model.gd — el mundo que el jugador toca: ejemplares, accesibilidad, visitas, láminas, documentos
-# runtime, bandeja, líneas dichas, huevos (§3.3, §3.7, §4.4, §4.11). Dueño: W2-SIM. Contrato: ARCHITECTURE §3.8.
+# runtime, bandeja, líneas dichas, huevos (§3.3, §3.7, §4.4, §4.11). Dueño: CORE-EXPEDIENTE. Contrato: ARCHITECTURE §3.8.
+# v3 (GDD_v3): view() arma la crónica del cliente (ejemplar con holder "tomo") con la ficha de Lisle, las marquitas, las
+#   notas al margen (D01N y las marcas del copista: st.world.marcas / st.react.world.marcas) y la tarjeta del cliente
+#   (NC.*) como última hoja (§3.2–§3.4, §6.7); missing() = originales que faltan en casa (§4.3); snapshot aplica
+#   hide_nodes de la variante (§4.3); los ganchos del Expediente (Dossier.on_arrival / on_line) se llaman al entregar y
+#   al decir; los huevos no usan pares (§3.6).
 # No precarga clock.gd (evita ciclos): lee st.clock directamente.
 #
 # st.world (formatos, para lectores de otros paquetes):
@@ -39,6 +44,7 @@ const Clipper = preload("res://core/deduction/clipper.gd")
 const Effects = preload("res://core/react/effects.gd")
 const Composers = preload("res://core/scenes/composers.gd")
 const Reveal = preload("res://core/sim/reveal.gd")
+const Dossier = preload("res://core/deduction/dossier.gd")
 
 const HOME := "L1"
 # holder de un ejemplar (§4.4) -> lugar donde se lee. Los holders L2..L8 son su propio lugar.
@@ -228,6 +234,8 @@ static func accessible(st, repo) -> Array:
 	dids.sort()
 	for did in dids:
 		var d: Dictionary = repo.doc(did)
+		if inside_only(d):
+			continue   # notas al margen (D01N) y tarjetas del cliente (NC.*): se ven dentro de su crónica (GDD_v3 §3.3–§3.4)
 		for c in d.get("copies", []):
 			var cid := String(c.get("id", ""))
 			if cid != "" and copy_accessible(st, repo, cid):
@@ -276,12 +284,215 @@ static func view_any(st, repo, p_view: String) -> Dictionary:
 		# documento runtime es cada tramo insertado (Clipper lo usa para el recorte).
 		var mg := _merge_inserts(st, repo, d, pid, base, iids)
 		pages.append([{"doc": did, "origin": origin, "copy": p_view, "part": pid, "parsed": mg.parsed, "segs": mg.segs}])
+	for pg in pages:
+		for b in pg:
+			b["slot"] = "cuerpo"
 	var cls := String(cp.copy.get("class", d.get("class", "I")))
 	var out := {"view": p_view, "doc": did, "title": String(d.get("title", "")), "src_line": src_line(repo, d, {}),
 		"paper": d.get("paper", ""), "paper_mm": d.get("paper_mm", null), "font": d.get("font", "imprenta"),
-		"machine": d.get("machine", null), "class": cls, "measure": d.get("measure", null), "pages": pages}
+		"machine": d.get("machine", null), "class": cls, "measure": d.get("measure", null), "pages": pages,
+		"ficha": null, "marks": []}
 	if d.has("plate") and d.plate != null:
 		out["plate"] = d.plate
+	_v3_extras(st, repo, d, cp, p_view, out)
+	return out
+
+# ---------------- crónicas del cliente (GDD_v3 §3.2–§3.4, §6.7) ----------------
+# Documentos que no se listan solos: se ven dentro de su crónica (D01N en el margen, NC.* como tarjeta).
+static func inside_only(d: Dictionary) -> bool:
+	var v3 = d.get("v3")
+	return typeof(v3) == TYPE_DICTIONARY and (bool(v3.get("solo_margen", false)) or String(v3.get("tarjeta_de", "")) != "")
+
+# Sólo el ejemplar del cliente (holder "tomo": los cuadernillos y libros que dio el mayor) trae la ficha de Lisle, las
+# marquitas, las notas a lápiz al margen y la tarjeta del cliente; los otros ejemplares de la misma crónica son limpios.
+# Las marcas del copista (HA5/HA6, st.world.marcas o st.react.world.marcas por ejemplar) van al margen de cualquier
+# ejemplar que las tenga.
+static func _v3_extras(st, repo, d: Dictionary, cp: Dictionary, p_view: String, out: Dictionary) -> void:
+	var pages: Array = out.pages
+	var page_of := {}
+	for i in pages.size():
+		if not (pages[i] as Array).is_empty():
+			page_of[String(pages[i][0].get("part", ""))] = i
+	var v3 = d.get("v3", {})
+	var client: bool = String(cp.copy.get("holder", "")) == "tomo" and typeof(v3) == TYPE_DICTIONARY and not (v3 as Dictionary).is_empty()
+	var t := _now(st)
+	if client:
+		var fi = v3.get("ficha")
+		if typeof(fi) == TYPE_DICTIONARY:
+			out["ficha"] = {"trata": String(fi.get("trata", "")), "cuando": String(fi.get("cuando", "")), "por_que": String(fi.get("por_que", ""))}
+		for m in v3.get("marcas", []):
+			if typeof(m) != TYPE_DICTIONARY:
+				continue
+			var pi := _page_of_tramo(repo, String(d.id), page_of, String(m.get("parte", "")), String(m.get("tramo", "")))
+			if pi >= 0:
+				out.marks.append({"page": pi, "block": 0, "tramo": String(m.get("tramo", ""))})
+		for m in v3.get("margen", []):
+			if typeof(m) != TYPE_DICTIONARY:
+				continue
+			var mdoc := String(m.get("doc", ""))
+			var mcopy := _client_copy(repo, mdoc)
+			if mcopy == "" or not copy_available(st, repo, mcopy, t):
+				continue
+			var seg := tramo_markup(repo, mdoc, String(m.get("tramo", "")))
+			if seg == "":
+				continue
+			var ja = m.get("junto_a", {})
+			if typeof(ja) != TYPE_DICTIONARY:
+				ja = {}
+			var pi2 := _page_of_tramo(repo, String(d.id), page_of, String(ja.get("parte", "")), String(ja.get("tramo", "")))
+			if pi2 < 0:
+				pi2 = pages.size() - 1
+			if pi2 < 0:
+				continue
+			var md: Dictionary = repo.doc(mdoc)
+			# playtest v3: el recorte de una nota al margen dice que es una nota a lápiz (otra mano, otro papel) y va con su
+			# crónica en el cuaderno (la fecha de la crónica), no con la línea de fuente del impreso
+			pages[pi2].append({"doc": mdoc, "origin": String(md.get("origin", mdoc)), "copy": mcopy, "part": String(m.get("tramo", "")),
+				"parsed": repo.parse_text(seg), "slot": "margen", "hand": "lapiz", "anchor": {"block": 0, "tramo": String(ja.get("tramo", ""))},
+				"src_line": margin_src_line(repo, d, String(m.get("firma", "")), "fuente"), "chron_date": _chron_of(d)})
+	# marcas del copista (HA5/HA6): «v.» al margen, origen R.HA5.<n>, clase P, sin etiquetas
+	for mk in marks_of(st, p_view):
+		if pages.is_empty():
+			break
+		var iid := String(mk.get("iid", ""))
+		var org := iid if iid != "" else "R.marca"
+		var ja2 = mk.get("junto_a", {})
+		var tr := String(ja2.get("tramo", "")) if typeof(ja2) == TYPE_DICTIONARY else ""
+		var pi3 := 0
+		if tr != "":
+			pi3 = maxi(0, _page_of_tramo(repo, String(d.id), page_of, String(ja2.get("parte", "")), tr))
+		pages[pi3].append({"doc": iid, "origin": org, "copy": iid, "cls": "P", "part": "marca", "src_type": "papel_privado",
+			"parsed": repo.parse_text(Markup.escape(String(mk.get("texto", "")))), "slot": "margen", "hand": String(mk.get("mano", "copista")),
+			"anchor": {"block": 0, "tramo": tr}, "src_line": margin_src_line(repo, d, "", "marca"), "chron_date": _chron_of(d)})
+	if client:
+		var nc := String(v3.get("nota_cliente", ""))
+		var ncd: Dictionary = repo.doc(nc) if nc != "" else {}
+		var ncopy := _client_copy(repo, nc)
+		if not ncd.is_empty() and ncopy != "" and copy_available(st, repo, ncopy, t):
+			var card: Array = []
+			for pp in ncd.get("parts", []):
+				if typeof(pp) != TYPE_DICTIONARY:
+					continue
+				if pp.has("when") and not Cond.eval(pp.when, {"st": st, "repo": repo, "tk": t}):
+					continue
+				card.append({"doc": nc, "origin": String(ncd.get("origin", nc)), "copy": ncopy, "part": String(pp.get("id", "")),
+					"parsed": repo.parsed(nc, String(pp.get("id", ""))), "slot": "tarjeta", "hand": "mano_harris"})
+			if not card.is_empty():
+				pages.append(card)
+
+# Línea de fuente de lo escrito al margen de una crónica (playtest v3): «Nota a lápiz al margen de «El problema final»
+# (J.)» · «Marca a lápiz al margen de …». El título corto es el de la crónica hasta su comilla de cierre.
+static func margin_src_line(repo, host: Dictionary, firma: String, kind: String) -> String:
+	var t := String(host.get("title", ""))
+	if t.begins_with("«") and t.find("»") > 0:
+		t = t.substr(0, t.find("»") + 1)
+	var key := "v3core.margen." + kind + ("_firma" if firma != "" else "")
+	var s: String = repo.text(key, {"titulo": t, "firma": firma})
+	if s == key:
+		s = ("Nota a lápiz al margen de %s" % t) if kind == "fuente" else ("Marca a lápiz al margen de %s" % t)
+		if firma != "":
+			s += " (%s)" % firma
+	return s
+
+static func _chron_of(d: Dictionary) -> String:
+	return String(d.get("chron_date", "")) if d.get("chron_date") != null else ""
+
+# Ejemplar del cliente (holder "tomo") de un documento; "" si no tiene.
+static func _client_copy(repo, did: String) -> String:
+	for c in repo.doc(did).get("copies", []):
+		if typeof(c) == TYPE_DICTIONARY and String(c.get("holder", "")) == "tomo":
+			return String(c.get("id", ""))
+	return ""
+
+# Hoja de la vista donde está el tramo (por parte declarada o buscándolo). -1 si no está.
+static func _page_of_tramo(repo, did: String, page_of: Dictionary, part: String, tramo: String) -> int:
+	if part != "" and page_of.has(part):
+		return int(page_of[part])
+	if tramo == "":
+		return -1
+	var tr: Dictionary = repo.doc_tramo(did, tramo)
+	if not tr.is_empty() and page_of.has(String(tr.get("part", ""))):
+		return int(page_of[String(tr.part)])
+	return -1
+
+# Marcado crudo de un tramo de un documento («{{#id tags|cuerpo}}»), para mostrarlo solo (nota al margen). "" si no está.
+static func tramo_markup(repo, did: String, tid: String) -> String:
+	if tid == "":
+		return ""
+	for p in repo.doc(did).get("parts", []):
+		if typeof(p) != TYPE_DICTIONARY:
+			continue
+		var text := String(p.get("text", ""))
+		var k := 0
+		while true:
+			k = text.find("{{#" + tid, k)
+			if k < 0:
+				break
+			var after := k + 3 + tid.length()
+			if after < text.length() and not [" ", "|"].has(text[after]):
+				k = after
+				continue
+			var e := Markup._find_unescaped_seq(text, "}}", after)
+			if e < 0:
+				return ""
+			return text.substr(k, e + 2 - k)
+	return ""
+
+# Marcas a lápiz que dejó un efecto en un ejemplar: [{tk, texto, mano, iid, junto_a?}] (st.world.marcas o
+# st.react.world.marcas, GDD_v3 §7.1), las vigentes ahora.
+static func marks_of(st, copy_id: String) -> Array:
+	var out: Array = []
+	var t := _now(st)
+	var srcs: Array = [st.world.get("marcas", {})]
+	if typeof(st.react) == TYPE_DICTIONARY and typeof(st.react.get("world")) == TYPE_DICTIONARY:
+		srcs.append(st.react.world.get("marcas", {}))
+	for src in srcs:
+		if typeof(src) != TYPE_DICTIONARY or typeof(src.get(copy_id)) != TYPE_ARRAY:
+			continue
+		for m in src[copy_id]:
+			if typeof(m) == TYPE_DICTIONARY and int(m.get("tk", 0)) <= t:
+				out.append(m)
+	return out
+
+# Originales de la casa (holder L1 o tomo, o recibidos en la bandeja) que faltan ahora: [{copy, title, rid}] (rid = la
+# reacción que se los llevó, si se sabe). GDD_v3 §4.3: el estante muestra el hueco, «No está. La dejé acá anoche.».
+static func missing(st, repo) -> Array:
+	var out: Array = []
+	var t := _now(st)
+	var seen := {}
+	var rw = st.react.get("world", {}) if typeof(st.react) == TYPE_DICTIONARY else {}
+	var wd = rw.get("withdrawn", {}) if typeof(rw) == TYPE_DICTIONARY else {}
+	var cands: Array = []
+	if typeof(wd) == TYPE_DICTIONARY:
+		cands.append_array(_sorted_keys(wd))
+	for c in _sorted_keys(st.world.get("copies", {})):
+		if not cands.has(c):
+			cands.append(c)
+	for cid in cands:
+		var c := String(cid)
+		if seen.has(c) or not copy_withdrawn(st, c, t):
+			continue
+		var title := ""
+		var cp: Dictionary = repo.copy(c)
+		if not cp.is_empty():
+			var h := String(cp.copy.get("holder", ""))
+			if h != "L1" and h != "tomo":
+				continue
+			title = String(repo.doc(String(cp.doc)).get("title", ""))
+		elif st.world.get("docs", {}).has(c):
+			title = String(st.world.docs[c].get("meta", {}).get("title", ""))
+		else:
+			continue
+		var rid := ""
+		var w = wd.get(c) if typeof(wd) == TYPE_DICTIONARY else null
+		if typeof(w) == TYPE_DICTIONARY:
+			var by := String(w.get("by", ""))
+			var inst := Effects.find(st, by) if by != "" else {}
+			rid = String(inst.get("rid", "")) if typeof(inst) == TYPE_DICTIONARY else ""
+			if rid == "" and by.begins_with("R."):
+				rid = by.get_slice(".", 1)
+		seen[c] = true
+		out.append({"copy": c, "title": title, "rid": rid})
 	return out
 
 static func _instance_view(st, repo, iid: String) -> Dictionary:
@@ -569,6 +780,7 @@ static func deliver(st, repo, p_view: String, how: String) -> void:
 			var t0 := _now(st)
 			st.world.tray.append({"view": p_view, "tk": t0, "day": TimeKey.day_of(t0), "slot": TimeKey.slot_of(t0), "how": how})
 			Diary.on_arrival(st, repo, p_view)
+			Dossier.on_arrival(st, repo, p_view)
 			st.note("tray", {"view": p_view, "how": how})
 			return
 		L.bug("world", "deliver de una instancia inexistente: " + p_view)
@@ -592,11 +804,13 @@ static func deliver(st, repo, p_view: String, how: String) -> void:
 				st.world.inserts[tid][part].append(p_view)
 				d.where = "insert"
 				d.in_doc = tid
+				Dossier.on_arrival(st, repo, p_view)
 				st.note("tray", {"view": p_view, "how": how})
 				return
 	d.where = "tray"
 	st.world.tray.append({"view": p_view, "tk": t, "day": TimeKey.day_of(t), "slot": TimeKey.slot_of(t), "how": how})
 	Diary.on_arrival(st, repo, p_view)
+	Dossier.on_arrival(st, repo, p_view)
 	st.note("tray", {"view": p_view, "how": how})
 
 # Número del Times de un día: doc "D15.<MMDD>" según schedule.days[].date.
@@ -636,6 +850,7 @@ static func arrivals_at(st, repo, t: int) -> int:
 			var how := "diario" if String(d.get("src_type", "")) == "prensa_londres" else "correo"
 			st.world.tray.append({"view": String(c.id), "tk": t, "day": TimeKey.day_of(t), "slot": TimeKey.slot_of(t), "how": how})
 			Diary.on_arrival(st, repo, String(c.id))
+			Dossier.on_arrival(st, repo, String(c.id))
 			st.note("tray", {"view": String(c.id), "how": how})
 			n += 1
 	if TimeKey.slot_of(t) == "dawn" and TimeKey.day_of(t) >= 1 and TimeKey.day_of(t) < TimeKey.DAY_E:
@@ -685,6 +900,9 @@ static func start_visit(st, repo, place: String, area: String, opts := {}) -> Di
 			continue
 		if sc.has("when") and not Cond.eval(sc.when, {"st": st, "repo": repo, "tk": t}):
 			continue
+		# GDD_v3 §5.1: once (CRANE.intro): sólo la primera vez
+		if bool(sc.get("once", false)) and _scene_said(st, String(sid)):
+			continue
 		auto.append(sid)
 	var visit := {"id": vid, "place": place, "area": area, "day": day, "slot": slot, "tk": t, "act": String(opts.get("act", "")),
 		"hour": String(opts.get("hour", "")), "seat": int(opts.get("seat", 0)), "free": bool(opts.get("free", false)),
@@ -695,6 +913,16 @@ static func start_visit(st, repo, place: String, area: String, opts := {}) -> Di
 	return visit
 
 # ¿Se le habla a la silueta <who> en esta área? silhouettes.<who>.talk = [áreas] (sin talk: en toda área).
+# GDD_v3 §5.1: ¿ya se dijo alguna línea de la escena sid? (escenas once: CRANE.intro)
+static func _scene_said(st, sid: String) -> bool:
+	var lines = st.world.get("lines", {})
+	if typeof(lines) != TYPE_DICTIONARY:
+		return false
+	for uid in lines:
+		if typeof(lines[uid]) == TYPE_DICTIONARY and String(lines[uid].get("scene", "")) == sid:
+			return true
+	return false
+
 static func sil_talks(psil, who: String, area: String) -> bool:
 	if typeof(psil) != TYPE_DICTIONARY or typeof(psil.get(who)) != TYPE_DICTIONARY or not psil[who].has("talk"):
 		return true
@@ -935,7 +1163,8 @@ static func say_line(st, repo, ln: Dictionary) -> String:
 	st.world.lines[uid] = rec
 	if not v.is_empty():
 		v.lines.append(uid)
-	Reveal.hear(st, repo, rec.text, rec.act)
+	Reveal.hear(st, repo, rec.text, rec.act, rec.who)
+	Dossier.on_line(st, rec)
 	Diary.on_line(st, repo, rec)
 	st.note("line", {"uid": uid})
 	return uid
@@ -971,10 +1200,12 @@ static func sync_scene_lines(st, repo) -> void:
 			continue
 		var rec: Dictionary = sl[uid]
 		var r2 := {"uid": String(uid), "id": String(rec.get("id", "")), "who": String(rec.get("who", "")), "text": String(rec.get("text", "")),
-			"origin": String(rec.get("origin", v.get("id", ""))), "tk": int(rec.get("tk", _now(st))), "act": String(rec.get("act", ""))}
+			"origin": String(rec.get("origin", v.get("id", ""))), "tk": int(rec.get("tk", _now(st))), "act": String(rec.get("act", "")),
+			"scene": String(rec.get("scene", ""))}
 		if r2.text.strip_edges() == "":
 			continue   # línea sin texto (contenido pendiente): nada que mostrar ni recortar
-		Reveal.hear(st, repo, r2.text, r2.act)
+		Reveal.hear(st, repo, r2.text, r2.act, r2.who)
+		Dossier.on_line(st, r2)
 		Diary.on_line(st, repo, r2)
 		if not v.is_empty():
 			v.lines.append(String(uid))
@@ -1020,14 +1251,20 @@ static func snapshot(st, repo, place: String, area: String, variant: String) -> 
 	var nodes: Array = []
 	var all_nodes: Array = (pl.get("nodes", []) as Array).duplicate()
 	var vd = pl.get("variants", {}).get(variant, {}) if typeof(pl.get("variants", {})) == TYPE_DICTIONARY else {}
+	var hidden := {}
 	if typeof(vd) == TYPE_DICTIONARY:
 		all_nodes.append_array(vd.get("add_nodes", []))
+		# GDD_v3 §4.3: la variante esconde nodos de la base (la ventana cerrada, cuando está abierta)
+		for h in vd.get("hide_nodes", []):
+			hidden[String(h)] = true
 	var node_defs := {}
 	var base_ids := {}
 	for n in pl.get("nodes", []):
 		base_ids[String(n.get("id", ""))] = true
 	for n in all_nodes:
 		var nd: Dictionary = n if typeof(n) == TYPE_DICTIONARY else {"id": String(n)}
+		if hidden.has(String(nd.get("id", ""))):
+			continue
 		var na := String(nd.get("area", "*"))
 		if area != "" and na != "*" and na != "" and na != area:
 			continue
@@ -1253,8 +1490,8 @@ static func egg_unit(st) -> String:
 static func check_eggs(st, repo) -> void:
 	var unit := egg_unit(st)
 	var found: Dictionary = st.world.get("eggs", {})
-	# el resultado sólo cambia con la unidad de visita o con recortes/pares nuevos: firma para no recalcular
-	var sig := "%s|%d|%d|%d|%d" % [unit, _clips(st).size(), _pairs(st).size(), int(st.seq.get("clip", 0)), int(st.seq.get("pair", 0))]
+	# el resultado sólo cambia con la unidad de visita o con recortes nuevos: firma para no recalcular
+	var sig := "%s|%d|%d" % [unit, _clips(st).size(), int(st.seq.get("clip", 0))]
 	if String(st.world.get("eggs_sig", "")) == sig or found.size() >= repo.eggs().size():
 		return
 	st.world["eggs_sig"] = sig
@@ -1269,6 +1506,9 @@ static func check_eggs(st, repo) -> void:
 			continue
 		if _egg_triggered(st, egg.get("trigger", {})):
 			found[eid] = {"tk": _now(st), "visit": unit}
+			var fl := String(egg.get("flag", ""))
+			if fl != "":
+				st.flags[fl] = true
 			st.note("egg", {"id": eid})
 			return
 
@@ -1291,10 +1531,6 @@ static func _clip_tags(clip: Dictionary) -> Array:
 static func _clips(st) -> Dictionary:
 	var c = st.ded.get("clips", {})
 	return c if typeof(c) == TYPE_DICTIONARY else {}
-
-static func _pairs(st) -> Dictionary:
-	var p = st.ded.get("pairs", {})
-	return p if typeof(p) == TYPE_DICTIONARY else {}
 
 static func _clip(st, id: String) -> Dictionary:
 	var raw = _clips(st).get(id, {})
@@ -1324,36 +1560,59 @@ static func _all_clip_tags(st) -> Dictionary:
 		c.n = ids.size()
 	return c.tags
 
+# Disparadores de la Marginalia y de las Curiosidades (GDD_v3 §3.6; sin pares):
+#   clip_tag: "x:EE01"                   algún recorte lleva esa etiqueta (las entidades cuentan como e:<id>)
+#   clips_tag: "a:inc01", n: 2, pasajes_distintos: true   n recortes con esa etiqueta (de pasajes distintos)
+#   clips_all: ["e:a", "x:b"]            cada etiqueta en algún recorte (entre todos los recortes)
+#   clips_over: ["D43#cuatro_mayo", ...] cada doc#tramo recortado (algún recorte de ese origen y tramo)
+#   all: [disparador, ...]               todos (p. ej. EE14: un recorte a:tomos_de_watson y uno a:duelo)
 static func _egg_triggered(st, trig: Dictionary) -> bool:
+	if trig.has("all"):
+		if typeof(trig.all) != TYPE_ARRAY or trig.all.is_empty():
+			return false
+		for sub in trig.all:
+			if typeof(sub) != TYPE_DICTIONARY or not _egg_triggered(st, sub):
+				return false
+		return true
 	if trig.has("clip_tag"):
 		return _all_clip_tags(st).has(String(trig.clip_tag))
-	if trig.has("pair_tags"):
-		for pid in _sorted_keys(_pairs(st)):
-			var p = _pairs(st)[pid]
-			var tags: Array = _clip_tags(_clip(st, String(p.get("a", "")))) + _clip_tags(_clip(st, String(p.get("b", ""))))
-			var all_in := true
-			for w in trig.pair_tags:
-				if not tags.has(String(w)):
-					all_in = false
-			if all_in:
+	if trig.has("clips_all"):
+		var all_tags := _all_clip_tags(st)
+		for w in trig.clips_all:
+			if not all_tags.has(String(w)):
+				return false
+		return true
+	if trig.has("clips_tag"):
+		var want := String(trig.clips_tag)
+		var need := int(trig.get("n", 1))
+		var distinct := bool(trig.get("pasajes_distintos", false))
+		var passages := {}
+		var n := 0
+		for cid in _sorted_keys(_clips(st)):
+			var c := _clip(st, String(cid))
+			if not _clip_tags(c).has(want):
+				continue
+			if distinct:
+				var ps := String(c.get("passage", "%s|%s" % [c.get("origin", ""), cid]))
+				if passages.has(ps):
+					continue
+				passages[ps] = true
+			n += 1
+			if n >= need:
 				return true
 		return false
-	if trig.has("pairs_over"):
-		var paired := {}
-		for pid in _pairs(st):
-			var p = _pairs(st)[pid]
-			paired[String(p.get("a", ""))] = true
-			paired[String(p.get("b", ""))] = true
-		for ref in trig.pairs_over:
+	if trig.has("clips_over"):
+		for ref in trig.clips_over:
 			var r := String(ref)
 			var did := r.get_slice("#", 0)
 			var tid := r.get_slice("#", 1)
 			var hit := false
-			for cid in paired:
-				var c := _clip(st, cid)
+			for cid in _sorted_keys(_clips(st)):
+				var c := _clip(st, String(cid))
 				var corg := String(c.get("origin", c.get("doc", "")))
 				if (corg == did or String(c.get("doc", "")) == did) and String(c.get("tramo", "")) == tid:
 					hit = true
+					break
 			if not hit:
 				return false
 		return true

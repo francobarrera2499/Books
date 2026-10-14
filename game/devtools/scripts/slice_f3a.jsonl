@@ -3,115 +3,108 @@
 # Una acción de GameSim.apply por línea (ARCHITECTURE §3.5); «#» comenta. Juego: ./godot.sh -- --new --seed=1 --script=res://devtools/scripts/slice_f3a.jsonl
 # seed: 1
 # expect: F3a
-# content: a093ab04b225ddfffcc616ae256ee9b2
+# content: 4a2a2e1441e47d604f7c873c1afb8ebb
 # ── P.N · Lunes de Pascua, 26 de marzo de 1894, noche · prologue
 {"part":0,"t":"read","view":"D23@L1"}
-{"from":601,"len":71,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.SPEC@tomo"},"t":"clip_text"}
-{"from":271,"len":59,"src":{"block":0,"kind":"doc","part":1,"ref":"D01.SCAN@tomo"},"t":"clip_text"}
+{"from":464,"len":19,"src":{"block":0,"kind":"doc","part":2,"ref":"D23@L1"},"t":"clip_text"}
 {"fields":{"suceso":"suceso_reichenbach"},"form":"testigo","t":"compose_ad"}
 {"t":"sleep"}
 # ── 1.M · martes 27 de marzo, mañana · desk
 #    llegó R.HC01.1 (correo)
-{"from":32,"len":79,"src":{"kind":"line","ref":"LN.0007"},"t":"clip_text"}
-{"from":668,"len":71,"src":{"block":0,"kind":"doc","part":1,"ref":"D15.0327@L1"},"t":"clip_text"}
-{"area_frac":0.05,"hits":[{"cover":0.9,"node":"harris","tight":true}],"plate":"PL.prologo","t":"clip_plate","touched":["harris"]}
-{"from":199,"len":115,"src":{"block":0,"kind":"doc","part":2,"ref":"D23@L1"},"t":"clip_text"}
-{"from":813,"len":176,"src":{"block":0,"kind":"doc","part":0,"ref":"D02@L1"},"t":"clip_text"}
-{"from":700,"len":53,"src":{"block":0,"kind":"doc","part":0,"ref":"D01N@tomo"},"t":"clip_text"}
-{"a":"RC0001","b":"RC0002","note":"dos fechas","t":"link"}
-{"clip":"RC0001","t":"folio_open"}
-{"folio":"FO001","t":"entry_new","template":"T1"}
-{"entry":"AS001","field":"dice_a","line":0,"t":"entry_set","value":"mrs_hudson"}
-{"entry":"AS001","field":"fuente_a","line":0,"t":"entry_set","value":"spec"}
-{"entry":"AS001","item":"RC0001","line":0,"t":"entry_support_add"}
-{"entry":"AS001","field":"dice_b","line":1,"t":"entry_set","value":"mrs_turner"}
-{"entry":"AS001","field":"fuente_b","line":1,"t":"entry_set","value":"scan"}
-{"entry":"AS001","item":"RC0002","line":1,"t":"entry_support_add"}
-{"entry":"AS001","t":"practice"}
+{"from":862,"len":86,"src":{"block":0,"kind":"doc","part":0,"ref":"D02@L1"},"t":"clip_text"}
+{"from":346,"len":63,"src":{"block":0,"kind":"doc","part":0,"ref":"D01N@tomo"},"t":"clip_text"}
+{"part":0,"t":"read","view":"D03@tomo"}
+{"part":1,"t":"read","view":"D03@tomo"}
+{"part":2,"t":"read","view":"D03@tomo"}
+{"part":3,"t":"read","view":"D03@tomo"}
+{"part":4,"t":"read","view":"D03@tomo"}
+{"part":5,"t":"read","view":"D03@tomo"}
+{"part":6,"t":"read","view":"D03@tomo"}
+{"q":"Q1","t":"dq_answer","value":"raspadura"}
+{"clip":"RC0001","q":"Q1","slot":0,"t":"dq_proof"}
+{"clip":"RC0002","q":"Q1","slot":1,"t":"dq_proof"}
+{"q":"Q1","t":"dq_confirm"}
 {"area":"tienda","place":"L1","seat":0,"t":"go"}
 # ── 1.M · martes 27 de marzo, mañana · visit
-{"from":1274,"len":149,"src":{"block":0,"kind":"doc","part":4,"ref":"D03@Crane"},"t":"clip_text"}
-{"from":1750,"len":96,"src":{"block":0,"kind":"doc","part":5,"ref":"D03@Crane"},"t":"clip_text"}
-{"from":192,"len":106,"src":{"block":0,"kind":"doc","part":1,"ref":"D17@Crane"},"t":"clip_text"}
+{"from":1274,"len":71,"src":{"block":0,"kind":"doc","part":4,"ref":"D03@Crane"},"t":"clip_text"}
+{"from":843,"len":95,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.GREE@Crane"},"t":"clip_text"}
+{"from":234,"len":44,"src":{"block":0,"kind":"doc","part":0,"ref":"D17@Crane"},"t":"clip_text"}
+{"from":514,"len":44,"src":{"block":0,"kind":"doc","part":0,"ref":"D17@Crane"},"t":"clip_text"}
+{"from":196,"len":92,"src":{"block":0,"kind":"doc","part":1,"ref":"D17@Crane"},"t":"clip_text"}
 {"t":"leave"}
 # ── 1.M · martes 27 de marzo, mañana · desk
 # guion: Golpe del guion: Kensington, a Watson con la pared «a pique» (cebo K-W).
 {"area":"consulta","place":"L4","seat":0,"t":"go"}
 # ── 1.M · martes 27 de marzo, mañana · visit
-{"from":0,"len":54,"src":{"kind":"diary","ref":"DY.0016"},"t":"clip_text"}
 {"assertion":"as.pared","char":"watson","t":"assert"}
 {"char":"watson","t":"ask","topic":"fina"}
 {"t":"leave"}
 # ── 1.M · martes 27 de marzo, mañana · desk
 {"t":"end_slot"}
 # ── 1.T · martes 27 de marzo, tarde · desk
-{"from":458,"len":10,"src":{"block":0,"kind":"doc","part":0,"ref":"D01.BOSC@tomo"},"t":"clip_text"}
+{"area":"tienda","place":"L1","seat":0,"t":"go"}
+# ── 1.T · martes 27 de marzo, tarde · visit
+{"t":"leave"}
+# ── 1.T · martes 27 de marzo, tarde · desk
+{"from":1108,"len":7,"src":{"block":0,"kind":"doc","part":0,"ref":"D44@tomo"},"t":"clip_text"}
 {"area":"sala","place":"L2","seat":214,"t":"go"}
 # ── 1.T · martes 27 de marzo, tarde · visit
-{"doc":"D11","noise":"","t":"slip"}
-{"doc":"D03","noise":"","t":"slip"}
-{"doc":"D10","noise":"","t":"slip"}
-{"from":168,"len":91,"src":{"block":0,"kind":"doc","part":1,"ref":"D11@BM"},"t":"clip_text"}
-{"from":2641,"len":24,"src":{"block":0,"kind":"doc","part":0,"ref":"D03@BM"},"t":"clip_text"}
-{"from":209,"len":113,"src":{"block":0,"kind":"doc","part":2,"ref":"D10@BM"},"t":"clip_text"}
+{"doc":"D05","noise":"","t":"slip"}
+{"doc":"D01.GREE","noise":"","t":"slip"}
+{"doc":"D14","noise":"","t":"slip"}
+{"from":897,"len":80,"src":{"block":0,"kind":"doc","part":0,"ref":"D05@BM"},"t":"clip_text"}
+{"from":735,"len":76,"src":{"block":0,"kind":"doc","part":0,"ref":"D05@BM"},"t":"clip_text"}
+{"area_frac":0.05,"hits":[{"cover":0.9,"node":"cotter_canastilla","tight":true}],"plate":"PL.L2.1.T","t":"clip_plate","touched":["cotter_canastilla"]}
+{"from":253,"len":36,"src":{"block":0,"kind":"doc","part":1,"ref":"D01.GREE@BM"},"t":"clip_text"}
+{"from":695,"len":88,"src":{"block":0,"kind":"doc","part":0,"ref":"D14@BM"},"t":"clip_text"}
 {"char":"ujier","t":"ask","topic":"reichenbach"}
 {"t":"leave"}
 # ── 1.T · martes 27 de marzo, tarde · desk
+{"q":"Q1","t":"dq_answer","value":"raspadura"}
+{"clip":"RC0004","q":"Q1","slot":0,"t":"dq_proof"}
+{"clip":"RC0010","q":"Q1","slot":1,"t":"dq_proof"}
+{"q":"Q2","t":"dq_answer","value":"cornisa"}
+{"clip":"RC0004","q":"Q2","slot":0,"t":"dq_proof"}
+{"clip":"RC0011","q":"Q2","slot":1,"t":"dq_proof"}
+{"q":"Q1","t":"dq_confirm"}
+{"q":"Q2","t":"dq_confirm"}
 {"t":"end_slot"}
+# ── 1.N · martes 27 de marzo, noche · desk
+{"area":"tienda","place":"L1","seat":0,"t":"go"}
+# ── 1.N · martes 27 de marzo, noche · visit
+{"t":"leave"}
 # ── 1.N · martes 27 de marzo, noche · desk
 {"area":"sala","place":"L2","seat":214,"t":"go"}
 # ── 1.N · martes 27 de marzo, noche · visit
-{"doc":"D20","noise":"","t":"slip"}
-{"doc":"D45","noise":"","t":"slip"}
-{"doc":"D05","noise":"","t":"slip"}
-{"from":227,"len":214,"src":{"block":0,"kind":"doc","part":0,"ref":"D20@BM"},"t":"clip_text"}
-{"from":205,"len":101,"src":{"block":0,"kind":"doc","part":0,"ref":"D45@BM"},"t":"clip_text"}
-{"from":897,"len":80,"src":{"block":0,"kind":"doc","part":0,"ref":"D05@BM"},"t":"clip_text"}
-{"from":731,"len":165,"src":{"block":0,"kind":"doc","part":0,"ref":"D05@BM"},"t":"clip_text"}
+{"doc":"D10","noise":"","t":"slip"}
+{"from":212,"len":70,"src":{"block":0,"kind":"doc","part":2,"ref":"D10@BM"},"t":"clip_text"}
+{"from":301,"len":80,"src":{"block":0,"kind":"doc","part":1,"ref":"D10@BM"},"t":"clip_text"}
 {"char":"ujier","t":"ask","topic":"cornisa"}
 {"t":"leave"}
 # ── 1.N · martes 27 de marzo, noche · desk
-{"clip":"RC0017","t":"folio_open"}
-{"folio":"FO002","t":"entry_new","template":"T5"}
-{"entry":"AS002","field":"hizo","line":0,"t":"entry_set","value":"separarse_de"}
-{"entry":"AS002","field":"persona","line":0,"t":"entry_set","value":"watson"}
-{"entry":"AS002","field":"que","line":0,"t":"entry_set","value":"tomos"}
-{"entry":"AS002","item":"RC0017","line":0,"t":"entry_support_add"}
-{"entry":"AS002","field":"donde","line":3,"t":"entry_set","value":"subasta_de_paddington"}
-{"entry":"AS002","item":"RC0017","line":3,"t":"entry_support_add"}
-{"entry":"AS002","field":"cuando","line":4,"t":"entry_set","value":"enero_1894"}
-{"entry":"AS002","item":"RC0018","line":4,"t":"entry_support_add"}
-{"clip":"RC0009","t":"folio_open"}
-{"folio":"FO003","t":"entry_new","template":"T2"}
-{"entry":"AS003","field":"calla","line":0,"t":"entry_set","value":"raspadura"}
-{"entry":"AS003","field":"fuente","line":0,"t":"entry_set","value":"fina"}
-{"entry":"AS003","item":"RC0009","line":0,"t":"entry_support_add"}
-{"entry":"AS003","field":"consta_en","line":1,"t":"entry_set","value":"journal_de_geneve"}
-{"entry":"AS003","item":"RC0019","line":1,"t":"entry_support_add"}
-{"clip":"RC0009","t":"folio_open"}
-{"folio":"FO003","t":"entry_new","template":"T1"}
-{"entry":"AS004","field":"dice_a","line":0,"t":"entry_set","value":"a_pique"}
-{"entry":"AS004","field":"fuente_a","line":0,"t":"entry_set","value":"fina"}
-{"entry":"AS004","item":"RC0009","line":0,"t":"entry_support_add"}
-{"entry":"AS004","field":"dice_b","line":1,"t":"entry_set","value":"cornisa"}
-{"entry":"AS004","field":"fuente_b","line":1,"t":"entry_set","value":"journal_de_geneve"}
-{"entry":"AS004","item":"RC0020","line":1,"t":"entry_support_add"}
 {"t":"end_slot"}
 # ── 1.night · martes 27 de marzo, noche, 22 h · night
 {"t":"sleep"}
 # ── 2.M · miércoles 28 de marzo, mañana · desk
 #    llegó R.HA1.3 (correo)
 #    llegó R.HA1.4 (fusionada)
-{"from":136,"len":56,"src":{"block":0,"kind":"doc","part":0,"ref":"R.HA1.3"},"t":"clip_text"}
-{"from":1975,"len":105,"src":{"block":0,"kind":"doc","part":3,"ref":"D03@tomo"},"t":"clip_text"}
+{"from":136,"len":78,"src":{"block":0,"kind":"doc","part":0,"ref":"R.HA1.3"},"t":"clip_text"}
+{"q":"Q3","t":"dq_answer","value":"mycroft"}
+{"clip":"RC0012","q":"Q3","slot":0,"t":"dq_proof"}
+{"clip":"RC0013","q":"Q3","slot":1,"t":"dq_proof"}
+{"q":"Q3","t":"dq_confirm"}
+{"from":130,"len":13,"src":{"block":0,"kind":"doc","part":3,"ref":"D03@tomo"},"t":"clip_text"}
 # guion: Acto ciego: telegrama a steiler sobre cornisa (contesta Meiringen; nadie más lo ve).
 {"parts":["cornisa"],"t":"compose_telegram","to":"steiler"}
-{"entries":["AS003","AS004"],"t":"pass_clean"}
-{"area":"sala","place":"L2","seat":214,"t":"go"}
+{"area":"tienda","place":"L1","seat":0,"t":"go"}
 # ── 2.M · miércoles 28 de marzo, mañana · visit
-{"char":"ujier","t":"ask","topic":"journal_de_geneve"}
+{"from":97,"len":86,"src":{"block":0,"kind":"doc","part":1,"ref":"D33@Crane"},"t":"clip_text"}
 {"t":"leave"}
 # ── 2.M · miércoles 28 de marzo, mañana · desk
+{"q":"Q4","t":"dq_answer","value":"mycroft"}
+{"clip":"RC0019","q":"Q4","slot":0,"t":"dq_proof"}
+{"clip":"RC0005","q":"Q4","slot":1,"t":"dq_proof"}
+{"q":"Q4","t":"dq_confirm"}
 {"t":"end_slot"}
 # ── 2.T · miércoles 28 de marzo, tarde · desk
 {"t":"end_slot"}
@@ -125,147 +118,147 @@
 {"t":"end_slot"}
 # ── 2.night · miércoles 28 de marzo, noche, 22 h · night
 # guion: Informe 1: un dato verdadero y un recorte de un original (crédito y M1).
-{"items":[{"id":"AS003","kind":"entry"},{"id":"RC0001","kind":"clip"}],"mode":"items","t":"report_submit"}
+{"items":[{"id":"Q1","kind":"pregunta"},{"id":"RC0001","kind":"clip"}],"mode":"items","t":"report_submit"}
 {"t":"sleep"}
 # ── 3.M · jueves 29 de marzo, mañana · desk
 #    llegó R.HC02.9
 #    llegó R.HB13.7 (correo)
 #    llegó R.D27.5 (correo)
-{"from":874,"len":212,"src":{"block":0,"kind":"doc","part":0,"ref":"D03@tomo"},"t":"clip_text"}
-# guion: Acto ciego: carta a coronel_moriarty sobre cartas_del_coronel (Bath contesta; nadie más la ve).
-{"parts":["cartas_del_coronel"],"t":"compose_letter","to":"coronel_moriarty"}
+{"from":966,"len":22,"src":{"block":0,"kind":"doc","part":0,"ref":"D03@tomo"},"t":"clip_text"}
+# guion: Acto ciego: carta a coronel_moriarty sobre coronel_moriarty (Bath contesta; nadie más la ve).
+{"parts":["coronel_moriarty"],"t":"compose_letter","to":"coronel_moriarty"}
 {"area":"tienda","place":"L1","seat":0,"t":"go"}
 # ── 3.M · jueves 29 de marzo, mañana · visit
-{"from":616,"len":127,"src":{"block":0,"kind":"doc","part":1,"ref":"D10@Crane"},"t":"clip_text"}
-{"from":416,"len":65,"src":{"block":0,"kind":"doc","part":1,"ref":"D09@Crane"},"t":"clip_text"}
-{"from":929,"len":98,"src":{"block":0,"kind":"doc","part":1,"ref":"D10@Crane"},"t":"clip_text"}
+{"from":648,"len":78,"src":{"block":0,"kind":"doc","part":1,"ref":"D10@Crane"},"t":"clip_text"}
 {"t":"leave"}
 # ── 3.M · jueves 29 de marzo, mañana · desk
-{"clip":"RC0025","t":"folio_open"}
-{"folio":"FO004","t":"entry_new","template":"T4"}
-{"entry":"AS005","field":"documento","line":0,"t":"entry_set","value":"cartas_del_coronel"}
-{"entry":"AS005","item":"RC0025","line":0,"t":"entry_support_add"}
-{"entry":"AS005","field":"redacto","line":1,"t":"entry_set","value":"moran"}
-{"entry":"AS005","item":"RC0026","line":1,"t":"entry_support_add"}
-{"entries":["AS005","AS002"],"t":"pass_clean"}
-{"area":"sala","place":"L2","seat":214,"t":"go"}
+# guion: Paseo del guion: Somerset House (lo nombra un aviso del Times).
+{"area":"sala","place":"L6","seat":0,"t":"go"}
 # ── 3.M · jueves 29 de marzo, mañana · visit
 #    llegó R.M1.8
-{"area_frac":0.05,"hits":[{"cover":0.9,"node":"sil_wiggins","tight":true}],"plate":"PL.L2.3.M","t":"clip_plate","touched":["sil_wiggins"]}
-{"char":"ujier","t":"ask","topic":"times"}
+{"doc":"D18","t":"order_copy"}
+# guion: Acto ciego: copia oficial de D18 pedida en Somerset House.
 {"t":"leave"}
 # ── 3.M · jueves 29 de marzo, mañana · desk
+{"ref":"hub/cerradura_rayada","t":"examine"}
+{"ref":"hub/cajon_entreabierto","t":"examine"}
+{"ref":"hub/silla_corrida","t":"examine"}
+{"ref":"hub/ceniza_escritorio","t":"examine"}
+{"ref":"missing/D23@L1","t":"examine"}
+{"area_frac":0.05,"hits":[{"cover":0.9,"node":"sil_wiggins","tight":true}],"plate":"PL.L6.3.M","t":"clip_plate","touched":["sil_wiggins"]}
+# guion: Recorte de la silueta de Wiggins en una lámina (ancla K-S).
 {"t":"end_slot"}
 # ── 3.T · jueves 29 de marzo, tarde · desk
-{"area":"sala","place":"L2","seat":214,"t":"go"}
+{"ref":"hub/cerradura_rayada","t":"examine"}
+{"ref":"hub/cajon_entreabierto","t":"examine"}
+{"ref":"hub/silla_corrida","t":"examine"}
+{"ref":"hub/ceniza_escritorio","t":"examine"}
+{"ref":"missing/D23@L1","t":"examine"}
+# guion: Paseo del guion: Baker Street de día; Wiggins en la esquina.
+{"area":"calle","place":"L3","seat":0,"t":"go"}
 # ── 3.T · jueves 29 de marzo, tarde · visit
-{"char":"ujier","t":"ask","topic":"fina"}
+{"char":"wiggins","t":"ask","topic":"journal_de_geneve"}
 {"t":"leave"}
 # ── 3.T · jueves 29 de marzo, tarde · desk
 {"t":"end_slot"}
 # ── 3.N · jueves 29 de marzo, noche · desk
-{"area":"sala","place":"L2","seat":214,"t":"go"}
+{"ref":"hub/cerradura_rayada","t":"examine"}
+{"ref":"hub/cajon_entreabierto","t":"examine"}
+{"ref":"hub/silla_corrida","t":"examine"}
+{"ref":"hub/ceniza_escritorio","t":"examine"}
+{"ref":"missing/D23@L1","t":"examine"}
+# guion: Paseo del guion: la portería del Diógenes.
+{"area":"porteria","place":"L5","seat":0,"t":"go"}
 # ── 3.N · jueves 29 de marzo, noche · visit
-{"char":"ujier","t":"ask","topic":"reichenbach"}
+{"char":"portero","t":"ask","topic":"times"}
+{"char":"wiggins","t":"ask","topic":"fina"}
 {"t":"leave"}
 # ── 3.N · jueves 29 de marzo, noche · desk
 {"t":"end_slot"}
 # ── 3.night · jueves 29 de marzo, noche, 22 h · night
 {"t":"sleep"}
 # ── 4.M · viernes 30 de marzo, mañana · desk
-#    llegó R.HC10.13 (columna)
+#    llegó R.HC10.14 (columna)
 #    llegó R.HB1.2 (correo)
 #    llegó R.HA3.10 (correo)
 #    llegó R.HB10.11 (mostrador_crane)
-{"from":566,"len":35,"src":{"block":0,"kind":"doc","part":1,"ref":"D15.0330@L1"},"t":"clip_text"}
-{"clip":"RC0012","t":"folio_open"}
-{"folio":"FO005","t":"entry_new","template":"T6"}
-{"entry":"AS006","field":"a_quien","line":0,"t":"entry_set","value":"lisle"}
-{"entry":"AS006","field":"persona","line":0,"t":"entry_set","value":"holmes"}
-{"entry":"AS006","field":"por_medio","line":0,"t":"entry_set","value":"la_calle"}
-{"entry":"AS006","field":"relacion","line":0,"t":"entry_set","value":"lee_a"}
-{"entry":"AS006","item":"RC0012","line":0,"t":"entry_support_add"}
-{"entry":"AS006","item":"RC0027","line":0,"t":"entry_support_add"}
-{"entry":"AS006","field":"y_de","line":1,"t":"entry_set","value":"columna"}
-{"entry":"AS006","item":"RC0004","line":1,"t":"entry_support_add"}
-{"entry":"AS006","item":"RC0028","line":1,"t":"entry_support_add"}
-{"from":1680,"len":17,"src":{"block":0,"kind":"doc","part":0,"ref":"D03@tomo"},"t":"clip_text"}
+{"ref":"hub/cerradura_rayada","t":"examine"}
+{"ref":"hub/cajon_entreabierto","t":"examine"}
+{"ref":"hub/silla_corrida","t":"examine"}
+{"ref":"hub/ceniza_escritorio","t":"examine"}
+{"from":1704,"len":17,"src":{"block":0,"kind":"doc","part":0,"ref":"D03@tomo"},"t":"clip_text"}
 # guion: Anuncio en la columna: «Al corresponsal S.: cayeron los dos» (cebo por el Times).
 {"fields":{"frase":"as.cayeron"},"form":"al_corresponsal","t":"compose_ad"}
 {"area":"tienda","place":"L1","seat":0,"t":"go"}
 # ── 4.M · viernes 30 de marzo, mañana · visit
-{"from":1078,"len":95,"src":{"block":0,"kind":"doc","part":0,"ref":"D44@Crane"},"t":"clip_text"}
+{"from":1078,"len":84,"src":{"block":0,"kind":"doc","part":0,"ref":"D44@Crane"},"t":"clip_text"}
 {"t":"leave"}
 # ── 4.M · viernes 30 de marzo, mañana · desk
-{"area":"sala","place":"L2","seat":214,"t":"go"}
+{"q":"Q5","t":"dq_answer","value":"holmes"}
+{"clip":"RC0024","q":"Q5","slot":0,"t":"dq_proof"}
+{"clip":"RC0014","q":"Q5","slot":1,"t":"dq_proof"}
+{"q":"Q5","t":"dq_confirm"}
+# guion: Paseo del guion: Somerset House, otra vez.
+{"area":"sala","place":"L6","seat":0,"t":"go"}
 # ── 4.M · viernes 30 de marzo, mañana · visit
-{"doc":"D14","noise":"","t":"slip"}
-{"from":395,"len":72,"src":{"block":0,"kind":"doc","part":0,"ref":"D14@BM"},"t":"clip_text"}
-{"from":692,"len":145,"src":{"block":0,"kind":"doc","part":0,"ref":"D14@BM"},"t":"clip_text"}
-{"char":"ujier","t":"ask","topic":"cornisa"}
 {"t":"leave"}
 # ── 4.M · viernes 30 de marzo, mañana · desk
-{"clip":"RC0030","t":"folio_open"}
-{"folio":"FO006","t":"entry_new","template":"T7"}
-{"entry":"AS007","field":"persona","line":0,"t":"entry_set","value":"holmes"}
-{"entry":"AS007","item":"RC0030","line":0,"t":"entry_support_add"}
-{"entry":"AS007","field":"estado","line":1,"t":"entry_set","value":"vivo"}
-{"entry":"AS007","item":"RC0032","line":1,"t":"entry_support_add"}
 {"t":"end_slot"}
 # ── 4.T · viernes 30 de marzo, tarde · desk
-{"entries":["AS006","AS007"],"t":"pass_clean"}
-{"area":"sala","place":"L2","seat":214,"t":"go"}
+{"ref":"hub/cerradura_rayada","t":"examine"}
+{"ref":"hub/cajon_entreabierto","t":"examine"}
+{"ref":"hub/silla_corrida","t":"examine"}
+{"ref":"hub/ceniza_escritorio","t":"examine"}
+# guion: Paseo del guion: el vestíbulo de Mrs. Hudson.
+{"area":"interior","place":"L3","seat":0,"t":"go"}
 # ── 4.T · viernes 30 de marzo, tarde · visit
-{"char":"ujier","t":"ask","topic":"journal_de_geneve"}
+{"char":"mrs_hudson","t":"ask","topic":"reichenbach"}
 {"t":"leave"}
 # ── 4.T · viernes 30 de marzo, tarde · desk
 {"t":"end_slot"}
 # ── 4.N · viernes 30 de marzo, noche · desk
+{"ref":"hub/cerradura_rayada","t":"examine"}
+{"ref":"hub/cajon_entreabierto","t":"examine"}
+{"ref":"hub/silla_corrida","t":"examine"}
+{"ref":"hub/ceniza_escritorio","t":"examine"}
 # guion: Paseo del guion: la Sala de Periódicos.
 {"area":"sala","place":"L2","seat":214,"t":"go"}
 # ── 4.N · viernes 30 de marzo, noche · visit
-{"char":"ujier","t":"ask","topic":"times"}
+{"char":"ujier","t":"ask","topic":"cornisa"}
 {"t":"leave"}
 # ── 4.N · viernes 30 de marzo, noche · desk
 {"t":"end_slot"}
 # ── 4.night · viernes 30 de marzo, noche, 22 h · night
 {"t":"sleep"}
 # ── 5.dawn · sábado 31 de marzo, amanecer · scene
-#    llegó R.M6.16
-#    llegó R.D28.12 (correo)
+#    llegó R.M6.19
+#    llegó R.HB6.16
+#    llegó R.D28.13 (correo)
+#    llegó R.L6copia.12 (correo)
+{"from":73,"len":58,"src":{"kind":"line","ref":"LN.0033"},"t":"clip_text"}
 {"t":"leave"}
 # ── 5.M · sábado 31 de marzo, mañana · desk
-{"area":"sala","place":"L6","seat":0,"t":"go"}
-# ── 5.M · sábado 31 de marzo, mañana · visit
-{"from":161,"len":187,"src":{"block":0,"kind":"doc","part":0,"ref":"D18@L6"},"t":"clip_text"}
-{"doc":"D18","t":"order_copy"}
-# guion: Acto ciego: copia oficial de D18 pedida en Somerset House.
-{"t":"leave"}
-# ── 5.M · sábado 31 de marzo, mañana · desk
-{"clip":"RC0010","t":"folio_open"}
-{"folio":"FO007","t":"entry_new","template":"T5"}
-{"entry":"AS008","field":"hizo","line":0,"t":"entry_set","value":"ceder"}
-{"entry":"AS008","field":"persona","line":0,"t":"entry_set","value":"holmes"}
-{"entry":"AS008","field":"que","line":0,"t":"entry_set","value":"bienes"}
-{"entry":"AS008","item":"RC0010","line":0,"t":"entry_support_add"}
-{"entry":"AS008","field":"a","line":1,"t":"entry_set","value":"mycroft"}
-{"entry":"AS008","item":"RC0010","line":1,"t":"entry_support_add"}
-{"entry":"AS008","field":"cuando","line":4,"t":"entry_set","value":"en_vida"}
-{"entry":"AS008","item":"RC0033","line":4,"t":"entry_support_add"}
 {"t":"end_slot"}
 # ── 5.T · sábado 31 de marzo, tarde · desk
 # guion: Paseo del guion: Park Lane 427, la casa del crimen.
 {"area":"exterior","place":"L7","seat":0,"t":"go"}
 # ── 5.T · sábado 31 de marzo, tarde · visit
-{"char":"wiggins","t":"ask","topic":"fina"}
+{"char":"wiggins","t":"ask","topic":"journal_de_geneve"}
 {"t":"leave"}
 # ── 5.T · sábado 31 de marzo, tarde · desk
+#    llegó R.HA5.15
+{"ref":"hub/ventana_abierta","t":"examine"}
+{"ref":"hub/papeles_viento","t":"examine"}
+{"ref":"missing/D01.GREE@tomo","t":"examine"}
 {"t":"end_slot"}
 # ── 5.N · sábado 31 de marzo, noche · desk
+{"ref":"hub/ventana_abierta","t":"examine"}
+{"ref":"hub/papeles_viento","t":"examine"}
+{"ref":"missing/D01.GREE@tomo","t":"examine"}
 # guion: Paseo del guion: Baker Street el sábado por la noche.
 {"area":"calle","place":"L3","seat":0,"t":"go"}
 # ── 5.N · sábado 31 de marzo, noche · visit
-{"char":"wiggins","t":"ask","topic":"reichenbach"}
+{"char":"wiggins","t":"ask","topic":"times"}
 {"t":"leave"}
 # ── 5.N · sábado 31 de marzo, noche · desk
 {"t":"end_slot"}
@@ -273,39 +266,26 @@
 {"items":[],"mode":"nada","t":"report_submit"}
 {"t":"sleep"}
 # ── 6.T · domingo 1 de abril, tarde · desk
-#    llegó R.HC03.18
+#    llegó R.HC03.20
+{"ref":"hub/ventana_abierta","t":"examine"}
+{"ref":"hub/papeles_viento","t":"examine"}
 # guion: Paseo del guion: el estudio de Watson, el domingo.
 {"area":"estudio","place":"L4","seat":0,"t":"go"}
 # ── 6.T · domingo 1 de abril, tarde · visit
-{"char":"watson","t":"ask","topic":"cornisa"}
+{"char":"watson","t":"ask","topic":"fina"}
 {"t":"leave"}
 # ── 6.T · domingo 1 de abril, tarde · desk
 {"t":"end_slot"}
 # ── 6.night · domingo 1 de abril, noche, 22 h · night
 {"t":"sleep"}
 # ── 7.M · lunes 2 de abril, mañana · desk
-#    llegó R.L6copia.17 (correo)
-{"area":"agente","place":"L3","seat":0,"t":"go"}
-# ── 7.M · lunes 2 de abril, mañana · visit
-{"from":83,"len":137,"src":{"kind":"line","ref":"LN.0049"},"t":"clip_text"}
-{"char":"chico_del_agente","t":"ask","topic":"journal_de_geneve"}
-{"t":"leave"}
-# ── 7.M · lunes 2 de abril, mañana · desk
-{"clip":"RC0003","t":"folio_open"}
-{"folio":"FO008","t":"entry_new","template":"T5"}
-{"entry":"AS009","field":"hizo","line":0,"t":"entry_set","value":"disparar"}
-{"entry":"AS009","field":"persona","line":0,"t":"entry_set","value":"moran"}
-{"entry":"AS009","field":"que","line":0,"t":"entry_set","value":"holmes"}
-{"entry":"AS009","item":"RC0003","line":0,"t":"entry_support_add"}
-{"entry":"AS009","field":"donde","line":3,"t":"entry_set","value":"camden_house"}
-{"entry":"AS009","item":"RC0034","line":3,"t":"entry_support_add"}
+#    llegó R.HB5.21
 {"t":"end_slot"}
 # ── 7.T · lunes 2 de abril, tarde · desk
-{"entries":["AS009","AS008"],"t":"pass_clean"}
 # guion: Paseo del guion: la casa vacía de enfrente, con el chico del agente.
 {"area":"interior","place":"L8","seat":0,"t":"go"}
 # ── 7.T · lunes 2 de abril, tarde · visit
-{"char":"chico_del_agente","t":"ask","topic":"times"}
+{"char":"chico_del_agente","t":"ask","topic":"reichenbach"}
 {"t":"leave"}
 # ── 7.T · lunes 2 de abril, tarde · desk
 {"t":"end_slot"}
@@ -313,106 +293,73 @@
 # guion: Paseo del guion: Park Lane de noche.
 {"area":"exterior","place":"L7","seat":0,"t":"go"}
 # ── 7.N · lunes 2 de abril, noche · visit
-{"char":"wiggins","t":"ask","topic":"fina"}
+{"char":"wiggins","t":"ask","topic":"cornisa"}
 {"t":"leave"}
 # ── 7.N · lunes 2 de abril, noche · desk
 {"t":"end_slot"}
 # ── 7.night · lunes 2 de abril, noche, 22 h · scene
-#    llegó R.M7.19
-{"from":0,"len":36,"src":{"kind":"line","ref":"LN.0058"},"t":"clip_text"}
-{"from":34,"len":29,"src":{"kind":"line","ref":"LN.0060"},"t":"clip_text"}
+#    llegó R.M7.22
+{"from":0,"len":36,"src":{"kind":"line","ref":"LN.0050"},"t":"clip_text"}
 {"t":"leave"}
 # ── 7.night · lunes 2 de abril, noche, 22 h · night
-{"clip":"RC0035","t":"folio_open"}
-{"folio":"FO009","t":"entry_new","template":"T9"}
-{"entry":"AS010","field":"persona","line":0,"t":"entry_set","value":"moran"}
-{"entry":"AS010","item":"RC0035","line":0,"t":"entry_support_add"}
-{"entry":"AS010","item":"RC0024","line":0,"t":"entry_support_add"}
-{"entry":"AS010","field":"como","line":1,"t":"entry_set","value":"cabrito"}
-{"entry":"AS010","field":"usa_a","line":1,"t":"entry_set","value":"lisle"}
-{"entry":"AS010","item":"RC0014","line":1,"t":"entry_support_add"}
-{"entry":"AS010","field":"a_quien","line":2,"t":"entry_set","value":"holmes"}
-{"entry":"AS010","field":"para","line":2,"t":"entry_set","value":"hallar"}
-{"entry":"AS010","item":"RC0036","line":2,"t":"entry_support_add"}
-{"clip":"RC0035","t":"folio_open"}
-{"folio":"FO009","t":"entry_new","template":"T3"}
-{"entry":"AS011","field":"persona","line":0,"t":"entry_set","value":"harris"}
-{"entry":"AS011","item":"RC0035","line":0,"t":"entry_support_add"}
-{"entry":"AS011","field":"es","line":1,"t":"entry_set","value":"moran"}
-{"entry":"AS011","item":"RC0024","line":1,"t":"entry_support_add"}
+{"q":"Q6","t":"dq_answer","value":"moran"}
+{"clip":"RC0026","q":"Q6","slot":0,"t":"dq_proof"}
+{"clip":"RC0021","q":"Q6","slot":1,"t":"dq_proof"}
+{"q":"Q6","t":"dq_confirm"}
 {"t":"sleep"}
 # ── 8.M · martes 3 de abril, mañana · desk
-#    llegó R.HC04.20 (correo)
-#    llegó R.HC05.21
-#    llegó R.HB1.14 (columna)
-#    llegó R.HB7.15 (columna)
-{"from":182,"len":112,"src":{"block":0,"kind":"doc","part":0,"ref":"D15.0403@L1"},"t":"clip_text"}
-{"from":1142,"len":96,"src":{"block":0,"kind":"doc","part":0,"ref":"D15.0403@L1"},"t":"clip_text"}
-{"clip":"RC0037","t":"folio_open"}
-{"folio":"FO010","t":"entry_new","template":"T5"}
-{"entry":"AS012","field":"hizo","line":0,"t":"entry_set","value":"matar"}
-{"entry":"AS012","field":"persona","line":0,"t":"entry_set","value":"moran"}
-{"entry":"AS012","field":"que","line":0,"t":"entry_set","value":"ronald_adair"}
-{"entry":"AS012","item":"RC0037","line":0,"t":"entry_support_add"}
-{"entry":"AS012","item":"RC0016","line":0,"t":"entry_support_add"}
-{"entry":"AS012","field":"con","line":2,"t":"entry_set","value":"fusil_de_aire"}
-{"entry":"AS012","item":"RC0015","line":2,"t":"entry_support_add"}
-{"entry":"AS012","field":"donde","line":3,"t":"entry_set","value":"ventana_abierta"}
-{"entry":"AS012","item":"RC0038","line":3,"t":"entry_support_add"}
-{"entries":["AS010","AS012"],"t":"pass_clean"}
+#    llegó R.HC04.23 (correo)
+#    llegó R.HC05.24
+#    llegó R.HB1.17 (columna)
+#    llegó R.HB7.18 (columna)
+{"from":182,"len":86,"src":{"block":0,"kind":"doc","part":0,"ref":"D15.0403@L1"},"t":"clip_text"}
+{"q":"Q7","t":"dq_answer","value":"moran"}
+{"clip":"RC0027","q":"Q7","slot":0,"t":"dq_proof"}
+{"clip":"RC0015","q":"Q7","slot":1,"t":"dq_proof"}
+{"q":"Q9","t":"dq_answer","value":"cabrito"}
+{"clip":"RC0016","q":"Q9","slot":0,"t":"dq_proof"}
+{"clip":"RC0025","q":"Q9","slot":1,"t":"dq_proof"}
+{"q":"Q7","t":"dq_confirm"}
+{"q":"Q9","t":"dq_confirm"}
 {"area":"interior","place":"L3","seat":0,"t":"go"}
 # ── 8.M · martes 3 de abril, mañana · visit
-{"from":55,"len":59,"src":{"kind":"line","ref":"LN.0063"},"t":"clip_text"}
 {"area_frac":0.05,"hits":[{"cover":0.9,"node":"ventanas_abiertas","tight":true}],"plate":"PL.L3.8.M","t":"clip_plate","touched":["ventanas_abiertas"]}
-{"char":"mrs_hudson","t":"ask","topic":"reichenbach"}
+{"from":41,"len":71,"src":{"kind":"line","ref":"LN.0055"},"t":"clip_text"}
+{"char":"mrs_hudson","t":"ask","topic":"journal_de_geneve"}
 {"t":"leave"}
 # ── 8.M · martes 3 de abril, mañana · desk
-{"clip":"RC0039","t":"folio_open"}
-{"folio":"FO011","t":"entry_new","template":"T8"}
-{"entry":"AS013","field":"persona","line":0,"t":"entry_set","value":"holmes"}
-{"entry":"AS013","item":"RC0039","line":0,"t":"entry_support_add"}
-{"entry":"AS013","field":"lugar","line":1,"t":"entry_set","value":"221b"}
-{"entry":"AS013","item":"RC0040","line":1,"t":"entry_support_add"}
-{"entry":"AS013","field":"dia","line":2,"t":"entry_set","value":"jueves"}
-{"entry":"AS013","item":"RC0039","line":2,"t":"entry_support_add"}
+{"q":"Q10","t":"dq_answer","value":"holmes"}
+{"clip":"RC0028","q":"Q10","slot":0,"t":"dq_proof"}
+{"clip":"RC0029","q":"Q10","slot":1,"t":"dq_proof"}
+{"q":"Q10","t":"dq_confirm"}
 {"t":"end_slot"}
 # ── 8.T · martes 3 de abril, tarde · desk
-{"area":"porteria","place":"L5","seat":0,"t":"go"}
+{"area":"calle","place":"L3","seat":0,"t":"go"}
 # ── 8.T · martes 3 de abril, tarde · visit
-{"from":176,"len":54,"src":{"block":0,"kind":"doc","part":1,"ref":"D31@L5"},"t":"clip_text"}
-{"char":"portero","t":"ask","topic":"ronald_adair"}
-{"char":"wiggins","t":"ask","topic":"cornisa"}
+{"char":"wiggins","t":"ask","topic":"times"}
 {"t":"leave"}
 # ── 8.T · martes 3 de abril, tarde · desk
 {"t":"end_slot"}
 # ── 8.N · martes 3 de abril, noche · desk
+# guion: Paseo del guion: la Sala de Visitas del Diógenes, de noche.
 {"area":"forasteros","place":"L5","seat":0,"t":"go"}
 # ── 8.N · martes 3 de abril, noche · visit
-#    llegó R.HC06.24
-{"from":0,"len":105,"src":{"kind":"line","ref":"LN.0073"},"t":"clip_text"}
-{"char":"mycroft","t":"ask","topic":"journal_de_geneve"}
+#    llegó R.HC06.26
+{"char":"mycroft","t":"ask","topic":"fina"}
 {"t":"leave"}
 # ── 8.N · martes 3 de abril, noche · desk
-{"clip":"RC0042","t":"folio_open"}
-{"folio":"FO012","t":"entry_new","template":"T4"}
-{"entry":"AS014","field":"documento","line":0,"t":"entry_set","value":"cartas_a_maquina"}
-{"entry":"AS014","item":"RC0042","line":0,"t":"entry_support_add"}
-{"entry":"AS014","field":"redacto","line":1,"t":"entry_set","value":"mycroft"}
-{"entry":"AS014","item":"RC0041","line":1,"t":"entry_support_add"}
 {"t":"end_slot"}
 # ── 8.night · martes 3 de abril, noche, 22 h · night
 {"items":[],"mode":"nada","t":"report_submit"}
 {"t":"sleep"}
 # ── 9.M · miércoles 4 de abril, mañana · desk
-#    llegó R.M8.25 (en_mano)
-#    llegó R.HB6.23
-#    llegó R.M11.22
-{"entries":["AS014","AS013"],"t":"pass_clean"}
+#    llegó R.M8.27 (en_mano)
+#    llegó R.M11.25
 # guion: Paseo del guion: la portería del club.
 {"area":"porteria","place":"L5","seat":0,"t":"go"}
 # ── 9.M · miércoles 4 de abril, mañana · visit
-{"char":"portero","t":"ask","topic":"times"}
-{"char":"wiggins","t":"ask","topic":"fina"}
+{"char":"portero","t":"ask","topic":"reichenbach"}
+{"char":"wiggins","t":"ask","topic":"ronald_adair"}
 {"t":"leave"}
 # ── 9.M · miércoles 4 de abril, mañana · desk
 {"t":"end_slot"}
@@ -420,7 +367,7 @@
 # guion: Paseo del guion: Baker Street la víspera.
 {"area":"calle","place":"L3","seat":0,"t":"go"}
 # ── 9.T · miércoles 4 de abril, tarde · visit
-{"char":"wiggins","t":"ask","topic":"reichenbach"}
+{"char":"wiggins","t":"ask","topic":"cornisa"}
 {"t":"leave"}
 # ── 9.T · miércoles 4 de abril, tarde · desk
 {"t":"end_slot"}
@@ -429,35 +376,25 @@
 # ── 9.night · miércoles 4 de abril, noche, 22 h · night
 {"t":"sleep"}
 # ── 10.M · jueves 5 de abril, mañana · confront
-#    llegó R.HC07.27
-#    llegó R.D37.26 (mostrador_crane)
-{"area_frac":0.05,"hits":[{"cover":0.9,"node":"librero_dedos","tight":true}],"plate":"PL.HC07","t":"clip_plate","touched":["librero_dedos"]}
-{"area_frac":0.05,"hits":[{"cover":0.9,"node":"librero_sombra","tight":true}],"plate":"PL.HC07","t":"clip_plate","touched":["librero_sombra"]}
+#    llegó R.HC07.29
+#    llegó R.D37.28 (mostrador_crane)
 {"item":{"id":"RC0006","kind":"clip"},"step":1,"t":"confront"}
-{"item":{"id":"RC0007","kind":"clip"},"step":2,"t":"confront"}
-{"item":{"id":"RC0021","kind":"clip"},"step":3,"t":"confront"}
-{"item":{"id":"RC0011","kind":"clip"},"step":4,"t":"confront"}
+{"item":{"id":"RC0002","kind":"clip"},"step":2,"t":"confront"}
+{"item":{"id":"RC0017","kind":"clip"},"step":3,"t":"confront"}
+{"item":{"id":"RC0008","kind":"clip"},"step":4,"t":"confront"}
 # ── 10.M · jueves 5 de abril, mañana · final_report
-{"clip":"RC0044","t":"folio_open"}
-{"folio":"FO013","t":"entry_new","template":"T3"}
-{"entry":"AS015","field":"persona","line":0,"t":"entry_set","value":"librero"}
-{"entry":"AS015","item":"RC0044","line":0,"t":"entry_support_add"}
-{"entry":"AS015","field":"es","line":1,"t":"entry_set","value":"holmes"}
-{"entry":"AS015","item":"RC0043","line":1,"t":"entry_support_add"}
-{"entry":"AS015","item":"RC0031","line":1,"t":"entry_support_add"}
-{"entries":["AS015"],"t":"pass_clean"}
 # guion: Informe final: Lisle lo quema.
 {"items":[],"mode":"quemar","t":"report_submit"}
 # ── 10.T · jueves 5 de abril, tarde · parklane
-#    llegó R.HC08.28
+#    llegó R.HC08.30
 {"t":"leave"}
 # ── 10.N · jueves 5 de abril, noche · night_choice
-#    llegó R.HC09.29
+#    llegó R.HC09.31
 {"t":"night_choice","where":"casa"}
 # ── E.dawn · Octubre de 1903, amanecer · epilogue
 # guion: 1903: guarda la fe de erratas.
 {"t":"publish_errata","yes":false}
 # guion: 1903: la tijera sobre «A tall, thin man with coloured glasses…» (D38@L1#hombre_alto).
-{"from":322,"len":190,"src":{"block":0,"kind":"doc","part":0,"ref":"D38@L1"},"t":"clip_text"}
+{"from":322,"len":47,"src":{"block":0,"kind":"doc","part":0,"ref":"D38@L1"},"t":"clip_text"}
 {"t":"leave"}
 # ── fin · done · final F3a

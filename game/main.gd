@@ -1,7 +1,7 @@
 # main.gd — arranque (ARCHITECTURE §2.3). Dueño: W3-SHELL. main.tscn = Node con este script (única escena del juego).
 # Lee los argumentos de usuario (tras «--») y crea la Shell (ui/shell.gd), que posee capas, mundo y pantallas.
 #   --new · --continue · --seed=N · --script=res://….jsonl (aplica acciones en orden con Game.act, para capturas) ·
-#   --screen=<title|game|reader:D05|notebook|ledger|map|place:L4[.area]|epilogue> · --fast (sin fundidos ni esperas)
+#   --screen=<title|game|reader:D05|notebook|dossier|map|place:L4[.area]|epilogue> · --fast (sin fundidos ni esperas)
 # Extensiones (desarrollo): --data=fixture|<ruta> (dataset: «fixture» = data/ estructural + tests/fixtures/integ, como
 #   test_i_integration) · --save=<ruta> (registro de partida aparte) · --mute (sin sonido; capturas y tests) ·
 #   --look=<id> (estilo de imagen del 3D para esta sesión: world/post/looks.gd; gana sobre Opciones y no se guarda).

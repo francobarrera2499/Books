@@ -1,11 +1,13 @@
-# ui/epilogue/blue_pencil.gd — el libro mayor devuelto, corregido a lápiz azul (W4-EPILOGUE; GDD §12.3 «Después de los
-# créditos», ARCHITECTURE §5.2 Endings.blue_pencil, §2.3 BluePencil). Toda la libreta (Varios, folios, Erratas inocentes;
-# no las Reglas) tal como la dejó el jugador: a lápiz en letra de mano gris, en tinta en letra de imprenta con su «Visto».
-# Encima, con la letra de S. H. en azul: tachado y nota al margen en cada asiento erróneo («Dele: …»), las faltas al pie
-# («Falta: …»), y la firma («Tírese. —S. H.» o «Corríjase y vuelva a pruebas. —S. H.»; «Hum. Nada que corregir.» si no hay
-# nada). Revela al terminar; no entrega nada durante el juego. Rueda = desplazar; «Cerrar el libro» (pie fijo al borde
-# de abajo, siempre a la vista) o Esc / clic derecho / Intro (close_book) -> finished.
-#   open(sim, shell) · start() · finished · notes() -> Array (tests: textos azules mostrados)
+# ui/epilogue/blue_pencil.gd — el Expediente Holmes devuelto, corregido a lápiz azul (post-créditos). Dueño: UI-EXPEDIENTE
+# (GDD_v3 §6.10 «Lápiz azul»; antes W4-EPILOGUE con el libro mayor). Lee el expediente (ExpedienteModel.pencil: q_dossier
+# + q_blue_pencil), no el libro mayor: cada hoja tal como la dejó el jugador (en tinta, con el texto de Lisle en letra
+# de imprenta negra; a lápiz, la respuesta y las pruebas en letra de mano gris). Encima, con la letra de S. H. en azul:
+# tachado y nota al margen en cada hoja en lápiz completa que no cierra («Corríjalo: …»), y en el margen de cada pregunta
+# nacida sin tinta «Falta: …»; las notas sin pregunta conocida, al pie; la firma («Tírese. —S. H.» o «Corríjase y
+# vuelva a pruebas. —S. H.»; «Hum. Nada que corregir.» si no hay nada). Revela al terminar; no entrega nada durante el
+# juego. Rueda = desplazar; «Cerrar el libro» (pie fijo al borde de abajo, siempre a la vista) o Esc / clic derecho /
+# Intro (close_book) -> finished.
+#   open(sim, shell) · start() · finished · notes() -> Array (tests: textos azules mostrados) · close_book() · close_rect()
 extends Control
 
 signal finished
@@ -13,7 +15,7 @@ signal finished
 const Paper = preload("res://ui/kit/paper.gd")
 const Widgets = preload("res://ui/kit/widgets.gd")
 const TextBuilder = preload("res://ui/reader/text_builder.gd")
-const Model = preload("res://ui/epilogue/epilogue_model.gd")
+const Model = preload("res://ui/expediente/expediente_model.gd")
 
 const SHEET_W := 940.0
 const NOTE_W := 270.0
@@ -31,9 +33,8 @@ var _blue: Array = []          # nodos azules (aparecen de a uno)
 var _close: Button
 var _done := false
 
-# Tachado azul sobre un asiento erróneo (dibujado encima del texto): un trazo por renglón, a media altura de la letra y
-# sólo hasta donde llega el texto. Con un único trazo al 52 % del bloque, en un asiento de dos renglones caía entre
-# ambos y se leía como un subrayado.
+# Tachado azul sobre una hoja errónea (dibujado encima del texto): un trazo por renglón, a media altura de la letra y
+# sólo hasta donde llega el texto.
 class Strike extends Control:
 	var label: Label = null
 	func _init() -> void:
@@ -101,17 +102,16 @@ func _init() -> void:
 	var top := Control.new()
 	top.custom_minimum_size = Vector2(0, 26)
 	col.add_child(top)
-	_sheet = Widgets.sheet("libro_mayor", {"ruled": true, "margin_line": 40, "margin_double": true, "pad": 58})
+	_sheet = Widgets.sheet("carta", {"margin_line": 40, "margin_double": true, "pad": 58})
 	_sheet.custom_minimum_size = Vector2(SHEET_W, 0)
 	col.add_child(_sheet)
 	_list = VBoxContainer.new()
-	_list.add_theme_constant_override("separation", 14)
+	_list.add_theme_constant_override("separation", 16)
 	_sheet.add_child(_list)
 	var bot := Control.new()
 	bot.custom_minimum_size = Vector2(0, 30)
 	col.add_child(bot)
-	# pie FIJO al borde de abajo (fuera del desplazable): la única salida del juego siempre a la vista, sin adivinar la
-	# rueda (W4: con un solo asiento el botón quedaba bajo el borde). Esc, clic derecho e Intro también cierran el libro.
+	# pie FIJO al borde de abajo (fuera del desplazable): la única salida del juego siempre a la vista.
 	var foot := CenterContainer.new()
 	foot.name = "PieFijo"
 	foot.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -119,7 +119,6 @@ func _init() -> void:
 	foot.offset_top = -FOOT_H
 	foot.offset_bottom = 0
 	add_child(foot)
-	# sobre la mesa oscura un botón de tinta no se ve: va en una tira de papel
 	var chip := Widgets.paper_panel("carta", null, {"margin": 8, "shadow": true})
 	chip.name = "Pie"
 	foot.add_child(chip)
@@ -176,22 +175,19 @@ func _build() -> void:
 	head.add_child(_blue_label(String(vm.get("title", "")), 1.35, -1.0))
 	head.add_child(_blue_label(String(vm.get("header", "")), 0.85, -0.6))
 	_list.add_child(head)
-	var pages: Array = vm.get("pages", [])
-	if pages.is_empty():
+	var rows: Array = vm.get("rows", [])
+	if rows.is_empty():
 		_list.add_child(_hand(String(vm.get("empty", "")), "lapiz", 0.9))
-	for pg in pages:
-		var t := _print(String(pg.title), "DocTitle")
-		_list.add_child(t)
-		for row in pg.rows:
-			_list.add_child(_row(row))
-	# faltas al pie
-	var missing: Array = vm.get("missing", [])
-	if not missing.is_empty():
+	for row in rows:
+		_list.add_child(_row(row))
+	# notas sin pregunta conocida, al pie
+	var extra: Array = vm.get("extra", [])
+	if not extra.is_empty():
 		_list.add_child(Widgets.rule())
 		var mv := VBoxContainer.new()
 		mv.add_theme_constant_override("separation", 6)
 		var i := 0
-		for n in missing:
+		for n in extra:
 			mv.add_child(_blue_label(String(n), 0.9, -1.2 + 0.5 * float(i % 3)))
 			i += 1
 		_list.add_child(mv)
@@ -204,27 +200,30 @@ func _build() -> void:
 	sign_row.add_child(sg)
 	_list.add_child(sign_row)
 
+# Una hoja: la pregunta (letra de Lisle, negra) y, debajo, la tinta o el borrador a lápiz; al margen, lo azul.
 func _row(row: Dictionary) -> Control:
 	var h := HBoxContainer.new()
-	h.name = "Asiento_" + String(row.eid)
+	h.name = "Hoja_" + String(row.q)
 	h.add_theme_constant_override("separation", 16)
 	var body := VBoxContainer.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 2)
-	var cap := Widgets.caption("%s · %s" % [Model.tx(sim, "ledger.asiento", {"n": int(row.n)}), String(row.tname)])
-	body.add_child(cap)
-	var inked := String(row.ink) == "tinta"
-	var txt := String(row.summary)
+	var q := _hand(String(row.text), "negra", 0.95)
+	q.name = "Pregunta"
+	body.add_child(q)
+	var inked := String(row.state) == "tinta"
+	var txt := String(row.ink_text) if inked else Model.draft_summary(sim, row)
 	if txt == "":
 		txt = "—"
 	var holder := Control.new()
 	holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var l: Label = _print(txt, "", 0.92) if inked else _hand(txt, "lapiz", 0.82)
+	var l: Label = _print(txt, "", 0.9) if inked else _hand(txt, "lapiz", 0.8)
+	l.name = "Texto"
 	holder.add_child(l)
 	l.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	l.resized.connect(func(): holder.custom_minimum_size = Vector2(0, l.size.y))
 	body.add_child(holder)
-	if bool(row.wrong):
+	if bool(row.wrong) and not inked:
 		var s := Strike.new()
 		s.name = "Tachado"
 		s.label = l
@@ -235,10 +234,10 @@ func _row(row: Dictionary) -> Control:
 	h.add_child(body)
 	var margin := VBoxContainer.new()
 	margin.custom_minimum_size = Vector2(NOTE_W, 0)
-	if inked:
-		margin.add_child(Widgets.stamp(Model.tx(sim, "kit.stamp.visto"), "roja", -5.0, true))
-	if bool(row.wrong) and String(row.note) != "":
-		margin.add_child(_blue_label(String(row.note), 0.82, -2.2))
+	var i := 0
+	for n in row.get("notes", [row.note] if String(row.get("note", "")) != "" else []):
+		margin.add_child(_blue_label(String(n), 0.82, -2.2 + 0.6 * float(i % 2)))
+		i += 1
 	h.add_child(margin)
 	return h
 

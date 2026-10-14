@@ -1,4 +1,7 @@
-# core/graph/invariant.gd — invariante acotada (§5.6, GDD§10.3; T1, T3, D1). Dueño: W2-GRAPH.
+# core/graph/invariant.gd — invariante acotada (§5.6, GDD§10.3; GDD_v3 §2.2; T1, T3, D1). Dueño: CORE-EXPEDIENTE.
+# v3: «conclusión» = variante principal de una pregunta obligatoria (RouteDB.unit). Preguntas con invariante
+#   "desde_nacimiento" (Q8) se evalúan sólo desde que pueden nacer (la ruta declarada más temprana): ≥2 intactas y ≥1
+#   sólo-I, sin exigir la condición (4) de ejemplar común. Una pregunta en tinta (st.ded.dossier.inked) ya no cuenta.
 # Contrato §3.8:
 #   check(repo, cid, from_idx, cuts, clipped := {}) -> {ok, intact, star, reason}
 #   runtime_guard(st, repo, extra_cuts) -> {ok, violated:[cid]}        (D1; lo llama Director antes de aplicar un corte)
@@ -19,7 +22,7 @@
 #   franja desde la actual hasta max(actual, 8.N) (D1_UNTIL; los días 9–10 sólo la franja real, §12.1.9).
 # ms: core/ no usa Time; opts.clock (Callable que devuelve ms) lo mide si se pasa.
 # runtime_guard lee (sin escribir) st.clock, st.flags (máscaras con los flags reales), st.react.delivered (cortes ya
-#   aplicados: {rid, due_tk, soft, cuts?}; cuts = los de runtime de Director), st.ded.sealed y st.ded.clips (recorte = {origin, tags}; cubre un fragmento si
+#   aplicados: {rid, due_tk, soft, cuts?}; cuts = los de runtime de Director), st.ded.dossier.inked y st.ded.clips (recorte = {origin, tags}; cubre un fragmento si
 #   comparte origen y alguna etiqueta a:). Cortes extra con rel:true se re-anclan a la franja actual.
 extends RefCounted
 
@@ -41,9 +44,19 @@ static func compile(repo, cid: String) -> Dictionary:
 	var cc := Av.sub(repo, "comp")
 	if cc.has(cid):
 		return cc[cid]
-	var comp := {"cid": cid, "last": RouteDB.last_idx(repo, cid), "routes": [], "srcs": {}, "frags": {}, "pending": []}
-	if repo.conclusion(cid).is_empty():
-		comp.pending.append("conclusión %s inexistente" % cid)
+	var u := RouteDB.unit(repo, cid)
+	var comp := {"cid": cid, "last": RouteDB.last_idx(repo, cid), "routes": [], "srcs": {}, "frags": {}, "pending": [],
+		"start": 0, "common": String(u.get("invariante", "normal")) == "normal"}
+	if u.is_empty():
+		comp.pending.append("pregunta %s inexistente" % cid)
+	elif not comp.common:
+		var st0 := -1
+		for r in u.get("routes", []):
+			if typeof(r) == TYPE_DICTIONARY and r.get("from") != null:
+				var fi := TimeKey.idx_at_or_after(TimeKey.of(r.from))
+				if st0 < 0 or fi < st0:
+					st0 = fi
+		comp.start = maxi(st0, 0)
 	for r in RouteDB.routes(repo, cid):
 		if not r.missing.is_empty():
 			for m in r.missing:
@@ -106,6 +119,8 @@ static func _eval_lims(comp: Dictionary, lims: Array, i: int) -> Dictionary:
 	var intact: Array = []
 	var star: Array = []
 	var common = null
+	if i < int(comp.get("start", 0)):
+		return {"ok": true, "intact": [], "star": [], "reason": "", "common": []}
 	for k in comp.routes.size():
 		if int(lims[k]) < i or i > int(comp.last):
 			continue
@@ -121,7 +136,7 @@ static func _eval_lims(comp: Dictionary, lims: Array, i: int) -> Dictionary:
 				if r.ex.has(e):
 					keep.append(e)
 			common = keep
-	if common == null:
+	if common == null or not bool(comp.get("common", true)):
 		common = []
 	var ok: bool = intact.size() >= 2 and star.size() >= 1 and common.is_empty()
 	var reason := ""
@@ -318,7 +333,8 @@ static func runtime_guard(st, repo, extra_cuts: Array) -> Dictionary:
 		else:
 			extra.append(c)
 	var ded := _stget(st, "ded")
-	var sealed = ded.get("sealed", {})
+	var dos = ded.get("dossier", {})
+	var sealed = dos.get("inked", {}) if typeof(dos) == TYPE_DICTIONARY else {}
 	if typeof(sealed) != TYPE_DICTIONARY:
 		sealed = {}
 	var violated: Array = []
@@ -596,7 +612,7 @@ static func t3(repo, opts := {}) -> Dictionary:
 	var res := {"ok": true, "states": 0, "failures": [], "ms": 0, "pending": [], "k": {}, "softened": 0, "fuzz": 0,
 		"plan": {}, "fails_by": {}}
 	var eval_to := Av.idx_at_or_before(TimeKey.of(String(opts.get("eval_to", "8.N"))))
-	var mand := RouteDB.mandatory(repo)
+	var mand := RouteDB.mandatory(repo) + RouteDB.from_birth(repo)
 	if opts.has("only"):
 		var keep: Array = []
 		for c in mand:
@@ -622,7 +638,11 @@ static func t3(repo, opts := {}) -> Dictionary:
 				for c in u.hard:
 					for m in u.moments:
 						fcuts.append(CutModel.at(c, int(m)))
-		var p := Feasibility.plan(repo, int(opts.get("feas_from", 0)), fcuts, Av.sorted_keys(comps))
+		var need: Array = []
+		for cid in Av.sorted_keys(comps):
+			if bool(comps[cid].get("common", true)):
+				need.append(cid)   # GDD_v3 §2.3: Q8 (desde_nacimiento) no entra en la factibilidad
+		var p := Feasibility.plan(repo, int(opts.get("feas_from", 0)), fcuts, need)
 		res.plan = p
 		if not p.ok:
 			_fail(res, "plan", "factibilidad global desde %s: %s" % [_lab(int(opts.get("feas_from", 0))), str(p.unmet)])

@@ -5,7 +5,9 @@
 # - No marca pistas: sólo D46 y las plantillas de cartas de la Remington llevan etiquetas ocultas, y sólo a:/c:.
 # - Inyección (gancho de PROGRESIÓN): cada documento estático empieza con su línea; D46#fisica y R:HA1.fisica se resuelven.
 # - Recortable: el tramo #fisica de D46 da papel_crema_grueso y a:vinculo_mycroft; un recorte real (D23 en el prólogo)
-#   lleva la entidad del papel en el pie.
+#   lleva la entidad del papel en el pie. v3 (CONTENIDO, GDD_v3 §6.2): un recorte tiene ≤15 palabras, así que se recortan
+#   las primeras 15 de la línea (cubren ≥50 % del tramo y heredan sus etiquetas); los documentos inactivos (data/corpus.json)
+#   no se cargan, pero su descripción física queda en fisica.json para el «capítulo siguiente».
 extends "res://tests/test_base.gd"
 
 const Fisica = preload("res://core/text/fisica.gd")
@@ -24,7 +26,7 @@ func test_coverage_docs_and_templates() -> void:
 	ok(not fis.is_empty(), "data/fisica.json existe")
 	var ids: Array = r.docs().keys()
 	ids.sort()
-	ok(ids.size() >= 70, "documentos: %d" % ids.size())
+	ok(ids.size() >= 55, "documentos activos: %d" % ids.size())
 	for id in ids:
 		ok(not Fisica.spec_doc(fis, String(id)).is_empty(), "%s tiene descripción física" % id)
 	var ents := {}
@@ -36,7 +38,7 @@ func test_coverage_docs_and_templates() -> void:
 	for e in ents:
 		ok(not Fisica.spec_tpl(fis, String(e)).is_empty(), "plantilla %s tiene descripción física" % e)
 	for id in fis.get("docs", {}):
-		ok(r.docs().has(String(id)), "fisica.docs.%s es un documento" % id)
+		ok(r.docs().has(String(id)) or r.is_inactive(String(id)), "fisica.docs.%s es un documento (activo o del corpus inactivo)" % id)
 
 func test_fixed_format_one_sentence_one_tramo() -> void:
 	var r = repo()
@@ -104,10 +106,24 @@ func test_d46_clip_carries_paper_entity() -> void:
 	ok(not t.is_empty(), "tramo #fisica de D46")
 	if t.is_empty():
 		return
-	var pv := SelectionMapper.preview(pt, int(t.from), int(t.to) - int(t.from))
-	ok(bool(pv.ok), "se puede recortar entero")
+	var to := _to_after_words(pt, int(t.from), int(t.to), 15)
+	var pv := SelectionMapper.preview(pt, int(t.from), to - int(t.from))
+	ok(bool(pv.ok), "se recortan las primeras 15 palabras: %s" % str(pv))
 	eq(String(pv.tramo), "fisica", "recorte del tramo #fisica")
 	has(pv.ents, "papel_crema_grueso", "el pie del recorte: papel crema grueso")
+	has(pv.tags, "a:vinculo_mycroft", "15 palabras heredan las etiquetas del tramo (≥50 %)")
+
+# Fin de la palabra n-ésima (o del tramo) desde `from`: un recorte legal de ≤15 palabras.
+static func _to_after_words(pt: Dictionary, from: int, to: int, n: int) -> int:
+	var k := 0
+	var end := to
+	for w in pt.get("words", []):
+		if int(w[0]) >= from and int(w[1]) <= to:
+			k += 1
+			if k == n:
+				end = int(w[1])
+				break
+	return end
 
 func test_real_clip_of_the_physical_line() -> void:
 	var sim = GameSim.new(repo(), 7)
@@ -124,8 +140,9 @@ func test_real_clip_of_the_physical_line() -> void:
 	ok(not t.is_empty(), "la vista del encargo trae su línea física")
 	if t.is_empty():
 		return
+	var to := _to_after_words(pt, int(t.from), int(t.to), 15)
 	var res: Dictionary = sim.apply({"t": "clip_text", "src": {"kind": "doc", "ref": "D23@L1", "part": 0, "block": 0},
-		"from": int(t.from), "len": int(t.to) - int(t.from)})
+		"from": int(t.from), "len": to - int(t.from)})
 	ok(bool(res.get("ok", false)), "recortar la descripción física: %s" % str(res))
 	if bool(res.get("ok", false)):
 		var c: Dictionary = sim.q_clip(String(res.clip))

@@ -210,53 +210,51 @@ func test_report_cats_entries_template_values():
 	no(a3.has("falso_verificable"), "Baker Street es verdadero")
 	eq(MoranAgent.report_item(st, r, {"kind": "entry", "id": "A1"}).values, {"persona": "holmes", "lugar": "montpellier", "dia": "jueves"})
 
-func test_report_cats_entries_by_values():
-	# entry_conclusions usa Validator.values_match (W2-DED). Con el stub no hay coincidencias: se salta.
-	var r = fixture_repo("data_min")
-	var val = load("res://core/deduction/validator.gd")
-	var e := {"template": "T2", "lines": [{"fields": {"fuente": "fina", "calla": "raspadura"}, "support": []}, {"fields": {"consta_en": "galerada"}, "support": []}]}
-	if not val.values_match(r, e, "C2", {}):
-		skip("Validator.values_match todavía es stub (W2-DED)")
-		return
-	var st = _st_with({}, {"A1": e})
-	var lists: Dictionary = r.lists()
-	var has_c2 := false
-	for c in lists.get("report_cats", []):
-		if c.get("entry_conclusions", []).has("C2"):
-			has_c2 = true
-	if has_c2:
-		has(MoranAgent.report_cats(st, r, {"kind": "entry", "id": "A1"}), "verdadero")
+# v3 (GDD_v3 §6.10): Moran lee una PREGUNTA informada por su respuesta visible y su estado (lápiz/tinta), nunca por si
+# cierra. «Harris» cuenta como Moran (Moran sabe quién es). Q1/Q2 sólo dan crédito en tinta.
+func _st_q(answers: Dictionary, inked: Array = []):
+	var st = GameState.new()
+	st.ded = {"clips": {}}
+	st.react = {}
+	st.clock = {"day": 5, "slot": "M", "phase": "desk"}
+	var born := {}
+	var drafts := {}
+	var ink := {}
+	var n := 0
+	for q in answers:
+		n += 1
+		born[q] = {"tk": 41, "via": "test", "origin": "", "n": n}
+		if inked.has(q):
+			ink[q] = {"tk": 51, "variant": "A", "answer": String(answers[q]), "proofs": ["", ""], "n": n}
+		else:
+			drafts[q] = {"answer": String(answers[q]), "proofs": ["", ""]}
+	st.ded["dossier"] = {"born": born, "open": {}, "waiting": [], "drafts": drafts, "inked": ink, "attempts": {}, "noticed": {}, "seen": {}, "shown_n": n}
+	return st
 
-# Hallazgo del playtest (sistemas): Moran lee lo que DICE el asiento, no si coincide con la respuesta oculta. Un T4 que
-# nombra a Moran como redactor es moran_autor (M4) sea cual sea el documento; un lápiz con los valores de C5 no da
-# crédito (sólo un asiento en tinta, o un recorte con c:verdadero); «Harris» cuenta sin C10a sellado.
-func test_report_cats_real_by_visible_fields():
+func test_report_cats_questions_by_visible_answer():
 	var r = repo()
-	var mk4 := func(doc: String, who: String, ink: String) -> Dictionary:
-		return {"template": "T4", "ink": ink, "lines": [{"fields": {"documento": doc}, "support": []}, {"fields": {"redacto": who}, "support": []}]}
-	var st = _st_with({}, {
-		"A1": mk4.call("fina", "moran", "lapiz"),
-		"A2": mk4.call("cartas_del_coronel", "moran", "lapiz"),
-		"A3": mk4.call("cartas_del_coronel", "harris", "lapiz"),
-		"A4": mk4.call("cartas_del_coronel", "moran", "tinta"),
-		"A5": mk4.call("cartas_del_coronel", "watson", "lapiz"),
-		"A6": {"template": "T7", "ink": "lapiz", "lines": [{"fields": {"persona": "holmes"}, "support": []}, {"fields": {"estado": "vivo"}, "support": []}]},
-		"A7": {"template": "T5", "ink": "lapiz", "lines": [{"fields": {"persona": "harris", "hizo": "matar", "que": "watson"}, "support": []}]},
-		"A8": {"template": "T5", "ink": "lapiz", "lines": [{"fields": {"persona": "moran", "hizo": "escribir", "que": "fina"}, "support": []}]},
-		"A9": {"template": "T5", "ink": "lapiz", "lines": [{"fields": {"persona": "holmes", "hizo": "ocultar", "que": "bienes"}, "support": []}, {}, {}, {"fields": {"donde": "camden_house"}, "support": []}]},
-	})
-	st.ded.sealed = {"C5": "A4"}
-	var cats := func(id: String) -> Array:
-		return MoranAgent.report_cats(st, r, {"kind": "entry", "id": id})
-	has(cats.call("A1"), "moran_autor", "«El problema final · Lo redactó: Moran» nombra a Moran como autor")
-	has(cats.call("A2"), "moran_autor")
-	no(cats.call("A1").has("verdadero"))
-	no(cats.call("A2").has("verdadero"), "un lápiz con los valores de C5 no da crédito: Moran no confirma valores")
-	eq(cats.call("A1"), cats.call("A2"), "mismas categorías con el documento verdadero o con otro: Moran no es oráculo")
-	has(cats.call("A3"), "moran_autor", "Harris como redactor, sin C10a sellado")
-	has(cats.call("A4"), "verdadero", "en tinta, sí da crédito")
-	no(cats.call("A5").has("moran_autor"))
-	has(cats.call("A6"), "holmes_vive")
-	has(cats.call("A7"), "moran_autor", "Harris como asesino")
-	no(cats.call("A8").has("moran_autor"), "«escribir» no es asesinar")
-	has(cats.call("A9"), "camden", "nombrar Camden House en cualquier campo")
+	if r.question("Q7").is_empty():
+		pending_content("data/dossier.json sin preguntas (CORE)")
+		return
+	var st = _st_q({"Q7": "moran", "Q6": "harris", "Q5": "holmes", "Q10": "watson", "Q1": "raspadura", "Q2": "cornisa", "Q9": "watson", "Q8": "wiggins"}, ["Q2"])
+	var cats := func(q: String) -> Array:
+		return MoranAgent.report_cats(st, r, {"kind": "pregunta", "id": q})
+	has(cats.call("Q7"), "moran_autor", "Q7 con Moran en lápiz y sin pruebas: Moran lee la respuesta, no si cierra")
+	has(cats.call("Q6"), "moran_autor", "«Harris» cuenta como Moran")
+	has(cats.call("Q5"), "holmes_vive")
+	has(cats.call("Q10"), "falso_verificable", "Q10 en lápiz con una persona que no es Holmes, Moran ni Harris")
+	no(cats.call("Q1").has("verdadero"), "Q1 en lápiz no da crédito")
+	has(cats.call("Q2"), "verdadero", "Q2 en tinta, sí")
+	has(cats.call("Q9"), "moran_autor", "Q9 con cualquier respuesta")
+	no(cats.call("Q8").has("moran_autor"), "Q8 con el muchacho no nombra a Moran")
+	eq(MoranAgent.report_cats(st, r, {"kind": "pregunta", "id": "Q3"}), [], "pregunta no nacida: nada")
+	var st2 = _st_q({"Q10": "holmes"})
+	var c10 := MoranAgent.report_cats(st2, r, {"kind": "pregunta", "id": "Q10"})
+	has(c10, "regreso_jueves")
+	has(c10, "baker_street")
+	no(c10.has("falso_verificable"))
+	var st3 = _st_q({"Q10": "harris"})
+	has(MoranAgent.report_cats(st3, r, {"kind": "pregunta", "id": "Q10"}), "camden")
+	var it := MoranAgent.report_item(st, r, {"kind": "pregunta", "id": "Q7"})
+	eq(String(it.kind), "pregunta")
+	eq(it.values, {"respuesta": "moran"})

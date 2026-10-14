@@ -1,7 +1,8 @@
 # devtools/bots/bot_novato.gd — el novato (W3-BOTS; §9.3, GDD §15.5 T10/T24): sólo usa verbos ya enseñados
 # (Tutorial.verbs_taught; un verbo no enseñado queda en stats.blocked y no se intenta), lee TODO lo legible en cada paso
 # (documentos, líneas, exámenes del diorama) y estima minutos = palabras/180 × 1,3 por tramo (GDD §7.7; mide el Acto III).
-# Practica antes de pagar: el primer día baja a la tienda de Crane (gratis) y allí pregunta, afirma y presenta; en una
+# Practica antes de pagar: el primer día baja a la tienda de Crane (gratis) y allí pregunta, afirma, presenta y le pregunta
+# «¿Dónde consigo…?» (GDD_v3 §5.2); en una
 # visita con costo pregunta una vez a cada personaje con diálogo. Investiga con el oráculo de rutas como el deductor,
 # pero informa «Sin novedad» (no busca crédito ante Moran) y pasa la noche final en casa.
 extends "res://devtools/bots/bot_base.gd"
@@ -58,24 +59,26 @@ func _practice_with(cid: String) -> void:
 	var ids := _clip_ids()
 	if not ids.is_empty():
 		act({"t": "present", "char": cid, "item": {"kind": "clip", "id": String(ids[0])}}, true)
+	if cid == "crane":
+		var dn: Array = sim.q_donde()
+		if not dn.is_empty():
+			act({"t": "ask_donde", "char": cid, "item": String(dn[0].id)}, true)
 
 func pol_confront(step_n: int) -> Dictionary:
 	return _confront_item(step_n)
 
 # ---------------------------------------------------------------- T24 (rampa)
 # Verbos con gemelo gratuito: antes del primer uso con costo debe haber un uso ok guiado (prólogo) o gratuito de alguno
-# de estos verbos (pasar en limpio <- practicar; preguntar/afirmar/presentar <- en la tienda de Crane; salir <- bajar a la
-# tienda). Los demás verbos con costo (papeleta, informe, confrontación, elección nocturna, errata, fin de franja,
+# de estos verbos (preguntar/afirmar/presentar <- en la tienda de Crane; salir <- bajar a la tienda). Los demás verbos con costo (papeleta, informe, confrontación, elección nocturna, errata, fin de franja,
 # anuncio…) no tienen versión gratuita: su primer uso debe ocurrir en el prólogo o ya enseñado en contexto por Tutorial
 # (instructor dentro del mundo: ujier, chico de Pell, Crane…), es decir con taught = true en el registro.
-const RAMP_TWINS := {"pass_clean": ["practice", "pass_clean"], "ask": ["ask"], "assert": ["assert"], "present": ["present"], "go": ["go"]}
-# Pasos del prólogo (GDD_v2 §B.7) y los verbos que el novato debe tocar en cada uno (al menos uno ok de cada grupo, en
-# fase prologue). La primera conclusión (juntar, hoja, conclusión, práctica) es del día 1: DAY1_TOUCH, antes de la
-# primera confirmación (day1_violations).
-const PROLOGUE_TOUCH := {"leer": ["read"], "recortar": ["clip_text", "clip_plate", "clip_measure"], "aviso": ["compose_ad"],
+const RAMP_TWINS := {"ask": ["ask"], "assert": ["assert"], "present": ["present"], "go": ["go"]}
+# Pasos del prólogo (GDD_v3 §6.9) y los verbos que el novato debe tocar en cada uno (al menos uno ok de cada grupo, en
+# fase prologue). El día 1 guiado (respuesta, pruebas, pasar en limpio): DAY1_TOUCH, antes de la primera vez que pasa en
+# limpio y el mismo día 1 (day1_violations).
+const PROLOGUE_TOUCH := {"leer": ["read"], "recortar": ["clip_text", "clip_plate"], "aviso": ["compose_ad"],
 	"dormir": ["sleep"]}
-const DAY1_TOUCH := {"juntar": ["link"], "hoja": ["folio_open"], "conclusión": ["entry_new"], "llenar": ["entry_set"],
-	"pruebas": ["entry_support_add"], "practicar": ["practice"]}
+const DAY1_TOUCH := {"leer": ["read"], "respuesta": ["dq_answer"], "pruebas": ["dq_proof"]}
 
 # Violaciones de T24 sobre un registro de bot (lista de {t, ok, free, costly, taught, phase, tk}). [] = rampa cumplida.
 static func ramp_violations(lg: Array) -> Array:
@@ -121,32 +124,38 @@ static func prologue_missing(lg: Array) -> Array:
 			out.append(k)
 	return out
 
-# Primera conclusión del día 1: cada grupo de DAY1_TOUCH tocado (ok, fuera del prólogo) antes del primer pass_clean ok,
-# y la práctica hecha el día 1. [] = cumplido (también si nunca confirma).
+# Día 1 guiado: cada grupo de DAY1_TOUCH tocado (ok, fuera del prólogo) antes del primer dq_confirm ok, y ese primer
+# dq_confirm el día 1; ningún dq_* antes del día 1. [] = cumplido.
 static func day1_violations(lg: Array) -> Array:
 	var seen := {}
-	var first_pass := -1
-	var practice_day := -1
+	var first_conf := -1
+	var conf_day := -1
+	var early: Array = []
 	for i in lg.size():
 		var e: Dictionary = lg[i]
 		if not bool(e.get("ok", false)):
 			continue
 		var t := String(e.t)
-		if t == "pass_clean" and first_pass < 0:
-			first_pass = i
-		if first_pass < 0 and String(e.get("phase", "")) != "prologue":
+		if t.begins_with("dq_") and int(e.get("day", 0)) < 1 and not early.has(t):
+			early.append(t)
+		if t == "dq_confirm" and first_conf < 0:
+			first_conf = i
+			conf_day = int(e.get("day", -1))
+		if first_conf < 0 and String(e.get("phase", "")) != "prologue":
 			seen[t] = true
-		if t == "practice" and practice_day < 0:
-			practice_day = int(e.get("day", -1))
 	var out: Array = []
-	if first_pass >= 0:
-		for k in DAY1_TOUCH:
-			var hit := false
-			for t in DAY1_TOUCH[k]:
-				if seen.has(t):
-					hit = true
-			if not hit:
-				out.append("%s: no antes de la primera confirmación" % k)
-	if practice_day >= 0 and practice_day != 1:
-		out.append("la práctica fue el día %d, no el 1" % practice_day)
+	for t in early:
+		out.append("%s antes del día 1" % t)
+	if first_conf < 0:
+		out.append("nunca pasó en limpio")
+		return out
+	for k in DAY1_TOUCH:
+		var hit := false
+		for t in DAY1_TOUCH[k]:
+			if seen.has(t):
+				hit = true
+		if not hit:
+			out.append("%s: no antes de pasar en limpio" % k)
+	if conf_day != 1:
+		out.append("la primera vez que pasó en limpio fue el día %d, no el 1" % conf_day)
 	return out

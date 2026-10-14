@@ -1,0 +1,83 @@
+{
+ "_nota": "Fixture negativo (W2-STRUCT; CORE-EXPEDIENTE lo pasó a v3): la ruta C2.R1 usa D91#raro (fragmento de huevo y con ⚠).",
+ "max_abiertas": 3,
+ "mostrar_todas": "8.dawn",
+ "alias": [],
+ "preguntas": [
+  {
+   "id": "C2",
+   "orden": 1,
+   "obligatoria": true,
+   "texto": "Pregunta C2.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "concepto"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "raspadura"
+     ],
+     "grupos": [
+      {
+       "id": "g",
+       "tags": [
+        "sin_raspadura"
+       ]
+      },
+      {
+       "id": "g2",
+       "tags": [
+        "refuta_algo"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta.",
+     "rutas": [
+      {
+       "id": "C2.R1",
+       "star": true,
+       "deps": "fija",
+       "from": "1.M",
+       "frags": [
+        {
+         "ref": "D91#raro",
+         "copy": "D91@BM"
+        },
+        {
+         "ref": "D91#refuta",
+         "copy": "D91@BM"
+        }
+       ],
+       "cut_by": []
+      }
+     ]
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  }
+ ]
+}

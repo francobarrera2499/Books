@@ -1,23 +1,25 @@
-# W2-SIM: catálogo de acciones (§3.5): normalize, shape_error, is_commit, fases.
+# CORE-EXPEDIENTE: catálogo de acciones (§3.5; GDD_v3 §1.7): normalize, shape_error, is_commit, fases.
 extends "res://tests/test_base.gd"
 
 const Actions = preload("res://core/sim/actions.gd")
 const J = preload("res://core/util/j.gd")
 
-const ALL := ["clip_text", "clip_plate", "clip_measure", "link", "unlink", "folio_open", "entry_new", "entry_set",
-	"entry_support_add", "entry_support_remove", "entry_delete", "practice", "pass_clean", "go", "slip", "order_copy",
-	"ask", "assert", "present", "pay", "task", "leave", "end_slot", "compose_ad", "compose_telegram", "compose_letter",
-	"report_submit", "sleep", "confront", "night_choice", "publish_errata", "read"]
-const COMMITTED := ["pass_clean", "go", "slip", "order_copy", "ask", "assert", "present", "pay", "task", "leave", "end_slot",
-	"compose_ad", "compose_telegram", "compose_letter", "report_submit", "sleep", "confront", "night_choice", "publish_errata"]
-const FREE_T := ["clip_text", "clip_plate", "clip_measure", "link", "unlink", "folio_open", "entry_new", "entry_set",
-	"entry_support_add", "entry_support_remove", "entry_delete", "practice", "read"]
+const ALL := ["clip_text", "clip_plate", "clip_drop", "read", "dq_answer", "dq_proof", "dq_confirm", "examine", "ask_donde", "go", "slip",
+	"order_copy", "ask", "assert", "present", "pay", "task", "leave", "end_slot", "compose_ad", "compose_telegram", "compose_letter",
+	"report_submit", "sleep", "confront", "night_choice", "publish_errata"]
+const COMMITTED := ["dq_confirm", "ask_donde", "go", "slip", "order_copy", "ask", "assert", "present", "pay", "task", "leave",
+	"end_slot", "compose_ad", "compose_telegram", "compose_letter", "report_submit", "sleep", "confront", "night_choice", "publish_errata"]
+const FREE_T := ["clip_text", "clip_plate", "clip_drop", "read", "dq_answer", "dq_proof", "examine"]
+const RETIRED := ["link", "unlink", "folio_open", "entry_new", "entry_set", "entry_support_add", "entry_support_remove",
+	"entry_delete", "practice", "pass_clean", "clip_measure"]
 
 func test_spec_covers_table():
 	var ks: Array = Actions.types()
 	for t in ALL:
 		has(ks, t, "SPEC")
 	eq(ks.size(), ALL.size(), str(ks))
+	for t in RETIRED:
+		no(ks.has(t), "GDD_v3 §1.7 retira " + t)
 
 func test_commit_flags():
 	for t in ALL:
@@ -32,8 +34,10 @@ func test_free_actions_everywhere_but_done():
 			has(ph, p, t)
 
 func test_phases_of_committed():
-	eq(Actions.phases_of("go"), ["desk"])
-	eq(Actions.phases_of("pass_clean"), ["desk", "final_report"])
+	eq(Actions.phases_of("go"), ["desk", "visit"], "desde una visita responde «desde_casa»")
+	eq(Actions.phases_of("ask_donde"), ["visit"])
+	has(Actions.phases_of("dq_confirm"), "final_report")
+	no(Actions.phases_of("dq_confirm").has("parklane"), "después del informe final, lo entintado no cambia")
 	eq(Actions.phases_of("sleep"), ["prologue", "night"])
 	eq(Actions.phases_of("report_submit"), ["night", "final_report"])
 	has(Actions.phases_of("compose_ad"), "prologue", "el aviso del prólogo")
@@ -88,3 +92,11 @@ func test_read_action_shape():
 	eq(Actions.normalize({"t": "read", "view": "D23@L1", "part": 2.0}).part, 2)
 	eq(Actions.shape_error({"t": "read"}), "falta:view")
 	no(Actions.is_commit("read"))
+
+# GDD_v3 §1.7: forma de las acciones del Expediente.
+func test_dossier_action_shapes():
+	eq(Actions.normalize({"t": "dq_answer", "q": "Q1"}), {"q": "Q1", "t": "dq_answer", "value": ""}, "value \"\" borra")
+	eq(Actions.normalize({"t": "dq_proof", "q": "Q1", "slot": 1.0}), {"clip": "", "q": "Q1", "slot": 1, "t": "dq_proof"})
+	eq(Actions.shape_error({"t": "dq_confirm"}), "falta:q")
+	eq(Actions.shape_error({"t": "examine", "ref": "hub/ventana_abierta"}), "")
+	eq(Actions.shape_error(Actions.normalize({"t": "ask_donde", "char": "crane"})), "falta:item")

@@ -1,0 +1,9 @@
+{
+  "_nota": "GDD_v3 §4 y §6.8 (REACCIONES-PIEZA). react.*: líneas de Lisle de las intrusiones (sobrias, sin carteles). react.falta = la tarjeta de un original que falta en el estante (q_missing, examine «missing/<copia>»); react.corriente = subtítulo neutro de la corriente de aire al entrar con la ventana abierta (el subtítulo del sonido evt.corriente está en data/audio.json, con el mismo texto).",
+  "text": {
+    "react.falta": "No está. La dejé acá anoche.",
+    "react.ventana_abierta": "Está abierta. Yo no la abrí.",
+    "react.corriente": "una corriente de aire",
+    "react.marca_copista": "Una marca chica a lápiz, al margen, que yo no hice."
+  }
+}

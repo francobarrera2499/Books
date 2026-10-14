@@ -14,7 +14,7 @@
     {"id": "D16@Crane", "holder": "Crane", "class": "I", "via": "shelf", "from": "8.M", "to": "10.M"}
   ],
   "parts": [
-    {"id": "p1", "text": "LA INDAGATORIA DE PARK LANE. — Grabados de los testigos. {{#moran a:harris_es_moran a:autor_moran e:moran e:bigote|El coronel [[moran|Sebastian Moran]], compañero de whist del difunto [[ronald_adair|Ronald Adair]] en la casa de [[park_lane_427|Park Lane]], tiene un [[bigote|bigote canoso]] enorme y cejas pesadas.}}"}
+    {"id": "p1", "text": "LA INDAGATORIA DE PARK LANE. — Grabados de los testigos. {{#moran a:rasgo_de_moran a:junto_a_adair e:moran e:bigote|El coronel [[moran|Sebastian Moran]], compañero de whist del difunto [[ronald_adair|Ronald Adair]] en la casa de [[park_lane_427|Park Lane]], tiene un [[bigote|bigote canoso]] enorme y cejas pesadas.}}"}
   ],
   "words": 45
 }

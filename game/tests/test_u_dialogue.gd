@@ -189,10 +189,14 @@ func test_present_hb4_first_and_second():
 		eq(rx.line.id, "hb4.2")
 		eq(String(Dialogue._line_vars(sx, rp, "watson").reabre), dc[1], "día %d: reabre" % dc[0])
 	Fakes.install()
-	# asiento que afirma que vive (T7 holmes/vivo)
+	# pregunta que dice que vive (v3: Moran la leería «holmes_vive», Q5 con holmes; GDD_v3 §6.10)
 	var st2 = _st({"chars": ["watson"]})
-	Fakes.entry(st2, "AS1", "T7", [{"fields": {"persona": "holmes"}, "support": []}, {"fields": {"estado": "vivo"}, "support": []}])
-	eq(Dialogue.act_present(st2, rp, {"char": "watson", "item": {"kind": "entry", "id": "AS1"}}).outcome, "HB4")
+	Fakes.question(st2, "Q5", "holmes", [], false)
+	st2.react["cats"] = {"Q5": ["holmes_vive"]}
+	eq(Dialogue.act_present(st2, rp, {"char": "watson", "item": {"kind": "pregunta", "id": "Q5"}}).outcome, "HB4")
+	var st2b = _st({"chars": ["watson"]})
+	Fakes.question(st2b, "Q5", "holmes", [], false)
+	eq(Dialogue.act_present(st2b, rp, {"char": "watson", "item": {"kind": "pregunta", "id": "Q5"}}).outcome, "", "sin «vive» no hay HB4")
 	# sólo Holmes, sin «vive»: no
 	var st3 = _st({"chars": ["watson"]})
 	Fakes.clip(st3, "RC2", "Holmes.", ["holmes"], [], "D03")
@@ -261,21 +265,21 @@ func test_task_wiggins():
 	st.clock.day = 7
 	eq(Dialogue.act_task(st, rp, {"char": "wiggins", "task": "seguir_parker"}).err, "no_aliado")
 
-# ---------------- HB12 (Mycroft) ----------------
+# ---------------- HB12 (Mycroft; GDD_v3 §6.10: Q3 en tinta, sin pruebas de S.HC06) ----------------
 func _mycroft_state():
 	var st = _st({"chars": ["mycroft"], "day": 8, "slot": "T", "place": "L5", "visit_id": "S.L5.8.T"})
 	Fakes.clip(st, "RC1", "Asiento 214.", [{"id": "act.3", "label": "asiento 214, mar. 27"}], ["a:ancla_kbm"], "R.HA1.1")
-	Fakes.clip(st, "RC2", "Pedí el Journal.", [{"id": "act.3", "label": "asiento 214, mar. 27"}], ["a:acto_kbm"], "D36")
-	Fakes.clip(st, "RC3", "El mismo asiento.", [{"id": "act.3", "label": "asiento 214, mar. 27"}], ["a:ancla_kbm"], "S.HC06")
 	Fakes.clip(st, "RC4", "Otra cosa.", ["reichenbach"], ["a:acto_kbm"], "S.M7")
-	Fakes.clip(st, "RCX", "Camden.", ["camden_house"], ["a:tirador", "f:secreto_camden"], "N.L8")
+	Fakes.clip(st, "RCX", "Camden.", ["camden_house", "mycroft"], ["a:vinculo_mycroft", "f:secreto_camden"], "N.L8")
+	Fakes.clip(st, "RV", "Un hombre anota mi asiento.", ["mycroft"], ["a:me_vigila_de_cerca"], "R.HA1.1")
+	Fakes.clip(st, "RM", "Mycroft fundó el Diógenes.", ["mycroft", "club_diogenes"], ["a:vinculo_mycroft"], "D01.GREE")
+	Fakes.clip(st, "RH", "Mi hermano lee todo.", ["mycroft"], ["a:vinculo_mycroft"], "S.HC06")
 	return st
 
 func test_hb12_success_offers_errata():
 	var st = _mycroft_state()
-	Fakes.entry(st, "AS1", "T6", [{"fields": {"persona": "mycroft", "relacion": "lee_a", "a_quien": "lisle", "por_medio": "sala_lectura"}, "support": ["RC1", "RC2"]}], "tinta")
-	st.ded.sealed["C6"] = "AS1"
-	var r: Dictionary = Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "entry", "id": "AS1"}})
+	Fakes.question(st, "Q3", "mycroft", ["RV", "RM"], true)
+	var r: Dictionary = Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "pregunta", "id": "Q3"}})
 	eq(r.outcome, "HB12")
 	eq(r.line.id, "hb12.ok")
 	eq(st.flags.errata_ofrecida, "mycroft")
@@ -287,13 +291,13 @@ func test_hb12_success_offers_errata():
 
 func test_hb12_errors_close_forasteros():
 	var st = _mycroft_state()
-	Fakes.entry(st, "AS2", "T6", [{"fields": {"persona": "holmes"}, "support": ["RC1", "RC4"]}])
+	Fakes.question(st, "Q3", "mycroft", ["RV", "RM"], false)
 	var r: Dictionary = Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "clip", "id": "RC1"}})
 	eq(r.outcome, "HB12_error")
 	eq(r.line.text, "Otra vez, señor Lisle; no tengo toda la tarde.")
 	no(st.flags.has("forasteros_cerrada"))
-	var r2: Dictionary = Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "entry", "id": "AS2"}})
-	eq(r2.outcome, "HB12_cerrada", "asiento sin sellar = error")
+	var r2: Dictionary = Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "pregunta", "id": "Q3"}})
+	eq(r2.outcome, "HB12_cerrada", "Q3 en lápiz = error")
 	eq(r2.line.id, "hb12.err2")
 	eq(st.flags.forasteros_cerrada, true)
 	no(st.flags.has("errata_ofrecida"))
@@ -301,43 +305,38 @@ func test_hb12_errors_close_forasteros():
 	eq(Dialogue.act_ask(st, rp, {"char": "mycroft", "topic": "reichenbach"}).err, "no_esta")
 	no(Dialogue.present_ok(st, rp, "mycroft"))
 
+func test_hb12_other_question_is_error():
+	var st = _mycroft_state()
+	Fakes.question(st, "Q6", "moran", ["RV", "RM"], true)
+	eq(Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "pregunta", "id": "Q6"}}).outcome, "HB12_error", "sólo Q3")
+
 func test_hb12_camden_is_error_and_withheld():
 	var st = _mycroft_state()
-	Fakes.entry(st, "AS3", "T6", [{"fields": {"persona": "amigo_de_la_exactitud"}, "support": ["RC1", "RCX"]}], "tinta")
-	st.ded.sealed["C7"] = "AS3"
-	var r: Dictionary = Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "entry", "id": "AS3"}})
+	Fakes.question(st, "Q3", "mycroft", ["RV", "RCX"], true)
+	var r: Dictionary = Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "pregunta", "id": "Q3"}})
 	eq(r.outcome, "HB12_error", "secreto_camden: error sin leerlo")
 	var item: Dictionary = st.pending_events[0].item
 	eq(item.withheld, true)
 	eq(item.ents, [])
-	no(item.has("entry_values"), "nada de Camden llega al evento")
+	no(item.has("answer"), "nada de Camden llega al evento")
 
 func test_hb12_ignores_hc06_clips():
 	var st = _mycroft_state()
-	# sólo vale por RC3 (S.HC06): sin él queda un origen -> no sostiene
-	Fakes.entry(st, "AS4", "T6", [{"fields": {"persona": "mycroft"}, "support": ["RC1", "RC3"]}], "tinta", {"fake_cid": "C6"})
-	st.ded.sealed["C6"] = "AS4"
-	eq(Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "entry", "id": "AS4"}}).outcome, "HB12_error")
-	# con un par (RC3 + RC4): se descarta RC3 y queda RC4 (S.M7) -> 2 orígenes
-	var st2 = _mycroft_state()
-	st2.ded.pairs["PR001"] = {"id": "PR001", "a": "RC3", "b": "RC4", "note": ""}
-	Fakes.entry(st2, "AS5", "T6", [{"fields": {"persona": "mycroft"}, "support": ["RC1", "PR001"]}], "tinta", {"fake_cid": "C6"})
-	st2.ded.sealed["C6"] = "AS5"
-	eq(Dialogue.act_present(st2, rp, {"char": "mycroft", "item": {"kind": "entry", "id": "AS5"}}).outcome, "HB12")
+	# una prueba de origen S.HC06: no vale
+	Fakes.question(st, "Q3", "mycroft", ["RV", "RH"], true)
+	eq(Dialogue.act_present(st, rp, {"char": "mycroft", "item": {"kind": "pregunta", "id": "Q3"}}).outcome, "HB12_error")
 	# línea dicha en la escena HC06 (origen = visita): también se excluye por el registro de la línea
 	var st3 = _mycroft_state()
 	st3.world["lines"] = {"LN.0042": {"uid": "LN.0042", "scene": "HC06", "origin": "S.L5.8.T"}}
-	Fakes.clip(st3, "RC5", "Mi hermano detesta las erratas.", ["mycroft"], ["a:ancla_kbm"], "S.L5.8.T", {"src_kind": "line", "view": "LN.0042"})
-	Fakes.entry(st3, "AS6", "T6", [{"fields": {"persona": "mycroft"}, "support": ["RC1", "RC5"]}], "tinta", {"fake_cid": "C6"})
-	st3.ded.sealed["C6"] = "AS6"
-	eq(Dialogue.act_present(st3, rp, {"char": "mycroft", "item": {"kind": "entry", "id": "AS6"}}).outcome, "HB12_error")
-	eq(st3.ded.entries.AS6.lines[0].support, ["RC1", "RC5"], "la revalidación no muta el asiento real")
+	Fakes.clip(st3, "RC5", "Mi hermano detesta las erratas.", ["mycroft"], ["a:vinculo_mycroft"], "S.L5.8.T", {"src_kind": "line", "view": "LN.0042"})
+	Fakes.question(st3, "Q3", "mycroft", ["RV", "RC5"], true)
+	eq(Dialogue.act_present(st3, rp, {"char": "mycroft", "item": {"kind": "pregunta", "id": "Q3"}}).outcome, "HB12_error")
+	eq(st3.ded.dossier.inked.Q3.proofs, ["RV", "RC5"], "la revalidación no muta la hoja")
 	# recortado desde el diario: Clipper guarda `scene` de la línea (view = id de diario, no uid)
 	var st4 = _mycroft_state()
-	Fakes.clip(st4, "RC6", "Mi hermano detesta las erratas.", ["mycroft"], ["a:ancla_kbm"], "S.L5.8.T", {"src_kind": "diary", "view": "DI.0007", "scene": "HC06"})
-	Fakes.entry(st4, "AS7", "T6", [{"fields": {"persona": "mycroft"}, "support": ["RC1", "RC6"]}], "tinta", {"fake_cid": "C6"})
-	st4.ded.sealed["C6"] = "AS7"
-	eq(Dialogue.act_present(st4, rp, {"char": "mycroft", "item": {"kind": "entry", "id": "AS7"}}).outcome, "HB12_error")
+	Fakes.clip(st4, "RC6", "Mi hermano detesta las erratas.", ["mycroft"], ["a:vinculo_mycroft"], "S.L5.8.T", {"src_kind": "diary", "view": "DI.0007", "scene": "HC06"})
+	Fakes.question(st4, "Q3", "mycroft", ["RV", "RC6"], true)
+	eq(Dialogue.act_present(st4, rp, {"char": "mycroft", "item": {"kind": "pregunta", "id": "Q3"}}).outcome, "HB12_error")
 
 # Ids de líneas especiales: los de W2-SCENES (hb12.ok…) o los que declara la reacción en su efecto `linea`
 # (reactions/*.json: HB12 hb12_exito/hb12_error_1/hb12_error_2 por `resultado`; HB8 vieja_tarifa, §4.8 L:wiggins.vieja_tarifa).
@@ -397,12 +396,15 @@ func test_show_event_carries_only_visible():
 	eq(it.ents, ["cornisa", "journal_de_geneve"], "sin entidades de Camden")
 	eq(it.origins, ["D05"])
 	eq(it.src_types, [], "D05 no está en este fixture")
-	Fakes.entry(st, "AS1", "T8", [{"fields": {"persona": "holmes"}, "support": ["RC1"]}, {"fields": {"lugar": "meiringen"}, "support": []}])
-	Dialogue.act_present(st, rp, {"char": "watson", "item": {"kind": "entry", "id": "AS1"}})
+	Fakes.question(st, "Q5", "holmes", ["RC1"], false)
+	Dialogue.act_present(st, rp, {"char": "watson", "item": {"kind": "pregunta", "id": "Q5"}})
 	var it2: Dictionary = st.pending_events[1].item
-	eq(it2.entry_values, {"lugar": "meiringen", "persona": "holmes"})
-	eq(it2.ents, ["holmes", "meiringen"])
+	eq(it2.kind, "pregunta")
+	eq(it2.q, "Q5")
+	eq(it2.answer, "holmes", "la respuesta en lápiz es visible")
+	eq(it2.ents, ["holmes"])
 	eq(it2.origins, ["D05"])
+	eq(Dialogue.act_present(st, rp, {"char": "watson", "item": {"kind": "entry", "id": "AS1"}}).err, "forma", "v3: sin asientos")
 	eq(Dialogue.act_present(st, rp, {"char": "watson", "item": {"kind": "clip", "id": "NADA"}}).err, "no_existe")
 	eq(Dialogue.act_present(st, rp, {"char": "watson", "item": {"kind": "pair", "id": "RC1"}}).err, "forma")
 
@@ -474,3 +476,15 @@ func test_said_lines_are_found_by_clipper():
 	var rec: Dictionary = real.find_record(st, String(r.line.uid))
 	eq(String(rec.get("text", "")), String(r.line.text), "Clipper (W2-DED) encuentra la línea en st.scenes.lines")
 	eq(String(rec.get("origin", "")), "S.L4.3.M")
+
+# Playtest v3: los temas suman lo que Lisle conoce por haberlo leído u oído (st.world.known), como el selector de
+# respuestas: «Sherlock Holmes» no salía en el 221B porque nadie lo había recortado.
+func test_topics_include_known():
+	var st = _st({"chars": ["watson"], "index": ["pared"]})
+	st.world["known"] = {"holmes": 5, "act.3": 5, "no_existe_xx": 5}
+	var ids: Array = Dialogue.topics(st, rp, "watson").map(func(x): return x.id)
+	has(ids, "holmes", "lo leído es tema")
+	has(ids, "pared")
+	no(ids.has("act.3"), "un acto no")
+	no(ids.has("no_existe_xx"), "lo que no es entidad, no")
+	ok(Dialogue.act_ask(st, rp, {"char": "watson", "topic": "holmes"}).get("ok", true) != false, "y se puede preguntar")

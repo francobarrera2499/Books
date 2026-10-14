@@ -1,50 +1,67 @@
-# tests/fixtures/w3notebook/nb_walk.gd — GameSim del recorrido de integración para el cuaderno (W3-NOTEBOOK).
-# El recorrido (test_i_integration._walk: datos estructurales de data/ + tests/fixtures/integ, prólogo -> amanecer del
-# día 4) se hace UNA vez por proceso, en un dataset temporal propio del proceso (.work/tests/nb_walk_<pid>/: dos corridas
-# en paralelo no se pisan), que se borra apenas DataRepo lo cargó (lo lee entero). Cada sim() es un GameSim.replay
-# nuevo de esas acciones: los tests pueden mutarlo sin afectarse entre sí.
+# tests/fixtures/w3notebook/nb_walk.gd — GameSim del cuaderno para test_u_notebook (UI-EXPEDIENTE; antes W3-NOTEBOOK).
+# v3 (GDD_v3 §7.1: «las UI trabajan contra tests/fixtures/v3/»): el escenario se arma sobre el fixture de CORE
+# (tests/fixtures/v3/v3_fixture.gd: día 1 en el escritorio, prólogo hecho, sus recortes de ejemplo) más lo que el
+# cuaderno necesita mostrar, sin depender del recorrido de integración (que cambia con el contenido):
+#   recortes con fecha de crónica (mayo de 1891 dos veces el mismo día, abril de 1890, septiembre de 1888), personas y
+#   lugares del índice (Watson en tres), uno legible (D03@tomo), uno de lámina (PL.prologo) y los del fixture (sin fecha);
+#   el índice con ≥12 entradas (pestaña Índice); diario: las líneas del prólogo (Pell, Harris), dos de Watson (escena S.L4.1.M, la primera con dos oraciones), una de
+#   Lisle y una llegada a la bandeja (el Times del 27, con su sello «Recibido»).
+# Cada sim() es una GameSim nueva (los tests pueden mutarla). ids(sim) -> {nombre: id de recorte}.
 extends RefCounted
 
-const Integ = preload("res://tests/test_i_integration.gd")
-const GameSim = preload("res://core/sim/game_sim.gd")
+const V3 := "res://tests/fixtures/v3/v3_fixture.gd"
+const CLIPPER := "res://core/deduction/clipper.gd"
+const DIARY := "res://core/sim/diary.gd"
+const SEED := 7
 
-static var _repo = null
-static var _actions: Array = []
 static var errs: Array = []
 
-static func ok() -> bool:
-	_ensure()
-	return _repo != null
-
 static func repo():
-	_ensure()
-	return _repo
+	return load("res://core/data/data_repo.gd").load_dir("res://data")
 
-static func actions() -> Array:
-	_ensure()
-	return _actions.duplicate(true)
+static func ok() -> bool:
+	return sim() != null
 
 static func sim():
-	_ensure()
-	if _repo == null:
+	var F = load(V3)
+	if F == null or not F.can_instantiate():
+		errs = ["falta o no compila " + V3 + " (CORE)"]
 		return null
-	return GameSim.replay(_repo, Integ.SEED, _actions)
+	var r = repo()
+	var s = F.sim(r, 1894)
+	if s == null:
+		errs = ["el fixture v3 no armó la GameSim"]
+		return null
+	var C = load(CLIPPER)
+	var D = load(DIARY)
+	var ids := {}
+	var mk := func(name: String, c: Dictionary) -> void:
+		var d := {"kind": "text", "src_type": "cronica", "src_line": "«%s», crónica" % String(c.get("title", "El problema final"))}
+		d.merge(c, true)
+		ids[name] = C.inject(s.st, r, d)
+	mk.call("watson_a", {"text": "Holmes estaba de pie junto al borde del sendero.", "origin": "D03", "doc": "D03", "copy": "D03@tomo",
+		"chron_date": "1891-05-04", "ents": ["watson", "reichenbach"]})
+	mk.call("watson_b", {"text": "Watson volvió corriendo por el mismo camino.", "origin": "D03", "doc": "D03", "copy": "D03@tomo",
+		"chron_date": "1891-05-04", "ents": ["watson"]})
+	mk.call("holmes_mayo", {"text": "Partimos de Meiringen a primera hora.", "origin": "D03", "doc": "D03", "copy": "D03@tomo",
+		"chron_date": "1891-05-01", "ents": ["holmes", "reichenbach", "meiringen", "suiza"]})
+	mk.call("watson_abril", {"text": "Mi mujer estaba de visita en casa de su tía.", "origin": "D01.TWIS", "doc": "D01.TWIS", "copy": "D01.TWIS@tomo",
+		"chron_date": "1890-04-27", "ents": ["watson", "kensington", "londres"], "title": "El hombre del labio retorcido"})
+	mk.call("mycroft_sep", {"text": "Mi hermano ocupa un sillón en el club Diógenes.", "origin": "D01.GREE", "doc": "D01.GREE", "copy": "D01.GREE@tomo",
+		"chron_date": "1888-09-01", "ents": ["mycroft", "club_diogenes", "pall_mall"], "title": "El intérprete griego"})
+	mk.call("encargo", {"text": "Aviso: se busca testigo de lo ocurrido en el Reichenbach.", "origin": "D23", "doc": "D23", "copy": "D23@L1",
+		"src_type": "papel_privado", "src_line": "Encargo del señor Pell · papel privado", "ents": ["reichenbach"]})
+	mk.call("lamina", {"kind": "plate", "text": "", "caption": "mesa, cesto, mozo con gorra", "origin": "PL.prologo", "doc": "", "copy": "PL.prologo",
+		"src_type": "lugar", "src_line": "Holywell Street, lugar", "ents": []})
+	var tk := int(s.q_clock().get("tk", 11))
+	D.on_line(s.st, r, {"text": "Era un sendero estrecho, señor Lisle. A un lado subía la roca negra y al otro caía el agua con un ruido que tapaba todo.", "origin": "S.L4.1.M", "who": "watson", "uid": "L4.1.M.a", "tk": tk})
+	D.on_line(s.st, r, {"text": "Le escribí al hermano esa misma noche.", "origin": "S.L4.1.M", "who": "watson", "uid": "L4.1.M.b", "tk": tk})
+	D.on_line(s.st, r, {"text": "La pared era a pique, sin salida.", "origin": "S.L4.1.M", "who": "lisle", "uid": "L4.1.M.c", "tk": tk})
+	D.on_arrival(s.st, r, "D15.0327@L1")
+	s.st.notes.clear()
+	s.set_meta("nb_ids", ids)
+	errs = []
+	return s
 
-static func _ensure() -> void:
-	if _repo != null or not errs.is_empty():
-		return
-	var t = Integ.new()
-	t._cur = "nb_walk_%d.gd::walk" % OS.get_process_id()
-	var r = t._repo("fixture")
-	var dir: String = t.tmp_dir()
-	var s = t._walk(r)
-	if dir != "" and dir.replace("\\", "/").contains("/.work/tests/"):
-		t._clear_dir(dir)
-		DirAccess.remove_absolute(dir)
-	if s == null or not t._errs.is_empty() or not t._fails.is_empty():
-		errs = t._errs.duplicate() + t._fails.duplicate()
-		if errs.is_empty():
-			errs = ["recorrido sin GameSim"]
-		return
-	_repo = r
-	_actions = s.actions_log()
+static func ids(s) -> Dictionary:
+	return s.get_meta("nb_ids", {}) if s != null else {}

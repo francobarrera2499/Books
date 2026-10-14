@@ -1,0 +1,28 @@
+{
+  "_nota": "Fixture de los tests de la simulación (CORE-EXPEDIENTE, GDD_v3 §1.7): dos preguntas mínimas sobre los documentos del fixture. Q1 desde el inicio; Q2 nace al leer la hoja de D03#sheer.",
+  "max_abiertas": 3,
+  "mostrar_todas": "8.dawn",
+  "alias": [],
+  "preguntas": [
+    {"id": "Q1", "orden": 1, "obligatoria": true, "texto": "¿Qué no contó Watson?",
+     "nace": [{"inicio": "prologo", "origen": "La pregunta del cliente, en el encargo."}],
+     "dudas": ["¿Qué dice la crónica?", "¿Hay otra versión del texto?", "¿Qué publicaron los diarios?"],
+     "acepta": ["concepto", "objeto"],
+     "variantes": [{"id": "A", "principal": true, "respuestas": ["raspadura"],
+       "grupos": [{"id": "impreso", "tags": ["fina_impreso_sin_raspadura"]}, {"id": "registrada", "tags": ["raspadura_registrada"]}],
+       "claves": {"entities": [], "kinds": ["concepto"]}, "valida": {"desde": null, "hasta": "10.M"},
+       "tinta": "Watson vio una raspadura y la escribió; en la revista no está.",
+       "rutas": [{"id": "Q1.R1", "star": false, "deps": "fija", "from": "P.N", "frags": [{"ref": "D03#sheer", "copy": "D03@tomo"}, {"ref": "D02#clausula", "copy": "D02@L1"}], "cut_by": []}]}],
+     "blue_pencil": {"missing": "Falta: lo que el impreso calla.", "wrong": "Corríjalo."}, "invariante": "normal"},
+    {"id": "Q2", "orden": 2, "obligatoria": true, "texto": "¿Qué pasó en la cascada?",
+     "nace": [{"leer": "D03#sheer", "origen": "Me lo pregunté leyendo «El problema final»."}],
+     "dudas": ["¿Cómo era el sendero?", "¿Qué dijeron los guías?"],
+     "acepta": ["lugar", "concepto", "objeto"],
+     "variantes": [{"id": "A", "principal": true, "respuestas": ["cornisa"],
+       "grupos": [{"id": "a_pique", "tags": ["fina_impreso_sin_raspadura"]}, {"id": "cornisa", "tags": ["cornisa_existe"]}],
+       "claves": {"entities": ["sendero", "reichenbach"], "kinds": []}, "valida": {"desde": null, "hasta": "10.M"},
+       "tinta": "Más arriba del sendero hay una cornisa.",
+       "rutas": [{"id": "Q2.R1", "star": true, "deps": "fija", "from": "1.M", "frags": [{"ref": "D03#sheer", "copy": "D03@Crane"}, {"ref": "D05#corniche", "copy": "D05@BM"}], "cut_by": []}]}],
+     "blue_pencil": {"missing": "Falta: lo que no se ve.", "wrong": "Corríjalo."}, "invariante": "normal"}
+  ]
+}

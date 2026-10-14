@@ -1,5 +1,5 @@
 {
-  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-CORPUS-B. Contrato §4.8: D01.GREE#founders (C7.R4), #pall_mall (C7.R6), #whitehall (C7.R7).",
+  "_nota": "Fixture de bots (W3-BOTS; ver devtools/bots/bot_data.gd). El texto definitivo lo escribe W3-CT-CORPUS-B. Contrato §4.8: D01.GREE#founders (C7.R4), #pall_mall (C7.R6), #whitehall (C7.R7). v3 (CORE-EXPEDIENTE, GDD_v3 §1.8): + #cuentas (a:mycroft_gobierno, Q4) y el ejemplar de Crane (Q4.R2).",
   "id": "D01.GREE",
   "entity": "gree",
   "title": "«El intérprete griego», The Strand Magazine, septiembre de 1893",
@@ -10,11 +10,36 @@
   "paper": "strand",
   "slip_topic": "holmes_cronicas",
   "copies": [
-    {"id": "D01.GREE@tomo", "holder": "tomo", "class": "P", "via": "tome", "from": "P.N", "to": "10.N"},
-    {"id": "D01.GREE@BM", "holder": "BM", "class": "I", "via": "slip", "from": "1.M", "to": "9.N"}
+    {
+      "id": "D01.GREE@tomo",
+      "holder": "tomo",
+      "class": "P",
+      "via": "tome",
+      "from": "P.N",
+      "to": "10.N"
+    },
+    {
+      "id": "D01.GREE@BM",
+      "holder": "BM",
+      "class": "I",
+      "via": "slip",
+      "from": "1.M",
+      "to": "9.N"
+    },
+    {
+      "id": "D01.GREE@Crane",
+      "holder": "Crane",
+      "class": "I",
+      "via": "shelf",
+      "from": "1.M",
+      "to": "10.M"
+    }
   ],
   "parts": [
-    {"id": "p1", "text": "—Mi hermano no es un hombre de acción —dijo Holmes—. {{#founders a:vinculo_mycroft e:mycroft|[[mycroft|Mycroft]] es uno de los fundadores del [[club_diogenes|club Diógenes]], en [[pall_mall|Pall Mall]].}} {{#pall_mall a:vinculo_mycroft e:mycroft|Tiene sus habitaciones en [[pall_mall|Pall Mall]], enfrente mismo del club.}} {{#whitehall a:vinculo_mycroft e:mycroft|Cada mañana dobla la esquina hacia [[whitehall|Whitehall]] y cada tarde vuelve por el mismo camino.}} No hace otro ejercicio en todo el año."}
+    {
+      "id": "p1",
+      "text": "—Mi hermano no es un hombre de acción —dijo Holmes—. {{#founders a:vinculo_mycroft e:mycroft|[[mycroft|Mycroft]] es uno de los fundadores del [[club_diogenes|club Diógenes]], en [[pall_mall|Pall Mall]].}} {{#pall_mall a:vinculo_mycroft e:mycroft|Tiene sus habitaciones en [[pall_mall|Pall Mall]], enfrente mismo del club.}} {{#whitehall a:vinculo_mycroft e:mycroft|Cada mañana dobla la esquina hacia [[whitehall|Whitehall]] y cada tarde vuelve por el mismo camino.}} {{#cuentas a:mycroft_gobierno e:gobierno e:mycroft|Lleva las cuentas de algunos ministerios: es el [[gobierno|gobierno]] en persona.}} No hace otro ejercicio en todo el año."
+    }
   ],
-  "words": 70
+  "words": 85
 }

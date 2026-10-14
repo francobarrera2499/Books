@@ -1,0 +1,15 @@
+{
+  "_nota": "Fixture de UI-MUNDO (GDD_v3 §5.1): Crane se presenta la primera vez que Lisle baja a la tienda. La escena definitiva (scenes/CRANE.json) la escribe CONTENIDO.",
+  "id": "CRANE",
+  "place": "L1",
+  "area": "tienda",
+  "auto": true,
+  "origin": "S.CRANE",
+  "lines": [
+    {
+      "id": "intro",
+      "who": "crane",
+      "text": "Abel Crane, librero de viejo, para servirle; y su casero, aunque eso usted ya lo sabe. Si busca algo impreso en Londres, señor, pregúnteme dónde: lo que no tengo yo, sé quién lo tiene."
+    }
+  ]
+}

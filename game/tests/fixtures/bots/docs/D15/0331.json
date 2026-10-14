@@ -1,0 +1,41 @@
+{
+  "_nota": "Fixture de bots (CORE-EXPEDIENTE). El número definitivo es de CONTENIDO. Al llegar nace Q7 (GDD_v3 §1.3).",
+  "id": "D15.0331",
+  "entity": "times_0331",
+  "title": "The Times, sábado 31 de marzo de 1894",
+  "src_type": "prensa_londres",
+  "class": "I",
+  "origin": "D15.0331",
+  "date": "1894-03-31",
+  "font": "imprenta",
+  "paper": "diario_hueso",
+  "paper_mm": [
+    380,
+    540
+  ],
+  "inserts": {
+    "columna": "p2",
+    "noticias": "p1"
+  },
+  "copies": [
+    {
+      "id": "D15.0331@L1",
+      "holder": "L1",
+      "area": "buhardilla",
+      "via": "desk",
+      "from": "5.dawn",
+      "to": "10.N"
+    }
+  ],
+  "parts": [
+    {
+      "id": "p1",
+      "text": "NOTICIAS DE LONDRES. — Sigue sin explicación la muerte del joven Ronald Adair en Park Lane."
+    },
+    {
+      "id": "p2",
+      "text": "COLUMNA DE ANUNCIOS. — Se alquilan habitaciones amuebladas cerca de Russell Square."
+    }
+  ],
+  "words": 30
+}

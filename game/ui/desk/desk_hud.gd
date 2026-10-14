@@ -1,10 +1,10 @@
 # ui/desk/desk_hud.gd — el único HUD (GDD§14.1, ARCHITECTURE §6.1): calendario de escritorio (fecha y franja) y monedas.
 # Dueño: W3-SHELL. Control en la capa 10. refresh(q_clock) actualiza; clic en el calendario -> calendar_pressed (cerrar
 # la franja, dormir, volver de una visita: lo decide GameScreen con confirmación en dos pasos). Sin contadores.
-# Bajo las monedas, las cintas de los dos libros que Lisle lleva siempre (Cuaderno, Libro mayor): el acceso con el
-# mouse cuando el escritorio no está a la vista (visitas, escenas, la lámina del prólogo); Tab y L hacen lo mismo.
-# book_pressed(kind) con kind "notebook" | "ledger". Soltar un recorte sobre la cinta «Libro mayor» (libro cerrado) abre
-# un folio con él: folio_dropped(data) (GDD§8.3, ARCHITECTURE §6.3).
+# Bajo el calendario, las cintas de lo que Lisle lleva siempre (Cuaderno, Expediente): GDD_v3 §6.4, SÓLO fuera de la
+# buhardilla (lugares, tienda, escenas: bandera hud.cintas); en casa están sobre la mesa (una sola forma de hacer cada
+# cosa). Tab y E hacen lo mismo. book_pressed(kind) con kind "notebook" | "dossier". No hay cinta del plano (está en la
+# pared) ni del libro mayor (ya no existe).
 # set_covered(on): un panel acoplado tapa la esquina (cuaderno a la izquierda, «Preguntar» de una escena): la columna se
 # desvanece entera y no come el mouse, en vez de asomarse entre las pestañas.
 # v2 (GDD_v2 §C.3): las monedas dejan el HUD (quedan sobre la mesa, con su cuenta en el examen); cada cinta aparece con
@@ -14,7 +14,6 @@ extends Control
 
 signal calendar_pressed
 signal book_pressed(kind: String)
-signal folio_dropped(data: Dictionary)
 
 const Widgets = preload("res://ui/kit/widgets.gd")
 const Paper = preload("res://ui/kit/paper.gd")
@@ -98,9 +97,7 @@ func _ready() -> void:
 	books_box.add_theme_constant_override("separation", 6)
 	col.add_child(books_box)
 	books_box.add_child(_ribbon("notebook", Widgets.t("shell.hud.cuaderno"), "Tab"))
-	books_box.add_child(_ribbon("ledger", Widgets.t("shell.hud.libro"), "L"))
-	# playtest v2: el plano (en la pared de atrás) no se descubría el día 1; su cinta, con la tecla M, desde que existe
-	books_box.add_child(_ribbon("map", Widgets.t("cam.hud.plano"), "M"))
+	books_box.add_child(_ribbon("dossier", Widgets.t("mundo.hud.expediente"), "E"))
 	guide_box = PanelContainer.new()
 	guide_box.name = "Pendientes"
 	# STOP: es interfaz. Transparente al mouse, leerla (está dentro de la banda izquierda del borde) giraba la vista y
@@ -124,8 +121,9 @@ func _ready() -> void:
 	guide_box.mouse_exited.connect(func():
 		_hovering_guide = false
 		_fold_t = 0.6)
+	# playtest v3: las cintas van ARRIBA de Pendientes (al desplegarse, Pendientes empujaba las cintas ~85 px hacia abajo
+	# y el clic que iba a «Expediente» caía sobre Pendientes); Pendientes es lo último de la columna y crece hacia abajo
 	col.add_child(guide_box)
-	col.move_child(guide_box, 1)
 	_apply_flags()
 	_apply_guide()
 	card.gui_input.connect(_on_card_input)
@@ -143,11 +141,11 @@ func _ribbon(kind: String, text: String, key: String) -> Control:
 	p.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	p.tooltip_text = key
 	Widgets.restyle(p, func():
-		var sb := Paper.style("cuaderno" if kind == "notebook" else ("carta" if kind == "map" else "libro_mayor"), {"margin": 5, "shadow": true, "shadow_size": 3})
+		var sb := Paper.style("cuaderno" if kind == "notebook" else "carta", {"margin": 5, "shadow": true, "shadow_size": 3})
 		sb.content_margin_left = 8
 		sb.content_margin_right = 8
 		sb.border_width_left = 4
-		sb.border_color = Paper.ink("roja") if kind == "ledger" and not Paper.hc_on() else Paper.ink("negra")
+		sb.border_color = Paper.ink("roja") if kind == "dossier" and not Paper.hc_on() else Paper.ink("negra")
 		p.add_theme_stylebox_override("panel", sb))
 	var l := _lab("SourceLine", HORIZONTAL_ALIGNMENT_CENTER)
 	l.text = text
@@ -159,10 +157,6 @@ func _ribbon(kind: String, text: String, key: String) -> Control:
 		if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
 			p.accept_event()
 			book_pressed.emit(kind))
-	if kind == "ledger":
-		p.set_drag_forwarding(Callable(),
-			func(_at, d): return not covered and typeof(d) == TYPE_DICTIONARY and String(d.get("kind", "")) == "clip" and String(d.get("id", "")) != "",
-			func(_at, d): folio_dropped.emit(d))
 	return p
 
 # Banderas de revelado (Game.sim.q_ui()): cada cinta aparece cuando su libro existe para Lisle.
@@ -174,16 +168,13 @@ func _apply_flags() -> void:
 	if books_box == null:
 		return
 	var nb := ribbon("notebook")
-	var lg := ribbon("ledger")
-	var mp := ribbon("map")
+	var ex := ribbon("dossier")
+	var away := bool(_flags.get("hud.cintas", true))
 	if nb != null:
-		nb.visible = bool(_flags.get("hud.cuaderno", true))
-	if lg != null:
-		lg.visible = bool(_flags.get("hud.libro", true))
-	if mp != null:
-		# sólo en el escritorio (es para salir): en visitas y escenas no suma nada
-		mp.visible = bool(_flags.get("desk.mapa", true)) and String(_clock.get("phase", "desk")) == "desk"
-	books_box.visible = (nb != null and nb.visible) or (lg != null and lg.visible) or (mp != null and mp.visible)
+		nb.visible = away and bool(_flags.get("hud.cuaderno", true))
+	if ex != null:
+		ex.visible = away and bool(_flags.get("desk.expediente", true))
+	books_box.visible = (nb != null and nb.visible) or (ex != null and ex.visible)
 
 # Tira «Pendientes»: textos ya resueltos (≤3). Vacía → no se ve.
 func set_guide(lines: Array) -> void:
@@ -216,8 +207,11 @@ func _unfold(secs: float) -> void:
 	_set_folded(false)
 	_fold_t = secs
 
+# Playtest v3: plegada a un renglón con «…» escondía el resto (y no se sabía que había más): las ≤3 líneas quedan a la
+# vista siempre. _set_folded queda para quien lo pida.
+const AUTO_FOLD := false
 func _process(dt: float) -> void:
-	if _fold_t > 0.0 and not _hovering_guide:
+	if AUTO_FOLD and _fold_t > 0.0 and not _hovering_guide:
 		_fold_t -= dt
 		if _fold_t <= 0.0:
 			_set_folded(true)

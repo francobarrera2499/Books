@@ -20,6 +20,9 @@ const TERMINATORS := ".?!…"
 const CLOSERS := "»\"”’)]'"
 const OPENERS := "«“\"(¿¡—–[‘'"
 const MAX_TRAMO_WORDS := 40
+# GDD_v3 §6.2: un recorte tiene ≤15 palabras y hereda las etiquetas del tramo si cubre ≥50 % de él; por eso todo tramo
+# con etiquetas a: o c: mide ≤30 palabras (error de datos; ClipRules.TAGGED_MAX_WORDS).
+const MAX_TAGGED_WORDS := 30
 
 static var _wc := {}   # caché: código -> es carácter de palabra
 
@@ -270,6 +273,8 @@ static func lint(src: String, ctx := {}) -> Array:
 		var wn := count_words(p.words, t.from, t.to)
 		if wn > MAX_TRAMO_WORDS:
 			errs.append("tramo %s: %d palabras (máx. %d)" % [label, wn, MAX_TRAMO_WORDS])
+		elif wn > MAX_TAGGED_WORDS and (not t.tags.a.is_empty() or not t.tags.c.is_empty()):
+			errs.append("tramo %s: %d palabras con etiquetas a:/c: (máx. %d, GDD_v3 §6.2)" % [label, wn, MAX_TAGGED_WORDS])
 		if wn == 0:
 			errs.append("tramo %s: vacío" % label)
 		if not _within_one_sentence(p.sentences, p.plain, t.from, t.to):

@@ -12,6 +12,13 @@
 # API para la Shell y el router: start(instant) · back() -> bool · toggle_scissors() -> bool · shortcut_panel(kind) ->
 #   bool · request_sync() · debug_place(L) · show_doc_plate(plate) · on_clipped(result). Extras para drivers/tests:
 #   on_node(id) · on_char(id) · calendar() · frames() · go_frame(id) · state() -> Dictionary.
+# v3 UI-MUNDO (GDD_v3 §5.4, §6.3–§6.6): un clic USA el objeto en el acto (abre su panel o su tarjeta) y la cámara no se
+#   mueve (riel de world/camera_rig.gd); bajo el mouse sólo el contorno blanco y el cursor (lupa / mano). Sin etiqueta
+#   flotante, sin «mirar alrededor», sin «‹ Alejarse», sin el rectángulo de tijera sobre el 3D (todo lo del 3D se recorta
+#   del texto de su tarjeta de examen). El plano está sólo en la pared; el tintero es el único lugar para escribir. Las
+#   cintas «Cuaderno» y «Expediente» del HUD, sólo fuera de la buhardilla (hud.cintas). Nodos con «aviso» (intrusiones)
+#   y faltantes del estante emiten la acción libre examine (§4.4). Al entrar a la buhardilla con la variante «techos»,
+#   una ráfaga (Audio.play_event("intrusion_techos")) una vez por entrada.
 extends Node
 
 const Layers = preload("res://ui/layers.gd")
@@ -21,7 +28,6 @@ const DeskHud = preload("res://ui/desk/desk_hud.gd")
 const Tray = preload("res://ui/desk/tray.gd")
 const Dawn = preload("res://ui/desk/dawn.gd")
 const ExamineCard = preload("res://ui/desk/examine_card.gd")
-const Scissors3D = preload("res://ui/desk/scissors3d.gd")
 const Speech = preload("res://ui/desk/speech.gd")
 const Catalog = preload("res://ui/desk/catalog.gd")
 const Objects = preload("res://ui/desk/objects.gd")
@@ -29,11 +35,10 @@ const Chips = preload("res://ui/drag/chips.gd")
 const Clipper = preload("res://core/deduction/clipper.gd")
 const SimLink = preload("res://ui/scene/sim_link.gd")
 const Effects = preload("res://core/react/effects.gd")
-const HoverLabel = preload("res://ui/desk/hover_label.gd")
 const Cursors = preload("res://ui/desk/cursors.gd")
 
 const HUB := "L1"
-const HUB_FRAME := "general"     # v2 (§E): la vista general de la buhardilla (world/camera.json); las zonas son los encuadres
+const HUB_FRAME := "general"     # alias del punto de inicio del riel de la buhardilla (el escritorio, world/camera.json)
 const PARK_PLATE := "PARK"
 const BAND_PANELS := ["scene", "confront"]   # bandas abajo (y la afirmación arriba): el diorama sigue a la vista, se examina y se recorta
 const CAPTION_S := 4.5
@@ -45,7 +50,6 @@ var nav: Control
 var exam: PanelContainer
 var speech: PanelContainer
 var tutor: PanelContainer
-var scissors: Control
 var tray: Control
 var catalog: Control
 var caption: PanelContainer      # epígrafe al pie, al estilo de las láminas de Paget: tira de papel
@@ -66,7 +70,6 @@ var _doc_plate := false
 var _modal: Control = null
 var _caption_tw: Tween = null
 var _leave_btn: Button
-var _away_btn: Button            # playtest v2: «‹ Alejarse» (clic derecho o Esc) mientras la cámara está acercada
 var _catalog_after_read := false
 var _tray_shown := {}             # día -> true: la bandeja de ese día ya se mostró (sola o a pedido) en esta sesión
 var _confront_after_tray := false
@@ -75,13 +78,13 @@ var _tutor_layer: CanvasLayer
 var _tut_wait: Array = []         # notas del instructor que esperan a que termine la presentación (cola de la tarjeta)
 var _tut_framed := false          # el primer paso ya llevó la vista al escritorio
 var _tut_started := false         # ya se mostró una nota del instructor (sólo la primera espera a la presentación)
-var hover_label: Control = null   # v2 (§D.2): etiqueta discreta bajo el mouse y las de «mirar alrededor»
-var _looking := false
-var _look_used := false           # ya se usó «mirar alrededor» en esta sesión (la ayuda de Pendientes se va)
+var _techos_heard := {}           # from_tk de la intrusión por los techos cuya ráfaga ya sonó (una vez por intrusión)
+var techos_played := 0            # ráfagas pedidas en esta sesión (tests, drivers)
 
 const TUTOR_LAYER := 35   # playtest v2: por encima del lector (30): el paso «recortar» llega al abrir el encargo
 const EXAM_LINKS_MAX := 4         # §C.1: tarjeta de examen con ≤4 enlaces; más → lista en dos niveles (tomos)
 const TUTOR_FRAME := "escritorio"
+const TUTOR_FRAME_FOLDER := "expediente"   # PRO: la carpeta de cerca (primer paso del prólogo)
 
 func _init() -> void:
 	name = "GameScreen"
@@ -104,10 +107,6 @@ func start(instant := false) -> void:
 		w.node_clicked.connect(on_node)
 		w.character_clicked.connect(on_char)
 		w.empty_clicked.connect(_on_empty)
-	# v2: la pantalla decide acercarse (examinar), ir a la zona o usar; el mundo sólo informa el clic
-	w.auto_examine = false
-	if w.has_signal("hover_changed") and not w.hover_changed.is_connected(_on_hover):
-		w.hover_changed.connect(_on_hover)
 	if not w.rig.frame_changed.is_connected(_on_frame_changed):
 		w.rig.frame_changed.connect(_on_frame_changed)
 	Cursors.install()
@@ -138,30 +137,22 @@ func leave_screen() -> void:
 		w.node_clicked.disconnect(on_node)
 		w.character_clicked.disconnect(on_char)
 		w.empty_clicked.disconnect(_on_empty)
-	if w != null and w.has_signal("hover_changed") and w.hover_changed.is_connected(_on_hover):
-		w.hover_changed.disconnect(_on_hover)
 	if w != null and w.rig.frame_changed.is_connected(_on_frame_changed):
 		w.rig.frame_changed.disconnect(_on_frame_changed)
 	if w != null and w.has_method("set_usable"):
 		w.set_usable({}, {})
-		w.set_reveal_all(false)
-	_looking = false
 	if shell != null and shell.drop_catcher.present_requested.is_connected(_on_present):
 		shell.drop_catcher.present_requested.disconnect(_on_present)
 	set_scissors(false)
-	for n in [hud, nav, exam, speech, tutor, scissors, tray, catalog, caption, _tutor_layer, hover_label]:
+	for n in [hud, nav, exam, speech, tutor, tray, catalog, caption, _tutor_layer]:
 		if n != null and is_instance_valid(n):
 			n.queue_free()
 
 func _build_ui() -> void:
 	var hr := Layers.root_of(shell.layers.hud)
-	scissors = Scissors3D.new()
-	scissors.rect_done.connect(_on_rect)
-	hr.add_child(scissors)
 	hud = DeskHud.new()
 	hud.calendar_pressed.connect(calendar)
 	hud.book_pressed.connect(func(k): shortcut_panel(k))
-	hud.folio_dropped.connect(drop_on_ledger)
 	hr.add_child(hud)
 	nav = Control.new()
 	nav.name = "Nav"
@@ -185,22 +176,6 @@ func _build_ui() -> void:
 				sb.border_color = Paper.ink("negra")
 			_leave_btn.add_theme_stylebox_override(st, sb))
 	nav.add_child(_leave_btn)
-	_away_btn = Widgets.ink_button(Widgets.t("cam.alejarse"), _on_away_btn)
-	_away_btn.name = "Alejarse"
-	_away_btn.tooltip_text = Widgets.t("cam.alejarse.ayuda")
-	_away_btn.visible = false
-	_away_btn.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	_away_btn.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	Widgets.restyle(_away_btn, func():
-		for st in ["normal", "hover", "pressed", "focus"]:
-			var sb := Paper.style("carta", {"margin": 8, "shadow": st != "pressed", "shadow_size": 4})
-			sb.content_margin_left = 14
-			sb.content_margin_right = 14
-			if st == "hover":
-				sb.border_width_bottom = 2
-				sb.border_color = Paper.ink("negra")
-			_away_btn.add_theme_stylebox_override(st, sb))
-	nav.add_child(_away_btn)
 	caption = PanelContainer.new()
 	caption.name = "Caption"
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -217,6 +192,8 @@ func _build_ui() -> void:
 	caption.add_child(_cap_v)
 	exam = ExamineCard.new()
 	exam.clipped.connect(on_clipped)
+	exam.scissors_toggled.connect(func(on): set_scissors(on))
+	exam.scissors_ok = func() -> bool: return _flag(ui_flags(), "desk.tijera")
 	hr.add_child(exam)
 	speech = Speech.new(false)
 	speech.clipped.connect(on_clipped)
@@ -247,8 +224,6 @@ func _build_ui() -> void:
 	catalog.shell = shell
 	catalog.read_requested.connect(_read_from_catalog)
 	Layers.root_of(shell.layers.scene).add_child(catalog)
-	hover_label = HoverLabel.new()
-	hr.add_child(hover_label)
 
 # ------------------------------------------------------------------ sincronía con el sim
 func _on_changed(_kind: String, _payload: Dictionary) -> void:
@@ -280,12 +255,10 @@ func _process(_dt: float) -> void:
 			hud.set_covered(_hud_covered())
 		if tutor != null and tutor.visible:
 			tutor.dock = _tutor_dock()
-		_look_step(_dt)
-		_sync_away()
-		_sync_hover_avoid()
 
-# La esquina del HUD (calendario, monedas, cintas) la tapa un panel acoplado que no es a pantalla entera: el cuaderno a la
-# izquierda (junto al libro mayor o en una visita), un subpanel de la escena («Preguntar», presentar, elegir) o el mapa.
+# La esquina del HUD (calendario, cintas) la tapa un panel acoplado que no es a pantalla entera: el cuaderno a la izquierda
+# (junto al expediente o en una visita), la carpeta del expediente, un subpanel de la escena («Preguntar», presentar,
+# elegir) o el mapa.
 func _hud_covered() -> bool:
 	var hr: Rect2 = hud.cover_rect()
 	if hr.size.x <= 0.0:
@@ -296,6 +269,12 @@ func _hud_covered() -> bool:
 		var nb = shell.panel("notebook")
 		if nb != null and "layout" in nb and String(nb.layout) != "full" and nb.has_method("book_rect") and (nb.book_rect() as Rect2).grow(8.0).intersects(hr):
 			return true
+	if shell.is_open("dossier"):
+		var ex = shell.panel("dossier")
+		if ex != null and ex.has_method("debug_state"):
+			var er = ex.debug_state().get("rect", Rect2())
+			if er is Rect2 and (er as Rect2).size.x > 0.0 and (er as Rect2).grow(8.0).intersects(hr):
+				return true
 	for k in ["scene", "confront"]:
 		if not shell.is_open(k):
 			continue
@@ -307,12 +286,6 @@ func _hud_covered() -> bool:
 			if c is Control and is_instance_valid(c) and (c as Control).is_visible_in_tree() and (c as Control).get_global_rect().intersects(hr):
 				return true
 	return false
-
-# Un recorte soltado sobre la cinta del libro mayor (cerrado): el libro se abre en un folio nuevo encabezado por él.
-func drop_on_ledger(data: Dictionary) -> void:
-	var lg = shell.open_panel("ledger")
-	if lg != null and lg.has_method("can_drop_folio") and lg.can_drop_folio(data):
-		lg.drop_folio(data)
 
 func _key(c: Dictionary, sc: Dictionary) -> Dictionary:
 	return {"phase": String(c.phase), "visit": String(sc.get("id", "")), "scene": String(c.get("scene", "")), "day": int(c.day), "slot": String(c.slot)}
@@ -340,7 +313,9 @@ func _sync(first: bool, instant := false) -> void:
 	if first:
 		_enter(c, sc)
 		await shell.fade_in(0.0 if instant else shell.FADE_S)
-		_after_enter(c, sc, true)
+		# primera carga (Partida nueva / Continuar): la bandeja sólo si tiene algo sin leer (playtest v3: se abría en cada
+		# «Continuar» con todo leído) y sin repetir los eventos del amanecer ya vistos
+		_after_enter(c, sc, true, true)
 	elif key != _last:
 		var new_day := int(c.day) > int(_last.get("day", -1)) and ["night", "prologue", "scene"].has(String(_last.get("phase", "")))
 		shell.busy(true)
@@ -377,8 +352,8 @@ func _refresh_hud(c: Dictionary) -> void:
 	hud.set_flags(f)
 	hud.set_guide(guide_texts(f))
 
-# Tira «Pendientes» (GDD_v2 §B.6.2): las líneas de Game.sim.q_guide() ({key, vars} -> ui_text; una clave sin texto no
-# se muestra) y, el día 1 y hasta usarlo, la ayuda de «mirar alrededor» (look.ayuda). ≤3 líneas.
+# Tira «Pendientes» (GDD_v2 §B.6.2, GDD_v3 §6.9): las líneas de Game.sim.q_guide() ({key, vars} -> ui_text; una clave sin
+# texto no se muestra). ≤3 líneas.
 func guide_texts(f := {}) -> Array:
 	var out: Array = []
 	var sim = _sim()
@@ -392,12 +367,6 @@ func guide_texts(f := {}) -> Array:
 			var t := Widgets.t(k, ln.get("vars", {}))
 			if t != "" and t != k:
 				out.append(t)
-	if bool(f.get("look.ayuda", false)) and not _look_used:
-		var la := Widgets.t("cam.ayuda.mirar")
-		if out.size() >= 3:
-			out[2] = la
-		else:
-			out.append(la)
 	return out.slice(0, 3)
 
 # ------------------------------------------------------------------ modos
@@ -437,16 +406,16 @@ func _enter(c: Dictionary, sc: Dictionary) -> void:
 				_show_hub("mostrador", c)
 		_:
 			# dentro del hub se conserva el encuadre; al volver de una visita o escena, al escritorio
-			var f := frame if mode == "hub" and _hub_area(frame) == "buhardilla" else HUB_FRAME
+			var f := frame if mode == "hub" and _in_attic() and shell.world.rig.has_frame(frame) else HUB_FRAME
 			_show_hub(f, c)
 	_ambience(c, sc)
 
-func _after_enter(c: Dictionary, sc: Dictionary, new_day: bool) -> void:
+func _after_enter(c: Dictionary, sc: Dictionary, new_day: bool, first := false) -> void:
 	var sim = _sim()
 	var ph := String(c.phase)
 	if ph == "visit":
 		_world_events("salida")
-	elif new_day:
+	elif new_day and not first:
 		_world_events("amanecer")
 	match ph:
 		"visit":
@@ -472,12 +441,19 @@ func _after_enter(c: Dictionary, sc: Dictionary, new_day: bool) -> void:
 				open_tray()
 		"night":
 			if bool(sim.q_report_status().get("due", false)):
-				shell.note(Widgets.t("shell.night.informe"))
+				shell.note(Widgets.t("shell.night.informe"), 9.0)
+				# playtest v3: la cámara mira la puerta, donde espera el chico (antes quedaba en el escritorio)
+				if mode == "hub" and _in_attic() and shell.world.rig.has_frame("puerta"):
+					shell.world.set_frame("puerta")
 		"night_choice":
 			_night_choice()
 		"desk":
-			# también los días que empiezan con una escena (M6 el día 5): la bandeja se ofrece una vez por día
-			if (new_day and not sim.q_tray(int(c.day)).is_empty()) or _tray_pending(int(c.day)):
+			# también los días que empiezan con una escena (M6 el día 5): la bandeja se ofrece una vez por día.
+			# Playtest v3: la primera vez que se ve la pieza revuelta (techos / registrada) la bandeja no se abre sola: tapaba
+			# la cortina, la ventana y los papeles. Queda en el escritorio (y en Pendientes) para cuando se la busque.
+			if fresh_intrusion():
+				pass
+			elif (new_day and not first and not sim.q_tray(int(c.day)).is_empty()) or _tray_pending(int(c.day)):
 				open_tray()
 
 # Eventos del mundo (Effects.world_events, op evento_mundo de las reacciones) con forma en pantalla según
@@ -530,12 +506,16 @@ func _veil() -> void:
 	tw.tween_property(v, "color:a", 0.0, 0.0 if shell.fast else 0.4)
 	tw.tween_callback(v.queue_free)
 
-# La bandeja de ese día tiene papeles y todavía no se mostró en esta sesión.
+# La bandeja de ese día tiene papeles SIN LEER y todavía no se mostró en esta sesión (playtest v3: al «Continuar», la
+# bandeja ya leída se volvía a abrir sola y tapaba la vuelta a la pieza, p. ej. la intrusión).
 func _tray_pending(day: int) -> bool:
 	var sim = _sim()
 	if sim == null or _tray_shown.has(day):
 		return false
-	return not sim.q_tray(day).is_empty()
+	for it in sim.q_tray(day):
+		if not bool(it.get("read", false)):
+			return true
+	return false
 
 # Panel de escena (W3-SCENEUI) cuando hay a quién hablarle o algo dicho: personajes con sus verbos, líneas recortables,
 # «Salir»/«Continuar». Su banda trae el título y el epígrafe; true si se abrió.
@@ -611,8 +591,81 @@ func _show_hub(p_frame: String, c: Dictionary) -> void:
 	cur_plate = "hub"
 	frame = p_frame
 	shell.world.show_hub(p_frame, _light_slot(c))
+	frame = String(shell.world.rig.cur) if String(shell.world.rig.cur) != "" else p_frame
 	_update_nav()
 	refresh_affordances()
+	_techos_wind(c)
+
+# ¿La vista es la buhardilla (riel del área «buhardilla» del hub)?
+func _in_attic() -> bool:
+	if mode != "hub" or shell == null or shell.world == null:
+		return false
+	return String(shell.world.snap.get("cam_area", shell.world.snap.get("area", ""))) in ["buhardilla", "", "*"]
+
+# GDD_v3 §4.3: al entrar a la pieza con la variante «techos» activa, una ráfaga corta (una vez por entrada); la cortina la
+# mueve world/props/l1.gd. Con «registrada», nada suena.
+# Playtest v3: sonaba en cada cambio de turno y en cada «Continuar» mientras duraba la variante; ahora UNA vez por
+# intrusión (su from_tk), y sólo en la primera vuelta a la pieza después de ella (no al día siguiente ni al continuar).
+func _techos_wind(c: Dictionary) -> void:
+	var v := String(shell.world.snap.get("variant", ""))
+	if not v.contains("techos") or not _in_attic():
+		return
+	var ft := techos_from_tk()
+	if ft < 0 or _techos_heard.has(ft):
+		return
+	_techos_heard[ft] = true
+	var now := int(c.get("tk", -1))
+	if now < 0:
+		var sim = _sim()
+		now = int(sim.q_clock().get("tk", -1)) if sim != null else -1
+	if now >= 0 and now > ft + 1:
+		return
+	techos_played += 1
+	shell.play_event("intrusion_techos")
+
+# ¿La pieza muestra AHORA, por primera vez en esta sesión, una intrusión recién ocurrida (capa techos o registrada que
+# empezó hace ≤1 franja)? Marca la intrusión como vista.
+var _intrusion_seen := {}
+func fresh_intrusion() -> bool:
+	var sim = _sim()
+	if sim == null or mode != "hub" or not _in_attic() or typeof(sim.st.react) != TYPE_DICTIONARY:
+		return false
+	var r = sim.st.react.get("world", {}).get("variants", {}).get("L1")
+	if typeof(r) != TYPE_DICTIONARY:
+		return false
+	var now := int(sim.q_clock().get("tk", 0))
+	var ls: Array = r.get("layers", []) if typeof(r.get("layers")) == TYPE_ARRAY else [r]
+	var fresh := false
+	for l in ls:
+		if typeof(l) != TYPE_DICTIONARY or not ["techos", "registrada"].has(String(l.get("variant", ""))):
+			continue
+		var f := int(l.get("from_tk", 0))
+		var u := int(l.get("to_tk", -1))
+		var key := "%s|%d" % [String(l.variant), f]
+		if now >= f and (u < 0 or now < u) and now <= f + 1 and not _intrusion_seen.has(key):
+			_intrusion_seen[key] = true
+			fresh = true
+	return fresh
+
+# from_tk de la capa «techos» activa en la pieza (-1 si no hay).
+func techos_from_tk() -> int:
+	var sim = _sim()
+	if sim == null or typeof(sim.st.react) != TYPE_DICTIONARY:
+		return -1
+	var r = sim.st.react.get("world", {}).get("variants", {}).get("L1")
+	if typeof(r) != TYPE_DICTIONARY:
+		return -1
+	var now := int(sim.q_clock().get("tk", 0))
+	var best := -1
+	var ls: Array = r.get("layers", []) if typeof(r.get("layers")) == TYPE_ARRAY else [r]
+	for l in ls:
+		if typeof(l) != TYPE_DICTIONARY or String(l.get("variant", "")) != "techos":
+			continue
+		var f := int(l.get("from_tk", 0))
+		var u := int(l.get("to_tk", -1))
+		if now >= f and (u < 0 or now < u):
+			best = maxi(best, f)
+	return best
 
 func _show_plate(snap: Dictionary, p_frame: String) -> void:
 	if snap.is_empty():
@@ -632,21 +685,9 @@ func _show_plate(snap: Dictionary, p_frame: String) -> void:
 	if tutor != null:
 		tutor.refresh_links()
 
-# Área del encuadre f de L1 ("" si f no es un encuadre del hub: p. ej. el último de una visita).
-func _hub_area(f: String) -> String:
-	if f == HUB_FRAME:
-		return String(shell.world.snap.get("area", "buhardilla")) if shell != null and shell.world != null else "buhardilla"
-	for fr in _place_def(HUB).get("frames", []):
-		if String(fr.get("id", "")) == f:
-			return String(fr.get("area", "*"))
-	return ""
-
+# Puntos del riel de la cámara del área a la vista (world/camera.json o los encuadres del lugar).
 func frames() -> Array:
-	var all: Array = shell.world.frames()
-	if mode == "hub":
-		var a := _hub_area(frame)
-		return all.filter(func(f): return _hub_area(String(f)) == a)
-	return all
+	return shell.world.frames()
 
 func _on_frame_changed(id: String) -> void:
 	frame = id
@@ -698,54 +739,6 @@ func _dawn(c: Dictionary) -> void:
 		"sunday": String(info.get("weekday", "")) == "dom", "fast": shell.fast, "sounds": shell.sounds})
 	dw.queue_free()
 
-# «‹ Alejarse»: a la vista mientras la cámara está acercada (examen; en casa también una zona) y nada la tapa. Abajo a la
-# izquierda, al lado de «Volver a casa» si está, y encima de la banda de escena.
-func _sync_away() -> void:
-	if _away_btn == null or shell == null or shell.world == null:
-		return
-	var w = shell.world
-	var deep: bool = w.is_examining() or (w.rig.depth() > 1 and not w.rig.station_mode())
-	var panel_up: bool = shell.top() != null and not BAND_PANELS.has(shell.top_kind())
-	var on: bool = deep and not panel_up and not scissors_on and not _doc_plate and not shell.is_busy() 		and not (_modal != null and is_instance_valid(_modal)) and (mode == "hub" or mode == "plate")
-	if _away_btn.visible != on:
-		_away_btn.visible = on
-	if not on:
-		return
-	var x := 22.0
-	if _leave_btn != null and _leave_btn.visible:
-		x = _leave_btn.get_rect().end.x + 14.0
-	_away_btn.offset_left = x
-	_away_btn.offset_right = x + _away_btn.get_combined_minimum_size().x
-	_away_btn.offset_bottom = -22.0 - _band_inset()
-	_away_btn.offset_top = _away_btn.offset_bottom - _away_btn.get_combined_minimum_size().y
-
-func _on_away_btn() -> void:
-	if exam != null and exam.visible:
-		exam.hide_card()
-	if shell != null and shell.world.rig.depth() > 1:
-		shell.world.back()
-
-# La etiqueta bajo el mouse no tapa la interfaz: la columna del calendario, la banda de escena y los botones de abajo.
-func _sync_hover_avoid() -> void:
-	if hover_label == null or not hover_label.has_method("set_avoid") or not is_inside_tree():
-		return
-	var rs: Array = []
-	if hud != null and hud.visible and not hud.covered:
-		var hr: Rect2 = hud.cover_rect()
-		if hr.size.x > 0.0:
-			rs.append(hr)
-	# la banda de escena o de confrontación (su rectángulo real: _band_inset descuenta el margen)
-	for k in ["scene", "confront"]:
-		if not shell.is_open(k):
-			continue
-		var p = shell.panel(k)
-		if p != null and "band" in p and p.band != null and is_instance_valid(p.band) and p.band.is_visible_in_tree():
-			rs.append((p.band as Control).get_global_rect())
-	for b in [_leave_btn, _away_btn]:
-		if b != null and b.is_visible_in_tree():
-			rs.append(b.get_global_rect())
-	hover_label.set_avoid(rs)
-
 # ------------------------------------------------------------------ superposiciones
 func _close_transients() -> void:
 	exam.hide_card()
@@ -765,15 +758,10 @@ func _sync_overlays() -> void:
 		return
 	# la banda de la escena (abajo) no tapa el diorama: con ella arriba se sigue mirando, examinando y recortando
 	var panel_up: bool = shell.top() != null and not BAND_PANELS.has(shell.top_kind())
-	scissors.visible = scissors_on and not panel_up
-	scissors.mouse_filter = Control.MOUSE_FILTER_STOP if (scissors_on and not panel_up) else Control.MOUSE_FILTER_IGNORE
-	shell.world.set_input_enabled(not scissors_on and not panel_up)
-	# las bandas del borde nunca giran con un panel abierto ni con la tijera (§E.2). La banda de escena/confrontación NO
-	# cuenta como panel (el mundo sigue vivo arriba de ella; sobre la banda misma no gira porque es un control): en una
-	# visita la banda está abierta casi siempre y sin bordes no había forma de pasar a otra estación con el mouse
-	shell.world.edge_enabled = not panel_up and not scissors_on
-	if (panel_up or scissors_on) and _looking:
-		set_look_around(false)
+	shell.world.set_input_enabled(not panel_up)
+	# las bandas del borde nunca giran con un panel abierto. La banda de escena/confrontación NO cuenta como panel (el
+	# mundo sigue vivo arriba de ella; sobre la banda misma no gira porque es un control)
+	shell.world.edge_enabled = not panel_up
 	var sim = _sim()
 	tutor.visible = sim != null and String(sim.q_clock().phase) == "prologue" and not tutor.current.is_empty()
 	var inset := _band_inset()
@@ -905,9 +893,13 @@ func _push_tutor(tut: Array) -> void:
 			shell.note(Widgets.t("shell.pro.dormir"), 9.0)
 	# el primer paso pide algo de la mesa: la vista va al escritorio (W4: desde el encuadre de la lámina el encargo es una
 	# hoja detrás del respaldo de la silla y la concordancia queda detrás de Harris)
-	if not _tut_framed and mode == "plate" and frame != TUTOR_FRAME and shell.world.rig.has_frame(TUTOR_FRAME):
+	# playtest v3: el primer paso («abra el expediente») encuadra la carpeta de cerca, con «Holmes» en la tapa a la vista
+	# (desde el escritorio entero se confundía con una hoja)
+	if not _tut_framed and mode == "plate" and shell.world.rig.has_frame(TUTOR_FRAME):
 		_tut_framed = true
-		go_frame(TUTOR_FRAME)
+		var first := TUTOR_FRAME_FOLDER if shell.world.rig.has_frame(TUTOR_FRAME_FOLDER) else TUTOR_FRAME
+		if frame != first:
+			go_frame(first)
 	_sync_overlays()
 
 func _on_speech_emptied() -> void:
@@ -965,23 +957,14 @@ func _tutor_dock() -> Rect2:
 			var w0 := maxf(hrc.size.x, 300.0)
 			var top1 := hrc.end.y + 16.0
 			return Rect2(hrc.position.x, top1, w0, maxf(160.0, vs.y - top1 - 120.0))
-	if shell.is_open("ledger"):
-		var lg = shell.panel("ledger")
-		var col = lg.get("_col") if lg != null and "_col" in lg else null
-		var seal = lg.get("_seal") if lg != null and "_seal" in lg else null
-		if col is Control and (col as Control).is_visible_in_tree():
-			var cr: Rect2 = (col as Control).get_global_rect()
-			var top := cr.position.y
-			for ch in (col as Control).get_children():
-				if ch is Control and (ch as Control).visible:
-					top = maxf(top, (ch as Control).get_global_rect().end.y)
-			var bottom := vs.y - 24.0
-			if seal is Control and (seal as Control).is_visible_in_tree():
-				bottom = minf(bottom, (seal as Control).get_global_rect().position.y)
-			var r := Rect2(cr.position.x + 6.0, top + 16.0, cr.size.x - 6.0, bottom - top - 32.0)
-			if r.size.x >= 170.0 and r.size.y >= 160.0:
+	# con la carpeta del expediente abierta, en la solapa del índice, debajo de las preguntas (UI-EXPEDIENTE: tutor_rect)
+	if shell.is_open("dossier"):
+		var ex = shell.panel("dossier")
+		if ex != null and ex.has_method("tutor_rect"):
+			var r: Rect2 = ex.tutor_rect()
+			if r.size.x >= 170.0 and r.size.y >= 120.0:
 				return r
-	if shell.is_open("notebook") and not shell.is_open("ledger"):
+	if shell.is_open("notebook") and not shell.is_open("dossier"):
 		var nb = shell.panel("notebook")
 		if nb != null and nb.has_method("book_rect"):
 			var br: Rect2 = nb.book_rect()
@@ -996,10 +979,17 @@ func _tutor_dock() -> Rect2:
 	return Rect2()
 
 # ------------------------------------------------------------------ objetos y personajes
+# GDD_v3 §6.4–§6.6: un clic USA el objeto en el acto (su panel; si no tiene, su tarjeta de examen) y la cámara no se
+# mueve. Con la tijera en la mano también: la tarjeta que se abre se recorta.
 func on_node(node_id: String) -> void:
 	var sim = _sim()
 	var repo = _repo()
-	if sim == null or scissors_on:
+	if sim == null:
+		return
+	# playtest v3: un clic en el 3D con líneas todavía sin leer (la presentación de Pell en el prólogo) las borraba todas;
+	# ahora pasa a la siguiente línea y no usa el objeto. Con la última línea a la vista, el clic la cierra y sigue.
+	if speech.showing() and not speech.queue.is_empty():
+		speech.advance()
 		return
 	speech.clear()
 	_hide_caption()
@@ -1008,14 +998,6 @@ func on_node(node_id: String) -> void:
 	var c: Dictionary = sim.q_clock()
 	var ph := String(c.phase)
 	var live := binding_live(dothis, ph)
-	# v2 (§E): desde la vista general, un nodo-zona (escritorio, ventana, pared del mapa, estantes) lleva a su encuadre;
-	# lo usable se usa igual (el mapa abre el plano); lo demás espera al segundo clic, ya de cerca
-	var z := String(shell.world.zone_of(node_id)) if shell.world.has_method("zone_of") else ""
-	if z != "":
-		exam.hide_card()
-		shell.world.go_zone(z)
-		if not live:
-			return
 	# la silueta de un personaje de la visita (Wiggins desde el día 3) se trata como a los demás: su figura abre la
 	# conversación, no una tarjeta de examen (W4)
 	if node_id.begins_with("sil_") and ["visit", "scene", "parklane"].has(ph) and _labels(sim.q_scene()).has(node_id.substr(4)):
@@ -1026,8 +1008,10 @@ func on_node(node_id: String) -> void:
 			"tray":
 				open_tray()
 				return
-			"map", "notebook", "ledger":
+			"map", "notebook", "dossier":
 				exam.hide_card()
+				if scissors_on:
+					set_scissors(false)
 				shell.open_panel(dothis)
 				return
 			"scissors":
@@ -1045,9 +1029,13 @@ func on_node(node_id: String) -> void:
 			"leave":
 				_leave(true)
 				return
-	if dothis == "frame" and shell.world.rig.has_frame(String(b.get("frame", ""))) and frame != String(b.frame):
-		go_frame(String(b.frame))
-		return
+			"compose":
+				# el tintero: con una sola cosa para escribir, se abre directo; con varias, su tarjeta las ofrece
+				var cl := _compose_links(ph)
+				if cl.size() == 1:
+					exam.hide_card()
+					(cl[0].cb as Callable).call()
+					return
 	_examine(node_id, b)
 
 # Banderas de revelado (GDD_v2 §C.2: Game.sim.q_ui()); sin ellas (datos viejos, tests de respaldo) todo vale.
@@ -1062,7 +1050,7 @@ func ui_flags() -> Dictionary:
 func _flag(f: Dictionary, k: String) -> bool:
 	return bool(f.get(k, true))
 
-# ¿El vínculo de un objeto (data/map.json objects) sirve AHORA? (§D.1: lo usable se marca sólo cuando su función existe)
+# ¿El vínculo de un objeto (data/map.json objects) sirve AHORA? Lo que sirve lleva la mano (§6.5); lo demás, la lupa.
 func binding_live(dothis: String, ph: String, f := {}) -> bool:
 	if f.is_empty():
 		f = ui_flags()
@@ -1074,8 +1062,8 @@ func binding_live(dothis: String, ph: String, f := {}) -> bool:
 			return _flag(f, "desk.mapa")
 		"notebook":
 			return _flag(f, "hud.cuaderno")
-		"ledger":
-			return _flag(f, "hud.libro")
+		"dossier":
+			return _flag(f, "desk.expediente")
 		"scissors":
 			return _flag(f, "desk.tijera")
 		"calendar":
@@ -1092,6 +1080,8 @@ func binding_live(dothis: String, ph: String, f := {}) -> bool:
 			return ph == "desk"
 		"leave":
 			return ph == "visit"
+		"docs":
+			return true
 	return false
 
 func _char_talkable(cid: String, ph: String, sc: Dictionary) -> bool:
@@ -1100,7 +1090,8 @@ func _char_talkable(cid: String, ph: String, sc: Dictionary) -> bool:
 		return false
 	return ["visit", "scene", "confront", "parklane", "prologue"].has(ph) and (not repo.dialogue(cid).is_empty() or _labels(sc).has(cid))
 
-# Lo usable del diorama actual (contorno rojo permanente + mano) y las siluetas con las que se habla (mano sin contorno).
+# Lo que se USA (cursor de mano, §6.5): vínculos vivos de map.json, salidas, personajes en primer plano y las siluetas
+# con las que se habla. Lo demás se mira (lupa). Nada se marca en el dibujo hasta pasar el mouse (contorno blanco).
 func refresh_affordances() -> void:
 	var sim = _sim()
 	var w = shell.world if shell != null else null
@@ -1113,6 +1104,16 @@ func refresh_affordances() -> void:
 	var use := {}
 	var hand := {}
 	var idx: Dictionary = w.diorama.get_meta("nodes_index", {})
+	# playtest v3 (Somerset House): en una visita, un objeto cuya tarjeta ofrece leer o pedir un papel también se USA
+	# (mano); antes la única acción útil quedaba escondida tras la lupa
+	var doc_ents := {}
+	var doc_views := {}
+	if ph == "visit":
+		for v in sim.q_accessible():
+			doc_views[String(v.get("view", ""))] = true
+			var de := String(repo.doc(String(v.get("doc", ""))).get("entity", ""))
+			if de != "":
+				doc_ents[de] = true
 	for nid in idx:
 		var id := String(nid)
 		if id.begins_with("sil_"):
@@ -1122,124 +1123,26 @@ func refresh_affordances() -> void:
 		var b := Objects.binding(repo, cur_place, id)
 		if binding_live(String(b.get("do", "")), ph, f):
 			use["n:" + id] = true
+		elif not doc_ents.is_empty():
+			var ndf := _node_def(id)
+			var own := Objects.own_doc(_place_def(cur_place), ndf)
+			if own != "" and doc_views.has(own):
+				use["n:" + id] = true
+				continue
+			for e in Objects.node_ents(repo, ndf):
+				if doc_ents.has(String(e)):
+					use["n:" + id] = true
+					break
 	var ci: Dictionary = w.diorama.get_meta("chars_index", {})
+	# playtest v3: a las 22 el chico de Pell (en la puerta) se USA: el clic abre el informe (antes mostraba la lupa)
+	var report_due: bool = (ph == "night" or ph == "final_report") and sim.has_method("q_report_status") and bool(sim.q_report_status().get("due", false))
 	for cid in ci:
-		if _char_talkable(String(cid), ph, sc):
+		if _char_talkable(String(cid), ph, sc) or (report_due and not ["harris", "watson"].has(String(cid))):
 			use["c:" + String(cid)] = true
 	w.set_usable(use, hand)
 
-# Texto de la etiqueta flotante: el sustantivo (o el nombre del personaje si ya se presentó); lo usable suma el verbo
-# («Cuaderno · abrir», «Watson · hablar»).
-func hover_text(kind: String, id: String) -> String:
-	var sim = _sim()
-	if sim == null or id == "":
-		return ""
-	var w = shell.world
-	if kind == "char":
-		var nm := _who_label(id, _labels(sim.q_scene()))
-		if nm == "":
-			nm = id
-		if w.is_usable("char", id):
-			return Widgets.t("cam.etiqueta.uso", {"que": _cap(nm), "verbo": Widgets.t("cam.verbo.hablar")})
-		return nm
-	var noun := ""
-	var body = w.node_body(id)
-	if body != null:
-		noun = String(body.get_meta("noun", ""))
-	if noun == "":
-		noun = String(_node_def(id).get("noun", id.replace("_", " ")))
-	if id.begins_with("sil_") and ["visit", "scene", "parklane"].has(String(sim.q_clock().phase)) and _labels(sim.q_scene()).has(id.substr(4)):
-		var who := _who_label(id.substr(4), _labels(sim.q_scene()))
-		return who if who != "" else noun
-	if w.is_usable("node", id):
-		var b := Objects.binding(_repo(), cur_place, id)
-		var v := _verb(String(b.get("do", "")), String(sim.q_clock().phase))
-		if v != "":
-			return Widgets.t("cam.etiqueta.uso", {"que": _cap(noun), "verbo": v})
-	return noun
-
-func _verb(dothis: String, ph: String) -> String:
-	match dothis:
-		"calendar":
-			if ph == "visit":
-				return Widgets.t("cam.verbo.volver")
-			if ph == "night" or ph == "prologue":
-				return Widgets.t("cam.verbo.dormir")
-			return Widgets.t("cam.verbo.turno")
-	var k := "cam.verbo." + dothis
-	var s := Widgets.t(k)
-	return "" if s == k else s
-
 static func _cap(s: String) -> String:
 	return s.substr(0, 1).to_upper() + s.substr(1) if s != "" else s
-
-func _on_hover(kind: String, id: String, _pos: Vector2) -> void:
-	if hover_label == null:
-		return
-	if kind == "none" or id == "" or _looking:
-		hover_label.hide_label()
-		return
-	hover_label.show_label(hover_text(kind, id))
-
-# «Mirar alrededor» (mantener Espacio, fe_mirar): todo lo examinable del encuadre contorneado y con su nombre, por igual.
-func set_look_around(on: bool) -> void:
-	if shell == null or shell.world == null:
-		return
-	# con la banda de escena abierta (visitas) también se mira alrededor: es donde más se mira
-	var panel_up: bool = shell.top() != null and not BAND_PANELS.has(shell.top_kind())
-	if on and (panel_up or scissors_on or shell.is_busy() or (_modal != null and is_instance_valid(_modal))):
-		on = false
-	if on == _looking:
-		return
-	_looking = on
-	shell.world.set_reveal_all(on)
-	if hover_label == null:
-		return
-	if not on:
-		hover_label.clear_many()
-		return
-	_look_used = true
-	hover_label.hide_label()
-	_look_relabel()
-	_refresh_hud(_sim().q_clock())
-
-# Etiquetas de «mirar alrededor» en el centro proyectado de cada examinable. Mientras se mantiene Espacio la vista puede
-# girar (bordes, flechas, rueda): _process las vuelve a calcular cuando la cámara se movió (playtest v2: quedaban quietas
-# sobre objetos equivocados).
-var _look_xf := Transform3D()
-var _look_fov := 0.0
-var _look_acc := 0.0
-func _look_relabel() -> void:
-	if hover_label == null or shell == null or shell.world == null:
-		return
-	var cam: Camera3D = shell.world.camera()
-	_look_xf = cam.global_transform
-	_look_fov = cam.fov
-	var items: Array = []
-	# lo que queda debajo de la banda de escena no se ve: sin etiqueta
-	var floor_y: float = get_viewport().get_visible_rect().size.y - (_band_inset() + 22.0 if _band_inset() > 0.0 else 0.0)
-	for it in shell.world.visible_nodes():
-		if (it.pos as Vector2).y > floor_y - 4.0:
-			continue
-		var t := hover_text(String(it.kind), String(it.id))
-		if t != "":
-			items.append({"text": t, "pos": it.pos})
-	hover_label.show_many(items)
-
-func _look_step(dt: float) -> void:
-	if not _looking or shell == null or shell.world == null:
-		return
-	_look_acc += dt
-	if _look_acc < 0.05:
-		return
-	_look_acc = 0.0
-	var cam: Camera3D = shell.world.camera()
-	if cam.global_transform.is_equal_approx(_look_xf) and absf(cam.fov - _look_fov) < 0.01:
-		return
-	_look_relabel()
-
-func looking_around() -> bool:
-	return _looking
 
 func _node_def(node_id: String) -> Dictionary:
 	var sim = _sim()
@@ -1251,6 +1154,17 @@ func _node_def(node_id: String) -> Dictionary:
 		for n in _place_def(cur_place).get("nodes", []):
 			if String(n.get("id", "")) == node_id:
 				d = n.duplicate(true)
+	# «aviso» (intrusiones, GDD_v3 §4.3–§4.4): lo trae la definición del nodo de la variante (snap.node_defs)
+	var defs = snap.get("node_defs", {})
+	if typeof(defs) == TYPE_DICTIONARY and typeof(defs.get(node_id)) == TYPE_DICTIONARY and String(defs[node_id].get("aviso", "")) != "":
+		d["aviso"] = String(defs[node_id].aviso)
+	elif not d.has("aviso"):
+		for vd in _place_def(cur_place).get("variants", {}).values():
+			if typeof(vd) != TYPE_DICTIONARY:
+				continue
+			for n in vd.get("add_nodes", []):
+				if typeof(n) == TYPE_DICTIONARY and String(n.get("id", "")) == node_id and String(n.get("aviso", "")) != "":
+					d["aviso"] = String(n.aviso)
 	return d
 
 func _examine(node_id: String, b: Dictionary, sub := "") -> void:
@@ -1262,38 +1176,50 @@ func _examine(node_id: String, b: Dictionary, sub := "") -> void:
 	var links: Array = []
 	var dothis := String(b.get("do", ""))
 	var ph := String(sim.q_clock().phase)
-	# v2 (§E): la cámara se acerca al objeto (también en casa); lo enorme o lejano se examina sin moverla
-	if sub == "" and shell.world.has_method("examine") and not node_id.begins_with("sil_"):
-		shell.world.examine(node_id)
+	# §4.4: abrir la tarjeta de un nodo con «aviso» (la ventana abierta, la cerradura rayada…) es notar la intrusión
+	if String(nd.get("aviso", "")) != "":
+		shell.act({"t": "examine", "ref": "hub/" + node_id})
 	var view_doc := {}
 	for v in sim.q_accessible():
 		view_doc[String(v.get("view", ""))] = String(v.get("doc", ""))
 	var docs: Array = Objects.docs_for(sim, repo, _place_def(cur_place), nd, b)
 	var vias: Array = b.get("via", []) if typeof(b.get("via", [])) == TYPE_ARRAY else []
 	var head := Widgets.t("shell.exam.leer_lista")
-	if vias.has("tome") and docs.size() > EXAM_LINKS_MAX:
-		# §C.3 tarjeta en dos niveles: primero los volúmenes (y lo que no es de un volumen, como las notas a lápiz)
-		var groups := _tome_groups(docs, view_doc)
-		if sub == "":
-			for g in groups:
-				if String(g.key) == "":
-					for it in g.items:
-						var view0 := String(it.view)
-						links.append({"text": Widgets.t("shell.exam.leer", {"titulo": String(it.title)}), "short": String(it.title), "cb": func(): _read(view0)})
-				else:
-					var gk := String(g.key)
-					links.append({"text": String(g.label), "short": String(g.label), "cb": func(): _examine(node_id, b, gk)})
-			head = Widgets.t("cam.tomos.cabeza")
+	# §6.4 el estante de la pieza: los papeles de casa y lo que falta («No está.»). GDD_v2 §C.1 (≤7 renglones a la vista):
+	# las crónicas del cliente (vistas «@tomo», y la que falte) van a la vista; con más de 7 renglones, los demás papeles
+	# de casa (notas de lectura, la Pall Mall, la prueba de imprenta, lo devuelto, y el que falte) van un nivel abajo, en
+	# «Mis papeles» (ahí los busca el jugador).
+	if vias.has("tome") and mode == "hub":
+		head = Widgets.t("mundo.estante.cabeza")
+		var top: Array = []
+		var papers: Array = []
+		for d in docs:
+			var view0 := String(d.view)
+			var lk := {"text": Widgets.t("shell.exam.leer", {"titulo": String(d.title)}), "short": String(d.title), "cb": func(): _read(view0)}
+			if view0.ends_with("@tomo"):
+				top.append(lk)
+			else:
+				papers.append(lk)
+		# playtest v3: lo que falta va PRIMERO y a la vista (antes quedaba dentro de «Mis papeles», cortado en
+		# «…jueves 2 de noviembre de 18...» sin que se leyera el «no está»), con un rótulo corto que empieza por «No está»
+		if sim.has_method("q_missing"):
+			var miss: Array = []
+			for m in sim.q_missing():
+				var cp := String(m.get("copy", ""))
+				var fl := Widgets.t("mundo.estante.falta", {"titulo": short_title(String(m.get("title", cp)))})
+				miss.append({"text": fl, "short": fl, "cb": func(): _missing(cp)})
+			top = miss + top
+		var group := Widgets.t("mundo.estante.papeles")
+		if top.size() + papers.size() > 7 and papers.size() > 1 and top.size() > 6:
+			papers = top.slice(6) + papers   # ≤7 renglones con «Mis papeles»: lo que no entra baja un nivel
+			top = top.slice(0, 6)
+		if top.size() + papers.size() <= 7 or papers.size() <= 1:
+			links = top + papers
+		elif sub == "papeles":
+			head = group
+			links = [{"text": Widgets.t("cam.tomos.volver"), "short": Widgets.t("cam.tomos.volver"), "cb": func(): _examine(node_id, b, "")}] + papers
 		else:
-			docs = []
-			for g in groups:
-				if String(g.key) == sub:
-					docs = g.items
-					head = String(g.label)
-			links.append({"text": Widgets.t("cam.tomos.volver"), "short": Widgets.t("cam.tomos.volver"), "cb": func(): _examine(node_id, b, "")})
-			for d in docs:
-				var view1 := String(d.view)
-				links.append({"text": Widgets.t("shell.exam.leer", {"titulo": String(d.title)}), "short": String(d.title), "cb": func(): _read(view1)})
+			links = top + [{"text": group, "short": group, "cb": func(): _examine(node_id, b, "papeles")}]
 		exam.show_card(title, parsed, links, {"kind": "node", "ref": cur_plate + "/" + node_id}, node_id, head)
 		exam.set_scissors(scissors_on)
 		return
@@ -1344,18 +1270,34 @@ func _examine(node_id: String, b: Dictionary, sub := "") -> void:
 		if did != "" and bool(sim.can({"t": "order_copy", "doc": did}).get("ok", false)):
 			links.append({"text": Widgets.t("shell.copia.pedir", {"titulo": title_d, "precio": _price_text(_copy_price_d())}),
 				"short": Widgets.t("shell.copia.corto"), "cb": func(): _ask_order_copy(did, title_d)})
+	var note := ""
 	if dothis == "compose" and binding_live("compose", ph):
 		links.append_array(_compose_links(ph))
+	elif dothis == "compose" and ph in ["night", "night_choice", "final_report"]:
+		# playtest v3: de noche el tintero pasa a lupa; Lisle dice por qué ya no sirve
+		var due: bool = sim.has_method("q_report_status") and bool(sim.q_report_status().get("due", false))
+		note = Widgets.t("mundo.tintero.noche_informe" if due else "mundo.tintero.noche")
 	if dothis == "sleep" and binding_live("sleep", ph):
 		links.append({"text": Widgets.t("shell.cal.dormir"), "cb": func(): _ask_sleep()})
-	var note := ""
-	if node_id == "monedas":
-		# §C.3: las monedas dejan el HUD; su cuenta está en su examen (no recortable: es la bolsa de Lisle, no un texto)
-		note = Widgets.t("cam.monedas", {"cuanto": DeskHud.money(int(sim.q_clock().get("coins_d", 0)))})
-		if note.ends_with(".."):
-			note = note.left(-1)   # «£4 12s. 11d.» ya trae el punto
 	exam.show_card(title, parsed, links, {"kind": "node", "ref": cur_plate + "/" + node_id}, node_id, head, note)
 	exam.set_scissors(scissors_on)
+
+# Título corto de un papel (hasta la primera coma, ≤44 letras): «Prueba de imprenta de «El problema final»».
+static func short_title(t: String) -> String:
+	var s := t.strip_edges()
+	var k := s.find(", ")
+	if k > 0:
+		s = s.substr(0, k)
+	if s.length() > 44:
+		s = s.substr(0, 43).strip_edges() + "…"
+	return s
+
+# Un faltante del estante (§4.3–§4.4): Lisle lo busca, no está; tocarlo es notar la intrusión (acción libre examine).
+func _missing(copy: String) -> void:
+	if copy == "":
+		return
+	shell.act({"t": "examine", "ref": "missing/" + copy})
+	shell.note(Widgets.t("mundo.estante.no_esta"))
 
 # «martes 27» (etiqueta del día en schedule, en minúscula; "" si no está)
 func _day_label(d: int) -> String:
@@ -1367,49 +1309,6 @@ func _day_label(d: int) -> String:
 			var l := String(x.get("label", ""))
 			return l.substr(0, 1).to_lower() + l.substr(1)
 	return ""
-
-# Tomos de la Strand agrupados por volumen (semestre de publicación: vol. = (año − 1891)·2 + 1 o 2). Lo que no es una
-# crónica fechada (las notas a lápiz) va suelto (key ""). [{key, label, items:[{view, title}]}], volúmenes en orden.
-func _tome_groups(docs: Array, view_doc: Dictionary) -> Array:
-	var repo = _repo()
-	var by := {}
-	var loose: Array = []
-	for d in docs:
-		var did := String(view_doc.get(String(d.view), ""))
-		var dd: Dictionary = repo.doc(did) if did != "" else {}
-		var date := String(dd.get("date", ""))
-		if String(dd.get("src_type", "")) != "cronica" or date.length() < 7:
-			loose.append(d)
-			continue
-		var y := date.substr(0, 4).to_int()
-		var m := date.substr(5, 2).to_int()
-		var vol := (y - 1891) * 2 + (2 if m >= 7 else 1)
-		var k := "%02d" % vol
-		if not by.has(k):
-			by[k] = {"key": k, "label": Widgets.t("cam.tomos.vol", {"n": _roman(vol), "anio": y, "semestre": Widgets.t("cam.tomos.sem%d" % (2 if m >= 7 else 1))}), "items": [], "vol": vol}
-		by[k].items.append(d)
-	var keys: Array = by.keys()
-	keys.sort()
-	var out: Array = []
-	for k in keys:
-		var items: Array = by[k].items
-		items.sort_custom(func(a, c):
-			var da: Dictionary = repo.doc(String(view_doc.get(String(a.view), "")))
-			var dc: Dictionary = repo.doc(String(view_doc.get(String(c.view), "")))
-			return String(da.get("date", "")) < String(dc.get("date", "")))
-		out.append(by[k])
-	if not loose.is_empty():
-		out.append({"key": "", "label": "", "items": loose})
-	return out
-
-static func _roman(n: int) -> String:
-	var vals := [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]]
-	var s := ""
-	for v in vals:
-		while n >= int(v[0]):
-			s += String(v[1])
-			n -= int(v[0])
-	return s
 
 func _copy_price_d() -> int:
 	var repo = _repo()
@@ -1470,6 +1369,9 @@ func on_char(cid: String) -> void:
 	var sim = _sim()
 	if sim == null or scissors_on:
 		return
+	if speech.showing() and not speech.queue.is_empty():
+		speech.advance()   # playtest v3: primero las líneas que quedan (presentación del prólogo)
+		return
 	exam.hide_card()
 	var ph := String(sim.q_clock().phase)
 	var st: Dictionary = sim.q_report_status()
@@ -1493,9 +1395,6 @@ func on_char(cid: String) -> void:
 
 func _on_empty(_pos: Vector2) -> void:
 	exam.hide_card()
-	# clic en el vacío estando acercado a un objeto: un paso atrás (como el clic derecho)
-	if shell != null and shell.world.is_examining():
-		shell.world.back()
 
 # ------------------------------------------------------------------ presentar (DnD sobre el 3D)
 func _on_present(cid: String, data: Dictionary) -> void:
@@ -1695,15 +1594,11 @@ func _read_from_catalog(v: String) -> void:
 		_catalog_after_read = true
 
 func _on_panel_closed_kind(k: String) -> void:
-	# playtest v2: después de leer, escribir o revisar algo abierto desde un objeto, la cámara quedaba pegada al objeto sin
-	# tarjeta: cerrado el panel (y sin otro arriba), un paso atrás
-	if k != "scene" and k != "confront" and shell != null and shell.top() == null and exam != null and not exam.visible 			and shell.world.is_examining() and not (k == "reader" and _catalog_after_read):
-		shell.world.back()
 	# prólogo: todo lo que piden Pell y Harris está sobre la mesa (encargo, tijera, tintero, calendario); al cerrar un
 	# panel la vista vuelve al escritorio y no a la lámina entera, donde el tintero es un punto (playtest v2)
 	var simp = _sim()
 	if simp != null and String(simp.q_clock().phase) == "prologue" and mode == "plate" and shell.top() == null \
-			and not shell.world.is_examining() and shell.world.rig.depth() <= 1 and shell.world.rig.has_frame(TUTOR_FRAME) \
+			and shell.world.rig.has_frame(TUTOR_FRAME) \
 			and frame != TUTOR_FRAME:
 		go_frame(TUTOR_FRAME)
 	if k == "tray" and _confront_after_tray:
@@ -1749,28 +1644,30 @@ func _pointer_on_world() -> bool:
 	if not is_inside_tree():
 		return false
 	var h := get_viewport().gui_get_hovered_control()
-	return h == null or h == scissors
+	return h == null or h == exam or (exam != null and exam.is_ancestor_of(h))
 
+# Tijera fuera del lector (C o el ícono de la tarjeta): recorta el texto de las tarjetas de examen y de las líneas dichas
+# (GDD_v3 §6.2: todo lo del 3D se recorta del texto de su tarjeta). No hay rectángulo sobre el 3D.
 func set_scissors(on: bool) -> void:
+	if on and not _flag(ui_flags(), "desk.tijera"):
+		on = false
 	scissors_on = on
-	if scissors == null:
+	if exam == null:
 		return
 	exam.set_scissors(on)
 	speech.set_scissors(on)
 	tutor.set_scissors(on)
-	scissors.set_active(on)
-	if on:
-		shell.play("sfx.tijera")
+	_scissors_cursor(on)
+	# playtest v3: tomar la tijera no suena a «un corte de tijera» (no se cortó nada); el cursor ya lo dice
 	_sync_overlays()
 
-func _on_rect(rect: Rect2) -> void:
-	var sim = _sim()
-	if sim == null:
+var _scissors_cur := false
+func _scissors_cursor(on: bool) -> void:
+	if on == _scissors_cur or DisplayServer.get_name() == "headless":
+		_scissors_cur = on
 		return
-	var r: Dictionary = shell.world.rect_clip(rect)
-	var a := {"t": "clip_plate", "plate": cur_plate, "hits": r.get("hits", []), "touched": r.get("touched", []), "area_frac": float(r.get("area_frac", 0.0))}
-	var res: Dictionary = shell.act(a)
-	on_clipped(res)
+	_scissors_cur = on
+	Input.set_custom_mouse_cursor(Cursors.scissors() if on else null, Input.CURSOR_IBEAM, Vector2(6, 6))
 
 func on_clipped(res: Dictionary) -> void:
 	if not bool(res.get("ok", false)):
@@ -1825,8 +1722,6 @@ func front_back() -> bool:
 		return true
 	if exam != null and exam.visible:
 		exam.hide_card()
-		if shell.world.is_examining():
-			shell.world.back()
 		return true
 	return false
 
@@ -1840,18 +1735,9 @@ func back() -> bool:
 		return true
 	if exam.visible:
 		exam.hide_card()
-		if shell.world.is_examining():
-			shell.world.back()
-		return true
-	if shell.world.is_examining():
-		shell.world.back()
 		return true
 	if speech.visible:
 		speech.advance()
-		return true
-	# v2 (§E): zona → vista general (clic derecho o Esc bajan un nivel de la pila de poses)
-	if shell.world.rig.depth() > 1 and not _doc_plate:
-		shell.world.back()
 		return true
 	if _doc_plate:
 		var sim = _sim()
@@ -1874,12 +1760,16 @@ func shortcut_panel(kind: String) -> bool:
 	var sim = _sim()
 	if sim == null or shell.is_busy():
 		return false
-	if kind == "map" or kind == "notebook" or kind == "ledger":
+	# v3 (§5.4, §6.4): el plano sólo desde la pared de la buhardilla (no hay tecla ni cinta); acá, el cuaderno (Tab) y el
+	# expediente (E), en cualquier lugar (sus cintas del HUD sólo fuera de la buhardilla: en casa están sobre la mesa)
+	if kind == "notebook" or kind == "dossier":
+		if kind == "dossier" and not _flag(ui_flags(), "desk.expediente"):
+			return false
 		exam.hide_card()
 		if scissors_on:
 			set_scissors(false)
 		# el lector es a pantalla completa (capa 30): un libro (capa 20) quedaría debajo; se deja la hoja y se abre el libro
-		if kind != "map" and shell.reader_open() and not shell.is_open(kind):
+		if shell.reader_open() and not shell.is_open(kind):
 			shell.close_kind("reader")
 		shell.toggle_panel(kind)
 		return true

@@ -1,18 +1,21 @@
-# ui/notebook/notebook.gd — el Cuaderno de Lisle (capa 20, «Libros»). Dueño: W3-NOTEBOOK. Contrato: ARCHITECTURE §6.5
-# (GDD§14.1, §8.1–8.3, §7.4, §13), reglas de UI limpia §6.1 y arrastre §6.3.
+# ui/notebook/notebook.gd — el Cuaderno de Lisle (capa 20, «Libros»). Dueño: UI-EXPEDIENTE (antes W3-NOTEBOOK).
+# Contrato: GDD_v3 §6.1–§6.3 (+ ARCHITECTURE §6.5, reglas de UI limpia §6.1 y arrastre §6.3).
 # Pestañas: Recortes (búsqueda; filtros por persona, lugar y fecha DE LA CRÓNICA; agrupado por el calendario de la
-# crónica; tarjeta = tira o miniatura + epígrafe + línea de fuente) · Índice (alfabético por `index`; clic = filtra
-# Recortes; los chips se arrastran) · Cotejos (los pares, con su nota libre) · Diario (D36, con sello «Recibido» en cada
-# llegada; recortable con la tijera) · Marginalia (notas de huevos de pascua; sin contador). Nada cuenta ni destaca.
+# crónica; cada recorte es una TARJETA: texto en la letra de su documento, la fuente en chico y las entidades sólo al
+# pasar el mouse) · Índice (alfabético por `index`; clic = filtra Recortes; los chips se arrastran) · Diario (D36, con
+# sello «Recibido» en cada llegada; recortable con la tijera) · Marginalia (curiosidades; sin contador). Nada cuenta ni
+# destaca. v3: sin pares ni cotejos (nada se suelta sobre un recorte) y sin la cinta del otro libro (una sola forma de
+# hacer cada cosa): las pruebas se arrastran directo a las ranuras del Expediente Holmes.
 #
-# Uso (Shell, W3-SHELL): var nb = preload("res://ui/notebook/notebook.gd").new(); capa_libros.add_child(nb)
+# Uso (Shell): var nb = preload("res://ui/notebook/notebook.gd").new(); capa_libros.add_child(nb)
 #   open(tab := "") · close() · toggle() · is_open() · show_tab(tab) · set_layout("full"|"left"|"right")
 #   filter_entity(ent) (va a Recortes filtrado; lo usa el Índice y puede usarlo el Shell) · refresh() (lo hace solo con
 #   Game.sim_changed) · set_thumb(clip_id, tex) (miniatura de un recorte de lámina; sesión) · debug_state() (tests) ·
-#   ent_label(id) (etiqueta de índice de una entidad, esté o no en el índice del jugador)
+#   ent_label(id) (etiqueta de índice de una entidad, esté o no en el índice del jugador) · card_width(wide)
+# Con el Expediente abierto (Shell.is_open("dossier")), el cuaderno se acopla a la izquierda, más angosto, sin velo.
 # Ancho: pestañas y «Volver» siempre dentro del libro (_fit_tabs: sangría y, si no alcanza, letra); set_layout rehace
-#   las páginas si cambia el ancho del cuerpo (las tiras se arman con él).
-# Señales: opened · closed · tab_changed(tab) · clipped(result) (tijera del diario) · linked(pair) ·
+#   las páginas si cambia el ancho del cuerpo (las tarjetas se arman con él).
+# Señales: opened · closed · tab_changed(tab) · clipped(result) (tijera del diario) ·
 #   source_requested(clip_id, copy) (doble clic en una tarjeta: el Shell puede abrir el lector si es legible).
 # Config: act_fn (Callable(a) -> Dictionary; por defecto Game.act) · sim_override (GameSim; por defecto Game.sim) ·
 #   handle_back (true: fe_volver = deja la tijera / cierra el formulario / cierra el cuaderno; el Shell lo pone en false
@@ -20,16 +23,15 @@
 #   3D; clic en el velo cierra) · sounds.
 # Todo texto sale de ui_text (data/ui_text/notebook.json, prefijo nb.) o de las consultas q_* del sim.
 # GDD_v2 §C.3 (revelado progresivo, banderas de q_ui): al principio no hay pestañas, sólo la lista de recortes. Cada
-#   pestaña aparece con su bandera (Índice nb.indice · Pares nb.pares · Diario nb.diario · Curiosidades nb.curiosidades);
-#   con una sola pestaña posible no se dibuja la fila de pestañas. La búsqueda, los filtros y la agrupación por mes los
-#   decide tab_clips con nb.buscar / nb.filtros / nb.agrupar. Lo que apareció no vuelve a desaparecer (lo asegura q_ui).
+#   pestaña aparece con su bandera (Índice nb.indice · Diario nb.diario · Curiosidades nb.curiosidades); con una sola
+#   pestaña posible no se dibuja la fila de pestañas. La búsqueda, los filtros y la agrupación por mes los decide
+#   tab_clips con nb.buscar / nb.filtros / nb.agrupar. Lo que apareció no vuelve a desaparecer (lo asegura q_ui).
 extends Control
 
 signal opened
 signal closed
 signal tab_changed(tab: String)
 signal clipped(result: Dictionary)
-signal linked(pair_id: String)
 signal source_requested(clip_id: String, copy: String)
 
 const L = preload("res://core/util/log.gd")
@@ -39,22 +41,23 @@ const Sheet = preload("res://ui/kit/sheet.gd")
 const Model = preload("res://ui/notebook/notebook_model.gd")
 const TabClips = preload("res://ui/notebook/tab_clips.gd")
 const TabIndex = preload("res://ui/notebook/tab_index.gd")
-const TabPairs = preload("res://ui/notebook/tab_pairs.gd")
 const TabDiary = preload("res://ui/notebook/tab_diary.gd")
 const TabMarginalia = preload("res://ui/notebook/tab_marginalia.gd")
 const UiFlags = preload("res://ui/kit/ui_flags.gd")
 # pestaña -> bandera de q_ui que la muestra ("" = siempre)
-const TAB_FLAG := {"recortes": "", "indice": "nb.indice", "cotejos": "nb.pares", "diario": "nb.diario", "marginalia": "nb.curiosidades"}
+const TAB_FLAG := {"recortes": "", "indice": "nb.indice", "diario": "nb.diario", "marginalia": "nb.curiosidades"}
 
-const TABS := ["recortes", "indice", "cotejos", "diario", "marginalia"]
-# Lo que cambia algo del cuaderno (los asientos y folios no: el libro mayor puede estar abierto al lado sin rehacerlo).
-const REFRESH_KINDS := ["clip", "pair", "index", "diary", "egg", "line", "tray", "clock"]
+const TABS := ["recortes", "indice", "diario", "marginalia"]
+# Lo que cambia algo del cuaderno (el expediente no: puede estar abierto al lado sin rehacerlo).
+const REFRESH_KINDS := ["clip", "index", "diary", "egg", "line", "tray", "clock"]
 const BOOK_MAX_W := 1180.0
 const BOOK_MIN_W := 560.0
 const PAD := 26.0                 # margen interior de la hoja
 const MARGIN_COL := 100.0         # columna del margen (fechas, letras, quién habla, sellos)
 const GUTTER := 22.0              # entre el margen y el cuerpo; la línea roja va en el medio
 const STRIP_W := 470.0            # ancho de una columna de diario (la tira, GDD§8.1)
+const CARD_W := 600.0             # ancho máximo de una tarjeta de recorte (GDD_v3 §6.2)
+const LEFT_NARROW_K := 0.42       # junto al expediente: fracción del ancho de pantalla
 const WIDE_MIN := 860.0           # ancho de cuerpo desde el que el epígrafe va al lado de la tira
 const TAB_LEAD := PAD + MARGIN_COL + GUTTER * 0.5 - 6.0   # sangría de las pestañas: empiezan en la línea roja
 const TAB_LEAD_MIN := 6.0
@@ -71,7 +74,8 @@ var handle_keys := true
 var backdrop := true
 var sounds := true
 var layout := "full"
-var auto_layout := true           # con Shell: a la izquierda y sin velo si el libro mayor está abierto o hay escena
+var auto_layout := true           # con Shell: a la izquierda y sin velo si el expediente está abierto o hay escena
+var narrow := false               # acoplado junto al expediente (más angosto: la carpeta necesita su lugar)
 var shell = null                  # ui/shell.gd (lo pone Shell.open_panel); opcional
 var tab := "recortes"
 var filters := {"q": "", "persona": "", "lugar": "", "fecha": "", "ent": ""}
@@ -87,7 +91,6 @@ var _tabs_lead: Control
 var _tab_buttons := {}
 var _tab_group: ButtonGroup
 var _close_btn: Button
-var _ledger_ribbon: PanelContainer   # cinta «Libro mayor» en el canto derecho (con Shell y el libro mayor cerrado)
 var _sheet: PanelContainer
 var _content: Control
 var _pages := {}
@@ -268,7 +271,6 @@ func _sync_flags() -> void:
 		(_tab_buttons[tb] as Button).visible = av.size() > 1 and av.has(tb)
 	if not av.has(tab):
 		show_tab("recortes")
-	_place_ledger_ribbon()
 	_fit_tabs.call_deferred()
 
 func mark_all_dirty() -> void:
@@ -288,8 +290,9 @@ func _on_shell_panel(_kind: String) -> void:
 	if _open:
 		_sync_with_shell.call_deferred()
 
-# Dos paneles a la vez (§6.1): con el libro mayor abierto, o en una visita/escena (presentar = soltar sobre el 3D), el
-# cuaderno va a la izquierda y sin velo; si no, centrado y con el velo.
+# Dos paneles a la vez (§6.1): con el expediente abierto (GDD_v3 §6.1: las pruebas se arrastran de acá a sus ranuras), o
+# en una visita/escena (presentar = soltar sobre el 3D), el cuaderno va a la izquierda y sin velo; si no, centrado y con
+# el velo. Junto al expediente es más angosto (la carpeta lleva dos páginas).
 func _sync_with_shell() -> void:
 	if not auto_layout or shell == null or not shell.has_method("is_open"):
 		return
@@ -297,14 +300,24 @@ func _sync_with_shell() -> void:
 	var c = q("q_clock")
 	if c is Dictionary:
 		phase = String(c.get("phase", ""))
-	var side: bool = bool(shell.is_open("ledger")) or bool(shell.is_open("scene")) or bool(shell.is_open("confront")) \
+	var dossier: bool = bool(shell.is_open("dossier"))
+	var side: bool = dossier or bool(shell.is_open("scene")) or bool(shell.is_open("confront")) \
 		or ["visit", "scene", "confront"].has(phase)
 	var want := "left" if side else "full"
 	backdrop = not side
+	var was_bw := body_width()
+	narrow = dossier
+	# junto a la carpeta, un solo «Volver» (el de la carpeta: cierra las dos); GDD_v3 decisión 13
+	if _close_btn != null:
+		_close_btn.visible = not dossier
 	if want != layout:
 		set_layout(want)
 	else:
 		_layout()
+		if absf(was_bw - body_width()) > 0.5:
+			mark_all_dirty()
+			if _open:
+				_refresh_tab(tab)
 
 # Doble clic en una tarjeta: con Shell, abre el original si está legible ahora (una lámina la abre el Shell por
 # source_requested); si no, Lisle lo dice.
@@ -330,7 +343,6 @@ func open_source(clip_id: String, copy: String) -> void:
 func set_thumb(clip_id: String, tex: Texture2D) -> void:
 	thumbs[clip_id] = tex
 	_dirty["recortes"] = true
-	_dirty["cotejos"] = true
 
 func thumb_of(clip_id: String) -> Texture2D:
 	return thumbs.get(clip_id)
@@ -398,7 +410,7 @@ func debug_state() -> Dictionary:
 				vis_tabs.append(tb)
 	var out := {"open": _open, "tab": tab, "layout": layout, "filters": filters.duplicate(), "overlay": _overlay_panel != null,
 		"note": _note_label.text if _note != null and _note.visible else "", "wide": is_wide(), "tabs": vis_tabs,
-		"ribbon": _ledger_ribbon != null and _ledger_ribbon.visible}
+		"narrow": narrow, "rect": book_rect()}
 	for tb in TABS:
 		if _pages.has(tb):
 			out[tb] = _pages[tb].debug_state()
@@ -476,48 +488,9 @@ func known_ids() -> Dictionary:
 		out[String(r.get("id", ""))] = true
 	return out
 
-# Letra y papel del documento de origen de un recorte (cacheado por copia/doc). Las líneas dichas y el diario van en
-# el papel del cuaderno con letra de imprenta; las láminas, en papel de registro.
+# Letra y papel del documento de origen de un recorte (ClipCard.look_for, cacheado).
 func look_of(c: Dictionary) -> Dictionary:
-	var st := String(c.get("src_type", ""))
-	var key := String(c.get("copy", "")) + "|" + String(c.get("doc", "")) + "|" + st
-	if _cache_look.has(key):
-		return _cache_look[key]
-	var out := {"font": "imprenta", "paper": "diario_hueso", "machine": ""}
-	match st:
-		"escena":
-			out.paper = "carta"
-		"diario":
-			out.paper = "cuaderno"
-		"lugar":
-			out.paper = "registro"
-		_:
-			var r = repo()
-			var d: Dictionary = {}
-			if r != null:
-				var cp := String(c.get("copy", ""))
-				var did := String(c.get("doc", ""))
-				if did != "" and not r.doc(did).is_empty():
-					d = r.doc(did)
-				elif cp != "" and not r.copy(cp).is_empty():
-					d = r.doc(String(r.copy(cp).get("doc", "")))
-			if d.is_empty():
-				var view := String(c.get("copy", ""))
-				if view == "":
-					view = String(c.get("doc", ""))
-				var v = q("q_view", [view]) if view != "" else null
-				if v is Dictionary and not v.is_empty():
-					d = v
-			if not d.is_empty():
-				out.font = String(d.get("font", "imprenta")) if d.get("font") != null else "imprenta"
-				out.paper = String(d.get("paper", "diario_hueso")) if d.get("paper") != null and String(d.get("paper", "")) != "" else "diario_hueso"
-				out.machine = String(d.get("machine", "")) if d.get("machine") != null else ""
-	if not ["imprenta", "maquina", "manuscrito", "ui"].has(String(out.font)):
-		out.font = "imprenta"
-	if not Paper.PAPERS.has(String(out.paper)):
-		out.paper = "diario_hueso"
-	_cache_look[key] = out
-	return out
+	return preload("res://ui/notebook/clip_card.gd").look_for(sim(), c)
 
 # ------------------------------------------------------------------ geometría
 func book_rect() -> Rect2:
@@ -532,6 +505,8 @@ func book_rect() -> Rect2:
 	match layout:
 		"left":
 			var w := maxf(BOOK_MIN_W, vp.x * 0.5 - 30.0)
+			if narrow:
+				w = clampf(vp.x * LEFT_NARROW_K, minf(BOOK_MIN_W, vp.x * 0.5 - 30.0), vp.x * 0.5 - 30.0)
 			return Rect2(Vector2(18.0, top), Vector2(w, h))
 		"right":
 			var w2 := maxf(BOOK_MIN_W, vp.x * 0.5 - 30.0)
@@ -564,6 +539,10 @@ func body_width() -> float:
 
 func is_wide() -> bool:
 	return body_width() >= WIDE_MIN * _scale()
+
+# Ancho de una tarjeta de recorte: hasta CARD_W (× escala de texto), nunca más que el cuerpo de la hoja.
+func card_width(_wide := true) -> float:
+	return roundf(minf(body_width() - 8.0, CARD_W * _scale()))
 
 func strip_width(wide: bool) -> float:
 	var w := STRIP_W * _scale()
@@ -668,103 +647,6 @@ func _place_overlay() -> void:
 	_overlay_panel.size = sz
 	_overlay_panel.position = (br.size - sz) * Vector2(0.5, 0.42)
 
-# Cotejar: soltar un recorte sobre otro abre el formulario de la nota; «Cotejar» -> link.
-func request_link(a: String, b: String) -> void:
-	if a == "" or b == "":
-		return
-	if a == b:
-		say(t("nb.err.mismo"))
-		return
-	var cs := {}
-	for c in clips():
-		cs[String(c.id)] = c
-	if not cs.has(a) or not cs.has(b):
-		# un par soltado sobre un recorte (o al revés): el sim lo rechaza con su motivo (anidado)
-		var r := act({"t": "link", "a": a, "b": b, "note": ""})
-		if not bool(r.get("ok", false)):
-			say(err_text(String(r.get("err", ""))))
-		return
-	var form := _link_form(cs[a], cs[b])
-	show_overlay(form)
-
-func _link_form(ca: Dictionary, cb: Dictionary) -> Control:
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 10)
-	var w := minf(STRIP_W * _scale(), (book_rect().size.x - 160.0) * 0.5)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 14)
-	for c in [ca, cb]:
-		var col := VBoxContainer.new()
-		col.add_theme_constant_override("separation", 2)
-		col.add_child(preload("res://ui/notebook/clip_card.gd").strip_for(self, c, w))
-		var src := Widgets.source_line(String(c.get("src_line", "")))
-		src.custom_minimum_size = Vector2(w, 0)
-		col.add_child(src)
-		row.add_child(col)
-	v.add_child(row)
-	var nh := HBoxContainer.new()
-	nh.add_theme_constant_override("separation", 8)
-	var nl := Widgets.label(t("nb.cotejo.nota") + ":")
-	nh.add_child(nl)
-	var le := LineEdit.new()
-	le.name = "Nota"
-	le.placeholder_text = t("nb.cotejo.nota_ph")
-	le.max_length = 60
-	le.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	le.add_theme_font_override("font", _font("manuscrito"))
-	le.add_theme_color_override("font_color", Paper.ink("lapiz"))
-	nh.add_child(le)
-	v.add_child(nh)
-	var sg := HBoxContainer.new()
-	sg.add_theme_constant_override("separation", 4)
-	var sp := Control.new()
-	sp.custom_minimum_size = Vector2(nl.get_combined_minimum_size().x, 0)
-	sg.add_child(sp)
-	for k in ["nb.cotejo.s1", "nb.cotejo.s2", "nb.cotejo.s3"]:
-		var word := t(k)
-		var b := Widgets.ink_button(word, func():
-			le.text = word
-			le.caret_column = word.length())
-		b.add_theme_font_size_override("font_size", _px("small"))
-		sg.add_child(b)
-	v.add_child(sg)
-	var conf = Widgets.confirm(v, t("nb.cotejo.ok"), t("kit.confirm.back"), t("nb.cotejo.titulo"))
-	conf.name = "FormCotejo"
-	conf.set_meta("pair", [String(ca.id), String(cb.id)])
-	conf.set_meta("note_edit", le)
-	conf.decided.connect(func(ok):
-		var note := le.text.strip_edges()
-		_close_overlay()
-		if ok:
-			_do_link(String(ca.id), String(cb.id), note))
-	le.text_submitted.connect(func(_s): conf._decide(true))
-	return conf
-
-func _do_link(a: String, b: String, note: String) -> Dictionary:
-	var r := act({"t": "link", "a": a, "b": b, "note": note})
-	if bool(r.get("ok", false)):
-		_sfx("sfx.papel")
-		say(t("nb.cotejo.hecho"))
-		linked.emit(String(r.get("pair", "")))
-	else:
-		say(err_text(String(r.get("err", ""))))
-	return r
-
-# Confirmación en dos pasos para separar un par (puede quitar fundamento a asientos a lápiz).
-func request_unlink(pair_id: String) -> void:
-	var conf = Widgets.confirm(t("nb.cotejo.separar_confirma"), t("nb.cotejo.separar_ok"), t("kit.confirm.back"), t("nb.cotejo.separar"))
-	conf.name = "FormSeparar"
-	conf.custom_minimum_size = Vector2(520, 0)
-	conf.decided.connect(func(ok):
-		_close_overlay()
-		if ok:
-			var r := act({"t": "unlink", "pair": pair_id})
-			if bool(r.get("ok", false)):
-				_sfx("sfx.papel")
-			else:
-				say(err_text(String(r.get("err", "")))))
-	show_overlay(conf)
-
 # La tira recortada vuela hacia la pestaña Recortes.
 func fly_strip(text: String, from_canvas: Vector2) -> void:
 	if text == "" or _fly == null:
@@ -786,9 +668,9 @@ func fly_strip(text: String, from_canvas: Vector2) -> void:
 	var inv := _fly.get_global_transform_with_canvas().affine_inverse()
 	strip.position = inv * from_canvas - sz * 0.5
 	strip.rotation_degrees = -1.5
-	var tb: Button = _tab_buttons["recortes"]
+	var tb: Control = _tab_buttons["recortes"]
 	if not tb.visible:
-		tb = _close_btn
+		tb = _close_btn if _close_btn.visible else _book
 	var target: Vector2 = inv * (tb.get_global_transform_with_canvas() * (tb.size * 0.5)) - sz * 0.5
 	var tw := strip.create_tween()
 	tw.set_parallel(true)
@@ -874,7 +756,7 @@ func _build() -> void:
 	_content.name = "Contenido"
 	_content.mouse_filter = Control.MOUSE_FILTER_PASS
 	_sheet.add_child(_content)
-	var scripts := {"recortes": TabClips, "indice": TabIndex, "cotejos": TabPairs, "diario": TabDiary, "marginalia": TabMarginalia}
+	var scripts := {"recortes": TabClips, "indice": TabIndex, "diario": TabDiary, "marginalia": TabMarginalia}
 	for tb in TABS:
 		var p = scripts[tb].new(self)
 		p.name = "Pagina_" + tb
@@ -906,62 +788,12 @@ func _build() -> void:
 	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_overlay.add_child(wash)
 	_book.add_child(_overlay)
-	_ledger_ribbon = _make_ledger_ribbon()
-	add_child(_ledger_ribbon)
 	_fly = Control.new()
 	_fly.name = "Vuelo"
 	_fly.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_fly.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_fly)
 	_layout()
-
-# Cinta del otro libro que Lisle lleva siempre: asoma por el canto derecho del cuaderno. Clic = abrir el libro mayor al
-# lado (dos libros, §6.1); soltar un recorte encima = abrir un folio con él (GDD§8.3). Sólo con Shell y el libro cerrado.
-func _make_ledger_ribbon() -> PanelContainer:
-	var rb := PanelContainer.new()
-	rb.name = "CintaLibroMayor"
-	rb.visible = false
-	rb.mouse_filter = Control.MOUSE_FILTER_STOP
-	rb.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	Widgets.restyle(rb, func():
-		var sb := Paper.style("libro_mayor", {"margin": 6, "shadow": true, "shadow_size": 3})
-		sb.content_margin_left = 12
-		sb.content_margin_right = 10
-		sb.border_width_left = 4
-		sb.border_color = Paper.ink("roja") if not Paper.hc_on() else Paper.ink("negra")
-		rb.add_theme_stylebox_override("panel", sb))
-	var l := Widgets.label(t("shell.hud.libro"), "SourceLine")
-	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rb.add_child(l)
-	rb.modulate = Color(1, 1, 1, 0.86)
-	rb.mouse_entered.connect(func(): rb.modulate = Color(1, 1, 1, 1))
-	rb.mouse_exited.connect(func(): rb.modulate = Color(1, 1, 1, 0.86))
-	rb.gui_input.connect(func(ev):
-		if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
-			rb.accept_event()
-			_open_ledger({}))
-	rb.set_drag_forwarding(Callable(),
-		func(_at, d): return typeof(d) == TYPE_DICTIONARY and String(d.get("kind", "")) == "clip" and String(d.get("id", "")) != "",
-		func(_at, d): _open_ledger(d))
-	return rb
-
-func _open_ledger(drop: Dictionary) -> void:
-	if shell == null or not shell.has_method("open_panel"):
-		return
-	var lg = shell.open_panel("ledger")
-	if lg != null and not drop.is_empty() and lg.has_method("can_drop_folio") and lg.can_drop_folio(drop):
-		lg.drop_folio(drop)
-
-func _place_ledger_ribbon() -> void:
-	if _ledger_ribbon == null:
-		return
-	var want: bool = _open and shell != null and shell.has_method("is_open") and not bool(shell.is_open("ledger")) and flag("hud.libro")
-	_ledger_ribbon.visible = want
-	if not want:
-		return
-	_ledger_ribbon.reset_size()
-	var r := book_rect()
-	_ledger_ribbon.position = Vector2(r.end.x - 3.0, r.position.y + 64.0).floor()
 
 # Pestaña del cuaderno: además de cambiar de página, recibe un chip del índice (filtra Recortes).
 class TabButton extends Button:
@@ -983,7 +815,6 @@ func _layout() -> void:
 	_fit_tabs()
 	_place_note()
 	_place_overlay()
-	_place_ledger_ribbon()
 
 # Pestañas y «Volver» caben siempre en el ancho del libro (acoplado a la izquierda con texto 1,3–1,6× no cabían): primero
 # se achica la sangría (las pestañas dejan de alinearse con la línea roja); si ni así, la letra de las pestañas baja en
@@ -995,7 +826,8 @@ func _fit_tabs() -> void:
 	for tb in TABS:
 		if (_tab_buttons[tb] as Button).visible:
 			btns.append(_tab_buttons[tb])
-	btns.append(_close_btn)
+	if _close_btn.visible:
+		btns.append(_close_btn)
 	for b in btns:
 		if b.has_theme_font_size_override("font_size"):
 			b.remove_theme_font_size_override("font_size")
@@ -1067,8 +899,72 @@ func _input(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_RIGHT:
 		var hov := get_viewport().gui_get_hovered_control()
 		if hov != null and (hov == self or is_ancestor_of(hov)):
-			back()
+			# playtest v3: clic derecho SOBRE una tarjeta de recorte = «Tirar este recorte» (el resto, volver)
+			var cid := _clip_id_of(hov)
+			if cid != "":
+				ask_drop(cid, (ev as InputEventMouseButton).global_position)
+			else:
+				back()
 			get_viewport().set_input_as_handled()
+
+# Id del recorte bajo el puntero (la tarjeta lleva meta «clip»; la fila, ClipCard.id); "" si no hay.
+func _clip_id_of(n: Node) -> String:
+	if tab != "recortes":
+		return ""
+	var c := n
+	while c != null and c != self:
+		if c.has_meta("clip") and String(c.get_meta("clip")) != "":
+			return String(c.get_meta("clip"))
+		if String(c.name).begins_with("Recorte_") and String(c.get("id")) != "":
+			return String(c.get("id"))
+		c = c.get_parent()
+	return ""
+
+# Clic derecho que resuelve el cuaderno (InputRouter lo pregunta antes de «volver»): sobre un recorte, el menú.
+func context_click(hov: Node, at: Vector2) -> bool:
+	if not _open or not is_visible_in_tree() or hov == null or not (hov == self or is_ancestor_of(hov)):
+		return false
+	var cid := _clip_id_of(hov)
+	if cid == "":
+		return false
+	ask_drop(cid, at)
+	return true
+
+var _drop_menu: PopupMenu = null
+var _drop_id := ""
+
+# Menú del clic derecho sobre un recorte: una sola opción, «Tirar este recorte». Un recorte que es prueba de una hoja en
+# tinta no se tira (Lisle lo dice).
+func ask_drop(cid: String, at := Vector2(-1, -1)) -> void:
+	_drop_id = cid
+	if _drop_menu == null:
+		_drop_menu = PopupMenu.new()
+		_drop_menu.name = "MenuRecorte"
+		_drop_menu.id_pressed.connect(func(_i): drop_clip(_drop_id))
+		add_child(_drop_menu)
+	_drop_menu.clear()
+	_drop_menu.add_item(t("nb.recorte.tirar"), 0)
+	_drop_menu.reset_size()
+	var p := at if at.x >= 0.0 else get_viewport().get_mouse_position()
+	var vp := get_viewport()
+	if vp != null and vp.gui_embed_subwindows:
+		_drop_menu.position = Vector2i(p)
+	else:
+		_drop_menu.position = Vector2i(get_viewport().get_screen_transform() * p)
+	_drop_menu.popup()
+
+func drop_menu() -> PopupMenu:
+	return _drop_menu
+
+func drop_clip(cid: String) -> Dictionary:
+	if cid == "":
+		return {"ok": false, "err": "no_existe"}
+	var r := act({"t": "clip_drop", "clip": cid})
+	if bool(r.get("ok", false)):
+		say(t("nb.recorte.tirado"))
+	elif String(r.get("err", "")) == "en_tinta":
+		say(t("nb.recorte.en_tinta"))
+	return r
 
 func _unhandled_input(ev: InputEvent) -> void:
 	if not _open or not is_visible_in_tree():

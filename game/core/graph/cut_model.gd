@@ -1,4 +1,7 @@
-# core/graph/cut_model.gd — cortes derivados de reacciones (§4.9 corta[] + efecto[]; §5.6). Dueño: W2-GRAPH.
+# core/graph/cut_model.gd — cortes derivados de reacciones (§4.9 corta[] + efecto[]; §5.6). Dueño: CORE-EXPEDIENTE.
+# v3 (GDD_v3 §2.3, §4.2): {copias: "relacionada"} (HA5/HA6: se llevan UN original relacionado por un día) = peor caso,
+#   los ejemplares que nombra la `relacion` de la reacción (si no la declara, todo original P); ley de la huella v3:
+#   Holmes que corta -> etiquetas de Q3, Q5 u Q8; Moran que corta -> Q6, Q8, Q9 o Q10.
 # Contrato §3.8: cuts_for(repo, rid, soft := false) -> [{target:{copy|access|place|char|...}, from_idx, to_idx}]
 #                apply_cuts(masks, cuts) -> Dictionary
 # Corte (dict; campos extra compatibles): {rid, soft, src:"corta"|"efecto", target, days (-1 = permanente),
@@ -156,13 +159,43 @@ static func _route_target(repo, id: String) -> Dictionary:
 					keys.append(k)
 	return {"route": id, "srcs": keys}
 
-static func _targets_corta(repo, c: Dictionary) -> Array:
+# Ejemplares que nombra la `relacion` de una reacción (HA5/HA6, GDD_v3 §4.2): todo texto con «@» en esa estructura.
+static func related_copies(repo, rid: String) -> Array:
+	var out: Array = []
+	var r: Dictionary = repo.reaction(rid)
+	_collect_copies(r.get("relacion"), out)
+	var disp = r.get("disparador", {})
+	if typeof(disp) == TYPE_DICTIONARY:
+		_collect_copies(disp.get("relacion"), out)
+	out.sort()
+	return out
+
+static func _collect_copies(v, out: Array) -> void:
+	match typeof(v):
+		TYPE_DICTIONARY:
+			for k in v:
+				_collect_copies(v[k], out)
+		TYPE_ARRAY:
+			for x in v:
+				_collect_copies(x, out)
+		TYPE_STRING:
+			var s := String(v)
+			if s.contains("@") and not out.has(s):
+				out.append(s)
+
+static func _copies_target(repo, rid: String, v) -> Dictionary:
+	if typeof(v) == TYPE_STRING and String(v) == "relacionada":
+		var rel := related_copies(repo, rid)
+		return {"copies": rel if not rel.is_empty() else "relacionada"}
+	return {"copies": v}
+
+static func _targets_corta(repo, c: Dictionary, rid := "") -> Array:
 	if c.has("ref"):
 		return [_route_target(repo, String(c.ref))]
 	if c.has("copy"):
 		return [{"copy": String(c.copy)}]
 	if c.has("copias"):
-		return [{"copies": c.copias}]
+		return [_copies_target(repo, rid, c.copias)]
 	if c.has("acceso"):
 		return [_access_target(String(c.acceso))]
 	if c.has("place"):
@@ -231,7 +264,7 @@ static func flag_targets(repo, flags: Dictionary) -> Array:
 	return out
 
 # [{t: target, days}]
-static func _targets_effect(repo, e: Dictionary) -> Array:
+static func _targets_effect(repo, e: Dictionary, rid := "") -> Array:
 	var op := String(e.get("op", ""))
 	var days := -1
 	if e.has("dias") and e.dias != null:
@@ -241,7 +274,7 @@ static func _targets_effect(repo, e: Dictionary) -> Array:
 			if e.has("copy"):
 				return [{"t": {"copy": String(e.copy)}, "days": days}]
 			if e.has("copias"):
-				return [{"t": {"copies": e.copias}, "days": days}]
+				return [{"t": _copies_target(repo, rid, e.copias), "days": days}]
 		"cerrar":
 			var tg := String(e.get("target", e.get("acceso", "")))
 			if tg != "":
@@ -287,7 +320,7 @@ static func cuts_for(repo, rid: String, soft := false) -> Array:
 	for c in corta:
 		if typeof(c) != TYPE_DICTIONARY:
 			continue
-		for t in _targets_corta(repo, c):
+		for t in _targets_corta(repo, c, rid):
 			var x := _mk(rid, soft, "corta", t, _days_of(c.get("ventana")), tm, spare)
 			var k := "c|" + J.stringify_canon([t, x.days])
 			if not seen.has(k):
@@ -296,7 +329,7 @@ static func cuts_for(repo, rid: String, soft := false) -> Array:
 	for e in efecto:
 		if typeof(e) != TYPE_DICTIONARY:
 			continue
-		for td in _targets_effect(repo, e):
+		for td in _targets_effect(repo, e, rid):
 			var y := _mk(rid, soft, "efecto", td.t, int(td.days), tm, spare)
 			var k2 := "e|" + J.stringify_canon([td.t, y.days])
 			if not seen.has(k2):
@@ -390,8 +423,10 @@ static func apply_cuts(masks: Dictionary, cuts: Array) -> Dictionary:
 static func _universe_i(repo) -> Array:
 	var seen := {}
 	var out: Array = []
-	for c in repo.conclusions():
-		for r in RouteDB.routes(repo, String(c.get("id", ""))):
+	for u in RouteDB.units(repo):
+		for r in RouteDB.routes(repo, String(u)):
+			if not bool(r.get("eligible", true)):
+				continue   # rutas opcionales: fuera de la invariante, sus fragmentos no se protegen (GDD_v3 §2.2)
 			for f in r.frags:
 				if String(f.missing) == "" and String(f.cls) == "I" and not seen.has(f.key):
 					seen[f.key] = true
@@ -498,17 +533,22 @@ static func _rastro_tags(repo, r: Dictionary) -> Array:
 		out.append_array(Fisica.tags(Fisica.spec_tpl(repo.fisica(), String(d.get("entity", "")))))
 	return RouteDB.uniq(out)
 
-# Ley de la huella: Holmes (lado holmes/mycroft) que corta → etiquetas de C6/C7/C8; Moran que corta → C10/C13.
+# Ley de la huella (GDD_v3 §4.2): Holmes (lado holmes/mycroft) que corta → etiquetas de Q3, Q5 u Q8; Moran que corta →
+# Q6, Q8, Q9 o Q10 (todas sus variantes).
+const FOOTPRINT := {"holmes": ["Q3", "Q5", "Q8"], "moran": ["Q6", "Q8", "Q9", "Q10"]}
+
 static func footprint(repo) -> Dictionary:
 	var res := {"errors": [], "pending": []}
-	var sets := {"holmes": ["C6", "C7", "C8"], "moran": ["C10", "C13"]}
+	# dossier.json `huella` (opcional; fixtures con otras preguntas) o la tabla de GDD_v3 §4.2
+	var hz = repo.dossier().get("huella") if repo.has_method("dossier") else null
+	var sets: Dictionary = hz if typeof(hz) == TYPE_DICTIONARY and not hz.is_empty() else FOOTPRINT
 	var want := {}
 	for side in sets:
 		var tags := {}
-		for cid in sets[side]:
-			if repo.conclusion(cid).is_empty():
-				res.pending.append("conclusión %s inexistente (ley de la huella, lado %s)" % [cid, side])
-			for t in RouteDB.conc_tags(repo, cid):
+		for qid in sets[side]:
+			if not repo.has_method("question") or repo.question(qid).is_empty():
+				res.pending.append("pregunta %s inexistente (ley de la huella, lado %s)" % [qid, side])
+			for t in RouteDB.question_tags(repo, qid):
 				tags["a:" + String(t)] = true
 		want[side] = tags
 	for r in repo.reactions():
@@ -534,14 +574,9 @@ static func universe_frags(repo) -> Array:
 	if g.has("univ_frags"):
 		return g["univ_frags"]
 	var frs: Array = []
-	for c in repo.conclusions():
-		var cid := String(c.get("id", ""))
-		for r in RouteDB.routes(repo, cid):
+	for u in RouteDB.units(repo):
+		for r in RouteDB.routes(repo, String(u)):
 			frs.append_array(r.frags)
-		var subs = c.get("subroutes", {})
-		if typeof(subs) == TYPE_DICTIONARY:
-			for k in Av.sorted_keys(subs):
-				frs.append_array(RouteDB.route_by_id(repo, cid + "." + String(k)).get("frags", []))
 	frs.append_array(RouteDB.all_frags(repo))
 	var seen := {}
 	var out: Array = []
@@ -561,14 +596,9 @@ static func universe_srcs(repo) -> Array:
 	if g.has("univ_srcs"):
 		return g["univ_srcs"]
 	var frs: Array = []
-	for c in repo.conclusions():
-		var cid := String(c.get("id", ""))
-		for r in RouteDB.routes(repo, cid):
+	for u in RouteDB.units(repo):
+		for r in RouteDB.routes(repo, String(u)):
 			frs.append_array(r.frags)
-		var subs = c.get("subroutes", {})
-		if typeof(subs) == TYPE_DICTIONARY:
-			for k in Av.sorted_keys(subs):
-				frs.append_array(RouteDB.route_by_id(repo, cid + "." + String(k)).get("frags", []))
 	frs.append_array(RouteDB.all_frags(repo))
 	var seen := {}
 	for f in frs:

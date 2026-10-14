@@ -1,10 +1,9 @@
-# core/deduction/clipper.gd — recortes y pares (§5.1, GDD§8.1, §8.3). Dueño: W2-DED. Contrato: ARCHITECTURE §3.8.
+# core/deduction/clipper.gd — recortes (§5.1, GDD§8.1; GDD_v3 §6.2: sin pares). Dueño: CORE-EXPEDIENTE.
 # Recorte interno (st.ded.clips[id]; get_clip lo devuelve CON etiquetas):
 #   {id, kind:"text"|"plate"|"measure", src_kind, text, ents:[id], tags:["a:x", ...], tramo, origin, passage, copy, cls,
 #    doc, src_type, src_line, title, chron_date, place, view, part, block, from, to, caption, visible_cats, voice, mode,
 #    visit, who, scene, plate, nodes, touched, labels:{ent: etiqueta}, tk}
 #   origin = documento o escena (D03 recortado en Crane o en el BM es un solo origen); passage = origin|parte|tramo (C1).
-# Par: st.ded.pairs[id] = {id, a, b, note}. Los pares no se anidan; un par vale por sus dos recortes.
 # Resolución de fuentes (sim está aguas abajo de deduction: sin preload; load() en tiempo de llamada, sin ciclo):
 #   doc   -> WorldModel.view_accessible(view) y WorldModel.view(view).pages[part][block] = {doc, origin, copy, parsed, segs?};
 #            con segs (avisos insertados en un número del Times), el recorte que cae dentro de un seg es de su doc runtime;
@@ -16,8 +15,7 @@
 #            doc?, act?, node_defs?}) o, si no existe, lámina fija de data/plates (id u origin) o "PL.<L>.<d>.<s>" estático.
 #   Si WorldModel define clip_source(st, repo, src) -> {ok, err, parsed, doc, origin, copy, ...}, se usa primero.
 # Costura de tests: test_access (Callable(st, repo, kind, ref) -> bool) decide accesibilidad y apaga WorldModel.
-# Errores extra (además de §3.5): forma, no_esta (fuente/nodo inexistente), sin_medida, mismo (link a sí mismo),
-#   no_existe (link/unlink), en_tinta (unlink de un par que sostiene un asiento en tinta).
+# Errores extra (además de §3.5): forma, no_esta (fuente/nodo inexistente), sin_medida, mas_de_15 (ClipRules).
 extends RefCounted
 
 const L = preload("res://core/util/log.gd")
@@ -341,6 +339,7 @@ static func _norm_block(st, repo, blk: Dictionary, kind: String, ref: String) ->
 		if typeof(inst) == TYPE_DICTIONARY and String(inst.get("rid", "")) != "":
 			out.voice = String(repo.reaction(String(inst.rid)).get("voz", ""))
 	out["scene"] = String(blk.get("scene", ""))
+	out["hand"] = String(blk.get("hand", ""))   # nota o marca a lápiz al margen (playtest v3: la tarjeta va en grafito)
 	out["who"] = String(blk.get("who", ""))
 	out["place"] = String(blk.get("place", ""))
 	if typeof(blk.get("segs")) == TYPE_ARRAY and not (blk.segs as Array).is_empty():
@@ -509,6 +508,15 @@ static func node_def(st, repo, snap: Dictionary, node: String) -> Dictionary:
 		if ex == "sim.sil." + who:
 			ex = ""
 		var d := {"id": node, "noun": noun, "tags": ["a:ancla_" + ch] if ch != "" else [], "cls": "I", "examine": ex, "ents": ents}
+		# GDD_v3 §1.8: además del ancla, las etiquetas del rastro de la reacción que declara N:*.sil_<who> (HC02:
+		# a:chicos_de_holmes, e:muchacho…). Las e: van a ents (igual que _fill_def).
+		for t in sil_rastro_tags(repo, who):
+			var ts := String(t)
+			if ts.begins_with("e:"):
+				if not d.ents.has(ts.substr(2)):
+					d.ents.append(ts.substr(2))
+			elif not d.tags.has(ts):
+				d.tags.append(ts)
 		if ex != "":
 			for m in repo.parse_text(ex).get("mentions", []):
 				if not d.ents.has(m.ent):
@@ -520,6 +528,22 @@ static func node_def(st, repo, snap: Dictionary, node: String) -> Dictionary:
 # GDD§10.4 C6: K-S es la silueta de Wiggins (HB8b cambia de muchacho, el canal sigue). Las siluetas de Moran (M3, M11:
 # canal informe/columna) no citan un acto ante Holmes: sin ancla. Sin reacción que la ponga: wiggins = ks (§4.8
 # N:*.sil_wiggins); cualquier otra, "". Igual criterio que W2-GRAPH (Availability.sil_channel).
+# Etiquetas (con prefijo) de los rastros cuyo nodo es N:*.sil_<who> o N:<lugar>.sil_<who>, en orden de datos, únicas.
+static func sil_rastro_tags(repo, who: String) -> Array:
+	var out: Array = []
+	for r in repo.reactions():
+		if typeof(r) != TYPE_DICTIONARY:
+			continue
+		for x in r.get("rastro", []):
+			if typeof(x) != TYPE_DICTIONARY:
+				continue
+			var n := String(x.get("nodo", ""))
+			if n.begins_with("N:") and n.ends_with(".sil_" + who):
+				for t in x.get("tags", []):
+					if not out.has(String(t)):
+						out.append(String(t))
+	return out
+
 static func sil_channel(repo, who: String) -> String:
 	var codes: Array = []
 	for m in repo.lists().get("medios", []):
@@ -587,6 +611,26 @@ static func _visit_act(st, snap: Dictionary) -> String:
 	return best
 
 # ---------------- acciones ----------------
+# clip_drop {clip} (playtest v3: «Tirar este recorte» con clic derecho en el cuaderno). El recorte NO se borra (los
+# recortes nunca se borran: caché de huevos, invariante): queda marcado `dropped` y deja de ofrecerse (q_clips) y de
+# servir de prueba; sale de las hojas a lápiz. No se tira lo que es prueba de una hoja en tinta (en_tinta).
+static func act_drop(st, repo, a) -> Dictionary:
+	var Dossier = load("res://core/deduction/dossier.gd")
+	var id := String(a.get("clip", ""))
+	var clips = st.ded.get("clips", {}) if typeof(st.ded) == TYPE_DICTIONARY else {}
+	if typeof(clips) != TYPE_DICTIONARY or typeof(clips.get(id)) != TYPE_DICTIONARY or (clips[id] as Dictionary).has("dropped"):
+		return {"ok": false, "err": "no_existe"}
+	if Dossier.inked_proof(st, id):
+		return {"ok": false, "err": "en_tinta"}
+	clips[id]["dropped"] = now_tk(st)
+	var sheets: Array = Dossier.forget_clip(st, id)
+	_note(st, "clip", {"dropped": id})
+	return {"ok": true, "clip": id, "sheets": sheets}
+
+static func is_dropped(st, id: String) -> bool:
+	var clips = st.ded.get("clips", {}) if typeof(st.ded) == TYPE_DICTIONARY else {}
+	return typeof(clips) == TYPE_DICTIONARY and typeof(clips.get(id)) == TYPE_DICTIONARY and (clips[id] as Dictionary).has("dropped")
+
 static func act_clip_text(st, repo, a) -> Dictionary:
 	var d := Index.ensure(st)
 	var src = a.get("src", {})
@@ -618,10 +662,11 @@ static func act_clip_text(st, repo, a) -> Dictionary:
 	for e in extra:
 		if not ents.has(e) and (Index.is_runtime(String(e)) or not repo.entity(String(e)).is_empty()):
 			ents.append(e)
-	var tramo_key := String(inh.tramo) if String(inh.tramo) != "" and float(inh.frac) >= 0.5 else "@%d" % sn.from
+	var inh_ok := bool(inh.get("inherited", float(inh.frac) >= 0.5))
+	var tramo_key := String(inh.tramo) if String(inh.tramo) != "" and inh_ok else "@%d" % sn.from
 	var clip := {
 		"kind": "text", "src_kind": b.src_kind, "text": sn.text, "ents": ents, "tags": inh.tags,
-		"tramo": inh.tramo if float(inh.frac) >= 0.5 else "", "origin": b.origin,
+		"tramo": inh.tramo if inh_ok else "", "origin": b.origin,
 		"passage": "%s|%s|%s" % [b.origin, str(b.part), tramo_key], "copy": b.copy, "cls": b.cls, "doc": b.doc,
 		"src_type": b.src_type, "src_line": b.src_line, "title": b.title,
 		"chron_date": inh.date if String(inh.date) != "" else b.chron_date, "place": inh.place, "view": b.view,
@@ -629,10 +674,26 @@ static func act_clip_text(st, repo, a) -> Dictionary:
 		"voice": b.voice, "mode": b.mode, "visit": visit, "who": b.who, "tk": now_tk(st), "place_label_src": b.place,
 		"scene": b.scene,
 	}
+	if String(b.get("hand", "")) != "":
+		clip["hand"] = String(b.hand)
+	var fnt := span_font(parsed, sn.from, sn.to)
+	if fnt != "":
+		clip["font"] = fnt
 	var labels := _act_labels(parsed, sn.from, sn.to)
 	var id := _store(st, repo, clip, labels)
 	_set_clip_flag(st, String(b.get("on_clip_flag", "")))
 	return {"ok": true, "clip": id}
+
+# Letra del tramo recortado cuando un estilo <f=…> cubre más de la mitad (el aviso manuscrito de Pell al pie del
+# encargo, D23, que es a máquina): la tarjeta del recorte usa esa letra (GDD_v3 §6.2, «la letra del documento»).
+static func span_font(parsed: Dictionary, from: int, to: int) -> String:
+	var n := maxi(1, to - from)
+	for s in parsed.get("styles", []):
+		if String(s.get("kind", "")) == "font":
+			var cov := mini(to, int(s.get("to", 0))) - maxi(from, int(s.get("from", 0)))
+			if cov * 2 > n:
+				return String(s.get("val", ""))
+	return ""
 
 # Bloque normalizado del documento runtime insertado si [from, to) cae dentro de uno de sus segs; si no, el mismo.
 static func seg_block(st, repo, b: Dictionary, from: int, to: int) -> Dictionary:
@@ -874,60 +935,12 @@ static func act_clip_measure(st, repo, a) -> Dictionary:
 	var id := _store(st, repo, clip)
 	return {"ok": true, "clip": id}
 
-static func act_link(st, repo, a) -> Dictionary:
-	var d := Index.ensure(st)
-	var ca := String(a.get("a", ""))
-	var cb := String(a.get("b", ""))
-	if d.pairs.has(ca) or d.pairs.has(cb):
-		return _err("anidado")
-	if not d.clips.has(ca) or not d.clips.has(cb):
-		return _err("no_existe")
-	if ca == cb:
-		return _err("mismo")
-	var ks: Array = d.pairs.keys()
-	ks.sort()
-	for pid in ks:
-		var p: Dictionary = d.pairs[pid]
-		if (p.a == ca and p.b == cb) or (p.a == cb and p.b == ca):
-			return {"ok": true, "pair": pid}
-	var id := _new_id(st, "pair", "PR", 3)
-	d.pairs[id] = {"id": id, "a": ca, "b": cb, "note": String(a.get("note", ""))}
-	_note(st, "pair", {"id": id})
-	return {"ok": true, "pair": id}
-
-static func act_unlink(st, repo, a) -> Dictionary:
-	var d := Index.ensure(st)
-	var pid := String(a.get("pair", ""))
-	if not d.pairs.has(pid):
-		return _err("no_existe")
-	var eids: Array = d.entries.keys()
-	eids.sort()
-	for eid in eids:
-		var e: Dictionary = d.entries[eid]
-		if String(e.get("ink", "")) != "tinta":
-			continue
-		for ln in e.get("lines", []):
-			if ln.get("support", []).has(pid):
-				return _err("en_tinta")
-	for eid in eids:
-		for ln in d.entries[eid].get("lines", []):
-			ln.support.erase(pid)
-	d.pairs.erase(pid)
-	_note(st, "pair", {"id": pid, "removed": true})
-	return {"ok": true}
-
 # Interno, CON etiquetas (validator, confrontación, Moran). Copia.
 static func get_clip(st, id: String) -> Dictionary:
 	if typeof(st.ded) != TYPE_DICTIONARY:
 		return {}
 	var c = st.ded.get("clips", {}).get(id)
 	return c.duplicate(true) if typeof(c) == TYPE_DICTIONARY else {}
-
-static func get_pair(st, id: String) -> Dictionary:
-	if typeof(st.ded) != TYPE_DICTIONARY:
-		return {}
-	var p = st.ded.get("pairs", {}).get(id)
-	return p.duplicate(true) if typeof(p) == TYPE_DICTIONARY else {}
 
 # Lo que ve el jugador (q_clip, diálogo T20b, informes, UI): SIN etiquetas ocultas.
 static func visible(st, id: String) -> Dictionary:
@@ -947,6 +960,7 @@ static func visible(st, id: String) -> Dictionary:
 		"doc": doc, "doc_ids": [doc] if doc != "" else [], "src_type": String(c.get("src_type", "")),
 		"src_types": [String(c.get("src_type", ""))], "copy": String(c.get("copy", "")),
 		"who": String(c.get("who", "")), "visible_cats": c.get("visible_cats", []).duplicate(), "mode": String(c.get("mode", "normal")),
+		"hand": String(c.get("hand", "")), "font": String(c.get("font", "")),
 	}
 
 # visible() no recibe repo (firma del contrato): etiqueta = runtime del índice o el id; la UI resuelve con Index.label.

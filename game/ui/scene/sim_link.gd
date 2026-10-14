@@ -5,7 +5,8 @@
 #   sounds: reproducir Audio.play en aperturas y envíos (false en tests).
 # Lecturas: sim(), repo(), q(name, args...) (consultas q_* de §3.7 con respaldo vacío), t(key, vars) (ui_text), err_text(code)
 #   (voz de Lisle para un código de error de §3.5), who_label(who, chars) (nombre visible de quien habla: el nombre sólo si
-#   se presentó, si no el sustantivo de la entidad), item_text(item) (texto breve de un recorte o asiento), entry_summary(e).
+#   se presentó, si no el sustantivo de la entidad), item_info(item) (tarjeta breve de un recorte o de una pregunta del
+#   expediente, GDD_v3 §6.10), question(qid) (la hoja de q_dossier), questions() (abiertas y en tinta).
 extends RefCounted
 
 const Widgets = preload("res://ui/kit/widgets.gd")
@@ -224,28 +225,39 @@ func ent_label(id: String) -> String:
 			return preload("res://core/deduction/index.gd").display(r, id)
 	return id
 
-# Resumen de un asiento (q_entry): «Fuente: «El problema final» · Calla: la raspadura».
-func entry_summary(e: Dictionary) -> String:
-	var r = repo()
-	if r == null or e.is_empty():
-		return ""
-	return Deps.entry_summary(r, e)
+# Preguntas del expediente que se pueden mostrar o informar (GDD_v3 §6.10): primero las de tinta, después las abiertas.
+func questions() -> Array:
+	var d: Dictionary = qd("q_dossier")
+	var out: Array = []
+	for h in d.get("inked", []):
+		if typeof(h) == TYPE_DICTIONARY:
+			out.append(h)
+	for h in d.get("open", []):
+		if typeof(h) == TYPE_DICTIONARY:
+			out.append(h)
+	return out
 
-func template_name(tid: String) -> String:
-	var tpls: Dictionary = qd("q_templates")
-	var tp = tpls.get(tid, {})
-	return String(tp.get("name", tid)) if typeof(tp) == TYPE_DICTIONARY else tid
+func question(qid: String) -> Dictionary:
+	for h in questions():
+		if String(h.get("id", "")) == qid:
+			return h
+	return {}
 
 # {kind, id} -> {title, body, source, ink} para tarjetas breves (selector, barra de presentar, ranuras del informe).
+# Pregunta: su texto, la respuesta que tiene la hoja (o «Sin respuesta todavía.») y «en tinta» / «a lápiz».
 func item_info(item: Dictionary) -> Dictionary:
 	var id := String(item.get("id", ""))
-	if String(item.get("kind", "")) == "entry":
-		var e: Dictionary = qd("q_entry", [id])
-		if e.is_empty():
+	if String(item.get("kind", "")) == "pregunta":
+		var h := question(id)
+		if h.is_empty():
 			return {"title": id, "body": "", "source": "", "ink": "lapiz", "ok": false}
-		var ink := String(e.get("ink", "lapiz"))
-		return {"title": template_name(String(e.get("template", ""))), "body": entry_summary(e),
-			"source": t("sceneui.picker.tinta") if ink == "tinta" else t("sceneui.picker.lapiz"), "ink": ink, "ok": true}
+		var ink := "tinta" if String(h.get("state", "")) == "tinta" else "lapiz"
+		var ans = h.get("answer", null)
+		var body := String(ans.get("label", "")) if typeof(ans) == TYPE_DICTIONARY else ""
+		if body == "":
+			body = t("mundo.picker.sin_respuesta")
+		return {"title": String(h.get("text", id)), "body": Deps.cap_first(body),
+			"source": t("mundo.picker.tinta") if ink == "tinta" else t("mundo.picker.lapiz"), "ink": ink, "ok": true}
 	var c: Dictionary = qd("q_clip", [id])
 	if c.is_empty():
 		return {"title": id, "body": "", "source": "", "ink": "negra", "ok": false}

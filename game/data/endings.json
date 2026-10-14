@@ -1,12 +1,12 @@
 {
-  "_nota": "W2-STRUCT. Finales de GDD §12.1 en su orden de evaluación (a las 12 h del día 10, con lo sellado hasta el informe final; el primero que se cumple gana) y variantes acumulables de §12.2. rank 1 = mejor (resolución vinculante §12.1.2). Flags: informe_final (Composers), watson_expuesto (Effects/HB9), moran_credito / moran_credito_perdido / holmes_entregado (MoranAgent), confront_estado (Confrontation), noche_final y publica_errata (Clock). F2: «sin coordinación» = el informe final no es la errata a medida (sus elementos no se leen como categorías). F3 recoge a quien cumple lo demás de F1 sin crédito ante Moran o tras haber entregado a Holmes. epilogue = id de variante del epílogo (W4-EPILOGUE).",
+  "_nota": "W2-STRUCT; v3 (GDD_v3 §6.10): F1 pide Q3, Q6 y Q9 en tinta y ≥7 preguntas obligatorias en tinta; F4 = menos de 6 (el contrato pide seis). Finales de GDD §12.1 en su orden de evaluación (a las 12 h del día 10, con lo entintado hasta el informe final; el primero que se cumple gana) y variantes acumulables de §12.2. rank 1 = mejor (resolución vinculante §12.1.2). Flags: informe_final (Composers), watson_expuesto (Effects/HB9), moran_credito / moran_credito_perdido / holmes_entregado (MoranAgent), confront_estado (Confrontation), noche_final y publica_errata (Clock). F2: «sin coordinación» = el informe final no es la errata a medida (sus elementos no se leen como categorías). F3 recoge a quien cumple lo demás de F1 sin crédito ante Moran o tras haber entregado a Holmes. epilogue = id de variante del epílogo (W4-EPILOGUE).",
   "rank_note": "1 = mejor. §12.1.2: F1=1, F3a=2, F3b=3, F2=4, F4=5.",
   "endings": [
     {"id": "F1", "order": 1, "rank": 1, "name": "Al menos un lector",
-     "cond": {"all": [{"sealed_all": ["C6", "C7", "C10"]}, {"sealed_count": {"of": "mandatory", "gte": 8}}, {"flag_eq": {"informe_final": "errata"}}, {"not": {"flag": "watson_expuesto"}}, {"flag": "moran_credito"}, {"not": {"flag": "moran_credito_perdido"}}, {"not": {"flag": "holmes_entregado"}}]},
+     "cond": {"all": [{"inked_all": ["Q3", "Q6", "Q9"]}, {"inked_count": {"gte": 7}}, {"flag_eq": {"informe_final": "errata"}}, {"not": {"flag": "watson_expuesto"}}, {"flag": "moran_credito"}, {"not": {"flag": "moran_credito_perdido"}}, {"not": {"flag": "holmes_entregado"}}]},
      "card": "Lisle, Edmund. Lector. Sabe dónde se esconde la gente en un error de imprenta.", "scene": "END.F1"},
     {"id": "F4", "order": 2, "rank": 5, "name": "Ve, pero no observa",
-     "cond": {"sealed_count": {"of": "mandatory", "lt": 6}},
+     "cond": {"inked_count": {"lt": 6}},
      "card": "Ve, pero no observa.", "scene": "END.F4"},
     {"id": "F2", "order": 3, "rank": 4, "name": "El informe fiel",
      "cond": {"all": [{"report_final_cats_any": ["holmes_vive", "regreso_jueves", "baker_street", "camden"]}, {"not": {"flag_eq": {"informe_final": "errata"}}}]},
@@ -21,11 +21,11 @@
   "variants": [
     {"id": "V.confront_completa", "cond": {"flag_eq": {"confront_estado": "completa"}}, "card_add": "Cuatro de cuatro."},
     {"id": "V.confront_incompleta", "cond": {"flag_eq": {"confront_estado": "incompleta"}}, "card_add": "Tres errores; buen papel."},
-    {"id": "V.C12", "cond": {"any": [{"sealed": "C12"}, {"flag": "vio_libros_park"}]}, "epilogue": "reconoce_los_libros", "_nota": "GDD §12.2: «C12 sellado, o C12.R2 vista en Park Lane». vio_libros_park lo escribe Clipper al recortar N:PARK.libros (on_clip_flag del nodo en data/plates/PARK.json), por lámina o por texto."},
-    {"id": "V.C14", "cond": {"sealed": "C14"}, "epilogue": "tomos_devueltos"},
+    {"id": "V.C12", "cond": {"flag": "vio_libros_park"}, "epilogue": "reconoce_los_libros", "_nota": "GDD_v3 §1.4: el librero no tiene pregunta (lo resuelve la confrontación); queda la vista de Park Lane: vio_libros_park lo escribe Clipper al recortar N:PARK.libros (on_clip_flag del nodo en data/plates/PARK.json)."},
+    {"id": "V.C14", "cond": {"flag": "curiosidad_tomos"}, "epilogue": "tomos_devueltos", "_nota": "GDD_v3 §3.6: la curiosidad EE14 escribe el flag."},
     {"id": "V.expuesto", "cond": {"flag": "watson_expuesto"}, "epilogue": "subraya_first_and_last"},
-    {"id": "V.C11", "cond": {"sealed": "C11"}, "epilogue": "teoria_correcta"},
-    {"id": "V.F1", "cond": {"all": [{"sealed_all": ["C6", "C7", "C10"]}, {"sealed_count": {"of": "mandatory", "gte": 8}}, {"flag_eq": {"informe_final": "errata"}}, {"not": {"flag": "watson_expuesto"}}, {"flag": "moran_credito"}, {"not": {"flag": "moran_credito_perdido"}}, {"not": {"flag": "holmes_entregado"}}]}, "epilogue": "nota_de_s_h", "_nota": "Misma condición que F1: en octubre de 1903 llega la Strand con «No era un detective de paisano. Era un lector. —S. H.»"},
+    {"id": "V.C11", "cond": {"inked": "Q7"}, "epilogue": "teoria_correcta"},
+    {"id": "V.F1", "cond": {"all": [{"inked_all": ["Q3", "Q6", "Q9"]}, {"inked_count": {"gte": 7}}, {"flag_eq": {"informe_final": "errata"}}, {"not": {"flag": "watson_expuesto"}}, {"flag": "moran_credito"}, {"not": {"flag": "moran_credito_perdido"}}, {"not": {"flag": "holmes_entregado"}}]}, "epilogue": "nota_de_s_h", "_nota": "Misma condición que F1: en octubre de 1903 llega la Strand con «No era un detective de paisano. Era un lector. —S. H.»"},
     {"id": "V.publica", "cond": {"flag": "publica_errata"}, "epilogue": "resena_romance", "_nota": "Sólo se ofrece en F2, F3 y F4 (Clock.act_publish_errata): la verdad, en el formato equivocado, se lee como ficción."},
     {"id": "V.noche_baker_street", "cond": {"flag_eq": {"noche_final": "baker_street"}}, "epilogue": "noche_baker_street", "_nota": "HC09: los cuartos de hora, el arpa que se calla, el silbido, el vidrio."},
     {"id": "V.noche_casa", "cond": {"flag_eq": {"noche_final": "casa"}}, "epilogue": "times_del_viernes", "_nota": "HC09: el Times del viernes en el epílogo."}

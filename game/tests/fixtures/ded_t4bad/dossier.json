@@ -1,0 +1,71 @@
+{
+ "_nota": "W2-DED / CORE-EXPEDIENTE: T4 negativo: un tramo (D97) y un nodo (L2.todo) llevan los dos grupos de C2.",
+ "max_abiertas": 3,
+ "mostrar_todas": "8.dawn",
+ "alias": [],
+ "preguntas": [
+  {
+   "id": "C2",
+   "orden": 1,
+   "obligatoria": true,
+   "texto": "Pregunta C2.",
+   "nace": [
+    {
+     "inicio": "prologo",
+     "origen": "Fixture."
+    }
+   ],
+   "dudas": [
+    "Una duda.",
+    "Otra duda."
+   ],
+   "acepta": [
+    "persona",
+    "concepto",
+    "objeto",
+    "lugar"
+   ],
+   "variantes": [
+    {
+     "id": "A",
+     "principal": true,
+     "respuestas": [
+      "raspadura"
+     ],
+     "grupos": [
+      {
+       "id": "sin_raspadura",
+       "tags": [
+        "fina_impreso_sin_raspadura"
+       ]
+      },
+      {
+       "id": "registrada",
+       "tags": [
+        "raspadura_registrada"
+       ]
+      }
+     ],
+     "claves": {
+      "entities": [
+       "fina",
+       "raspadura"
+      ],
+      "kinds": []
+     },
+     "valida": {
+      "desde": null,
+      "hasta": "10.M"
+     },
+     "tinta": "Tinta de C2.",
+     "rutas": []
+    }
+   ],
+   "blue_pencil": {
+    "missing": "Falta.",
+    "wrong": "Corríjalo."
+   },
+   "invariante": "normal"
+  }
+ ]
+}

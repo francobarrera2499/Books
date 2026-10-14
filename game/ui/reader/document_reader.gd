@@ -1,24 +1,35 @@
-# ui/reader/document_reader.gd — lector de documentos a pantalla completa (CanvasLayer 30, fuera del grabado).
-# Dueño: W2-READER. Contrato: ARCHITECTURE §6.4 (GDD§14.3, §8.1).
-# Uso (Shell/W3): var r = preload("res://ui/reader/document_reader.gd").new(); add_child(r); r.open("D05@BM")
+# ui/reader/document_reader.gd — lector de documentos (CanvasLayer 30). Dueño: LECTOR (antes W2-READER).
+# Contrato: ARCHITECTURE §6.4 (GDD§14.3, §8.1) con los cambios de GDD_v3 §6.7.
+# Uso (Shell): var r = preload("res://ui/reader/document_reader.gd").new(); add_child(r); r.open("D05@BM")
 #   open(view_id) -> bool        Game.sim.q_view(view_id); sin partida (Game.sim == null) y fallback_repo: ViewModel.from_repo
-#   open_view(view)              una vista ya armada (forma de q_view, §3.7)
+#   open_view(view)              una vista ya armada (forma de q_view, §3.7 + v3: ficha, marks, slot/anchor/hand por bloque)
 #   close()                      oculta, restaura el cursor, emite closed
 # Señales: closed · clipped(result) (clip_text aceptado) · plate_requested(plate) · tijera_changed(on) · page_changed(idx).
 # Config: act_fn (Callable(a: Dictionary) -> Dictionary; por defecto Game.act) · handle_back (true: fe_volver cierra el
 #   lector; Shell lo pone en false si maneja su pila y escucha closed) · sounds · fallback_repo · strip_target ·
-#   emit_read (true: la primera vez que muestra cada hoja en la sesión emite la acción libre `read`, GDD_v2 §B.4).
-# Interacción (mouse primero, §6.1): rueda = zoom 80–300 % en el puntero (fe_zoom_*); arrastrar el papel (fuera de la
-#   tijera) o con el botón medio = desplazar; C (fe_tijera) = modo tijera: arrastrar sobre palabras y soltar ->
-#   SelectionMapper.map -> Game.act({"t":"clip_text","src":{"kind":"doc","ref":view,"part":<hoja>,"block":<i>},...})
-#   (part = índice int de la hoja en q_view.pages, block = índice del bloque en la hoja);
-#   error -> línea de Lisle (ui_text clip.<err>); éxito -> la tira vuela al cuaderno. ←/→ hojas; ↑/↓ desplazan;
-#   Esc / clic derecho = volver (con la tijera en la mano, primero la deja; después cierra el lector si handle_back).
-# GDD_v2 §C.3 (revelado progresivo): al principio sólo el papel, la ficha (título y origen) y «Volver». «Tijera» aparece
-#   con la bandera desk.tijera (q_ui); las flechas ‹ n/N ›, sólo si hay más de una hoja; el zoom va con la rueda y un
-#   indicador «130 %» aparece sólo si el zoom no es el de lectura (clic = volver). Sin lupa ni regla (§C.5): la medida, el
-#   papel y la mano los dice la línea de DESCRIPCIÓN FÍSICA que todo documento trae al principio (recortable).
-# Sin brillos, contadores ni pistas: el lector no distingue lo importante (§6.1). Animaciones ≤0,4 s.
+#   emit_read (true: la primera vez que muestra cada hoja en la sesión emite la acción libre `read`, GDD_v2 §B.4) ·
+#   blur_mode ("pantalla": el fondo lee la textura de pantalla; "captura": plan B de GDD_v3 §8.8, una captura del
+#   viewport al abrir, reducida con mipmaps).
+# v3 (GDD_v3 §6.7) — el documento FLOTA frente al jugador:
+#   - Fondo: la pieza 3D (todo lo que hay debajo de la capa 30) desenfocada y oscurecida un 25 % (backdrop.gdshader). En
+#     alto contraste, un gris liso.
+#   - El papel es recto (el texto nunca se rota), con sombra en perspectiva (polígono inclinado 2°, corrido 10/14 px) y una
+#     luz muy leve de arriba a la izquierda (PageView floating). Notas al margen, marquitas, ficha y tarjeta: PageView.
+#   - Tijera: un ícono suelto (dibujado por código, tinta con halo claro, 28 px) arriba a la derecha, afuera del papel; sin
+#     recuadro ni la palabra «Tijera». Clic o C la toman o la dejan; en la mano, el cursor es una tijera y el ícono queda
+#     como hueco. Mientras no se recortó nada, una línea de ayuda debajo (GDD_v2 §C.1).
+#   - Paginación abajo al centro: «‹  2 / 5  ›» (flechas clicables; ←/→ también). Con una sola hoja, nada. El indicador
+#     de zoom («130 %», clic = volver al de lectura) aparece al lado sólo fuera del zoom de lectura.
+#   - Arriba a la izquierda, sin recuadro: título y origen del papel, «Ver la imagen» (si tiene) y «Volver».
+# Interacción (mouse primero): rueda = desplazar (playtest v3); Ctrl + rueda o +/− = zoom 80–300 % en el puntero
+#   (fe_zoom_*); arrastrar el papel (fuera de la tijera)
+#   o con el botón medio = desplazar; tijera: arrastrar sobre palabras y soltar -> SelectionMapper.map ->
+#   act({"t":"clip_text","src":{"kind":"doc","ref":<vista>,"part":<hoja>,"block":<i>},...}) (part = índice de la hoja en
+#   q_view.pages, block = índice del bloque en la hoja, sea cuerpo, nota al margen o tarjeta); error -> línea de Lisle
+#   (ui_text clip.<err>); éxito -> la tira vuela al cuaderno. ↑/↓ desplazan; Esc / clic derecho = volver (con la tijera
+#   en la mano, primero la deja; después cierra el lector si handle_back).
+# Revelado progresivo (GDD_v2 §C.3): la tijera aparece con la bandera desk.tijera (q_ui). Sin brillos, contadores ni
+#   pistas: el lector no distingue lo importante. Animaciones ≤0,4 s.
 extends CanvasLayer
 
 signal closed
@@ -35,22 +46,35 @@ const UiFlags = preload("res://ui/kit/ui_flags.gd")
 const ViewModel = preload("res://ui/reader/view_model.gd")
 const SelectionMapper = preload("res://ui/reader/selection_mapper.gd")
 const TextBuilder = preload("res://ui/reader/text_builder.gd")
+const BACKDROP = preload("res://ui/reader/backdrop.gdshader")
 
 const LAYER := 30
 const ZOOM_MIN := 0.8
 const ZOOM_MAX := 3.0
 const ZOOM_STEP := 1.12
-const TOOLS_W := 176.0
 const NOTE_HOLD_S := 3.4
 const FLY_S := 0.4
+const FADE_S := 0.18
 const PAN_KEY_PX := 70.0
+const WHEEL_PX := 60.0          # una muesca de la rueda desplaza la hoja
 const KEEP_VISIBLE_PX := 90.0
+const TOP_PAD := 22.0           # arriba del papel al abrir
+const BOTTOM_BAND := 74.0       # franja de abajo: la paginación
+const SIDE_COL := 92.0          # columna derecha: la tijera
+const CAPTION_W := 220.0        # título y origen, arriba a la izquierda
+const ICON_PX := 28.0
+const ICON_BOX := 48.0
+const DIM := 0.25               # oscurecido del fondo
+const MEASURE_CAP := 1.15       # la línea, como mucho 15 % más larga que la cómoda (si no cabe, la hoja se alarga)
+const BLUR_LOD := 2.5
+const LIGHT := Color("efe6d2")  # letra clara sobre el fondo desenfocado
 
 var act_fn: Callable = Callable()
 var handle_back := true
 var sounds := true
 var fallback_repo := true
 var emit_read := true
+var blur_mode := "pantalla"
 var strip_target := Vector2(-1, -1)  # adónde vuela la tira recortada (canvas); por defecto abajo a la izquierda (el cuaderno)
 
 var view := {}
@@ -63,18 +87,21 @@ var page: Control = null        # PageView visible
 
 var _ui_built := false
 var _root: Control
-var _back: Control
+var _back: ColorRect
+var _back_mat: ShaderMaterial
 var _area: Control
+var _scrim: TextureRect
 var _stage: Control
-var _header: PanelContainer
+var _caption: VBoxContainer
+var _header: Control = null      # = _caption (alias: GameScreen._tutor_dock acopla la nota del instructor debajo de él)
 var _title: Label
 var _src: Label
-var _tools: PanelContainer
-var _b_tijera: Button
+var _b_tijera: ScissorsIcon     # ícono suelto (nombre de nodo «Tijera»)
 var _b_plate: Button
 var _b_zoom: Button
 var _b_close: Button
 var _tijera_ok := true          # bandera desk.tijera (se relee al abrir)
+var _bottom: HBoxContainer
 var _pager: PanelContainer
 var _page_label: Label
 var _b_prev: Button
@@ -83,38 +110,80 @@ var _note: PanelContainer
 var _tij_help: Label = null
 var _note_label: Label
 var _note_tw: Tween = null
+var _fade_tw: Tween = null
 var _fly: Control
 var _pan := false
 var _pan_from := Vector2.ZERO
 var _pan_start := Vector2.ZERO
 var _mouse := Vector2(-10000, -10000)
 var _cursor_set := false
-var _busy := false
 static var _read_sent := {}     # "vista|hoja" ya emitidas en la sesión (la acción read es libre; esto sólo evita repetirla)
 
-class Backdrop extends Control:
-	var lamp: GradientTexture2D
+# ------------------------------------------------------------------ ícono de la tijera
+# Tijera de tinta con halo claro (se lee sobre el fondo oscuro y sobre el papel). on = en la mano: queda el hueco.
+class ScissorsIcon extends Control:
+	signal pressed_icon
+	var on := false
+	var hover := false
+	var hc := false
+
 	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var g := Gradient.new()
-		g.offsets = PackedFloat32Array([0.0, 1.0])
-		g.colors = PackedColorArray([Color(1.0, 0.86, 0.6, 0.13), Color(1.0, 0.86, 0.6, 0.0)])
-		lamp = GradientTexture2D.new()
-		lamp.gradient = g
-		lamp.fill = GradientTexture2D.FILL_RADIAL
-		lamp.fill_from = Vector2(0.5, 0.5)
-		lamp.fill_to = Vector2(1.0, 0.5)
-		lamp.width = 256
-		lamp.height = 256
+		custom_minimum_size = Vector2(48, 48)
+		size = custom_minimum_size
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		focus_mode = Control.FOCUS_NONE
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
+	func _gui_input(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT:
+			if ev.pressed:
+				pressed_icon.emit()
+			accept_event()
+
+	func _notification(what: int) -> void:
+		match what:
+			NOTIFICATION_MOUSE_ENTER:
+				hover = true
+				queue_redraw()
+			NOTIFICATION_MOUSE_EXIT:
+				hover = false
+				queue_redraw()
+
+	# Tijera abierta, con las hojas hacia arriba (V) y los anillos abajo, separados: se lee como ✂ aun a 28 px.
+	static func strokes() -> Dictionary:
+		var piv := Vector2(16.0, 15.5)
+		var ra := Vector2(9.0, 25.5)
+		var rb := Vector2(23.0, 25.5)
+		return {"blades": [[Vector2(7.5, 1.5), piv], [Vector2(24.5, 1.5), piv]],
+			"handles": [[piv, rb + (piv - rb).normalized() * 4.3], [piv, ra + (piv - ra).normalized() * 4.3]],
+			"rings": [ra, rb], "ring_r": 4.3, "piv": piv}
+
 	func _draw() -> void:
-		var r := Rect2(Vector2.ZERO, size)
-		if Paper.hc_on():
-			draw_rect(r, Color(0.16, 0.16, 0.16))
-			return
-		draw_rect(r, Paper.MESA.darkened(0.12))
-		var c := Vector2(size.x * 0.46, size.y * 0.42)
-		var rad := maxf(size.x, size.y) * 0.62
-		draw_texture_rect(lamp, Rect2(c - Vector2(rad, rad), Vector2(rad, rad) * 2.0), false)
+		var k := 28.0 / 32.0
+		var o := (size - Vector2(28.0, 28.0)) * 0.5
+		var s := strokes()
+		var ink := Color(0, 0, 0, 1) if hc else Color("1b1712")
+		var halo := Color(1, 1, 1, 1) if hc else Color(0.97, 0.94, 0.87, 0.95 if hover else 0.78)
+		if on:
+			ink.a *= 0.3
+			halo.a *= 0.5
+		for pass_i in 2:
+			var col := halo if pass_i == 0 else ink
+			var extra := 3.0 if pass_i == 0 else 0.0
+			for b in s.blades:
+				var tip: Vector2 = o + b[0] * k
+				var pv: Vector2 = o + b[1] * k
+				var dir := (pv - tip).normalized()
+				var nrm := Vector2(-dir.y, dir.x)
+				var w0 := 0.35 + extra * 0.5
+				var w1 := 1.5 + extra * 0.5
+				var back := pv + dir * 2.0
+				draw_colored_polygon(PackedVector2Array([tip - dir * extra * 0.4 + nrm * w0, back + nrm * w1, back - nrm * w1, tip - dir * extra * 0.4 - nrm * w0]), col)
+			for h in s.handles:
+				draw_line(o + h[0] * k, o + h[1] * k, col, 1.7 + extra, true)
+			for c in s.rings:
+				draw_arc(o + c * k, float(s.ring_r) * k, 0.0, TAU, 24, col, 1.8 + extra, true)
+			draw_circle(o + s.piv * k, 1.3 + extra * 0.5, col)
 
 func _init() -> void:
 	layer = LAYER
@@ -133,7 +202,7 @@ func _ready() -> void:
 	if view.is_empty():
 		visible = false
 	else:
-		# abierto antes de entrar al árbol: la ficha y los útiles se ubican ahora que hay viewport
+		# abierto antes de entrar al árbol: el título y los útiles se ubican ahora que hay viewport
 		_layout_chrome.call_deferred()
 		_fit_view.call_deferred()
 
@@ -161,13 +230,16 @@ func open_view(v: Dictionary) -> bool:
 	_build_ui()
 	var nv := ViewModel.normalize(v)
 	if nv.pages.is_empty():
-		# sin texto: no se toca la hoja abierta (si la hay) salvo para cederle el lugar a la lámina 3D
+		# sin texto: no se toca la hoja abierta (si la hay) salvo para cederle el lugar a la imagen 3D
 		if String(nv.get("plate", "")) != "":
 			if visible or page != null:
 				close()
 			plate_requested.emit(String(nv.plate))
 			return true
 		return false
+	var was_visible := visible
+	if String(nv.get("view", "")) != String(view.get("view", "")):
+		_hide_note()
 	view = nv
 	page_idx = 0
 	if tijera:
@@ -175,6 +247,8 @@ func open_view(v: Dictionary) -> bool:
 	for c in _fly.get_children():
 		c.queue_free()
 	_tijera_ok = UiFlags.on(UiFlags.now(), "desk.tijera")
+	if not was_visible:
+		_prepare_backdrop()
 	_header_text()
 	_compute_scale()
 	_show_page(0, true)
@@ -182,6 +256,8 @@ func open_view(v: Dictionary) -> bool:
 	_tijera_ok = UiFlags.on(UiFlags.now(), "desk.tijera")
 	_sync_tools()
 	visible = true
+	if not was_visible:
+		_fade_in()
 	_sfx("sfx.papel")
 	return true
 
@@ -192,6 +268,7 @@ func close() -> void:
 		set_tijera(false)
 	_set_cursor(false)
 	visible = false
+	_hide_note()
 	if page != null:
 		page.queue_free()
 		page = null
@@ -241,23 +318,42 @@ func point_at(canvas_pos: Vector2) -> void:
 
 func debug_state() -> Dictionary:
 	return {"view": view.get("view", ""), "page": page_idx, "pages": page_count(), "zoom": zoom, "tijera": tijera,
-		"px_per_mm": px_per_mm, "paper_px": (page.size if page != null else Vector2.ZERO), "tools": tool_names()}
+		"px_per_mm": px_per_mm, "paper_px": (page.size if page != null else Vector2.ZERO), "tools": tool_names(),
+		"card": page != null and bool(page.card), "margin": page != null and bool(page.margin_col),
+		"ficha": page != null and page.ficha_rtl != null, "blur": blur_mode}
 
-# Controles a la vista en el panel de útiles (revelado progresivo; tests y capturas): nombres de nodo visibles.
+# Controles a la vista (revelado progresivo; tests y capturas): nombres de nodo visibles.
 func tool_names() -> Array:
 	var out: Array = []
-	if not _ui_built:
+	if not _ui_built or not visible:
 		return out
 	for b in [_b_tijera, _b_zoom, _pager, _b_plate, _b_close]:
 		if b != null and b.visible:
 			out.append(String(b.name))
 	return out
 
-# Rectángulo (canvas) del bloque i de la hoja visible (tests, drivers).
+# RichTextLabel del bloque i de la hoja visible (tests, drivers).
 func block_rtl(i: int) -> RichTextLabel:
 	if page == null or i < 0 or i >= page.blocks.size():
 		return null
 	return page.blocks[i]
+
+# Rectángulos en pantalla (canvas) del papel visible, del ícono de la tijera y de la paginación (tests, drivers).
+func paper_rect() -> Rect2:
+	if page == null:
+		return Rect2()
+	return Rect2(_stage.position + page.position * zoom, page.size * zoom)
+
+func scissors_rect() -> Rect2:
+	return _b_tijera.get_global_rect() if _ui_built and _b_tijera.visible else Rect2()
+
+func pager_rect() -> Rect2:
+	return _pager.get_global_rect() if _ui_built and _pager.visible else Rect2()
+
+# Título, origen y «Volver» (arriba a la izquierda): GameScreen acopla debajo la nota del instructor (antes leía _header,
+# que sigue como alias de este bloque).
+func caption_rect() -> Rect2:
+	return _caption.get_global_rect() if _ui_built and visible and _caption.is_visible_in_tree() else Rect2()
 
 # ------------------------------------------------------------------ armado
 func _ti() -> Node:
@@ -273,6 +369,15 @@ static func _autoload(n: String) -> Node:
 func _t(key: String, vars := {}) -> String:
 	return Widgets.t(key, vars)
 
+# Texto propio del lector v3 (ui_text lector.*); sin repo, el texto por defecto.
+func _tl(key: String, def: String, vars := {}) -> String:
+	var s := Widgets.t(key, vars)
+	if s == key:
+		s = def
+		for k in vars:
+			s = s.replace("${%s}" % k, str(vars[k]))
+	return s
+
 func _build_ui() -> void:
 	if _ui_built:
 		return
@@ -283,8 +388,15 @@ func _build_ui() -> void:
 	_root.mouse_filter = Control.MOUSE_FILTER_PASS
 	_root.gui_input.connect(_on_root_input)
 	add_child(_root)
-	_back = Backdrop.new()
+	# --- fondo: la pieza desenfocada
+	_back = ColorRect.new()
+	_back.name = "Fondo"
 	_back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_back_mat = ShaderMaterial.new()
+	_back_mat.shader = BACKDROP
+	_back_mat.set_shader_parameter("blur_lod", BLUR_LOD)
+	_back_mat.set_shader_parameter("dim", DIM)
 	_root.add_child(_back)
 	_area = Control.new()
 	_area.name = "Area"
@@ -296,68 +408,99 @@ func _build_ui() -> void:
 	_stage.name = "Escenario"
 	_stage.mouse_filter = Control.MOUSE_FILTER_PASS
 	_area.add_child(_stage)
-	# --- ficha del documento (arriba a la izquierda)
-	_header = Widgets.paper_panel("cuaderno", null, {"margin": 16, "margin_v": 11, "shadow_size": 6})
-	_header.position = Vector2(22, 20)
-	_header.mouse_filter = Control.MOUSE_FILTER_STOP
-	var hv := VBoxContainer.new()
-	hv.add_theme_constant_override("separation", 3)
-	_header.add_child(hv)
+	# velo oscuro abajo: la paginación se lee aunque una hoja larga pase por debajo (y avisa que la hoja sigue)
+	_scrim = TextureRect.new()
+	_scrim.name = "Velo"
+	_scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_scrim.stretch_mode = TextureRect.STRETCH_SCALE
+	_scrim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	var sg := Gradient.new()
+	sg.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+	sg.colors = PackedColorArray([Color(0.05, 0.04, 0.03, 0.0), Color(0.05, 0.04, 0.03, 0.42), Color(0.05, 0.04, 0.03, 0.72)])
+	var gt := GradientTexture2D.new()
+	gt.gradient = sg
+	gt.fill_from = Vector2(0, 0)
+	gt.fill_to = Vector2(0, 1)
+	gt.width = 4
+	gt.height = 64
+	_scrim.texture = gt
+	_root.add_child(_scrim)
+	# --- título, origen y enlaces (arriba a la izquierda, sin recuadro)
+	_caption = VBoxContainer.new()
+	_caption.name = "Titulo"
+	_caption.position = Vector2(24, 20)
+	_caption.custom_minimum_size = Vector2(CAPTION_W, 0)
+	_caption.add_theme_constant_override("separation", 2)
+	_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_header = _caption
 	_title = Label.new()
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_title.custom_minimum_size = Vector2(300, 0)
-	hv.add_child(_title)
-	_src = Widgets.source_line("")
-	_src.custom_minimum_size = Vector2(300, 0)
-	hv.add_child(_src)
-	_root.add_child(_header)
-	# --- útiles (derecha)
-	_tools = Widgets.paper_panel("cuaderno", null, {"margin": 12, "margin_v": 12, "shadow_size": 6})
-	_tools.mouse_filter = Control.MOUSE_FILTER_STOP
-	var tv := VBoxContainer.new()
-	tv.add_theme_constant_override("separation", 8)
-	_tools.add_child(tv)
-	_b_tijera = _toggle(_t("reader.tool.tijera"), func(on): set_tijera(on))
+	_title.custom_minimum_size = Vector2(CAPTION_W, 0)
+	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caption.add_child(_title)
+	_src = Label.new()
+	_src.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_src.custom_minimum_size = Vector2(CAPTION_W, 0)
+	_src.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caption.add_child(_src)
+	var sp := Control.new()
+	sp.custom_minimum_size = Vector2(0, 8)
+	sp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caption.add_child(sp)
+	_b_plate = _link(_t("reader.plate"), func(): plate_requested.emit(String(view.get("plate", ""))))
+	_b_plate.name = "Lamina"
+	_caption.add_child(_b_plate)
+	_b_close = _link(_t("reader.close"), func(): close())
+	_b_close.name = "Volver"
+	_caption.add_child(_b_close)
+	_root.add_child(_caption)
+	# --- tijera: ícono suelto arriba a la derecha
+	_b_tijera = ScissorsIcon.new()
 	_b_tijera.name = "Tijera"
-	tv.add_child(_b_tijera)
-	# ayuda de una línea (§C.1) mientras la tijera está en la mano y todavía no se recortó nada
-	_tij_help = Widgets.label(_t("reader.tijera_ayuda"), "SmallLabel")
+	_b_tijera.pressed_icon.connect(func(): set_tijera(not tijera))
+	_root.add_child(_b_tijera)
+	_tij_help = Label.new()
 	_tij_help.name = "TijeraAyuda"
+	_tij_help.text = _t("reader.tijera_ayuda")
 	_tij_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_tij_help.custom_minimum_size = Vector2(TOOLS_W - 48.0, 0)
-	_tij_help.add_theme_color_override("font_color", Paper.ink("tenue"))
+	_tij_help.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_tij_help.custom_minimum_size = Vector2(230, 0)
+	_tij_help.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tij_help.visible = false
-	tv.add_child(_tij_help)
-	# indicador de zoom: sólo fuera del zoom de lectura; clic = volver a él (la rueda es el zoom)
-	_b_zoom = Widgets.ink_button("", func(): _fit_view())
-	_b_zoom.name = "Zoom"
-	_b_zoom.tooltip_text = _t("v2d.reader.zoom_volver")
-	tv.add_child(_b_zoom)
-	# --- hojas (sólo si hay más de una)
+	_root.add_child(_tij_help)
+	# --- abajo al centro: «‹  2 / 5  ›» y el indicador de zoom
+	_bottom = HBoxContainer.new()
+	_bottom.name = "Abajo"
+	_bottom.add_theme_constant_override("separation", 12)
+	_bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_pager = PanelContainer.new()
 	_pager.name = "Hojas"
-	_pager.add_theme_stylebox_override("panel", Paper.empty([0, 0, 0, 0]))
+	_pager.mouse_filter = Control.MOUSE_FILTER_STOP
 	var ph := HBoxContainer.new()
-	ph.add_theme_constant_override("separation", 2)
-	_b_prev = Widgets.ink_button(_t("reader.prev"), func(): go_page(page_idx - 1))
-	_b_next = Widgets.ink_button(_t("reader.next"), func(): go_page(page_idx + 1))
-	_page_label = Widgets.label("", "SmallLabel")
+	ph.add_theme_constant_override("separation", 6)
+	ph.alignment = BoxContainer.ALIGNMENT_CENTER
+	_b_prev = _arrow(_t("reader.prev"), func(): go_page(page_idx - 1))
+	_b_prev.name = "Anterior"
+	_b_next = _arrow(_t("reader.next"), func(): go_page(page_idx + 1))
+	_b_next.name = "Siguiente"
+	_page_label = Label.new()
+	_page_label.name = "Numero"
 	_page_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_page_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_page_label.custom_minimum_size = Vector2(64, 0)
+	_page_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ph.add_child(_b_prev)
 	ph.add_child(_page_label)
 	ph.add_child(_b_next)
 	_pager.add_child(ph)
-	tv.add_child(_pager)
-	_b_plate = Widgets.ink_button(_t("reader.plate"), func(): plate_requested.emit(String(view.get("plate", ""))))
-	_b_plate.name = "Lamina"
-	tv.add_child(_b_plate)
-	_b_close = Widgets.ink_button(_t("reader.close"), func(): close())
-	_b_close.name = "Volver"
-	tv.add_child(_b_close)
-	_tools.custom_minimum_size = Vector2(TOOLS_W - 24.0, 0)
-	_root.add_child(_tools)
+	_bottom.add_child(_pager)
+	_b_zoom = Button.new()
+	_b_zoom.name = "Zoom"
+	_b_zoom.focus_mode = Control.FOCUS_NONE
+	_b_zoom.pressed.connect(func(): _fit_view())
+	_b_zoom.tooltip_text = _t("v2d.reader.zoom_volver")
+	_bottom.add_child(_b_zoom)
+	_root.add_child(_bottom)
 	# --- nota de Lisle (abajo a la izquierda)
 	_note = Widgets.paper_panel("cuaderno", null, {"margin": 14, "margin_v": 8, "shadow_size": 5})
 	_note.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -384,53 +527,158 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_ENTER_TREE and _ui_built:
 		get_viewport_safe_connect.call_deferred()
 
-func _toggle(text: String, cb: Callable) -> Button:
+# Enlace de texto claro, sin recuadro (Volver, Ver la imagen).
+func _link(text: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.toggle_mode = true
+	b.flat = true
 	b.focus_mode = Control.FOCUS_NONE
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	b.toggled.connect(func(on): if not _busy: cb.call(on))
+	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	b.pressed.connect(cb)
 	return b
+
+func _arrow(text: String, cb: Callable) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.flat = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(40, 0)
+	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	b.pressed.connect(cb)
+	return b
+
+func _pill() -> StyleBoxFlat:
+	var hcm := Paper.hc_on()
+	var sb := Paper.flat(Color(0, 0, 0, 0.85) if hcm else Color(0.07, 0.055, 0.04, 0.72), Color(0, 0, 0, 0), [0, 0, 0, 0], 20, [16, 0, 16, 2])
+	return sb
 
 func _restyle_chrome() -> void:
 	var ti := _ti()
+	var hcm := Paper.hc_on()
+	var ui_px := 19.0 if ti == null else float(ti.px("ui"))
+	var small_px := 15.0 if ti == null else float(ti.px("small"))
+	var light := Color(1, 1, 1, 1) if hcm else LIGHT
+	var shadow := Color(0, 0, 0, 0.0 if hcm else 0.55)
+	if _back != null:
+		if hcm:
+			_back.material = null
+			_back.color = Color(0.16, 0.16, 0.16)
+		else:
+			_back.material = _back_mat
+			_back.color = Color(1, 1, 1, 1)
+	for l in [_title, _src, _page_label, _tij_help]:
+		if l == null:
+			continue
+		l.add_theme_color_override("font_color", light)
+		l.add_theme_color_override("font_shadow_color", shadow)
+		l.add_theme_constant_override("shadow_offset_x", 1)
+		l.add_theme_constant_override("shadow_offset_y", 1)
+		l.add_theme_constant_override("shadow_outline_size", 0 if hcm else 3)
 	if _title != null:
 		_title.add_theme_font_override("font", ti.font("imprenta") if ti != null else ThemeDB.fallback_font)
-		_title.add_theme_font_size_override("font_size", int(round((21.0 if ti == null else float(ti.px("ui"))) * 1.12)))
-		_title.add_theme_color_override("font_color", Paper.ink("negra"))
-	if _back != null:
-		_back.queue_redraw()
+		_title.add_theme_font_size_override("font_size", int(round(ui_px * 1.12)))
+	if _src != null:
+		_src.add_theme_font_override("font", ti.font("imprenta", true) if ti != null else ThemeDB.fallback_font)
+		_src.add_theme_font_size_override("font_size", int(round(small_px + 1.0)))
+		_src.add_theme_color_override("font_color", Color(light, 0.8))
+	if _tij_help != null:
+		_tij_help.add_theme_font_override("font", ti.font("imprenta", true) if ti != null else ThemeDB.fallback_font)
+		_tij_help.add_theme_font_size_override("font_size", int(round(small_px + 1.0)))
+	if _page_label != null:
+		_page_label.add_theme_font_override("font", ti.font("imprenta") if ti != null else ThemeDB.fallback_font)
+		_page_label.add_theme_font_size_override("font_size", int(round(ui_px)))
+	for b in [_b_plate, _b_close, _b_prev, _b_next, _b_zoom]:
+		if b == null:
+			continue
+		var big: bool = b == _b_prev or b == _b_next
+		b.add_theme_font_override("font", ti.font("imprenta") if ti != null else ThemeDB.fallback_font)
+		b.add_theme_font_size_override("font_size", int(round(ui_px * (1.9 if big else 1.0))))
+		b.add_theme_color_override("font_color", Color(light, 0.88))
+		b.add_theme_color_override("font_hover_color", Color(1, 1, 1, 1))
+		b.add_theme_color_override("font_pressed_color", Color(light, 0.7))
+		b.add_theme_color_override("font_disabled_color", Color(light, 0.25))
+		b.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.0 if hcm else 0.45))
+		b.add_theme_constant_override("outline_size", 0 if hcm else 3)
+		var empty := Paper.empty([6, 2, 6, 2])
+		for st in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
+			b.add_theme_stylebox_override(st, empty)
+	if _pager != null:
+		_pager.add_theme_stylebox_override("panel", _pill())
 	if _b_zoom != null:
-		_b_zoom.add_theme_font_size_override("font_size", 17 if ti == null else ti.px("small") + 1)
+		for st in ["normal", "hover", "pressed", "hover_pressed"]:
+			_b_zoom.add_theme_stylebox_override(st, _pill())
+	if _b_tijera != null:
+		_b_tijera.hc = hcm
+		_b_tijera.queue_redraw()
 	_layout_chrome()
 
 func _layout_chrome() -> void:
 	if not _ui_built or not is_inside_tree():
 		return
 	var vp := _vp_size()
-	_tools.reset_size()
-	_tools.position = Vector2(vp.x - _tools.size.x - 20.0, 20.0)
+	_caption.reset_size()
+	_caption.position = Vector2(24, 20)
+	_b_tijera.size = Vector2(ICON_BOX, ICON_BOX)
+	_place_scissors()
+	_bottom.reset_size()
+	_bottom.position = Vector2(round((vp.x - _bottom.size.x) * 0.5), vp.y - _bottom.size.y - 16.0)
+	_scrim.position = Vector2(0, vp.y - 120.0)
+	_scrim.size = Vector2(vp.x, 120.0)
+	_sync_scrim()
 	_note.reset_size()
 	_note.position = Vector2(22.0, vp.y - _note.size.y - 22.0)
+
+# La tijera va anclada a la esquina de arriba a la derecha del papel, apenas afuera (playtest v3: en la esquina de la
+# pantalla quedaba lejos de la hoja y no se encontraba); sigue al papel al desplazarlo o acercarlo y nunca sale de la
+# pantalla. Su ayuda, debajo.
+func _place_scissors() -> void:
+	if not _ui_built or _b_tijera == null:
+		return
+	var vp := _vp_size()
+	var pos := Vector2(vp.x - ICON_BOX - 22.0, 16.0)
+	if page != null and page.size.x > 0.0:
+		var pr := paper_rect()
+		pos = Vector2(minf(pr.end.x + 10.0, vp.x - ICON_BOX - 8.0), clampf(pr.position.y, 16.0, maxf(16.0, vp.y - BOTTOM_BAND - ICON_BOX)))
+	pos = pos.round()
+	if _b_tijera.position != pos:
+		_b_tijera.position = pos
+	if _tij_help != null and _tij_help.visible:
+		_tij_help.reset_size()
+		_tij_help.position = Vector2(clampf(pos.x + ICON_BOX - _tij_help.size.x, 8.0, vp.x - _tij_help.size.x - 8.0), pos.y + ICON_BOX + 2.0)
+
+func _process(_dt: float) -> void:
+	if visible and _ui_built and page != null:
+		_place_scissors()
+		_sync_scrim()
+
+# El velo de abajo sólo cuando la hoja sigue por debajo de la paginación (avisa que hay más); una hoja que cabe, o una
+# larga ya desplazada hasta su pie, no se oscurece. En alto contraste nunca: bajaba el contraste de los últimos renglones.
+func _sync_scrim() -> void:
+	if _scrim == null:
+		return
+	var show := page != null and not Paper.hc_on() and paper_rect().end.y > _vp_size().y - BOTTOM_BAND + 2.0
+	if _scrim.visible != show:
+		_scrim.visible = show
 
 func _vp_size() -> Vector2:
 	if is_inside_tree():
 		return get_viewport().get_visible_rect().size
 	return Vector2(1600, 900)
 
-# Todo lo que no tapan los útiles (límite del desplazamiento).
+# Límite del desplazamiento: toda la pantalla.
 func _area_rect() -> Rect2:
-	var vp := _vp_size()
-	return Rect2(Vector2.ZERO, Vector2(vp.x - TOOLS_W, vp.y))
+	return Rect2(Vector2.ZERO, _vp_size())
 
-# Donde se apoya la hoja al abrir: entre la ficha (izquierda) y los útiles (derecha).
+# Donde se apoya la hoja al abrir: entre el título (izquierda) y la tijera (derecha), sobre la franja de la paginación.
 func _read_rect() -> Rect2:
 	var vp := _vp_size()
 	var left := 24.0
-	if _header != null and _header.visible:
-		left = _header.position.x + _header.size.x + 24.0
-	return Rect2(Vector2(left, 0), Vector2(maxf(200.0, vp.x - TOOLS_W - 8.0 - left), vp.y))
+	if _caption != null and _caption.visible:
+		left = _caption.position.x + maxf(_caption.size.x, CAPTION_W) + 24.0
+	var right := vp.x - SIDE_COL
+	return Rect2(Vector2(left, TOP_PAD), Vector2(maxf(200.0, right - left), maxf(200.0, vp.y - TOP_PAD - BOTTOM_BAND)))
 
 func _header_text() -> void:
 	var t := String(view.get("title", ""))
@@ -438,23 +686,30 @@ func _header_text() -> void:
 	if t != "" and s.begins_with(t):
 		s = s.substr(t.length()).lstrip(" ,.;:·—–-").strip_edges()
 	_title.text = t
+	_title.visible = t != ""
 	_src.text = s
 	_src.visible = s != ""
-	_header.visible = t != "" or s != ""
-	_header.reset_size()
+	_caption.reset_size()
 
-# Todas las hojas de una vista usan la misma px_per_mm (la mayor que pida alguna), así el papel no cambia de tamaño.
+# Todas las hojas de una vista usan la misma px_per_mm (la mayor que pida alguna), así el papel no cambia de tamaño. La
+# tarjeta del cliente no cuenta (es más chica y toma la de la crónica).
 func _compute_scale() -> void:
 	var best := 0.0
+	var best_card := 0.0
 	var n: int = view.pages.size()
 	for i in n:
 		var pv = PageView.new()
 		pv.visible = false
 		_stage.add_child(pv)
-		pv.setup(view, i, {"interactive": false})
-		best = maxf(best, pv.px_per_mm)
+		pv.setup(view, i, {"interactive": false, "measure_cap": MEASURE_CAP})
+		if pv.card:
+			best_card = maxf(best_card, pv.px_per_mm)
+		else:
+			best = maxf(best, pv.px_per_mm)
 		_stage.remove_child(pv)
 		pv.free()
+	if best <= 0.0:
+		best = best_card
 	px_per_mm = best if best > 0.0 else 3.0
 
 func _show_page(i: int, refit: bool) -> void:
@@ -468,16 +723,16 @@ func _show_page(i: int, refit: bool) -> void:
 	page.name = "Hoja%d" % i
 	_stage.add_child(page)
 	_stage.move_child(page, 0)
-	page.setup(view, i, {"px_per_mm": px_per_mm})
+	page.setup(view, i, {"px_per_mm": px_per_mm, "floating": true})
 	page.block_pressed.connect(_on_block_pressed)
 	page.block_released.connect(_on_block_released)
 	page.set_tijera(tijera)
-	if page.overflow:
+	if page.overflow and not page.card and px_per_mm >= PageView.P_MAX - 1e-3:
 		L.w("reader", "%s hoja %d: el texto no cabe en el papel (%s mm)" % [view.get("view", ""), i, str(view.paper_mm)])
 	if refit:
 		_fit_view()
 	else:
-		_stage.position.y = 36.0
+		_place(zoom)
 		_clamp_pan()
 	_sync_pager()
 	_pointer_moved(_mouse)
@@ -488,36 +743,60 @@ func _fit_view() -> void:
 		return
 	var ar := _read_rect()
 	var ps: Vector2 = page.size
-	var avail := ar.size - Vector2(48.0, 72.0)
-	# a lo ancho entra entera; a lo alto se lee desplazando (la letra no baja de 100 % por una hoja larga)
-	var z := clampf(minf(1.0, avail.x / ps.x), ZOOM_MIN, ZOOM_MAX)
-	if ps.y * z > avail.y and ps.y * ZOOM_MIN <= avail.y:
-		z = maxf(ZOOM_MIN, minf(z, avail.y / ps.y))
+	# a lo ancho entra entera; a lo alto se lee desplazando (la letra no baja de 80 % por una hoja larga)
+	var z := clampf(minf(1.0, ar.size.x / ps.x), ZOOM_MIN, ZOOM_MAX)
+	if ps.y * z > ar.size.y and ps.y * ZOOM_MIN <= ar.size.y:
+		z = maxf(ZOOM_MIN, minf(z, ar.size.y / ps.y))
 	zoom = z
 	fit_zoom = z
 	_stage.scale = Vector2(z, z)
-	var x := ar.position.x + (ar.size.x - ps.x * z) * 0.5
-	var y := (ar.size.y - ps.y * z) * 0.5 if ps.y * z <= avail.y else 36.0
-	_stage.position = Vector2(x, maxf(y, 24.0))
+	_place(z)
 	_sync_tools()
 
+# Ubica la hoja a zoom z: centrada en la pantalla si no tapa el título ni la tijera (si no, centrada entre los dos); a lo
+# alto, centrada si cabe y si no, desde arriba.
+func _place(z: float) -> void:
+	if page == null:
+		return
+	var vp := _vp_size()
+	var ar := _read_rect()
+	var w: float = page.size.x * z
+	var h: float = page.size.y * z
+	var x := (vp.x - w) * 0.5
+	if x < ar.position.x or x + w > ar.end.x:
+		x = ar.position.x + (ar.size.x - w) * 0.5
+	var y := ar.position.y + (ar.size.y - h) * 0.5 if h <= ar.size.y else ar.position.y + 12.0
+	if page.card:
+		y += 14.0 * page.px_per_mm * z * 0.5   # el clip sobresale arriba de la tarjeta
+	_stage.position = Vector2(round(x), round(maxf(y, 16.0)))
+
+# Una hoja más alta (o más ancha) que el lugar de lectura no se pasa de sus bordes: con ↓ o arrastrando se llega hasta su
+# último renglón, que queda arriba de la paginación, y nunca se ve fondo vacío ni se pierde la hoja (playtest de LECTOR:
+# 40 × ↓ dejaba sólo 90 px de papel arriba). Una hoja que cabe se mueve libre, con al menos KEEP_VISIBLE_PX a la vista.
 func _clamp_pan() -> void:
 	if page == null:
 		return
 	var ar := _area_rect()
 	var ps: Vector2 = page.size * zoom
 	var p := _stage.position
-	p.x = clampf(p.x, ar.position.x + KEEP_VISIBLE_PX - ps.x, ar.end.x - KEEP_VISIBLE_PX)
-	p.y = clampf(p.y, ar.position.y + KEEP_VISIBLE_PX - ps.y, ar.end.y - KEEP_VISIBLE_PX)
+	var top := TOP_PAD + 12.0
+	var bot := ar.end.y - BOTTOM_BAND
+	if ps.y > bot - top:
+		p.y = clampf(p.y, bot - ps.y, top)
+	else:
+		p.y = clampf(p.y, ar.position.y + KEEP_VISIBLE_PX - ps.y, ar.end.y - KEEP_VISIBLE_PX)
+	if ps.x > ar.size.x - 48.0:
+		p.x = clampf(p.x, ar.end.x - 24.0 - ps.x, ar.position.x + 24.0)
+	else:
+		p.x = clampf(p.x, ar.position.x + KEEP_VISIBLE_PX - ps.x, ar.end.x - KEEP_VISIBLE_PX)
 	_stage.position = p
 
 func _sync_tools() -> void:
 	if not _ui_built:
 		return
-	_busy = true
-	_b_tijera.button_pressed = tijera
-	_busy = false
 	_b_tijera.visible = _tijera_ok
+	_b_tijera.on = tijera
+	_b_tijera.queue_redraw()
 	if _tij_help != null:
 		_tij_help.visible = tijera and not UiFlags.on(UiFlags.now(), "hud.cuaderno")
 	# relativo al tamaño de lectura: «100 %» es como se abrió el papel (el indicador sólo aparece fuera de él)
@@ -529,32 +808,79 @@ func _sync_tools() -> void:
 func _sync_pager() -> void:
 	var n := page_count()
 	_pager.visible = n > 1
-	_page_label.text = _t("reader.page", {"n": page_idx + 1, "total": n})
+	_page_label.text = _tl("lector.pagina", "${n} / ${total}", {"n": page_idx + 1, "total": n})
 	_b_prev.disabled = page_idx <= 0
 	_b_next.disabled = page_idx >= n - 1
+	_b_prev.tooltip_text = _tl("lector.pagina.anterior", "Hoja anterior")
+	_b_next.tooltip_text = _tl("lector.pagina.siguiente", "Hoja siguiente")
 	_layout_chrome.call_deferred()
+
+# ------------------------------------------------------------------ fondo
+func _prepare_backdrop() -> void:
+	if _back_mat == null:
+		return
+	var use_cap := blur_mode == "captura" and DisplayServer.get_name() != "headless" and is_inside_tree()
+	_back_mat.set_shader_parameter("use_capture", use_cap)
+	if use_cap:
+		var img := get_viewport().get_texture().get_image()
+		if img != null and not img.is_empty():
+			img.resize(maxi(1, img.get_width() / 6), maxi(1, img.get_height() / 6), Image.INTERPOLATE_BILINEAR)
+			img.generate_mipmaps()
+			_back_mat.set_shader_parameter("capture_tex", ImageTexture.create_from_image(img))
+			_back_mat.set_shader_parameter("cap_texel", Vector2(1.0 / float(img.get_width()), 1.0 / float(img.get_height())))
+			_back_mat.set_shader_parameter("blur_lod", 0.8)
+		else:
+			_back_mat.set_shader_parameter("use_capture", false)
+	else:
+		_back_mat.set_shader_parameter("blur_lod", BLUR_LOD)
+
+func _fade_in() -> void:
+	if _fade_tw != null and _fade_tw.is_valid():
+		_fade_tw.kill()
+	_root.modulate.a = 0.0
+	if not is_inside_tree():
+		_root.modulate.a = 1.0
+		return
+	_fade_tw = _root.create_tween()
+	_fade_tw.tween_property(_root, "modulate:a", 1.0, FADE_S)
 
 # ------------------------------------------------------------------ entrada
 func _on_root_input(ev: InputEvent) -> void:
 	if not visible:
 		return
 	if ev is InputEventMouseMotion:
-		_pointer_moved(_canvas_mouse())
+		var mp := _ev_pos(ev)
+		_pointer_moved(mp)
 		if _pan:
-			_stage.position = _pan_start + (_canvas_mouse() - _pan_from)
+			_stage.position = _pan_start + (mp - _pan_from)
 			_clamp_pan()
 		_root.accept_event()     # nada de lo que pasa sobre el lector llega al 3D de abajo
 		return
 	if ev is InputEventMouseButton:
 		var mb: InputEventMouseButton = ev
-		# rueda = fe_zoom_mas / fe_zoom_menos del input map (§6.1)
+		# playtest v3: la rueda DESPLAZA (las hojas largas se leían arrastrando, cosa que nada enseña); Ctrl + rueda (o
+		# +/−) acerca. Mayúsculas + rueda o la rueda horizontal, de costado.
+		var wb := mb.button_index
+		if mb.pressed and not mb.ctrl_pressed and (wb == MOUSE_BUTTON_WHEEL_UP or wb == MOUSE_BUTTON_WHEEL_DOWN or wb == MOUSE_BUTTON_WHEEL_LEFT or wb == MOUSE_BUTTON_WHEEL_RIGHT):
+			var amt := WHEEL_PX * (clampf(mb.factor, 0.2, 3.0) if mb.factor > 0.0 else 1.0)
+			var d := Vector2.ZERO
+			match wb:
+				MOUSE_BUTTON_WHEEL_UP: d = Vector2(0, amt)
+				MOUSE_BUTTON_WHEEL_DOWN: d = Vector2(0, -amt)
+				MOUSE_BUTTON_WHEEL_LEFT: d = Vector2(amt, 0)
+				MOUSE_BUTTON_WHEEL_RIGHT: d = Vector2(-amt, 0)
+			if mb.shift_pressed: d = Vector2(d.y, d.x)
+			_nudge(d)
+			_root.accept_event()
+			return
+		# Ctrl + rueda = fe_zoom_mas / fe_zoom_menos del input map (§6.1)
 		var zin := _is_action(mb, "fe_zoom_mas", MOUSE_BUTTON_WHEEL_UP)
 		var zout := _is_action(mb, "fe_zoom_menos", MOUSE_BUTTON_WHEEL_DOWN)
 		if mb.pressed and (zin or zout):
 			var f := ZOOM_STEP if zin else 1.0 / ZOOM_STEP
 			if mb.factor > 0.0 and mb.factor != 1.0:
 				f = pow(f, clampf(mb.factor, 0.2, 3.0))
-			set_zoom(zoom * f, _canvas_mouse())
+			set_zoom(zoom * f, _ev_pos(mb))
 			_root.accept_event()
 			return
 		if _is_action(mb, "fe_volver", MOUSE_BUTTON_RIGHT):
@@ -568,7 +894,7 @@ func _on_root_input(ev: InputEvent) -> void:
 		if mb.button_index == MOUSE_BUTTON_MIDDLE or (mb.button_index == MOUSE_BUTTON_LEFT and not tijera):
 			if mb.pressed:
 				_pan = true
-				_pan_from = _canvas_mouse()
+				_pan_from = _ev_pos(mb)
 				_pan_start = _stage.position
 				_root.mouse_default_cursor_shape = Control.CURSOR_DRAG
 			else:
@@ -631,6 +957,13 @@ func _nudge(d: Vector2) -> void:
 func _canvas_mouse() -> Vector2:
 	return _root.get_global_mouse_position()
 
+# Posición (canvas) de un evento de mouse que llega a _root: la del evento, no la del cursor del sistema (los eventos
+# de los tests y drivers mandan; con el mouse real son lo mismo).
+func _ev_pos(ev: InputEvent) -> Vector2:
+	if ev is InputEventMouse:
+		return _root.get_global_transform_with_canvas() * (ev as InputEventMouse).position
+	return _canvas_mouse()
+
 func _pointer_moved(pos: Vector2) -> void:
 	_mouse = pos
 	if page != null:
@@ -691,7 +1024,7 @@ func _try_clip(idx: int, pos: Vector2) -> void:
 		var txt := _clip_text_of(res)
 		if txt == "":
 			txt = SelectionMapper.preview(pt, int(m.from), int(m.len)).text
-		_fly_strip(txt, pos)
+		_fly_strip(txt, pos, idx)
 		clipped.emit(res)
 	else:
 		_say(_err_text(String(res.get("err", ""))))
@@ -719,7 +1052,7 @@ func _err_text(err: String) -> String:
 	var data := _autoload("Data")
 	if data != null and data.repo() != null:
 		var tx: Dictionary = data.repo().texts()
-		for k in ["clip." + err, "core.err." + err]:
+		for k in ["v3core.clip." + err, "clip." + err, "core.err." + err]:
 			if tx.has(k):
 				return data.repo().text(k, {"n": "tres"})
 		return data.repo().text("core.err.desconocido")
@@ -739,19 +1072,32 @@ func _say(text: String) -> void:
 	_note_tw.tween_property(_note, "modulate:a", 0.0, 0.4)
 	_note_tw.tween_callback(func(): _note.visible = false)
 
-func _fly_strip(text: String, from_pos: Vector2) -> void:
+# La línea de Lisle de un recorte fallido no sigue en pantalla al cerrar o al abrir otro papel.
+func _hide_note() -> void:
+	if _note_tw != null and _note_tw.is_valid():
+		_note_tw.kill()
+	_note_tw = null
+	if _note != null:
+		_note.visible = false
+		_note.modulate.a = 0.0
+
+func _fly_strip(text: String, from_pos: Vector2, idx := -1) -> void:
 	if text == "":
 		return
 	var strip := PanelContainer.new()
 	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	strip.add_theme_stylebox_override("panel", Paper.style(String(view.get("paper", "cuaderno")), {"margin": 10, "margin_v": 4, "radius": 0, "shadow_size": 6, "shadow_y": 3}))
+	var bslot := ""
+	if page != null and idx >= 0 and idx < page.slots.size():
+		bslot = String(page.slots[idx])
+	var spaper := "tarjeta" if bslot == "tarjeta" else String(view.get("paper", "cuaderno"))
+	strip.add_theme_stylebox_override("panel", Paper.style(spaper, {"margin": 10, "margin_v": 4, "radius": 0, "shadow_size": 6, "shadow_y": 3}))
 	var l := Label.new()
 	var ti := _ti()
 	if ti != null:
-		var fslot := String(view.get("font", "imprenta"))
+		var fslot := "manuscrito" if bslot in ["margen", "tarjeta"] else String(view.get("font", "imprenta"))
 		l.add_theme_font_override("font", ti.font(fslot))
 		l.add_theme_font_size_override("font_size", TextBuilder.slot_size(fslot, ti))
-	l.add_theme_color_override("font_color", Paper.ink("negra"))
+	l.add_theme_color_override("font_color", Paper.ink("lapiz" if bslot == "margen" else "negra"))
 	l.text = text if text.length() <= 64 else text.left(61) + "…"
 	strip.add_child(l)
 	_fly.add_child(strip)
@@ -841,7 +1187,7 @@ func _on_theme_changed() -> void:
 	_clamp_pan()
 	_sync_tools()
 
-# Una bandera puede encenderse con el lector abierto (prólogo: leer el encargo -> paso «recortar» -> aparece «Tijera»).
+# Una bandera puede encenderse con el lector abierto (prólogo: leer el encargo -> paso «recortar» -> aparece la tijera).
 func _on_sim_changed(_kind: String, _payload: Dictionary) -> void:
 	if not visible or not _ui_built:
 		return

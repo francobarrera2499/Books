@@ -4,19 +4,21 @@
     {
       "id": "M1", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
       "actor": ["hombres_de_moran"],
-      "_nota": "El informe contiene ≥1 elemento de un original P (galerada, tomos, cartas recibidas, telegrama, copia de Somerset House): al día siguiente, en la primera franja en que Lisle sale (o de noche), registran la buhardilla y se llevan ESOS originales por un día (HB10 los devuelve). Dejan ceniza de cheroot y una pisada pesada (variante «registrada» de L1). Variante blanda (§12.1.3): registran sin llevarse originales. Desde el día 8 no lo difiere D2.",
-      "disparador": {"evento": "report", "match": {"cat": "original_p"}},
-      "condiciones": {},
+      "_nota": "El informe contiene ≥1 elemento de un original P (pruebas de imprenta, cuadernillos, cartas recibidas, telegrama, copia de Somerset House): al día siguiente, en la primera franja en que Lisle sale (o de noche), los hombres de Moran entran POR LA PUERTA con ganzúa y se llevan ESOS originales por un día; NO vuelven solos: los recuperan los de Holmes y los dejan en el mostrador de Crane (HB10). GDD_v3 §4.1–§4.3 (REACCIONES-PIEZA): firma de la puerta (variante «registrada» de L1 hasta el final del día siguiente): rayones nuevos en la cerradura, cajón entreabierto, silla corrida y ceniza de cheroot de Trichinópolis SOBRE EL ESCRITORIO (la misma que deja Harris en M7); sin pisada ni papeles por el piso. Sin carteles ni sonido. Como mucho dos veces por partida (contador m1: n 1–2; la tercera no ocurre) y nunca si ya hubo tres intrusiones en la pieza (contador intrusiones, Effects; el usuario: «2-3 por partida»). Variante blanda (§12.1.3): registran sin llevarse originales. Desde el día 8 no lo difiere D2.",
+      "disparador": {"evento": "report", "match": {"cat": "original_p"}, "contador": "m1:", "n_in": [1, 2]},
+      "condiciones": {"counter": {"name": "intrusiones", "lt": 3}},
       "ancla": ["n"],
       "latencia": {"tipo": "siguiente_salida"},
-      "efecto": [{"op": "retirar", "copias": "informadas", "dias": 1}, {"op": "alterar_lugar", "place": "L1", "variant": "registrada"}],
+      "efecto": [{"op": "retirar", "copias": "informadas", "dias": 1}, {"op": "alterar_lugar", "place": "L1", "variant": "registrada", "dias": 2}],
       "rastro": [
-        {"tpl": "ceniza", "nodo": "N:L1.ceniza_registro", "tags": ["a:tirador", "e:cheroot", "e:ceniza_negra", "f:secreto_camden"]},
-        {"tpl": "pisada", "nodo": "N:L1.pisada", "tags": ["e:pisada", "e:registro_de_la_buhardilla"]}
+        {"tpl": "ceniza", "nodo": "N:L1.ceniza_escritorio", "tags": ["a:entraron_por_la_puerta", "e:cheroot", "e:ceniza_negra"]},
+        {"tpl": "cerradura", "nodo": "N:L1.cerradura_rayada", "tags": ["a:entraron_por_la_puerta", "e:cerradura"]},
+        {"tpl": "cajon", "nodo": "N:L1.cajon_entreabierto", "tags": ["a:entraron_por_la_puerta", "e:cajon_del_escritorio"]},
+        {"tpl": "silla", "nodo": "N:L1.silla_corrida", "tags": ["a:entraron_por_la_puerta"]}
       ],
       "corta": [{"copias": "informadas", "ventana": {"dias": 1}}],
-      "agrega": ["C10", "C13"],
-      "variante_blanda": {"efecto": [{"op": "alterar_lugar", "place": "L1", "variant": "registrada"}], "corta": []},
+      "agrega": ["Q8", "Q6"],
+      "variante_blanda": {"efecto": [{"op": "alterar_lugar", "place": "L1", "variant": "registrada", "dias": 2}], "corta": []},
       "exento_d2_desde_dia": 8
     },
     {
@@ -30,10 +32,10 @@
       "efecto": [{"op": "evento_mundo", "id": "ladrillo"}, {"op": "carta", "entrega": "en_mano"}],
       "doc": {"entity": "notas_de_pell", "title": "Nota en mano, tinta de procurador", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
       "rastro": [
-        {"tpl": "nota", "when": {"not": {"flag": "pell_despedido"}}, "texto": "{{#nota a:busca_a_holmes e:harris|[[harris|El mayor]] está muy preocupado por su seguridad.}}"},
-        {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "{{#nota a:busca_a_holmes e:harris|[[harris|El mayor]] está muy preocupado por su seguridad.}}"}
+        {"tpl": "nota", "when": {"not": {"flag": "pell_despedido"}}, "texto": "{{#nota a:busca_a_holmes e:harris|[[harris|El mayor]], muy preocupado por su seguridad, le ruega que nos diga [[donde|dónde]] anda.}}"},
+        {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "{{#nota a:busca_a_holmes e:harris|[[harris|El mayor]], muy preocupado por su seguridad, le ruega que nos diga [[donde|dónde]] anda.}}"}
       ],
-      "corta": [], "agrega": ["C10.Cd"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q9"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "M3", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
@@ -47,7 +49,7 @@
       "rastro": [
         {"tpl": "siluetas", "nodo": "N:L4.sil_m3_hombres", "tags": ["a:busca_a_holmes", "e:hombres_de_moran"]}
       ],
-      "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q9"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "M4", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "informe",
@@ -60,10 +62,10 @@
       "efecto": [{"op": "flag", "name": "pell_despedido", "value": true}, {"op": "carta", "entrega": "en_mano"}],
       "doc": {"entity": "notas_de_pell", "title": "Nota en mano, letra temblorosa", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
       "rastro": [
-        {"tpl": "nota", "texto": "{{#nombre a:harris_es_moran e:pell|Le ruego no me nombre.}} {{#lista a:harris_es_moran e:lista_de_correos e:charing_cross|En adelante deje usted sus informes en la [[lista_de_correos|lista de correos]] de [[charing_cross|Charing Cross]], a nombre de H.}}"}
+        {"tpl": "nota", "texto": "{{#nombre a:rasgo_de_harris e:pell|Le ruego no me nombre.}} {{#lista a:rasgo_de_harris e:lista_de_correos e:charing_cross|En adelante deje usted sus informes en la [[lista_de_correos|lista de correos]] de [[charing_cross|Charing Cross]], a nombre de H.}}"}
       ],
       "corta": [{"acceso": "task:seguir_chico_pell", "ventana": {"permanente": true}}],
-      "agrega": ["C10"],
+      "agrega": ["Q6"],
       "variante_blanda": {"efecto": [{"op": "flag", "name": "pell_despedido", "value": true}, {"op": "carta", "entrega": "en_mano"}, {"op": "evento_mundo", "id": "seguir_parker"}], "corta": []},
       "exento_d2": false
     },
@@ -83,7 +85,7 @@
         {"tpl": "chico", "nodo": "L:chico_del_agente.vino_un_caballero", "tags": ["a:escondite_preparado", "f:secreto_camden", "e:libro_de_llaves"]}
       ],
       "corta": [{"copy": "D32@L3", "ventana": {"permanente": true}}],
-      "agrega": ["C13"],
+      "agrega": ["Q10"],
       "variante_blanda": {"efecto": [{"op": "linea", "char": "chico_del_agente", "line": "vino_un_caballero"}, {"op": "carta", "entrega": "en_mano"}], "corta": []},
       "exento_d2": false
     },
@@ -104,7 +106,7 @@
         {"tpl": "escena", "when": {"not": {"flag": "pell_despedido"}}, "nodo": "S:M6.donde", "tags": ["a:busca_a_holmes", "e:donde", "e:harris"]},
         {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "{{#donde a:busca_a_holmes e:donde h:F.holmes_vive|[[harris|El mayor]] no pregunta si vive, señor Lisle: pregunta dónde.}}"}
       ],
-      "corta": [], "agrega": ["C8", "C10.Ca"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q5", "Q9"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "M7", "tipo": "columna", "lado": "moran", "voz": "M", "nivel": 4, "canal": "en_persona",
@@ -116,11 +118,11 @@
       "latencia": {"tipo": "fija", "tk": "7.night"},
       "efecto": [{"op": "escena", "scene": "M7"}],
       "rastro": [
-        {"tpl": "inteligente", "nodo": "S:M7.inteligente", "tags": ["a:harris_es_moran", "e:adjetivos_repetidos", "e:harris"]},
+        {"tpl": "inteligente", "nodo": "S:M7.inteligente", "tags": ["a:rasgo_de_harris", "e:adjetivos_repetidos", "e:harris"]},
         {"tpl": "donde_duerme", "nodo": "S:M7.donde_duerme", "tags": ["a:busca_a_holmes", "e:tigre", "e:donde"]},
-        {"tpl": "trichinopolis", "nodo": "S:M7.trichinopolis", "tags": ["a:tirador", "e:cheroot", "e:trichinopolis", "f:secreto_camden"]}
+        {"tpl": "trichinopolis", "nodo": "S:M7.trichinopolis", "tags": ["a:tirador", "a:rasgo_de_harris", "a:senas_del_mayor", "e:cheroot", "e:trichinopolis", "f:secreto_camden"]}
       ],
-      "corta": [], "agrega": ["C10.Ib", "C10.Cb", "C13.R1"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q6", "Q8", "Q9", "Q10"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "M8", "tipo": "columna", "lado": "moran", "voz": "M", "nivel": 4, "canal": "pell",
@@ -138,7 +140,7 @@
         {"tpl": "h", "when": {"all": [{"flag": "pell_despedido"}, {"not": {"counter": {"name": "moran.respuesta_s", "gte": 1}}}]}, "texto": "{{#plazo a:busca_a_holmes e:jueves|El lugar, antes del jueves a mediodía.}}"},
         {"tpl": "h_s", "when": {"all": [{"flag": "pell_despedido"}, {"counter": {"name": "moran.respuesta_s", "gte": 1}}]}, "texto": "{{#plazo a:busca_a_holmes e:jueves|El lugar, antes del jueves a mediodía.}} {{#deprisa a:latencia_s e:corresponsal_s|Su corresponsal «S.» contesta cada vez más deprisa.}}"}
       ],
-      "corta": [], "agrega": ["C10", "C9"], "variante_blanda": null, "exento_d2": true
+      "corta": [], "agrega": ["Q9", "Q10"], "variante_blanda": null, "exento_d2": true
     },
     {
       "id": "M9", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 2, "canal": "informe",
@@ -151,10 +153,10 @@
       "efecto": [{"op": "paga", "amount_d": 126, "diaria": true}, {"op": "carta", "entrega": "en_mano"}],
       "doc": {"entity": "notas_de_pell", "title": "Nota en mano, tinta de procurador", "src_type": "carta_recibida", "class": "P", "font": "manuscrito", "paper": "carta", "paper_mm": [180, 115]},
       "rastro": [
-        {"tpl": "nota", "when": {"not": {"flag": "pell_despedido"}}, "texto": "[[harris|El mayor]] verificó su informe. {{#exactitud a:harris_es_moran e:adjetivos_repetidos|Le ruego exactitud, exactitud.}}"},
-        {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "Verificado. {{#exactitud a:harris_es_moran e:adjetivos_repetidos|Le ruego exactitud, exactitud.}}"}
+        {"tpl": "nota", "when": {"not": {"flag": "pell_despedido"}}, "texto": "[[harris|El mayor]] verificó su informe. {{#exactitud a:rasgo_de_harris e:adjetivos_repetidos|Le ruego exactitud, exactitud.}}"},
+        {"tpl": "nota_h", "when": {"flag": "pell_despedido"}, "texto": "Verificado. {{#exactitud a:rasgo_de_harris e:adjetivos_repetidos|Le ruego exactitud, exactitud.}}"}
       ],
-      "corta": [], "agrega": [], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q6"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "M10", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 1, "canal": "parker",
@@ -169,7 +171,7 @@
         {"tpl": "linea", "texto": "{{#linea a:tirador f:secreto_camden e:baker_street|[[harris|El mayor]] celebra su diligencia en [[baker_street|Baker Street]].}}"},
         {"tpl": "linea_h", "texto": "{{#linea a:tirador f:secreto_camden e:baker_street e:harris|Celebro su diligencia en [[baker_street|Baker Street]].}}"}
       ],
-      "corta": [], "agrega": ["C13.R5"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q10"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "M11", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 3, "canal": "columna",
@@ -189,7 +191,7 @@
         {"tpl": "linea_h", "texto": "{{#linea a:cebo e:hombre_del_abrigo e:harris|Sé que usted pasea, señor.}}"},
         {"tpl": "silueta", "nodo": "N:*.sil_cochero", "tags": ["a:cebo", "e:hombre_del_abrigo"]}
       ],
-      "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q9"], "variante_blanda": null, "exento_d2": false
     },
     {
       "id": "M12", "tipo": "opcional", "lado": "moran", "voz": "M", "nivel": 2, "canal": "informe",
@@ -204,7 +206,7 @@
         {"tpl": "linea", "texto": "{{#monte a:busca_a_holmes|[[harris|El mayor]] no caza en monte ajeno, señor.}} {{#donde a:busca_a_holmes e:donde|Quiere saber dónde va a estar, no dónde estuvo.}}"},
         {"tpl": "linea_h", "texto": "{{#monte a:busca_a_holmes e:harris|No cazo en monte ajeno, señor.}} {{#donde a:busca_a_holmes e:donde|Quiero saber dónde va a estar, no dónde estuvo.}}"}
       ],
-      "corta": [], "agrega": ["C10"], "variante_blanda": null, "exento_d2": false
+      "corta": [], "agrega": ["Q9"], "variante_blanda": null, "exento_d2": false
     }
   ]
 }

@@ -2,8 +2,8 @@
 # escriben en st.ded / st.scenes con un formato propio. Sólo para tests de la simulación (GameSim(..., handlers)).
 # El juego nunca los usa. Semántica:
 #   clip_text: texto del bloque (WorldModel.block) o de la línea/diario; tags "p:v" de los tramos que toca; ents de menciones.
-#   pass_clean: lote de exactamente 2 (1 el día 10); entinta sólo si todos tienen >= 2 recortes de apoyo; si no, falla (gasta).
-#   present: a "mycroft" con un asiento sin sellar = error (2.º error -> flags.forasteros_cerrada) [doble de HB12].
+#   (v3: el Expediente es real, sin dobles; clip_text además indexa sus entidades y anota el origen)
+#   present: a "mycroft" = error (2.º error -> flags.forasteros_cerrada) [doble de HB12].
 #   confront: pasos 1..4 en orden; item {} = callar; id que empieza con "ok" = acierto; 3 errores o paso 4 = done.
 extends RefCounted
 
@@ -14,9 +14,7 @@ const Markup = preload("res://core/text/markup.gd")
 var calls := {}
 
 func handlers() -> Dictionary:
-	return {"clip_text": clip_text, "clip_plate": clip_plate, "clip_measure": clip_measure, "link": link, "unlink": unlink,
-		"folio_open": folio_open, "entry_new": entry_new, "entry_set": entry_set, "entry_support_add": entry_support_add,
-		"practice": practice, "pass_clean": pass_clean, "ask": ask, "assert": assert_, "present": present, "pay": pay, "task": task,
+	return {"clip_text": clip_text, "clip_plate": clip_plate, "ask": ask, "assert": assert_, "present": present, "pay": pay, "task": task,
 		"compose_ad": compose_ad, "compose_telegram": compose_mail, "compose_letter": compose_mail, "report_submit": report_submit,
 		"confront": confront, "_keep": self}   # _keep: los Callable no retienen al objeto RefCounted
 
@@ -65,7 +63,11 @@ func clip_text(st, repo, a) -> Dictionary:
 		if int(m.from) < f + n and int(m.to) > f and not ents.has(String(m.ent)):
 			ents.append(String(m.ent))
 	var id: String = st.next_id("clip", "RC", 4)
-	_ded(st, "clips")[id] = {"id": id, "kind": "text", "text": plain.substr(f, n), "tags": tags, "ents": ents, "src": a.src.duplicate(true)}
+	var ref := String(a.src.get("ref", ""))
+	var origin := String(repo.copy(ref).get("doc", ref)) if not repo.copy(ref).is_empty() else ref
+	_ded(st, "clips")[id] = {"id": id, "kind": "text", "text": plain.substr(f, n), "tags": tags, "ents": ents, "src": a.src.duplicate(true),
+		"origin": origin}
+	load("res://core/deduction/index.gd").add_entities(st, repo, ents)
 	st.note("clip", {"id": id})
 	return {"ok": true, "clip": id}
 
@@ -196,7 +198,8 @@ func assert_(st, repo, a) -> Dictionary:
 func present(st, repo, a) -> Dictionary:
 	_count("present")
 	st.push_event({"type": "show", "char": String(a.char), "item": {"kind": String(a.item.get("kind", "")), "doc_ids": [], "ents": ["fina"], "origins": [], "src_types": []}})
-	if String(a.char) == "mycroft" and String(a.item.get("kind", "")) == "entry" and not _ded(st, "sealed").values().has(String(a.item.get("id", ""))):
+	# v3: una pregunta que no está en tinta es un error ante Mycroft (doble de HB12)
+	if String(a.char) == "mycroft" and String(a.item.get("kind", "")) == "pregunta" and not _ded(st, "dossier").get("inked", {}).has(String(a.item.get("id", ""))):
 		var m := _sc(st, "mycroft")
 		m["errors"] = int(m.get("errors", 0)) + 1
 		if int(m.errors) >= 2:

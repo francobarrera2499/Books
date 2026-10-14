@@ -1,8 +1,8 @@
 # ui/desk/speech.gd — líneas dichas en la escena (fixed scenes, líneas automáticas de un lugar, respuestas) cuando el
 # panel de escena de W3-SCENEUI no las muestra, y nota del instructor del prólogo (pinned). Dueño: W3-SHELL.
 # Cada línea: quién la dice (nombre sólo si se presentó: lo resuelve q_scene) y el texto, recortable con la tijera
-# (src {kind:"line", ref:uid}). Cola: clic en la tarjeta o en «Seguir» (botón a la vista mientras quedan líneas) pasa
-# a la siguiente. Sin brillos ni contadores.
+# (src {kind:"line", ref:uid}). Cola: clic en la tarjeta o en «Seguir» (botón siempre a la vista; en la última línea
+# cierra la tarjeta) pasa a la siguiente. Sin brillos ni contadores.
 # Nota del instructor (pinned): dock = Rect2 libre donde acoplarse (un margen de un libro abierto; vacío = arriba a la
 # izquierda) con letra algo menor; link_cb (Callable(ent)) hace clicables las menciones de la nota que nombran un
 # objeto de la lámina (link_ok(ent) -> bool decide cuáles): se subrayan a lápiz (forma, no contenido: es la instrucción
@@ -139,7 +139,7 @@ func push_lines(lines: Array) -> void:
 	if not visible or current.is_empty():
 		advance()
 	else:
-		more.visible = not queue.is_empty()
+		more.visible = true
 
 func advance() -> void:
 	if queue.is_empty():
@@ -170,7 +170,9 @@ func _show_current(fade := true) -> void:
 	(text as ClipLabel).setup(current.get("parsed", {}), src, "imprenta", px)
 	(text as ClipLabel).set_scissors(_scissors)
 	_collect_links()
-	more.visible = not pinned and not queue.is_empty()
+	# también en la última línea (verificador v3): al final de la presentación del prólogo la tarjeta de Harris quedaba
+	# sin botón y la primera nota del instructor («abra el expediente») esperaba a que se fuera: nada decía qué hacer
+	more.visible = not pinned
 	visible = true
 	if fade:
 		modulate.a = 0.0
